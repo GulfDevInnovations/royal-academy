@@ -1,0 +1,487 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum ClassStatus {
+  ACTIVE
+  CANCELLED
+  COMPLETED
+  SUSPENDED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  RESCHEDULED
+  COMPLETED
+  NO_SHOW
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  CASH
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum NotificationType {
+  EMAIL
+  SMS
+  BOTH
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+// ─────────────────────────────────────────────
+// USER & PROFILES
+// ─────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  phone         String?   @unique
+  passwordHash  String
+  role          Role      @default(STUDENT)
+  isActive      Boolean   @default(true)
+  isVerified    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastLoginAt   DateTime?
+
+  // NextAuth fields
+  emailVerified DateTime?
+  image         String?
+
+  // Relations
+  studentProfile  StudentProfile?
+  teacherProfile  TeacherProfile?
+  adminProfile    AdminProfile?
+  accounts        Account[]
+  sessions        Session[]
+  notifications   Notification[]
+
+  @@map("users")
+}
+
+model StudentProfile {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  firstName       String
+  lastName        String
+  dateOfBirth     DateTime?
+  gender          Gender?
+  address         String?
+  city            String?
+  country         String?
+  emergencyContact String?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@map("student_profiles")
+}
+
+model TeacherProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  firstName   String
+  lastName    String
+  bio         String?
+  specialties String[]
+  photoUrl    String?
+  cvUrl       String?
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subClasses        SubClass[]
+  teacherAvailability TeacherAvailability[]
+  classSchedules    ClassSchedule[]
+
+  @@map("teacher_profiles")
+}
+
+model AdminProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  firstName String
+  lastName  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("admin_profiles")
+}
+
+// ─────────────────────────────────────────────
+// NEXTAUTH TABLES
+// ─────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─────────────────────────────────────────────
+// CLASSES & SUBCLASSES
+// ─────────────────────────────────────────────
+
+model Class {
+  id          String      @id @default(cuid())
+  name        String      // e.g. "Dance", "Music", "Painting"
+  description String?
+  iconUrl     String?
+  coverUrl    String?
+  isActive    Boolean     @default(true)
+  sortOrder   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  subClasses SubClass[]
+
+  @@map("classes")
+}
+
+model SubClass {
+  id              String      @id @default(cuid())
+  classId         String
+  teacherId       String?
+  name            String      // e.g. "Piano", "Piano for Kids", "Ballet"
+  description     String?
+  coverUrl        String?
+  capacity        Int         @default(10)
+  durationMinutes Int         @default(60)
+  price           Decimal     @db.Decimal(10, 2)
+  currency        String      @default("OMR")
+  level           String?     // Beginner, Intermediate, Advanced
+  ageGroup        String?     // Kids, Teens, Adults, All Ages
+  isActive        Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  class          Class           @relation(fields: [classId], references: [id])
+  teacher        TeacherProfile? @relation(fields: [teacherId], references: [id])
+  classSchedules ClassSchedule[]
+
+  @@map("sub_classes")
+}
+
+// ─────────────────────────────────────────────
+// LOCATIONS & ROOMS
+// ─────────────────────────────────────────────
+
+model Location {
+  id        String   @id @default(cuid())
+  name      String   // e.g. "Main Branch", "Online"
+  address   String?
+  city      String?
+  country   String?
+  mapUrl    String?
+  isOnline  Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rooms Room[]
+
+  @@map("locations")
+}
+
+model Room {
+  id         String   @id @default(cuid())
+  locationId String
+  name       String   // e.g. "Studio A", "Music Room 1"
+  capacity   Int      @default(10)
+  hasOnline  Boolean  @default(false)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  location       Location        @relation(fields: [locationId], references: [id])
+  classSchedules ClassSchedule[]
+
+  @@map("rooms")
+}
+
+// ─────────────────────────────────────────────
+// SCHEDULING
+// ─────────────────────────────────────────────
+
+model TeacherAvailability {
+  id        String    @id @default(cuid())
+  teacherId String
+  dayOfWeek DayOfWeek
+  startTime String    // "09:00"
+  endTime   String    // "17:00"
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  teacher TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@map("teacher_availabilities")
+}
+
+model ClassSchedule {
+  id              String      @id @default(cuid())
+  subClassId      String
+  teacherId       String
+  roomId          String?
+  dayOfWeek       DayOfWeek
+  startTime       String      // "10:00"
+  endTime         String      // "11:00"
+  startDate       DateTime    // When this schedule becomes active
+  endDate         DateTime?   // null means ongoing
+  maxCapacity     Int
+  currentEnrolled Int         @default(0)
+  isRecurring     Boolean     @default(true)
+  status          ClassStatus @default(ACTIVE)
+  onlineLink      String?     // Zoom or Meet link if online
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  subClass  SubClass       @relation(fields: [subClassId], references: [id])
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id])
+  room      Room?          @relation(fields: [roomId], references: [id])
+  sessions  ClassSession[]
+
+  @@map("class_schedules")
+}
+
+// A ClassSession is one actual occurrence of a ClassSchedule
+// e.g. "Piano for Kids" on Monday March 3rd at 10:00
+model ClassSession {
+  id              String      @id @default(cuid())
+  scheduleId      String
+  sessionDate     DateTime    // The actual date of this session
+  startTime       String
+  endTime         String
+  status          ClassStatus @default(ACTIVE)
+  cancelledReason String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  schedule  ClassSchedule @relation(fields: [scheduleId], references: [id])
+  bookings  Booking[]
+
+  @@map("class_sessions")
+}
+
+// ─────────────────────────────────────────────
+// BOOKINGS
+// ─────────────────────────────────────────────
+
+model Booking {
+  id               String        @id @default(cuid())
+  studentId        String
+  sessionId        String
+  status           BookingStatus @default(PENDING)
+  bookedAt         DateTime      @default(now())
+  cancelledAt      DateTime?
+  cancelledReason  String?
+  rescheduledFrom  String?       // previous booking id if rescheduled
+  canCancel        Boolean       @default(true)
+  notes            String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  student       StudentProfile @relation(fields: [studentId], references: [id])
+  session       ClassSession   @relation(fields: [sessionId], references: [id])
+  payment       Payment?
+  notifications Notification[]
+
+  @@unique([studentId, sessionId])
+  @@map("bookings")
+}
+
+// ─────────────────────────────────────────────
+// PAYMENTS & INVOICES
+// ─────────────────────────────────────────────
+
+model Payment {
+  id                    String        @id @default(cuid())
+  bookingId             String        @unique
+  invoiceId             String?
+  amount                Decimal       @db.Decimal(10, 2)
+  currency              String        @default("OMR")
+  status                PaymentStatus @default(PENDING)
+  method                PaymentMethod?
+  stripePaymentIntentId String?       @unique
+  stripeSessionId       String?       @unique
+  stripeChargeId        String?
+  paidAt                DateTime?
+  failedAt              DateTime?
+  failureReason         String?
+  refundedAmount        Decimal?      @db.Decimal(10, 2)
+  refundedAt            DateTime?
+  refundReason          String?
+  metadata              Json?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  booking  Booking   @relation(fields: [bookingId], references: [id])
+  invoice  Invoice?  @relation(fields: [invoiceId], references: [id])
+
+  @@map("payments")
+}
+
+model Invoice {
+  id          String        @id @default(cuid())
+  invoiceNo   String        @unique // e.g. "INV-2024-0001"
+  studentId   String
+  amount      Decimal       @db.Decimal(10, 2)
+  tax         Decimal       @default(0) @db.Decimal(10, 2)
+  totalAmount Decimal       @db.Decimal(10, 2)
+  currency    String        @default("OMR")
+  status      InvoiceStatus @default(DRAFT)
+  issuedAt    DateTime?
+  dueDate     DateTime?
+  paidAt      DateTime?
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  payments Payment[]
+
+  @@map("invoices")
+}
+
+// ─────────────────────────────────────────────
+// NOTIFICATIONS (SMS & EMAIL)
+// ─────────────────────────────────────────────
+
+model Notification {
+  id         String             @id @default(cuid())
+  userId     String
+  bookingId  String?
+  type       NotificationType
+  status     NotificationStatus @default(PENDING)
+  subject    String?            // for emails
+  body       String
+  sentAt     DateTime?
+  failReason String?
+  scheduledFor DateTime?        // when to send (12h / 24h before class)
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id])
+
+  @@map("notifications")
+}
+
+// ─────────────────────────────────────────────
+// AUDIT LOG (optional but recommended)
+// ─────────────────────────────────────────────
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String   // e.g. "BOOKING_CREATED", "PAYMENT_FAILED"
+  entity     String   // e.g. "Booking", "Payment"
+  entityId   String
+  oldValues  Json?
+  newValues  Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@map("audit_logs")
+}
