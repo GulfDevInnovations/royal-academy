@@ -1,7 +1,5 @@
 <!-- This is the Web App of Royal Academy -->
 
-
-
 <!-- We are using: -->
 
 Next.js App router mode
@@ -35,3 +33,9 @@ merge the branch by clicking on merge button (green)
 <!-- what others should do to get the latest changes from github: -->
 
 git push origin main
+
+<!-- Useful prisma commands -->
+
+npx prisma db seed # run the seed
+npx prisma migrate reset # wipe database + re-migrate + re-seed automatically
+npx prisma studio # visual browser for your data

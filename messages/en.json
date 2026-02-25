@@ -1,0 +1,14 @@
+{
+  "nav": {
+    "home": "Home",
+    "teachers": "Teachers",
+    "classes": "Classes",
+    "schedule": "Schedule",
+    "gallery": "Gallery",
+    "about": "About"
+  },
+  "home": {
+    "hero_title": "Welcome to Royal Academy",
+    "hero_subtitle": "Excellence in Education"
+  }
+}

@@ -1,26 +1,97 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --royal-dark: #0a0f2c;
+  --royal-navy: #111a3e;
+  --royal-mauve: #5c2d4a;
+  --royal-rose: #9e7070;
+  --royal-gold: #c4a882;
+  --royal-gold-light: #d4b896;
+  --royal-cream: #f5f0e8;
+  --royal-white: #ffffff;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-royal-dark: var(--royal-dark);
+  --color-royal-navy: var(--royal-navy);
+  --color-royal-mauve: var(--royal-mauve);
+  --color-royal-rose: var(--royal-rose);
+  --color-royal-gold: var(--royal-gold);
+  --color-royal-gold-light: var(--royal-gold-light);
+  --color-royal-cream: var(--royal-cream);
+  --color-royal-white: var(--royal-white);
+  --font-goudy: var(--font-goudy);
+  --font-layla: var(--font-layla);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--royal-rose);
+  color: var(--royal-cream);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.liquid-glass {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.24) 50%,
+    rgba(255, 255, 255, 0.2) 100%
+  );
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.15),
+    inset 1px 0 1px rgba(255, 255, 255, 0.1),
+    inset -1px 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.liquid-glass-gold {
+  background: linear-gradient(
+    135deg,
+    rgba(196, 168, 130, 0.18) 0%,
+    rgba(196, 168, 130, 0.07) 50%,
+    rgba(196, 168, 130, 0.14) 100%
+  );
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border: 1px solid rgba(196, 168, 130, 0.25);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px rgba(196, 168, 130, 0.35),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.15),
+    inset 1px 0 1px rgba(196, 168, 130, 0.15),
+    inset -1px 0 1px rgba(0, 0, 0, 0.1);
+}
+
+/* Shimmer sweep effect */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 100%
+  );
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+
+.shimmer:hover::after {
+  left: 150%;
 }
