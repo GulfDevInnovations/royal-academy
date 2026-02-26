@@ -1,3 +1,6 @@
+import HeroSection from "@/components/HeroSection";
+import Image from "next/image";
+
 export default async function Home({
   params,
 }: {
@@ -8,11 +11,15 @@ export default async function Home({
 
   return (
     <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-royal-gold text-4xl font-bold">
-        {isArabic
-          ? "مرحباً بكم في الأكاديمية الملكية"
-          : "Welcome to Royal Academy"}
-      </h1>
+      {/* <Image
+        src="/images/logo-color.png"
+        alt="Royal Academy"
+        width={800}
+        height={58}
+        className="object-contain opacity-80"
+        priority
+      /> */}
+      <HeroSection />
     </main>
   );
 }
