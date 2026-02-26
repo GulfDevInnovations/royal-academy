@@ -10,5 +10,12 @@
   "home": {
     "hero_title": "Welcome to Royal Academy",
     "hero_subtitle": "Excellence in Education"
-  }
+  },
+  "hero": {
+  "tagline": "Where Art Finds Its Voice",
+  "dance": "Dance",
+  "music": "Music",
+  "art": "Art",
+  "explore": "Explore Classes"
+}
 }
