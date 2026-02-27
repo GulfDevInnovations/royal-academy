@@ -46,6 +46,13 @@ export default function Navbar() {
     setMenuOpen(false);
   };
 
+  const isAuthPage =
+    pathname.includes("/login") ||
+    pathname.includes("/signup") ||
+    pathname.includes("/verify-email");
+
+  if (isAuthPage) return null;
+
   const navLinks = [
     { href: "/", label: t("home") },
     { href: "/teachers", label: t("teachers") },
