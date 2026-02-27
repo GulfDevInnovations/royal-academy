@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,6 +15,10 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const verified = searchParams.get("verified");
   const errorParam = searchParams.get("error");
+  const locale = useLocale();
+  const navT = useTranslations("nav");
+  const redirectTo = searchParams.get("redirectTo") || `/${locale}`;
+
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -52,7 +57,7 @@ export default function LoginPage() {
       >
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <Link href="/en">
+          <Link href={`/${locale}`}>
             <Image
               src="/images/Logo-White.png"
               alt="Royal Academy"
@@ -118,6 +123,9 @@ export default function LoginPage() {
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <input type="hidden" name="redirectTo" value={redirectTo} />
+              <input type="hidden" name="locale" value={locale} />
+
               <AuthInput
                 name="email"
                 type="email"
@@ -201,15 +209,16 @@ export default function LoginPage() {
               className="text-center text-xs mt-6 tracking-wide"
               style={{ color: "rgba(228,208,181,0.45)" }}
             >
-              Do not have an account?{" "}
+              {navT("dontHaveAccount")}{" "}
               <Link
-                href="/en/signup"
+                href={`/${locale}/signup`}
                 className="transition-colors duration-200 hover:opacity-80"
                 style={{ color: "#e4d0b5" }}
               >
-                Sign Up
+                {navT("signUp")}
               </Link>
             </p>
+
           </div>
 
           <div

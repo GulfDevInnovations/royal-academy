@@ -5,7 +5,11 @@
     "classes": "الدروس",
     "schedule": "الجدول",
     "gallery": "المعرض",
-    "about": "عن الأكاديمية"
+    "about": "عن الأكاديمية",
+    "startJourney": "ابدأ رحلتك",
+    "dontHaveAccount": "ليس لديك حساب؟",
+    "signUp": "إنشاء حساب"
+
   },
   "home": {
     "hero_title": "مرحباً بكم في الأكاديمية الملكية",

@@ -59,18 +59,18 @@ export async function middleware(request: NextRequest) {
   // Unauthenticated user trying to access protected pages
   if (!user && isProtected) {
     return NextResponse.redirect(
-      new URL(`/${locale}/en`, request.url)
+      new URL(`/${locale}/login`, request.url)
     );
   }
 
   // Already logged in and verified — redirect away from auth pages
   // if (user && user.email_confirmed_at && isAuthPage) {
   //   return NextResponse.redirect(
-  //     new URL(`/${locale}/en`, request.url)
+  //     new URL(`/${locale}`, request.url)
   //   );
   // }
 
-  // return response;
+  return response;
 }
 
 export const config = {

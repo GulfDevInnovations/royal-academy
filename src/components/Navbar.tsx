@@ -1,5 +1,7 @@
 "use client";
 
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,11 +22,16 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations("nav");
   const isArabic = locale === "ar";
+  const loginHref = `/${locale}/login?redirectTo=${encodeURIComponent(pathname)}`;
+
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -38,6 +45,30 @@ export default function Navbar() {
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+  const supabase = createClient();
+  let mounted = true;
+
+  supabase.auth.getUser().then(({ data: { user } }) => {
+    if (!mounted) return;
+    setUser(user ?? null);
+    setAuthLoading(false);
+  });
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    setUser(session?.user ?? null);
+      if (!session?.user) setUserMenuOpen(false);
+    setAuthLoading(false);
+  });
+
+  return () => {
+    mounted = false;
+    subscription.unsubscribe();
+  };
+}, []);
 
   const switchLanguage = () => {
     const newLocale = isArabic ? "en" : "ar";
@@ -216,6 +247,25 @@ export default function Navbar() {
           </Link>
 
           {/* User Pill */}
+         {/* User Pill / Start Journey */}
+            {authLoading ? (
+              <div className="liquid-glass px-6 py-3 rounded-full text-royal-cream/70 text-sm">
+                ...
+              </div>
+            ) : !user ? (
+              <Link
+                href={loginHref}
+                onClick={() => {
+                  setMenuOpen(false);
+                  setUserMenuOpen(false);
+                }}
+                className="liquid-glass-gold shimmer flex items-center justify-center gap-3 px-6 py-3 rounded-full transition-all duration-300 cursor-pointer"
+              >
+                <span className="text-royal-gold text-sm tracking-widest uppercase font-medium whitespace-nowrap">
+                  {t("startJourney")}
+                </span>
+              </Link>
+            ) : (
           <motion.button
             onClick={() => {
               setUserMenuOpen(!userMenuOpen);
@@ -238,6 +288,7 @@ export default function Navbar() {
               className="object-contain opacity-80 w-12"
             />
           </motion.button>
+        )}
         </div>
 
         {/* Right Side Pills */}
@@ -424,7 +475,7 @@ export default function Navbar() {
 
       {/* User Menu Box — seal from top-left */}
       <AnimatePresence>
-        {userMenuOpen && (
+        {userMenuOpen && user && (
           <motion.div
             variants={userSealVariants}
             initial="hidden"

@@ -5,7 +5,11 @@
     "classes": "Classes",
     "schedule": "Schedule",
     "gallery": "Gallery",
-    "about": "About"
+    "about": "About",
+    "startJourney": "Start your journey",
+    "dontHaveAccount": "Don't have an account?",
+    "signUp": "Sign Up"
+
   },
   "home": {
     "hero_title": "Welcome to Royal Academy",

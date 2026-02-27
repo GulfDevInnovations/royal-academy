@@ -5,11 +5,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { signUp } from "@/lib/actions/auth.actions";
+import { useLocale } from "next-intl";
 
 export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const locale = useLocale();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -48,7 +50,7 @@ export default function SignUpPage() {
       >
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <Link href="/en">
+          <Link href={`/${locale}`}>
             <Image
               src="/images/Logo-White.png"
               alt="Royal Academy"
@@ -101,7 +103,7 @@ export default function SignUpPage() {
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              {/* First + Last name row */}
+              <input type="hidden" name="locale" value={locale} />
               <div className="grid grid-cols-2 gap-3">
                 <AuthInput
                   name="firstName"
@@ -196,7 +198,7 @@ export default function SignUpPage() {
             >
               Already have an account?{" "}
               <Link
-                href="/en/login"
+                href={`/${locale}/login`}
                 className="transition-colors duration-200 hover:opacity-80"
                 style={{ color: "#e4d0b5" }}
               >
