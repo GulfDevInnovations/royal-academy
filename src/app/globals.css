@@ -9,6 +9,8 @@
   --royal-gold-light: #d4b896;
   --royal-cream: #f5f0e8;
   --royal-white: #ffffff;
+  --auth-teal: #227b81;
+  --auth-sand: #e4d0b5;
 }
 
 @theme inline {
@@ -22,6 +24,8 @@
   --color-royal-white: var(--royal-white);
   --font-goudy: var(--font-goudy);
   --font-layla: var(--font-layla);
+  --color-auth-teal: var(--auth-teal);
+  --color-auth-sand: var(--auth-sand);
 }
 
 body {
@@ -94,4 +98,22 @@ html {
 
 .shimmer:hover::after {
   left: 150%;
+}
+
+.liquid-glass-sand {
+  background: linear-gradient(
+    135deg,
+    rgba(228, 208, 181, 0.13) 0%,
+    rgba(228, 208, 181, 0.05) 50%,
+    rgba(228, 208, 181, 0.1) 100%
+  );
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border: 1px solid rgba(228, 208, 181, 0.2);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 1px rgba(228, 208, 181, 0.3),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.12),
+    inset 1px 0 1px rgba(228, 208, 181, 0.12),
+    inset -1px 0 1px rgba(0, 0, 0, 0.08);
 }

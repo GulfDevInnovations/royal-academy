@@ -5,8 +5,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import localFont from "next/font/local";
 import "../globals.css";
-import Navbar from "@/components/Navbar.tsx";
-import PatternBackground from "@/components/PatternBackground";
+import ConditionalLayout from "@/components/ConditionalLayout";
 
 const goudy = localFont({
   src: [
@@ -126,9 +125,7 @@ export default async function LocaleLayout({
         `}
       >
         <NextIntlClientProvider messages={messages}>
-          <PatternBackground />
-          <Navbar />
-          {children}
+          <ConditionalLayout>{children}</ConditionalLayout>
         </NextIntlClientProvider>
       </body>
     </html>

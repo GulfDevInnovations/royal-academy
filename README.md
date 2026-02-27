@@ -39,3 +39,7 @@ git push origin main
 npx prisma db seed # run the seed
 npx prisma migrate reset # wipe database + re-migrate + re-seed automatically
 npx prisma studio # visual browser for your data
+
+<!-- after changing the schema.prisma for making changes in database do: -->
+
+npx prisma migrate dev --name set-verified-default-true
