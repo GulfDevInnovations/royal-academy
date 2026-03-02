@@ -1,11 +1,14 @@
 "use client";
 
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
+import { signOut } from "@/lib/actions/auth.actions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCaretRight,
@@ -14,17 +17,23 @@ import {
   faPalette,
   faBookOpen,
   faCreditCard,
+  faPowerOff,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const t = useTranslations("nav");
   const isArabic = locale === "ar";
+  const loginHref = `/${locale}/login?redirectTo=${encodeURIComponent(pathname)}`;
+
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -38,6 +47,30 @@ export default function Navbar() {
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+  const supabase = createClient();
+  let mounted = true;
+
+  supabase.auth.getUser().then(({ data: { user } }) => {
+    if (!mounted) return;
+    setUser(user ?? null);
+    setAuthLoading(false);
+  });
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    setUser(session?.user ?? null);
+      if (!session?.user) setUserMenuOpen(false);
+    setAuthLoading(false);
+  });
+
+  return () => {
+    mounted = false;
+    subscription.unsubscribe();
+  };
+}, []);
 
   const switchLanguage = () => {
     const newLocale = isArabic ? "en" : "ar";
@@ -215,7 +248,25 @@ export default function Navbar() {
             </motion.div>
           </Link>
 
-          {/* User Pill */}
+         {/* User Pill / Start Journey */}
+            {authLoading ? (
+              <div className="liquid-glass px-6 py-3 rounded-full text-royal-cream/70 text-sm">
+                ...
+              </div>
+            ) : !user ? (
+              <Link
+                href={loginHref}
+                onClick={() => {
+                  setMenuOpen(false);
+                  setUserMenuOpen(false);
+                }}
+                className="liquid-glass-gold shimmer flex items-center justify-center gap-3 px-6 py-3 rounded-full transition-all duration-300 cursor-pointer"
+              >
+                <span className="text-royal-gold text-sm tracking-widest uppercase font-medium whitespace-nowrap">
+                  {t("startJourney")}
+                </span>
+              </Link>
+            ) : (
           <motion.button
             onClick={() => {
               setUserMenuOpen(!userMenuOpen);
@@ -238,6 +289,7 @@ export default function Navbar() {
               className="object-contain opacity-80 w-12"
             />
           </motion.button>
+        )}
         </div>
 
         {/* Right Side Pills */}
@@ -424,7 +476,7 @@ export default function Navbar() {
 
       {/* User Menu Box — seal from top-left */}
       <AnimatePresence>
-        {userMenuOpen && (
+        {userMenuOpen && user && (
           <motion.div
             variants={userSealVariants}
             initial="hidden"
@@ -464,6 +516,7 @@ export default function Navbar() {
                 className="flex flex-col gap-1"
               >
                 {userLinks.map((link) => (
+                  
                   <motion.div key={link.href} variants={userItemVariants}>
                     <Link
                       href={`/${locale}${link.href}`}
@@ -486,6 +539,27 @@ export default function Navbar() {
                     </Link>
                   </motion.div>
                 ))}
+                <motion.div variants={userItemVariants}>
+  <form action={signOut}>
+    <input type="hidden" name="locale" value={locale} />
+    <button
+      type="submit"
+      className="group relative flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 w-full text-left"
+    >
+      <span
+        className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-300 ease-out pointer-events-none"
+        style={glassHoverStyle}
+      />
+      <span className="relative z-10 w-8 h-8 rounded-xl liquid-glass flex items-center justify-center text-royal-gold/70 group-hover:text-royal-gold transition-colors duration-300 text-sm">
+        <FontAwesomeIcon icon={faPowerOff} />
+      </span>
+      <span className="relative z-10 text-royal-mauve group-hover:text-royal-cream text-2xl tracking-wide transition-all duration-300 group-hover:translate-x-1">
+        {isArabic ? "تسجيل الخروج" : "Sign Out"}
+      </span>
+    </button>
+  </form>
+</motion.div>
+
               </motion.nav>
             </div>
 
