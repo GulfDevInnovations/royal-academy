@@ -8,6 +8,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
+import { signOut } from "@/lib/actions/auth.actions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCaretRight,
@@ -16,6 +17,7 @@ import {
   faPalette,
   faBookOpen,
   faCreditCard,
+  faPowerOff,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function Navbar() {
@@ -246,7 +248,6 @@ export default function Navbar() {
             </motion.div>
           </Link>
 
-          {/* User Pill */}
          {/* User Pill / Start Journey */}
             {authLoading ? (
               <div className="liquid-glass px-6 py-3 rounded-full text-royal-cream/70 text-sm">
@@ -515,6 +516,7 @@ export default function Navbar() {
                 className="flex flex-col gap-1"
               >
                 {userLinks.map((link) => (
+                  
                   <motion.div key={link.href} variants={userItemVariants}>
                     <Link
                       href={`/${locale}${link.href}`}
@@ -537,6 +539,27 @@ export default function Navbar() {
                     </Link>
                   </motion.div>
                 ))}
+                <motion.div variants={userItemVariants}>
+  <form action={signOut}>
+    <input type="hidden" name="locale" value={locale} />
+    <button
+      type="submit"
+      className="group relative flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 w-full text-left"
+    >
+      <span
+        className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-300 ease-out pointer-events-none"
+        style={glassHoverStyle}
+      />
+      <span className="relative z-10 w-8 h-8 rounded-xl liquid-glass flex items-center justify-center text-royal-gold/70 group-hover:text-royal-gold transition-colors duration-300 text-sm">
+        <FontAwesomeIcon icon={faPowerOff} />
+      </span>
+      <span className="relative z-10 text-royal-mauve group-hover:text-royal-cream text-2xl tracking-wide transition-all duration-300 group-hover:translate-x-1">
+        {isArabic ? "تسجيل الخروج" : "Sign Out"}
+      </span>
+    </button>
+  </form>
+</motion.div>
+
               </motion.nav>
             </div>
 

@@ -87,11 +87,13 @@ export async function signIn(formData: FormData) {
   redirect(safeRedirect);
 }
 
-export async function signOut() {
+export async function signOut(formData: FormData) {
+  const locale = getSafeLocale(formData);
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect("/");
+  redirect(`/${locale}`); // goes to src/app/[locale]/page.tsx
 }
+
 
 export async function resendVerification(email: string) {
   const supabase = await createClient();
