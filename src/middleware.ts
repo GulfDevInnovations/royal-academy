@@ -23,7 +23,9 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() { return request.cookies.getAll(); },
+        getAll() {
+          return request.cookies.getAll();
+        },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
@@ -34,7 +36,9 @@ export async function middleware(request: NextRequest) {
   );
 
   // Get current user (also refreshes session if expired)
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // Detect current locale from pathname
   const locale = pathname.startsWith("/ar") ? "ar" : "en";
@@ -44,11 +48,30 @@ export async function middleware(request: NextRequest) {
     pathname.includes("/signup") ||
     pathname.includes("/verify-email") ||
     pathname.includes("/admin");
-
   const isProtected =
     pathname.includes("/profile") ||
     pathname.includes("/my-classes") ||
     pathname.includes("/payments");
+
+  // ✅ Admin route protection
+  // Any path segment containing /admin requires ADMIN role
+  const isAdminRoute = pathname.includes("/admin");
+
+  if (isAdminRoute) {
+    // Not logged in → send to login
+    if (!user) {
+      return NextResponse.redirect(
+        new URL(`/${locale}/login?redirectTo=${pathname}`, request.url)
+      );
+    }
+
+    // Logged in but not ADMIN → send to home (silent, no error exposed)
+    // Role is in app_metadata — server-signed, cannot be spoofed by the user
+    const role = user.app_metadata?.role as string | undefined;
+    if (role !== "ADMIN") {
+      return NextResponse.redirect(new URL(`/${locale}`, request.url));
+    }
+  }
 
   // Unverified user trying to access non-auth pages
   if (user && !user.email_confirmed_at && !noNavPage) {
@@ -63,13 +86,6 @@ export async function middleware(request: NextRequest) {
       new URL(`/${locale}/login`, request.url)
     );
   }
-
-  // Already logged in and verified — redirect away from auth pages
-  // if (user && user.email_confirmed_at && isAuthPage) {
-  //   return NextResponse.redirect(
-  //     new URL(`/${locale}`, request.url)
-  //   );
-  // }
 
   return response;
 }

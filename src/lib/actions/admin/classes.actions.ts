@@ -176,16 +176,35 @@ export async function updateSubClass(id: string, formData: FormData) {
 }
 
 export async function deleteSubClass(id: string) {
-  const enrollmentCount = await prisma.monthlyEnrollment.count({
-    where: { subClassId: id },
-  });
-  if (enrollmentCount > 0) {
+  // Check every table that has a FK pointing at SubClass
+  const [enrollments, schedules, trials] = await Promise.all([
+    prisma.monthlyEnrollment.count({ where: { subClassId: id } }),
+    prisma.classSchedule.count({    where: { subClassId: id } }),
+    prisma.trialBooking.count({     where: { subClassId: id } }),
+  ]);
+
+  const reasons: string[] = [];
+  if (schedules   > 0) reasons.push(`${schedules} schedule${schedules > 1 ? "s" : ""}`);
+  if (enrollments > 0) reasons.push(`${enrollments} enrollment${enrollments > 1 ? "s" : ""}`);
+  if (trials      > 0) reasons.push(`${trials} trial booking${trials > 1 ? "s" : ""}`);
+
+  if (reasons.length > 0) {
     return {
-      error: `Cannot delete: ${enrollmentCount} active enrollment${enrollmentCount > 1 ? "s" : ""} exist.`,
+      error: `Cannot delete: this sub-class has ${reasons.join(", ")}. Remove them first or deactivate it instead.`,
     };
   }
 
-  await prisma.subClass.delete({ where: { id } });
+  try {
+    await prisma.subClass.delete({ where: { id } });
+  } catch (e: unknown) {
+    // Safety net: catch any FK violation we may have missed
+    const code = (e as { code?: string })?.code;
+    if (code === "P2003") {
+      return { error: "Cannot delete: this sub-class is still referenced by other records." };
+    }
+    throw e; // re-throw unexpected errors
+  }
+
   revalidatePath("/admin/classes");
   return { success: true };
 }

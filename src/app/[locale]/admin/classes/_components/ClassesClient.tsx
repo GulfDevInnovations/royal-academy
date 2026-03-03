@@ -31,6 +31,8 @@ import {
 import ClassFormModal from "./ClassFormModal";
 import SubClassFormModal from "./SubClassFormModal";
 import DeleteConfirmModal from "./DeleteConfirmModal";
+import { ToastContainer } from "@/components/admin/Toast";
+import { useToast } from "../../hooks/useToast";
 
 interface Teacher {
   id: string;
@@ -88,6 +90,26 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
 
   const findParentClass = (subClassId: string) =>
     classes.find((c) => c.subClasses.some((s) => s.id === subClassId));
+
+  const { toasts, toast, remove } = useToast();
+
+  const handleDeleteClass = async (id: string) => {
+    const result = await deleteClass(id);
+    if (result.error) {
+      setModal(null);
+      toast(result.error, "error");
+    }
+    return result;
+  };
+
+  const handleDeleteSubClass = async (id: string) => {
+    const result = await deleteSubClass(id);
+    if (result.error) {
+      setModal(null);
+      toast(result.error, "error");
+    }
+    return result;
+  };
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
@@ -365,7 +387,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
         <DeleteConfirmModal
           title={`Delete "${modal.data.name}"?`}
           description="This will permanently delete the class. All sub-classes must be removed first."
-          onConfirm={() => deleteClass(modal.data.id)}
+          onConfirm={() => handleDeleteClass(modal.data.id)}
           onClose={() => setModal(null)}
         />
       )}
@@ -393,10 +415,12 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
         <DeleteConfirmModal
           title={`Delete "${modal.data.name}"?`}
           description="This will permanently delete the sub-class. This cannot be undone."
-          onConfirm={() => deleteSubClass(modal.data.id)}
+          onConfirm={() => handleDeleteSubClass(modal.data.id)}
           onClose={() => setModal(null)}
         />
       )}
+
+      <ToastContainer toasts={toasts} onRemove={remove} />
     </div>
   );
 }

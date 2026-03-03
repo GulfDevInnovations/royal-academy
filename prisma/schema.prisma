@@ -9,8 +9,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
 // ─────────────────────────────────────────────
 // ENUMS
 // ─────────────────────────────────────────────
@@ -100,6 +98,29 @@ enum DayOfWeek {
   SUNDAY
 }
 
+// ── NEW ──────────────────────────────────────
+enum SessionType {
+  PUBLIC       // Art, Dance, Ballet, Music Awakening — fixed monthly schedule
+  MUSIC        // Instrument lessons — teacher-driven schedule
+  TRIAL        // One-time 10 OMR taster
+  WORKSHOP     // One-off event
+  PRIVATE      // Private classes (future)
+}
+
+enum BookingType {
+  TRIAL
+  MONTHLY_ONCE
+  MONTHLY_TWICE
+  WORKSHOP
+  PRIVATE
+}
+
+enum FrequencyType {
+  ONCE_PER_WEEK
+  TWICE_PER_WEEK
+}
+// ─────────────────────────────────────────────
+
 // ─────────────────────────────────────────────
 // USER & PROFILES
 // ─────────────────────────────────────────────
@@ -153,6 +174,9 @@ model StudentProfile {
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   bookings Booking[]
+  monthlyEnrollments MonthlyEnrollment[]
+  trialBookings      TrialBooking[]
+  workshopBookings   WorkshopBooking[]
 
   @@map("student_profiles")
 }
@@ -170,10 +194,11 @@ model TeacherProfile {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subClasses        SubClass[]
+  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subClasses          SubClass[]
   teacherAvailability TeacherAvailability[]
-  classSchedules    ClassSchedule[]
+  classSchedules      ClassSchedule[]
+  workshops           Workshop[]
 
   @@map("teacher_profiles")
 }
@@ -240,15 +265,15 @@ model VerificationToken {
 // ─────────────────────────────────────────────
 
 model Class {
-  id          String      @id @default(cuid())
-  name        String      // e.g. "Dance", "Music", "Painting"
+  id          String   @id @default(cuid())
+  name        String   // e.g. "Dance & Wellness", "Music", "Art", "Ballet", "Workshops"
   description String?
   iconUrl     String?
   coverUrl    String?
-  isActive    Boolean     @default(true)
-  sortOrder   Int         @default(0)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   subClasses SubClass[]
 
@@ -256,25 +281,34 @@ model Class {
 }
 
 model SubClass {
-  id              String      @id @default(cuid())
-  classId         String
-  teacherId       String?
-  name            String      // e.g. "Piano", "Piano for Kids", "Ballet"
-  description     String?
-  coverUrl        String?
-  capacity        Int         @default(10)
-  durationMinutes Int         @default(60)
-  price           Decimal     @db.Decimal(10, 2)
-  currency        String      @default("OMR")
-  level           String?     // Beginner, Intermediate, Advanced
-  ageGroup        String?     // Kids, Teens, Adults, All Ages
-  isActive        Boolean     @default(true)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id               String      @id @default(cuid())
+  classId          String
+  teacherId        String?
+  name             String      // e.g. "Piano", "Piano for Kids", "Ballet"
+  description      String?
+  coverUrl         String?
+  capacity         Int         @default(10)
+  durationMinutes  Int         @default(60)
+  price            Decimal     @db.Decimal(10, 2)
+  currency         String      @default("OMR")
+  level            String?     // Beginner, Intermediate, Advanced
+  ageGroup         String?     // Kids, Teens, Adults, All Ages
+  isActive         Boolean     @default(true)
+  // ── NEW fields ──
+  sessionType      SessionType @default(PUBLIC)
+  oncePriceMonthly  Decimal?   @db.Decimal(10, 2)  // price for once/week for a month
+  twicePriceMonthly Decimal?   @db.Decimal(10, 2)  // price for twice/week for a month
+  trialPrice        Decimal    @default(10)  @db.Decimal(10, 2)
+  isTrialAvailable  Boolean    @default(true)
+  // ────────────────
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
   class          Class           @relation(fields: [classId], references: [id])
   teacher        TeacherProfile? @relation(fields: [teacherId], references: [id])
   classSchedules ClassSchedule[]
+  trialBookings  TrialBooking[]
+  monthlyEnrollments MonthlyEnrollment[]
 
   @@map("sub_classes")
 }
@@ -312,6 +346,7 @@ model Room {
 
   location       Location        @relation(fields: [locationId], references: [id])
   classSchedules ClassSchedule[]
+  workshops      Workshop[]
 
   @@map("rooms")
 }
@@ -343,13 +378,14 @@ model ClassSchedule {
   dayOfWeek       DayOfWeek
   startTime       String      // "10:00"
   endTime         String      // "11:00"
-  startDate       DateTime    // When this schedule becomes active
-  endDate         DateTime?   // null means ongoing
+  startDate       DateTime
+  endDate         DateTime?
   maxCapacity     Int
   currentEnrolled Int         @default(0)
   isRecurring     Boolean     @default(true)
+  isPublic        Boolean     @default(false)  // true = public fixed schedule
   status          ClassStatus @default(ACTIVE)
-  onlineLink      String?     // Zoom or Meet link if online
+  onlineLink      String?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
@@ -361,12 +397,10 @@ model ClassSchedule {
   @@map("class_schedules")
 }
 
-// A ClassSession is one actual occurrence of a ClassSchedule
-// e.g. "Piano for Kids" on Monday March 3rd at 10:00
 model ClassSession {
   id              String      @id @default(cuid())
   scheduleId      String
-  sessionDate     DateTime    // The actual date of this session
+  sessionDate     DateTime
   startTime       String
   endTime         String
   status          ClassStatus @default(ACTIVE)
@@ -375,29 +409,30 @@ model ClassSession {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
-  schedule  ClassSchedule @relation(fields: [scheduleId], references: [id])
-  bookings  Booking[]
+  schedule      ClassSchedule  @relation(fields: [scheduleId], references: [id])
+  bookings      Booking[]
+  trialBookings TrialBooking[]
 
   @@map("class_sessions")
 }
 
 // ─────────────────────────────────────────────
-// BOOKINGS
+// BOOKINGS (regular single-session)
 // ─────────────────────────────────────────────
 
 model Booking {
-  id               String        @id @default(cuid())
-  studentId        String
-  sessionId        String
-  status           BookingStatus @default(PENDING)
-  bookedAt         DateTime      @default(now())
-  cancelledAt      DateTime?
-  cancelledReason  String?
-  rescheduledFrom  String?       // previous booking id if rescheduled
-  canCancel        Boolean       @default(true)
-  notes            String?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id              String        @id @default(cuid())
+  studentId       String
+  sessionId       String
+  status          BookingStatus @default(PENDING)
+  bookedAt        DateTime      @default(now())
+  cancelledAt     DateTime?
+  cancelledReason String?
+  rescheduledFrom String?
+  canCancel       Boolean       @default(true)
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   student       StudentProfile @relation(fields: [studentId], references: [id])
   session       ClassSession   @relation(fields: [sessionId], references: [id])
@@ -409,12 +444,126 @@ model Booking {
 }
 
 // ─────────────────────────────────────────────
+// MONTHLY ENROLLMENTS (public & music classes)
+// ─────────────────────────────────────────────
+
+model MonthlyEnrollment {
+  id            String        @id @default(cuid())
+  studentId     String
+  subClassId    String
+  month         Int           // 1–12
+  year          Int
+  frequency     FrequencyType
+  preferredDays DayOfWeek[]
+  status        BookingStatus @default(PENDING)
+  totalAmount   Decimal       @db.Decimal(10, 2)
+  currency      String        @default("OMR")
+  bookedAt      DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  student  StudentProfile  @relation(fields: [studentId], references: [id])
+  subClass SubClass        @relation(fields: [subClassId], references: [id])
+  payment  MonthlyPayment?
+
+  @@unique([studentId, subClassId, month, year])
+  @@map("monthly_enrollments")
+}
+
+model MonthlyPayment {
+  id                    String        @id @default(cuid())
+  enrollmentId          String        @unique
+  amount                Decimal       @db.Decimal(10, 2)
+  currency              String        @default("OMR")
+  status                PaymentStatus @default(PENDING)
+  method                PaymentMethod?
+  stripePaymentIntentId String?       @unique
+  paidAt                DateTime?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  enrollment MonthlyEnrollment @relation(fields: [enrollmentId], references: [id])
+
+  @@map("monthly_payments")
+}
+
+// ─────────────────────────────────────────────
+// TRIAL BOOKINGS
+// ─────────────────────────────────────────────
+
+model TrialBooking {
+  id         String        @id @default(cuid())
+  studentId  String
+  subClassId String
+  sessionId  String
+  status     BookingStatus @default(PENDING)
+  bookedAt   DateTime      @default(now())
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  student  StudentProfile @relation(fields: [studentId], references: [id])
+  subClass SubClass       @relation(fields: [subClassId], references: [id])
+  session  ClassSession   @relation(fields: [sessionId], references: [id])
+  payment  Payment?
+
+  @@unique([studentId, subClassId])
+  @@map("trial_bookings")
+}
+
+// ─────────────────────────────────────────────
+// WORKSHOPS
+// ─────────────────────────────────────────────
+
+model Workshop {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  coverUrl    String?
+  teacherId   String?
+  roomId      String?
+  eventDate   DateTime
+  startTime   String
+  endTime     String
+  capacity    Int
+  price       Decimal  @db.Decimal(10, 2)
+  currency    String   @default("OMR")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  teacher  TeacherProfile?   @relation(fields: [teacherId], references: [id])
+  room     Room?             @relation(fields: [roomId], references: [id])
+  bookings WorkshopBooking[]
+
+  @@map("workshops")
+}
+
+model WorkshopBooking {
+  id         String        @id @default(cuid())
+  workshopId String
+  studentId  String
+  status     BookingStatus @default(PENDING)
+  bookedAt   DateTime      @default(now())
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  workshop Workshop       @relation(fields: [workshopId], references: [id])
+  student  StudentProfile @relation(fields: [studentId], references: [id])
+  payment  Payment?
+
+  @@unique([workshopId, studentId])
+  @@map("workshop_bookings")
+}
+
+// ─────────────────────────────────────────────
 // PAYMENTS & INVOICES
 // ─────────────────────────────────────────────
 
 model Payment {
   id                    String        @id @default(cuid())
-  bookingId             String        @unique
+  bookingId             String?       @unique   // regular ClassSession booking
+  trialBookingId        String?       @unique   // trial booking
+  workshopBookingId     String?       @unique   // workshop booking (future)
   invoiceId             String?
   amount                Decimal       @db.Decimal(10, 2)
   currency              String        @default("OMR")
@@ -433,15 +582,17 @@ model Payment {
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
 
-  booking  Booking   @relation(fields: [bookingId], references: [id])
-  invoice  Invoice?  @relation(fields: [invoiceId], references: [id])
+  booking         Booking?        @relation(fields: [bookingId], references: [id])
+  trialBooking    TrialBooking?   @relation(fields: [trialBookingId], references: [id])
+  workshopBooking WorkshopBooking? @relation(fields: [workshopBookingId], references: [id])
+  invoice         Invoice?        @relation(fields: [invoiceId], references: [id])
 
   @@map("payments")
 }
 
 model Invoice {
   id          String        @id @default(cuid())
-  invoiceNo   String        @unique // e.g. "INV-2024-0001"
+  invoiceNo   String        @unique
   studentId   String
   amount      Decimal       @db.Decimal(10, 2)
   tax         Decimal       @default(0) @db.Decimal(10, 2)
@@ -461,22 +612,22 @@ model Invoice {
 }
 
 // ─────────────────────────────────────────────
-// NOTIFICATIONS (SMS & EMAIL)
+// NOTIFICATIONS
 // ─────────────────────────────────────────────
 
 model Notification {
-  id         String             @id @default(cuid())
-  userId     String
-  bookingId  String?
-  type       NotificationType
-  status     NotificationStatus @default(PENDING)
-  subject    String?            // for emails
-  body       String
-  sentAt     DateTime?
-  failReason String?
-  scheduledFor DateTime?        // when to send (12h / 24h before class)
-  createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
+  id           String             @id @default(cuid())
+  userId       String
+  bookingId    String?
+  type         NotificationType
+  status       NotificationStatus @default(PENDING)
+  subject      String?
+  body         String
+  sentAt       DateTime?
+  failReason   String?
+  scheduledFor DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
 
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   booking Booking? @relation(fields: [bookingId], references: [id])
@@ -485,20 +636,20 @@ model Notification {
 }
 
 // ─────────────────────────────────────────────
-// AUDIT LOG (optional but recommended)
+// AUDIT LOG
 // ─────────────────────────────────────────────
 
 model AuditLog {
-  id         String   @id @default(cuid())
-  userId     String?
-  action     String   // e.g. "BOOKING_CREATED", "PAYMENT_FAILED"
-  entity     String   // e.g. "Booking", "Payment"
-  entityId   String
-  oldValues  Json?
-  newValues  Json?
-  ipAddress  String?
-  userAgent  String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String   // e.g. "BOOKING_CREATED", "PAYMENT_FAILED"
+  entity    String   // e.g. "Booking", "Payment"
+  entityId  String
+  oldValues Json?
+  newValues Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
 
   @@map("audit_logs")
 }
