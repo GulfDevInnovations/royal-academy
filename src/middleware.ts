@@ -39,10 +39,11 @@ export async function middleware(request: NextRequest) {
   // Detect current locale from pathname
   const locale = pathname.startsWith("/ar") ? "ar" : "en";
 
-  const isAuthPage =
+  const noNavPage =
     pathname.includes("/login") ||
     pathname.includes("/signup") ||
-    pathname.includes("/verify-email");
+    pathname.includes("/verify-email") ||
+    pathname.includes("/admin");
 
   const isProtected =
     pathname.includes("/profile") ||
@@ -50,7 +51,7 @@ export async function middleware(request: NextRequest) {
     pathname.includes("/payments");
 
   // Unverified user trying to access non-auth pages
-  if (user && !user.email_confirmed_at && !isAuthPage) {
+  if (user && !user.email_confirmed_at && !noNavPage) {
     return NextResponse.redirect(
       new URL(`/${locale}/verify-email`, request.url)
     );

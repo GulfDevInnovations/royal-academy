@@ -10,15 +10,16 @@ export default function ConditionalLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isAuthPage =
+  const noNavPage =
     pathname.includes("/login") ||
     pathname.includes("/signup") ||
-    pathname.includes("/verify-email");
+    pathname.includes("/verify-email") ||
+    pathname.includes("/admin");
 
   return (
     <>
-      {!isAuthPage && <PatternBackground />}
-      {!isAuthPage && <Navbar />}
+      {!noNavPage && <PatternBackground />}
+      {!noNavPage && <Navbar />}
       {children}
     </>
   );
