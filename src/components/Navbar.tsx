@@ -97,7 +97,7 @@ export default function Navbar() {
 
   const userLinks = [
     {
-      href: "/profile",
+      href: "/profile-setting",
       label: isArabic ? "الملف الشخصي" : "Profile Settings",
       icon: faUser,
     },
