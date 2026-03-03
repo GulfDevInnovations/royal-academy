@@ -36,7 +36,7 @@ export default function PatternBackground({
           style={{
             backgroundImage: "url('/images/pattern.svg')",
             backgroundRepeat: "repeat",
-            backgroundSize: "1600px auto",
+            backgroundSize: "1200px auto",
             opacity: opacity,
             filter: "sepia(1) saturate(0.8) hue-rotate(5deg) brightness(1.8)",
           }}

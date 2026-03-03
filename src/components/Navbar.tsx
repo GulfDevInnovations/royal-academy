@@ -238,7 +238,7 @@ export default function Navbar() {
               transition={{ duration: 0.2 }}
             >
               <Image
-                src="/images/Logo-White.png"
+                src="/images/Logo-gray-cropped.png"
                 alt="Royal Academy"
                 width={155}
                 height={58}
@@ -460,7 +460,7 @@ export default function Navbar() {
                         />
                       </span>
                       <span
-                        className={`relative z-10 text-royal-cream text-3xl font-light tracking-wide -translate-x-1 group-hover:-translate-x-5 transition-all duration-300 ease-out group-hover:text-royal-gold`}
+                        className={`relative z-10 text-royal-cream text-3xl font-light tracking-wide -translate-x-1 transition-all duration-300 ease-out group-hover:text-royal-gold ${isArabic ? "group-hover:translate-x-5" : "group-hover:-translate-x-5"}`}
                       >
                         {link.label}
                       </span>
@@ -532,7 +532,7 @@ export default function Navbar() {
                         <FontAwesomeIcon icon={link.icon} />
                       </span>
                       {/* Label */}
-                      <span className="relative z-10 text-royal-mauve group-hover:text-royal-cream text-2xl tracking-wide transition-all duration-300 group-hover:translate-x-1">
+                      <span className="relative z-10 text-royal-cream group-hover:text-royal-cream text-2xl tracking-wide transition-all duration-300 group-hover:translate-x-1">
                         {link.label}
                       </span>
                     </Link>

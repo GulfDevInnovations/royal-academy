@@ -4,10 +4,11 @@
   --royal-dark: #0a0f2c;
   --royal-navy: #111a3e;
   --royal-mauve: #5c2d4a;
+  --royal-purple: #592c41;
   --royal-rose: #9e7070;
   --royal-gold: #c4a882;
   --royal-gold-light: #d4b896;
-  --royal-cream: #f5f0e8;
+  --royal-cream: #dec2ab;
   --royal-white: #ffffff;
   --auth-teal: #227b81;
   --auth-sand: #e4d0b5;
@@ -17,6 +18,7 @@
   --color-royal-dark: var(--royal-dark);
   --color-royal-navy: var(--royal-navy);
   --color-royal-mauve: var(--royal-mauve);
+  --color-royal-purple: var(--royal-purple);
   --color-royal-rose: var(--royal-rose);
   --color-royal-gold: var(--royal-gold);
   --color-royal-gold-light: var(--royal-gold-light);
@@ -29,7 +31,7 @@
 }
 
 body {
-  background-color: var(--royal-rose);
+  background-color: var(--royal-purple);
   color: var(--royal-cream);
 }
 

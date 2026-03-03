@@ -43,6 +43,13 @@ export function ReservationPageClient({
     useState<SessionForCalendar | null>(null);
   const [isLoadingMonth, startMonthTransition] = useTransition();
   const [isBooking, setIsBooking] = useState(false);
+  const [bookingError, setBookingError] = useState<string | null>(null);
+
+  // Clear error when modal closes
+  const handleCloseModal = useCallback(() => {
+    setSelectedSession(null);
+    setBookingError(null);
+  }, []);
 
   // Sessions for the selected date
   const sessionsForDay = useMemo(() => {
@@ -79,30 +86,35 @@ export function ReservationPageClient({
     async (session: SessionForCalendar) => {
       setIsBooking(true);
       try {
-        // Check if user is logged in
         const authRes = await fetch("/api/auth/check");
         const { authenticated, studentId } = await authRes.json();
 
         if (!authenticated) {
-          // Save intended booking to URL and redirect to login
           const redirectUrl = `/reservation?sessionId=${session.id}&date=${session.sessionDate}`;
           router.push(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
           return;
         }
 
-        // Create booking + payment record
-        const { bookingId } = await createBooking(
+        const result = await createBooking(
           session.id,
           session.scheduleId,
           session.sessionDate,
           studentId,
         );
 
-        // Navigate to payment page
-        router.push(`/payment?bookingId=${bookingId}`);
+        if ("error" in result) {
+          if (result.error === "already_booked") {
+            setBookingError("You already have a booking for this class.");
+          } else {
+            setBookingError("Something went wrong. Please try again.");
+          }
+          return;
+        }
+
+        router.push(`/payment?bookingId=${result.bookingId}`);
       } catch (err) {
         console.error("Booking error:", err);
-        // TODO: show toast error
+        setBookingError("Something went wrong. Please try again.");
       } finally {
         setIsBooking(false);
       }
@@ -187,9 +199,10 @@ export function ReservationPageClient({
       {/* Class detail modal */}
       <ClassModal
         session={selectedSession}
-        onClose={() => setSelectedSession(null)}
+        onClose={handleCloseModal} // ← was onClose={() => setSelectedSession(null)}
         onBook={handleBook}
         isBooking={isBooking}
+        bookingError={bookingError} // ← new prop
       />
     </>
   );

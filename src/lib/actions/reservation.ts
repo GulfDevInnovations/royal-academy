@@ -278,63 +278,75 @@ export async function createBooking(
   scheduleId: string,
   sessionDate: string,
   studentId: string
-): Promise<{ bookingId: string; paymentNeeded: boolean }> {
-  // If virtual session (no real ClassSession yet), create one first
-  let realSessionId = sessionId;
+): Promise<{ bookingId: string; paymentNeeded: boolean; error?: never } | { error: string; bookingId?: never }> {
+  try {
+    let realSessionId = sessionId;
 
-  if (sessionId.startsWith("virtual:")) {
-    const existing = await prisma.classSession.findFirst({
-      where: {
-        scheduleId,
-        sessionDate: new Date(sessionDate),
+    if (sessionId.startsWith("virtual:")) {
+      const existing = await prisma.classSession.findFirst({
+        where: { scheduleId, sessionDate: new Date(sessionDate) },
+      });
+
+      if (existing) {
+        realSessionId = existing.id;
+      } else {
+        const schedule = await prisma.classSchedule.findUniqueOrThrow({
+          where: { id: scheduleId },
+        });
+        const newSession = await prisma.classSession.create({
+          data: {
+            scheduleId,
+            sessionDate: new Date(sessionDate),
+            startTime: schedule.startTime,
+            endTime: schedule.endTime,
+            status: "ACTIVE",
+          },
+        });
+        realSessionId = newSession.id;
+      }
+    }
+
+    // Check for existing booking before attempting to create
+    const existingBooking = await prisma.booking.findUnique({
+      where: { studentId_sessionId: { studentId, sessionId: realSessionId } },
+      include: { payment: true },
+    });
+
+    if (existingBooking) {
+      // Already booked — if payment is pending, send them back to pay
+      if (existingBooking.payment && existingBooking.status === "PENDING") {
+        return { bookingId: existingBooking.id, paymentNeeded: true };
+      }
+      // Already confirmed
+      return { error: "already_booked" };
+    }
+
+    const booking = await prisma.booking.create({
+      data: { studentId, sessionId: realSessionId, status: "PENDING" },
+    });
+
+    const session = await prisma.classSession.findUniqueOrThrow({
+      where: { id: realSessionId },
+      include: { schedule: { include: { subClass: true } } },
+    });
+
+    await prisma.payment.create({
+      data: {
+        bookingId: booking.id,
+        amount: session.schedule.subClass.price,
+        currency: session.schedule.subClass.currency,
+        status: "PENDING",
       },
     });
 
-    if (existing) {
-      realSessionId = existing.id;
-    } else {
-      const schedule = await prisma.classSchedule.findUniqueOrThrow({
-        where: { id: scheduleId },
-      });
-      const newSession = await prisma.classSession.create({
-        data: {
-          scheduleId,
-          sessionDate: new Date(sessionDate),
-          startTime: schedule.startTime,
-          endTime: schedule.endTime,
-          status: "ACTIVE",
-        },
-      });
-      realSessionId = newSession.id;
+    return { bookingId: booking.id, paymentNeeded: true };
+
+  } catch (err: any) {
+    // Catch any race-condition duplicate that slips through
+    if (err?.code === "P2002") {
+      return { error: "already_booked" };
     }
+    console.error("createBooking error:", err);
+    return { error: "unknown" };
   }
-
-  const booking = await prisma.booking.create({
-    data: {
-      studentId,
-      sessionId: realSessionId,
-      status: "PENDING",
-    },
-  });
-
-  // Create pending payment record
-  const session = await prisma.classSession.findUniqueOrThrow({
-    where: { id: realSessionId },
-    include: {
-      schedule: {
-        include: { subClass: true },
-      },
-    },
-  });
-
-  await prisma.payment.create({
-    data: {
-      bookingId: booking.id,
-      amount: session.schedule.subClass.price,
-      currency: session.schedule.subClass.currency,
-      status: "PENDING",
-    },
-  });
-
-  return { bookingId: booking.id, paymentNeeded: true };
 }
