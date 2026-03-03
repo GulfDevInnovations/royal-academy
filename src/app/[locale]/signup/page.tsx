@@ -104,6 +104,13 @@ export default function SignUpPage() {
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <input type="hidden" name="locale" value={locale} />
+              <p
+                className="text-xs tracking-wide"
+                style={{ color: "rgba(228,208,181,0.75)" }}
+              >
+                {locale === "ar" ? "الاسم الكامل للطالب" : "Student Full Name"}{" "}
+                <span style={{ color: "#f87171" }}>*</span>
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 <AuthInput
                   name="firstName"
