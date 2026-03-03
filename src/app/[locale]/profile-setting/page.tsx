@@ -31,7 +31,7 @@ export default async function ProfileSettingPage({
     (query.missing ?? "")
       .split(",")
       .map((v) => v.trim())
-      .filter(Boolean)
+      .filter(Boolean),
   );
   const requiredMessage = "This field is required!";
   const isArabic = locale === "ar";
@@ -48,21 +48,11 @@ export default async function ProfileSettingPage({
     where: { id: user.id },
     include: {
       studentProfile: true,
-      teacherProfile: true,
-      adminProfile: true,
     },
   });
 
-  const firstName =
-    dbUser?.studentProfile?.firstName ??
-    dbUser?.teacherProfile?.firstName ??
-    dbUser?.adminProfile?.firstName ??
-    "";
-  const lastName =
-    dbUser?.studentProfile?.lastName ??
-    dbUser?.teacherProfile?.lastName ??
-    dbUser?.adminProfile?.lastName ??
-    "";
+  const firstName = dbUser?.studentProfile?.firstName;
+  const lastName = dbUser?.studentProfile?.lastName;
   const email = dbUser?.email ?? user.email ?? "";
   const phone = dbUser?.phone ?? user.phone ?? "";
 
@@ -74,14 +64,18 @@ export default async function ProfileSettingPage({
   const city = dbUser?.studentProfile?.city ?? "";
   const country = dbUser?.studentProfile?.country ?? "";
   const emergencyContact = dbUser?.studentProfile?.emergencyContact ?? "";
-  const [legacyEmergencyName = "", legacyEmergencyPhone = "", legacyEmergencyRelationship = ""] =
-    emergencyContact.split(" | ");
+  const [
+    legacyEmergencyName = "",
+    legacyEmergencyPhone = "",
+    legacyEmergencyRelationship = "",
+  ] = emergencyContact.split(" | ");
   const emergencyName =
     dbUser?.studentProfile?.emergencyContactName ?? legacyEmergencyName;
   const emergencyPhone =
     dbUser?.studentProfile?.emergencyContactPhone ?? legacyEmergencyPhone;
   const emergencyRelationship =
-    dbUser?.studentProfile?.emergencyRelationship ?? legacyEmergencyRelationship;
+    dbUser?.studentProfile?.emergencyRelationship ??
+    legacyEmergencyRelationship;
   const preferredTrack = dbUser?.studentProfile?.preferredTrack ?? "";
   const experience = dbUser?.studentProfile?.experience ?? "";
   const notes = dbUser?.studentProfile?.notes ?? "";
@@ -129,7 +123,8 @@ export default async function ProfileSettingPage({
       }
     : {
         title: "Profile Settings",
-        subtitle: "Update your complete profile information using the form below.",
+        subtitle:
+          "Update your complete profile information using the form below.",
         saved: "Profile saved successfully.",
         requiredError:
           "Please fill all required fields before saving profile settings.",
@@ -170,7 +165,10 @@ export default async function ProfileSettingPage({
       };
 
   return (
-    <main className="min-h-screen px-4 py-24" style={{ backgroundColor: "#227b81" }}>
+    <main
+      className="min-h-screen px-4 py-24"
+      style={{ backgroundColor: "#227b81" }}
+    >
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -194,7 +192,10 @@ export default async function ProfileSettingPage({
             "0 24px 64px rgba(0,0,0,0.25), inset 0 1px 1px rgba(228,208,181,0.30)",
         }}
       >
-        <h1 className="text-3xl font-light tracking-widest mb-2" style={{ color: "#e4d0b5" }}>
+        <h1
+          className="text-3xl font-light tracking-widest mb-2"
+          style={{ color: "#e4d0b5" }}
+        >
           {content.title}
         </h1>
         <p className="text-sm mb-8" style={{ color: "rgba(228,208,181,0.65)" }}>
@@ -268,13 +269,17 @@ export default async function ProfileSettingPage({
         <form action={saveProfileSettings} className="space-y-8" noValidate>
           <input type="hidden" name="locale" value={locale} />
           <div>
-            <h2 className="text-lg tracking-wide mb-4" style={{ color: "#e4d0b5" }}>
+            <h2
+              className="text-lg tracking-wide mb-4"
+              style={{ color: "#e4d0b5" }}
+            >
               {content.personal}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <label className="block">
                 <span className="text-sm">
-                  {content.firstName} <span style={{ color: "#f87171" }}>*</span>
+                  {content.firstName}{" "}
+                  <span style={{ color: "#f87171" }}>*</span>
                 </span>
                 <input
                   className="mt-2 w-full rounded-2xl px-4 py-3 outline-none"
@@ -350,7 +355,10 @@ export default async function ProfileSettingPage({
           </div>
 
           <div>
-            <h2 className="text-lg tracking-wide mb-4" style={{ color: "#e4d0b5" }}>
+            <h2
+              className="text-lg tracking-wide mb-4"
+              style={{ color: "#e4d0b5" }}
+            >
               {content.contact}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -421,13 +429,17 @@ export default async function ProfileSettingPage({
           </div>
 
           <div>
-            <h2 className="text-lg tracking-wide mb-4" style={{ color: "#e4d0b5" }}>
+            <h2
+              className="text-lg tracking-wide mb-4"
+              style={{ color: "#e4d0b5" }}
+            >
               {content.emergency}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <label className="block">
                 <span className="text-sm">
-                  {content.emergencyName} <span style={{ color: "#f87171" }}>*</span>
+                  {content.emergencyName}{" "}
+                  <span style={{ color: "#f87171" }}>*</span>
                 </span>
                 <input
                   className="mt-2 w-full rounded-2xl px-4 py-3 outline-none"
@@ -444,7 +456,8 @@ export default async function ProfileSettingPage({
               </label>
               <label className="block">
                 <span className="text-sm">
-                  {content.emergencyPhone} <span style={{ color: "#f87171" }}>*</span>
+                  {content.emergencyPhone}{" "}
+                  <span style={{ color: "#f87171" }}>*</span>
                 </span>
                 <input
                   type="tel"
@@ -462,7 +475,8 @@ export default async function ProfileSettingPage({
               </label>
               <label className="block">
                 <span className="text-sm">
-                  {content.relationship} <span style={{ color: "#f87171" }}>*</span>
+                  {content.relationship}{" "}
+                  <span style={{ color: "#f87171" }}>*</span>
                 </span>
                 <input
                   className="mt-2 w-full rounded-2xl px-4 py-3 outline-none"
@@ -481,7 +495,10 @@ export default async function ProfileSettingPage({
           </div>
 
           <div>
-            <h2 className="text-lg tracking-wide mb-4" style={{ color: "#e4d0b5" }}>
+            <h2
+              className="text-lg tracking-wide mb-4"
+              style={{ color: "#e4d0b5" }}
+            >
               {content.learning}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -495,7 +512,9 @@ export default async function ProfileSettingPage({
                 >
                   <option value="">Select</option>
                   <option value="DANCE">{isArabic ? "الرقص" : "Dance"}</option>
-                  <option value="MUSIC">{isArabic ? "الموسيقى" : "Music"}</option>
+                  <option value="MUSIC">
+                    {isArabic ? "الموسيقى" : "Music"}
+                  </option>
                   <option value="ART">{isArabic ? "الفن" : "Art"}</option>
                 </select>
               </label>
@@ -536,7 +555,10 @@ export default async function ProfileSettingPage({
           </div>
 
           <div>
-            <h2 className="text-lg tracking-wide mb-4" style={{ color: "#e4d0b5" }}>
+            <h2
+              className="text-lg tracking-wide mb-4"
+              style={{ color: "#e4d0b5" }}
+            >
               {content.boolean}
             </h2>
             <div className="space-y-3">
@@ -545,7 +567,11 @@ export default async function ProfileSettingPage({
                 <span>{content.hasExperience}</span>
               </label>
               <label className="flex items-start gap-3">
-                <input type="checkbox" name="hasMedicalCondition" className="mt-1" />
+                <input
+                  type="checkbox"
+                  name="hasMedicalCondition"
+                  className="mt-1"
+                />
                 <span>{content.hasMedicalCondition}</span>
               </label>
               <label className="flex items-start gap-3">
@@ -557,11 +583,20 @@ export default async function ProfileSettingPage({
                 <span>{content.receiveEmail}</span>
               </label>
               <label className="flex items-start gap-3">
-                <input type="checkbox" name="receiveWhatsapp" className="mt-1" />
+                <input
+                  type="checkbox"
+                  name="receiveWhatsapp"
+                  className="mt-1"
+                />
                 <span>{content.receiveWhatsapp}</span>
               </label>
               <label className="flex items-start gap-3">
-                <input type="checkbox" name="agreePolicy" className="mt-1" required />
+                <input
+                  type="checkbox"
+                  name="agreePolicy"
+                  className="mt-1"
+                  required
+                />
                 <span>{content.agreePolicy}</span>
               </label>
             </div>
