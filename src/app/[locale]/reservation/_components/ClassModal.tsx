@@ -13,6 +13,7 @@ import {
   Calendar,
   BookOpen,
   Award,
+  AlertCircle,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
@@ -21,6 +22,7 @@ interface ClassModalProps {
   onClose: () => void;
   onBook: (session: SessionForCalendar) => void;
   isBooking: boolean;
+  bookingError: string | null;
 }
 
 const CLASS_ACCENT: Record<string, string> = {
@@ -39,6 +41,7 @@ export function ClassModal({
   onClose,
   onBook,
   isBooking,
+  bookingError,
 }: ClassModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -218,26 +221,6 @@ export function ClassModal({
                     value={session.subClass.ageGroup}
                   />
                 )}
-
-                {session.room && (
-                  <DetailChip
-                    icon={
-                      session.room.location.isOnline ? (
-                        <Wifi className="w-3.5 h-3.5" />
-                      ) : (
-                        <MapPin className="w-3.5 h-3.5" />
-                      )
-                    }
-                    label={
-                      session.room.location.isOnline ? "Format" : "Location"
-                    }
-                    value={
-                      session.room.location.isOnline
-                        ? "Online"
-                        : `${session.room.name}, ${session.room.location.name}`
-                    }
-                  />
-                )}
               </div>
 
               {session.subClass.description && (
@@ -308,6 +291,16 @@ export function ClassModal({
                     </span>
                   </div>
                 </div>
+                {bookingError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-start gap-2.5 p-3 rounded-xl bg-red-500/10 border border-red-500/20 mb-3"
+                  >
+                    <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-red-400">{bookingError}</p>
+                  </motion.div>
+                )}
 
                 <button
                   onClick={() => onBook(session)}

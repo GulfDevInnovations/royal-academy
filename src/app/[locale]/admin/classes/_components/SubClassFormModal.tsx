@@ -30,15 +30,13 @@ interface Props {
 }
 
 const SESSION_TYPES = [
-  { value: "PUBLIC", label: "Public (Art, Dance, Ballet…)" },
-  { value: "MUSIC", label: "Music (Instrument lessons)" },
+  { value: "PUBLIC", label: "Public" },
   { value: "TRIAL", label: "Trial (One-time taster)" },
-  { value: "WORKSHOP", label: "Workshop (One-off event)" },
   { value: "PRIVATE", label: "Private" },
 ];
 
 const LEVELS = ["Beginner", "Intermediate", "Advanced", "All Levels"];
-const AGE_GROUPS = ["Kids", "Teens", "Adults", "All Ages"];
+const AGE_GROUPS = ["Kids", "Adults", "All Ages"];
 
 export default function SubClassFormModal({
   parentClass,
@@ -77,11 +75,11 @@ export default function SubClassFormModal({
       />
 
       <div
-        className="relative w-full max-w-2xl rounded-2xl border border-white/[0.08] shadow-2xl z-10 max-h-[90vh] flex flex-col"
+        className="relative w-full max-w-2xl rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[90vh] flex flex-col"
         style={{ background: "#1a1d27" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] shrink-0">
           <div>
             <h2
               className="text-sm font-semibold"
@@ -129,7 +127,11 @@ export default function SubClassFormModal({
                   defaultValue={editing?.sessionType ?? "PUBLIC"}
                 >
                   {SESSION_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>
+                    <option
+                      className="text-black"
+                      key={t.value}
+                      value={t.value}
+                    >
                       {t.label}
                     </option>
                   ))}
@@ -139,9 +141,11 @@ export default function SubClassFormModal({
                   name="teacherId"
                   defaultValue={editing?.teacherId ?? ""}
                 >
-                  <option value="">No teacher assigned</option>
+                  <option className="text-black" value="">
+                    No teacher assigned
+                  </option>
                   {teachers.map((t) => (
-                    <option key={t.id} value={t.id}>
+                    <option className="text-black" key={t.id} value={t.id}>
                       {t.firstName} {t.lastName}
                     </option>
                   ))}
@@ -165,7 +169,7 @@ export default function SubClassFormModal({
                 >
                   <option value="">Not specified</option>
                   {LEVELS.map((l) => (
-                    <option key={l} value={l}>
+                    <option className="text-black" key={l} value={l}>
                       {l}
                     </option>
                   ))}
@@ -177,7 +181,7 @@ export default function SubClassFormModal({
                 >
                   <option value="">Not specified</option>
                   {AGE_GROUPS.map((a) => (
-                    <option key={a} value={a}>
+                    <option className="text-black" key={a} value={a}>
                       {a}
                     </option>
                   ))}
@@ -256,8 +260,12 @@ export default function SubClassFormModal({
                       : "true"
                   }
                 >
-                  <option value="true">Yes</option>
-                  <option value="false">No</option>
+                  <option className="text-black" value="true">
+                    Yes
+                  </option>
+                  <option className="text-black" value="false">
+                    No
+                  </option>
                 </AdminSelect>
                 {editing && (
                   <AdminSelect
@@ -265,8 +273,12 @@ export default function SubClassFormModal({
                     name="isActive"
                     defaultValue={editing.isActive ? "true" : "false"}
                   >
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
+                    <option className="text-black" value="true">
+                      Active
+                    </option>
+                    <option className="text-black" value="false">
+                      Inactive
+                    </option>
                   </AdminSelect>
                 )}
               </div>

@@ -1,7 +1,6 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
 import { SessionType } from "@prisma/client";
 
 // ─────────────────────────────────────────────
@@ -22,8 +21,10 @@ export async function getClasses() {
       subClasses: {
         orderBy: { createdAt: "asc" },
         include: {
-          teacher: {
-            select: { firstName: true, lastName: true },
+          teachers: {
+            include: {
+              teacher: { select: { firstName: true, lastName: true } },
+            },
           },
         },
       },
@@ -53,8 +54,6 @@ export async function createClass(formData: FormData) {
   await prisma.class.create({
     data: { name, description: description || null, sortOrder },
   });
-
-  revalidatePath("/admin/classes");
   return { success: true };
 }
 
@@ -70,8 +69,6 @@ export async function updateClass(id: string, formData: FormData) {
     where: { id },
     data: { name, description: description || null, sortOrder, isActive },
   });
-
-  revalidatePath("/admin/classes");
   return { success: true };
 }
 
@@ -85,7 +82,6 @@ export async function deleteClass(id: string) {
   }
 
   await prisma.class.delete({ where: { id } });
-  revalidatePath("/admin/classes");
   return { success: true };
 }
 
@@ -96,7 +92,6 @@ export async function deleteClass(id: string) {
 export async function createSubClass(classId: string, formData: FormData) {
   const name              = (formData.get("name") as string).trim();
   const description       = formData.get("description")       as string | null;
-  const teacherId         = formData.get("teacherId")         as string | null;
   const capacity          = parseInt(formData.get("capacity")          as string) || 10;
   const durationMinutes   = parseInt(formData.get("durationMinutes")   as string) || 60;
   const price             = parseFloat(formData.get("price")           as string) || 0;
@@ -115,7 +110,6 @@ export async function createSubClass(classId: string, formData: FormData) {
       classId,
       name,
       description:       description || null,
-      teacherId:         teacherId   || null,
       capacity,
       durationMinutes,
       price,
@@ -128,15 +122,12 @@ export async function createSubClass(classId: string, formData: FormData) {
       isTrialAvailable,
     },
   });
-
-  revalidatePath("/admin/classes");
   return { success: true };
 }
 
 export async function updateSubClass(id: string, formData: FormData) {
   const name              = (formData.get("name") as string).trim();
   const description       = formData.get("description")       as string | null;
-  const teacherId         = formData.get("teacherId")         as string | null;
   const capacity          = parseInt(formData.get("capacity")          as string) || 10;
   const durationMinutes   = parseInt(formData.get("durationMinutes")   as string) || 60;
   const price             = parseFloat(formData.get("price")           as string) || 0;
@@ -156,7 +147,6 @@ export async function updateSubClass(id: string, formData: FormData) {
     data: {
       name,
       description:       description || null,
-      teacherId:         teacherId   || null,
       capacity,
       durationMinutes,
       price,
@@ -170,22 +160,37 @@ export async function updateSubClass(id: string, formData: FormData) {
       isActive,
     },
   });
-
-  revalidatePath("/admin/classes");
   return { success: true };
 }
 
 export async function deleteSubClass(id: string) {
-  const enrollmentCount = await prisma.monthlyEnrollment.count({
-    where: { subClassId: id },
-  });
-  if (enrollmentCount > 0) {
+  // Check every table that has a FK pointing at SubClass
+  const [enrollments, schedules, trials] = await Promise.all([
+    prisma.monthlyEnrollment.count({ where: { subClassId: id } }),
+    prisma.classSchedule.count({    where: { subClassId: id } }),
+    prisma.trialBooking.count({     where: { subClassId: id } }),
+  ]);
+
+  const reasons: string[] = [];
+  if (schedules   > 0) reasons.push(`${schedules} schedule${schedules     > 1 ? "s" : ""}`);
+  if (enrollments > 0) reasons.push(`${enrollments} enrollment${enrollments > 1 ? "s" : ""}`);
+  if (trials      > 0) reasons.push(`${trials} trial booking${trials       > 1 ? "s" : ""}`);
+
+  if (reasons.length > 0) {
     return {
-      error: `Cannot delete: ${enrollmentCount} active enrollment${enrollmentCount > 1 ? "s" : ""} exist.`,
+      error: `Cannot delete: this sub-class has ${reasons.join(", ")}. Remove them first or deactivate it instead.`,
     };
   }
 
-  await prisma.subClass.delete({ where: { id } });
-  revalidatePath("/admin/classes");
+  try {
+    await prisma.subClass.delete({ where: { id } });
+  } catch (e: unknown) {
+    // Catch any FK violation we may have missed
+    const code = (e as { code?: string })?.code;
+    if (code === "P2003") {
+      return { error: "Cannot delete: this sub-class is still referenced by other records." };
+    }
+    throw e;
+  }
   return { success: true };
 }

@@ -30,7 +30,6 @@ export default async function PaymentPage({
                 include: { class: true },
               },
               teacher: true,
-              room: { include: { location: true } },
             },
           },
         },
@@ -67,13 +66,6 @@ export default async function PaymentPage({
       lastName: booking.session.schedule.teacher.lastName,
       photoUrl: booking.session.schedule.teacher.photoUrl,
     },
-    room: booking.session.schedule.room
-      ? {
-          name: booking.session.schedule.room.name,
-          locationName: booking.session.schedule.room.location.name,
-          isOnline: booking.session.schedule.room.location.isOnline,
-        }
-      : null,
     payment: {
       id: booking.payment?.id ?? null,
       amount: booking.payment?.amount.toString() ?? "0",

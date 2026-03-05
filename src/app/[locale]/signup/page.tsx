@@ -36,7 +36,7 @@ export default function SignUpPage() {
         style={{
           backgroundImage: "url('/images/pattern.svg')",
           backgroundRepeat: "repeat",
-          backgroundSize: "1200px auto",
+          backgroundSize: "1600px auto",
           opacity: 0.01,
           filter: "sepia(1) saturate(0.5) brightness(2)",
         }}

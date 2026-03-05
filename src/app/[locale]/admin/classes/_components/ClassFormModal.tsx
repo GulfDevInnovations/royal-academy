@@ -51,7 +51,7 @@ export default function ClassFormModal({ onClose, onSuccess, editing }: Props) {
 
       {/* Modal */}
       <div
-        className="relative w-full max-w-md rounded-2xl border border-white/[0.08] shadow-2xl z-10"
+        className="relative w-full max-w-md rounded-2xl border border-white/8 shadow-2xl z-10"
         style={{ background: "#1a1d27" }}
       >
         {/* Header */}
@@ -64,7 +64,7 @@ export default function ClassFormModal({ onClose, onSuccess, editing }: Props) {
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
           >
             <X size={15} />
           </button>
@@ -105,8 +105,12 @@ export default function ClassFormModal({ onClose, onSuccess, editing }: Props) {
               name="isActive"
               defaultValue={editing.isActive ? "true" : "false"}
             >
-              <option value="true">Active</option>
-              <option value="false">Inactive</option>
+              <option value="true" className="text-black">
+                Active
+              </option>
+              <option value="false" className="text-black">
+                Inactive
+              </option>
             </AdminSelect>
           )}
 

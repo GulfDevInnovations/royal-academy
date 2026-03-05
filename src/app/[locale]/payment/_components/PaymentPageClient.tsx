@@ -40,11 +40,6 @@ type PaymentData = {
     lastName: string;
     photoUrl: string | null;
   };
-  room: {
-    name: string;
-    locationName: string;
-    isOnline: boolean;
-  } | null;
   payment: {
     id: string | null;
     amount: string;
@@ -175,23 +170,6 @@ export function PaymentPageClient({ data }: { data: PaymentData }) {
                 label="Instructor"
                 value={`${data.teacher.firstName} ${data.teacher.lastName}`}
               />
-              {data.room && (
-                <DetailRow
-                  icon={
-                    data.room.isOnline ? (
-                      <Wifi className="w-4 h-4" />
-                    ) : (
-                      <MapPin className="w-4 h-4" />
-                    )
-                  }
-                  label={data.room.isOnline ? "Format" : "Location"}
-                  value={
-                    data.room.isOnline
-                      ? "Online"
-                      : `${data.room.name}, ${data.room.locationName}`
-                  }
-                />
-              )}
             </div>
           </div>
 
