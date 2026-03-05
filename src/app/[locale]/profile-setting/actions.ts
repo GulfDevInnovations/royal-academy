@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { z } from "zod";
 import {
   Gender,
@@ -12,6 +13,8 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 
+const PROFILE_DRAFT_COOKIE = "profile_setting_draft";
+
 const REQUIRED_FIELDS = [
   "firstName",
   "lastName",
@@ -21,7 +24,6 @@ const REQUIRED_FIELDS = [
   "phone",
   "emergencyContactName",
   "emergencyContactPhone",
-  "emergencyRelationship",
 ] as const;
 
 function getString(formData: FormData, key: string) {
@@ -38,7 +40,7 @@ const profileSchema = z.object({
   gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER]),
   emergencyContactName: z.string().trim().min(1),
   emergencyContactPhone: z.string().trim().min(1),
-  emergencyRelationship: z.string().trim().min(1),
+  emergencyRelationship: z.string().trim().optional(),
   preferredTrack: z
     .enum([ProfileTrack.DANCE, ProfileTrack.MUSIC, ProfileTrack.ART])
     .optional(),
@@ -53,15 +55,54 @@ const profileSchema = z.object({
   city: z.string().trim().optional(),
   country: z.string().trim().optional(),
   notes: z.string().trim().optional(),
+  hasMedicalCondition: z.boolean().default(false),
+  medicalConditionDetails: z.string().trim().optional(),
+  agreePolicy: z.literal(true),
 });
 
 export async function saveProfileSettings(formData: FormData) {
+  const cookieStore = await cookies();
   const rawLocale = formData.get("locale");
   const locale = rawLocale === "ar" ? "ar" : "en";
+
+  const draft = {
+    firstName: getString(formData, "firstName"),
+    lastName: getString(formData, "lastName"),
+    email: getString(formData, "email"),
+    phone: getString(formData, "phone"),
+    dateOfBirth: getString(formData, "dateOfBirth"),
+    gender: getString(formData, "gender"),
+    emergencyContactName: getString(formData, "emergencyContactName"),
+    emergencyContactPhone: getString(formData, "emergencyContactPhone"),
+    emergencyRelationship: getString(formData, "emergencyRelationship"),
+    preferredTrack: getString(formData, "preferredTrack"),
+    experience: getString(formData, "experience"),
+    address: getString(formData, "address"),
+    city: getString(formData, "city"),
+    country: getString(formData, "country"),
+    notes: getString(formData, "notes"),
+    hasMedicalCondition: formData.get("hasMedicalCondition") === "on",
+    medicalConditionDetails: getString(formData, "medicalConditionDetails"),
+    agreePolicy: formData.get("agreePolicy") === "on",
+  };
+
+  cookieStore.set(
+    PROFILE_DRAFT_COOKIE,
+    encodeURIComponent(JSON.stringify(draft)),
+    {
+      path: "/",
+      maxAge: 60 * 30,
+      httpOnly: true,
+      sameSite: "lax",
+    },
+  );
 
   const missingFields = REQUIRED_FIELDS.filter(
     (field) => getString(formData, field).length === 0
   );
+  if (formData.get("agreePolicy") !== "on") {
+    missingFields.push("agreePolicy");
+  }
 
   if (missingFields.length > 0) {
     const missing = encodeURIComponent(missingFields.join(","));
@@ -85,6 +126,9 @@ export async function saveProfileSettings(formData: FormData) {
     city: getString(formData, "city"),
     country: getString(formData, "country"),
     notes: getString(formData, "notes"),
+    hasMedicalCondition: formData.get("hasMedicalCondition") === "on",
+    medicalConditionDetails: getString(formData, "medicalConditionDetails"),
+    agreePolicy: formData.get("agreePolicy") === "on",
   });
 
   if (!parsed.success) {
@@ -115,7 +159,6 @@ export async function saveProfileSettings(formData: FormData) {
   }
 
   const data = parsed.data;
-  const emergencyContact = `${data.emergencyContactName} | ${data.emergencyContactPhone} | ${data.emergencyRelationship}`;
 
   try {
     await prisma.user.update({
@@ -133,10 +176,14 @@ export async function saveProfileSettings(formData: FormData) {
               address: data.address || null,
               city: data.city || null,
               country: data.country || null,
-              emergencyContact,
               emergencyContactName: data.emergencyContactName,
               emergencyContactPhone: data.emergencyContactPhone,
               emergencyRelationship: data.emergencyRelationship,
+              hasMedicalCondition: data.hasMedicalCondition,
+              medicalConditionDetails: data.hasMedicalCondition
+                ? (data.medicalConditionDetails || null)
+                : null,
+              agreePolicy: data.agreePolicy,
               preferredTrack: data.preferredTrack ?? null,
               experience: data.experience ?? null,
               notes: data.notes || null,
@@ -149,10 +196,14 @@ export async function saveProfileSettings(formData: FormData) {
               address: data.address || null,
               city: data.city || null,
               country: data.country || null,
-              emergencyContact,
               emergencyContactName: data.emergencyContactName,
               emergencyContactPhone: data.emergencyContactPhone,
               emergencyRelationship: data.emergencyRelationship,
+              hasMedicalCondition: data.hasMedicalCondition,
+              medicalConditionDetails: data.hasMedicalCondition
+                ? (data.medicalConditionDetails || null)
+                : null,
+              agreePolicy: data.agreePolicy,
               preferredTrack: data.preferredTrack ?? null,
               experience: data.experience ?? null,
               notes: data.notes || null,
@@ -180,6 +231,11 @@ export async function saveProfileSettings(formData: FormData) {
     }
     throw error;
   }
+
+  cookieStore.set(PROFILE_DRAFT_COOKIE, "", {
+    path: "/",
+    maxAge: 0,
+  });
 
   redirect(`/${data.locale}/profile-setting?saved=1`);
 }

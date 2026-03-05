@@ -9,8 +9,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
 // ─────────────────────────────────────────────
 // ENUMS
 // ─────────────────────────────────────────────
@@ -105,51 +103,57 @@ enum DayOfWeek {
 // ─────────────────────────────────────────────
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  phone         String?   @unique
-  passwordHash  String
-  role          Role      @default(STUDENT)
-  isActive      Boolean   @default(true)
-  isVerified    Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  lastLoginAt   DateTime?
+  id           String    @id @default(cuid())
+  email        String    @unique
+  phone        String?   @unique
+  passwordHash String
+  role         Role      @default(STUDENT)
+  isActive     Boolean   @default(true)
+  isVerified   Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastLoginAt  DateTime?
 
   // NextAuth fields
   emailVerified DateTime?
   image         String?
 
   // Relations
-  studentProfile  StudentProfile?
-  teacherProfile  TeacherProfile?
-  adminProfile    AdminProfile?
-  accounts        Account[]
-  sessions        Session[]
-  notifications   Notification[]
+  studentProfile StudentProfile?
+  teacherProfile TeacherProfile?
+  adminProfile   AdminProfile?
+  accounts       Account[]
+  sessions       Session[]
+  notifications  Notification[]
 
   @@map("users")
 }
 
 model StudentProfile {
-  id              String    @id @default(cuid())
-  userId          String    @unique
-  firstName       String
-  lastName        String
-  dateOfBirth     DateTime?
-  gender          Gender?
-  address         String?
-  city            String?
-  country         String?
-  emergencyContact String?
-  emergencyContactName String?
+  id                    String             @id @default(cuid())
+  userId                String             @unique
+  firstName             String
+  lastName              String
+  dateOfBirth           DateTime?
+  gender                Gender?
+  address               String?
+  city                  String?
+  country               String?
+  emergencyContact      String?
+  emergencyContactName  String?
   emergencyContactPhone String?
   emergencyRelationship String?
-  preferredTrack  ProfileTrack?
-  experience      ProfileExperience?
-  notes           String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  hasMedicalCondition   Boolean            @default(false)
+  medicalConditionDetails String?
+  agreePolicy           Boolean            @default(false)
+  needsSupport          Boolean            @default(false)
+  receiveEmail          Boolean            @default(false)
+  receiveWhatsapp       Boolean            @default(false)
+  preferredTrack        ProfileTrack?
+  experience            ProfileExperience?
+  notes                 String?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   bookings Booking[]
@@ -170,10 +174,10 @@ model TeacherProfile {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subClasses        SubClass[]
+  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subClasses          SubClass[]
   teacherAvailability TeacherAvailability[]
-  classSchedules    ClassSchedule[]
+  classSchedules      ClassSchedule[]
 
   @@map("teacher_profiles")
 }
@@ -240,15 +244,15 @@ model VerificationToken {
 // ─────────────────────────────────────────────
 
 model Class {
-  id          String      @id @default(cuid())
-  name        String      // e.g. "Dance", "Music", "Painting"
+  id          String   @id @default(cuid())
+  name        String // e.g. "Dance", "Music", "Painting"
   description String?
   iconUrl     String?
   coverUrl    String?
-  isActive    Boolean     @default(true)
-  sortOrder   Int         @default(0)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   subClasses SubClass[]
 
@@ -256,21 +260,21 @@ model Class {
 }
 
 model SubClass {
-  id              String      @id @default(cuid())
+  id              String   @id @default(cuid())
   classId         String
   teacherId       String?
-  name            String      // e.g. "Piano", "Piano for Kids", "Ballet"
+  name            String // e.g. "Piano", "Piano for Kids", "Ballet"
   description     String?
   coverUrl        String?
-  capacity        Int         @default(10)
-  durationMinutes Int         @default(60)
-  price           Decimal     @db.Decimal(10, 2)
-  currency        String      @default("OMR")
-  level           String?     // Beginner, Intermediate, Advanced
-  ageGroup        String?     // Kids, Teens, Adults, All Ages
-  isActive        Boolean     @default(true)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  capacity        Int      @default(10)
+  durationMinutes Int      @default(60)
+  price           Decimal  @db.Decimal(10, 2)
+  currency        String   @default("OMR")
+  level           String? // Beginner, Intermediate, Advanced
+  ageGroup        String? // Kids, Teens, Adults, All Ages
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   class          Class           @relation(fields: [classId], references: [id])
   teacher        TeacherProfile? @relation(fields: [teacherId], references: [id])
@@ -285,7 +289,7 @@ model SubClass {
 
 model Location {
   id        String   @id @default(cuid())
-  name      String   // e.g. "Main Branch", "Online"
+  name      String // e.g. "Main Branch", "Online"
   address   String?
   city      String?
   country   String?
@@ -303,7 +307,7 @@ model Location {
 model Room {
   id         String   @id @default(cuid())
   locationId String
-  name       String   // e.g. "Studio A", "Music Room 1"
+  name       String // e.g. "Studio A", "Music Room 1"
   capacity   Int      @default(10)
   hasOnline  Boolean  @default(false)
   isActive   Boolean  @default(true)
@@ -324,8 +328,8 @@ model TeacherAvailability {
   id        String    @id @default(cuid())
   teacherId String
   dayOfWeek DayOfWeek
-  startTime String    // "09:00"
-  endTime   String    // "17:00"
+  startTime String // "09:00"
+  endTime   String // "17:00"
   isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -341,22 +345,22 @@ model ClassSchedule {
   teacherId       String
   roomId          String?
   dayOfWeek       DayOfWeek
-  startTime       String      // "10:00"
-  endTime         String      // "11:00"
-  startDate       DateTime    // When this schedule becomes active
-  endDate         DateTime?   // null means ongoing
+  startTime       String // "10:00"
+  endTime         String // "11:00"
+  startDate       DateTime // When this schedule becomes active
+  endDate         DateTime? // null means ongoing
   maxCapacity     Int
   currentEnrolled Int         @default(0)
   isRecurring     Boolean     @default(true)
   status          ClassStatus @default(ACTIVE)
-  onlineLink      String?     // Zoom or Meet link if online
+  onlineLink      String? // Zoom or Meet link if online
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
-  subClass  SubClass       @relation(fields: [subClassId], references: [id])
-  teacher   TeacherProfile @relation(fields: [teacherId], references: [id])
-  room      Room?          @relation(fields: [roomId], references: [id])
-  sessions  ClassSession[]
+  subClass SubClass       @relation(fields: [subClassId], references: [id])
+  teacher  TeacherProfile @relation(fields: [teacherId], references: [id])
+  room     Room?          @relation(fields: [roomId], references: [id])
+  sessions ClassSession[]
 
   @@map("class_schedules")
 }
@@ -366,7 +370,7 @@ model ClassSchedule {
 model ClassSession {
   id              String      @id @default(cuid())
   scheduleId      String
-  sessionDate     DateTime    // The actual date of this session
+  sessionDate     DateTime // The actual date of this session
   startTime       String
   endTime         String
   status          ClassStatus @default(ACTIVE)
@@ -375,8 +379,8 @@ model ClassSession {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
-  schedule  ClassSchedule @relation(fields: [scheduleId], references: [id])
-  bookings  Booking[]
+  schedule ClassSchedule @relation(fields: [scheduleId], references: [id])
+  bookings Booking[]
 
   @@map("class_sessions")
 }
@@ -386,18 +390,18 @@ model ClassSession {
 // ─────────────────────────────────────────────
 
 model Booking {
-  id               String        @id @default(cuid())
-  studentId        String
-  sessionId        String
-  status           BookingStatus @default(PENDING)
-  bookedAt         DateTime      @default(now())
-  cancelledAt      DateTime?
-  cancelledReason  String?
-  rescheduledFrom  String?       // previous booking id if rescheduled
-  canCancel        Boolean       @default(true)
-  notes            String?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id              String        @id @default(cuid())
+  studentId       String
+  sessionId       String
+  status          BookingStatus @default(PENDING)
+  bookedAt        DateTime      @default(now())
+  cancelledAt     DateTime?
+  cancelledReason String?
+  rescheduledFrom String? // previous booking id if rescheduled
+  canCancel       Boolean       @default(true)
+  notes           String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   student       StudentProfile @relation(fields: [studentId], references: [id])
   session       ClassSession   @relation(fields: [sessionId], references: [id])
@@ -413,28 +417,28 @@ model Booking {
 // ─────────────────────────────────────────────
 
 model Payment {
-  id                    String        @id @default(cuid())
-  bookingId             String        @unique
+  id                    String         @id @default(cuid())
+  bookingId             String         @unique
   invoiceId             String?
-  amount                Decimal       @db.Decimal(10, 2)
-  currency              String        @default("OMR")
-  status                PaymentStatus @default(PENDING)
+  amount                Decimal        @db.Decimal(10, 2)
+  currency              String         @default("OMR")
+  status                PaymentStatus  @default(PENDING)
   method                PaymentMethod?
-  stripePaymentIntentId String?       @unique
-  stripeSessionId       String?       @unique
+  stripePaymentIntentId String?        @unique
+  stripeSessionId       String?        @unique
   stripeChargeId        String?
   paidAt                DateTime?
   failedAt              DateTime?
   failureReason         String?
-  refundedAmount        Decimal?      @db.Decimal(10, 2)
+  refundedAmount        Decimal?       @db.Decimal(10, 2)
   refundedAt            DateTime?
   refundReason          String?
   metadata              Json?
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
 
-  booking  Booking   @relation(fields: [bookingId], references: [id])
-  invoice  Invoice?  @relation(fields: [invoiceId], references: [id])
+  booking Booking  @relation(fields: [bookingId], references: [id])
+  invoice Invoice? @relation(fields: [invoiceId], references: [id])
 
   @@map("payments")
 }
@@ -465,18 +469,18 @@ model Invoice {
 // ─────────────────────────────────────────────
 
 model Notification {
-  id         String             @id @default(cuid())
-  userId     String
-  bookingId  String?
-  type       NotificationType
-  status     NotificationStatus @default(PENDING)
-  subject    String?            // for emails
-  body       String
-  sentAt     DateTime?
-  failReason String?
-  scheduledFor DateTime?        // when to send (12h / 24h before class)
-  createdAt  DateTime           @default(now())
-  updatedAt  DateTime           @updatedAt
+  id           String             @id @default(cuid())
+  userId       String
+  bookingId    String?
+  type         NotificationType
+  status       NotificationStatus @default(PENDING)
+  subject      String? // for emails
+  body         String
+  sentAt       DateTime?
+  failReason   String?
+  scheduledFor DateTime? // when to send (12h / 24h before class)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
 
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   booking Booking? @relation(fields: [bookingId], references: [id])
@@ -489,16 +493,16 @@ model Notification {
 // ─────────────────────────────────────────────
 
 model AuditLog {
-  id         String   @id @default(cuid())
-  userId     String?
-  action     String   // e.g. "BOOKING_CREATED", "PAYMENT_FAILED"
-  entity     String   // e.g. "Booking", "Payment"
-  entityId   String
-  oldValues  Json?
-  newValues  Json?
-  ipAddress  String?
-  userAgent  String?
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String // e.g. "BOOKING_CREATED", "PAYMENT_FAILED"
+  entity    String // e.g. "Booking", "Payment"
+  entityId  String
+  oldValues Json?
+  newValues Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
 
   @@map("audit_logs")
 }
