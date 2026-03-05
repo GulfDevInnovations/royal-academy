@@ -45,13 +45,6 @@ export type SessionForCalendar = {
     photoUrl: string | null;
     specialties: string[];
   };
-  room: {
-    name: string;
-    location: {
-      name: string;
-      isOnline: boolean;
-    };
-  } | null;
   spotsLeft: number;
   onlineLink: string | null;
 };
@@ -87,7 +80,6 @@ export async function getSessionsForMonth(
         include: {
           subClass: { include: { class: true } },
           teacher: true,
-          room: { include: { location: true } },
         },
       },
       bookings: { where: { status: { not: "CANCELLED" } } },
@@ -104,7 +96,6 @@ export async function getSessionsForMonth(
     include: {
       subClass: { include: { class: true } },
       teacher: true,
-      room: { include: { location: true } },
       sessions: {
         where: {
           sessionDate: { gte: monthStart, lte: monthEnd },
@@ -175,7 +166,6 @@ function mapActualSession(
     schedule: {
       subClass: { class: { name: string; iconUrl: string | null }; name: string; description: string | null; price: any; currency: string; level: string | null; ageGroup: string | null; durationMinutes: number; capacity: number; coverUrl: string | null; id: string };
       teacher: { id: string; firstName: string; lastName: string; bio: string | null; photoUrl: string | null; specialties: string[] };
-      room: { name: string; location: { name: string; isOnline: boolean } } | null;
       maxCapacity: number;
       onlineLink: string | null;
     };
@@ -241,7 +231,6 @@ function mapScheduleToVirtual(
       photoUrl: string | null;
       specialties: string[];
     };
-    room: { name: string; location: { name: string; isOnline: boolean } } | null;
   },
   dateKey: string
 ): SessionForCalendar {

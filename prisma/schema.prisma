@@ -182,23 +182,23 @@ model StudentProfile {
 }
 
 model TeacherProfile {
-  id                 String              @id @default(cuid())
-  userId             String              @unique
-  firstName          String
-  lastName           String
-  bio                String?
-  specialties        String[]
-  photoUrl           String?
-  cvUrl              String?
-  monthlyEnrollments MonthlyEnrollment[] // add to Workshop relation too
-  isAvailable        Boolean             @default(true)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  id          String   @id @default(cuid())
+  userId      String?  @unique                    // ← String? (nullable)
+  firstName   String
+  lastName    String
+  bio         String?
+  specialties String[]
+  photoUrl    String?
+  cvUrl       String?
+  isAvailable Boolean  @default(true)
+  isActive    Boolean  @default(true)             // ← new field
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subClasses          SubClass[]
+  user                User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)  // ← SetNull not Cascade
   teacherAvailability TeacherAvailability[]
   classSchedules      ClassSchedule[]
+  subClassTeachers SubClassTeacher[]
   workshops           Workshop[]
 
   @@map("teacher_profiles")
@@ -284,7 +284,6 @@ model Class {
 model SubClass {
   id               String      @id @default(cuid())
   classId          String
-  teacherId        String?
   name             String      // e.g. "Piano", "Piano for Kids", "Ballet"
   description      String?
   coverUrl         String?
@@ -306,50 +305,12 @@ model SubClass {
   updatedAt        DateTime    @updatedAt
 
   class          Class           @relation(fields: [classId], references: [id])
-  teacher        TeacherProfile? @relation(fields: [teacherId], references: [id])
   classSchedules ClassSchedule[]
   trialBookings  TrialBooking[]
+  teachers SubClassTeacher[]
   monthlyEnrollments MonthlyEnrollment[]
 
   @@map("sub_classes")
-}
-
-// ─────────────────────────────────────────────
-// LOCATIONS & ROOMS
-// ─────────────────────────────────────────────
-
-model Location {
-  id        String   @id @default(cuid())
-  name      String // e.g. "Main Branch", "Online"
-  address   String?
-  city      String?
-  country   String?
-  mapUrl    String?
-  isOnline  Boolean  @default(false)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  rooms Room[]
-
-  @@map("locations")
-}
-
-model Room {
-  id         String   @id @default(cuid())
-  locationId String
-  name       String // e.g. "Studio A", "Music Room 1"
-  capacity   Int      @default(10)
-  hasOnline  Boolean  @default(false)
-  isActive   Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  location       Location        @relation(fields: [locationId], references: [id])
-  classSchedules ClassSchedule[]
-  workshops      Workshop[]
-
-  @@map("rooms")
 }
 
 // ─────────────────────────────────────────────
@@ -375,7 +336,6 @@ model ClassSchedule {
   id              String      @id @default(cuid())
   subClassId      String
   teacherId       String
-  roomId          String?
   dayOfWeek       DayOfWeek
   startTime       String      // "10:00"
   endTime         String      // "11:00"
@@ -392,9 +352,7 @@ model ClassSchedule {
 
   subClass SubClass       @relation(fields: [subClassId], references: [id])
   teacher  TeacherProfile @relation(fields: [teacherId], references: [id])
-  room     Room?          @relation(fields: [roomId], references: [id])
   sessions ClassSession[]
-
   @@map("class_schedules")
 }
 
@@ -521,7 +479,6 @@ model Workshop {
   description String?
   coverUrl    String?
   teacherId   String?
-  roomId      String?
   eventDate   DateTime
   startTime   String
   endTime     String
@@ -533,7 +490,6 @@ model Workshop {
   updatedAt   DateTime @updatedAt
 
   teacher  TeacherProfile?   @relation(fields: [teacherId], references: [id])
-  room     Room?             @relation(fields: [roomId], references: [id])
   bookings WorkshopBooking[]
 
   @@map("workshops")
@@ -653,4 +609,14 @@ model AuditLog {
   createdAt DateTime @default(now())
 
   @@map("audit_logs")
+}
+
+model SubClassTeacher {
+  teacherId  String
+  subClassId String
+  teacher    TeacherProfile @relation(fields: [teacherId],  references: [id], onDelete: Cascade)
+  subClass   SubClass       @relation(fields: [subClassId], references: [id], onDelete: Cascade)
+
+  @@id([teacherId, subClassId])
+  @@map("subclass_teachers")
 }

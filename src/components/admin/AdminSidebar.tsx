@@ -31,14 +31,12 @@ const navGroups = [
       { label: "Classes", href: "/admin/classes", icon: BookOpen },
       { label: "Teachers", href: "/admin/teachers", icon: GraduationCap },
       { label: "Students", href: "/admin/students", icon: Users },
-      { label: "Locations", href: "/admin/locations", icon: MapPin },
     ],
   },
   {
     label: "Scheduling",
     items: [
       { label: "Schedules", href: "/admin/schedules", icon: CalendarDays },
-      { label: "Workshops", href: "/admin/workshops", icon: Sparkles },
     ],
   },
   {

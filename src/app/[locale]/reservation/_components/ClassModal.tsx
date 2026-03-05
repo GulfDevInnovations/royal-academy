@@ -221,26 +221,6 @@ export function ClassModal({
                     value={session.subClass.ageGroup}
                   />
                 )}
-
-                {session.room && (
-                  <DetailChip
-                    icon={
-                      session.room.location.isOnline ? (
-                        <Wifi className="w-3.5 h-3.5" />
-                      ) : (
-                        <MapPin className="w-3.5 h-3.5" />
-                      )
-                    }
-                    label={
-                      session.room.location.isOnline ? "Format" : "Location"
-                    }
-                    value={
-                      session.room.location.isOnline
-                        ? "Online"
-                        : `${session.room.name}, ${session.room.location.name}`
-                    }
-                  />
-                )}
               </div>
 
               {session.subClass.description && (

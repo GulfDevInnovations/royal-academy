@@ -20,8 +20,6 @@ async function main() {
   await prisma.teacherAvailability.deleteMany()
   await prisma.subClass.deleteMany()
   await prisma.class.deleteMany()
-  await prisma.room.deleteMany()
-  await prisma.location.deleteMany()
   await prisma.adminProfile.deleteMany()
   await prisma.teacherProfile.deleteMany()
   await prisma.studentProfile.deleteMany()
@@ -171,50 +169,6 @@ async function main() {
 
   console.log('✅ Students created')
 
-  // ─────────────────────────────────────────────
-  // LOCATIONS & ROOMS
-  // ─────────────────────────────────────────────
-  const mainLocation = await prisma.location.create({
-    data: {
-      name: 'Royal Academy Main Branch',
-      address: 'Al Khuwair Street',
-      city: 'Muscat',
-      country: 'Oman',
-      isOnline: false,
-      isActive: true,
-      rooms: {
-        create: [
-          { name: 'Dance Studio A', capacity: 15, hasOnline: false },
-          { name: 'Dance Studio B', capacity: 10, hasOnline: false },
-          { name: 'Music Room 1',   capacity: 5,  hasOnline: true  },
-          { name: 'Music Room 2',   capacity: 5,  hasOnline: true  },
-          { name: 'Art Studio',     capacity: 12, hasOnline: false },
-        ]
-      }
-    },
-    include: { rooms: true }
-  })
-
-  const onlineLocation = await prisma.location.create({
-    data: {
-      name: 'Online',
-      isOnline: true,
-      isActive: true,
-      rooms: {
-        create: [
-          { name: 'Online Room', capacity: 20, hasOnline: true }
-        ]
-      }
-    },
-    include: { rooms: true }
-  })
-
-  const danceStudioA = mainLocation.rooms.find(r => r.name === 'Dance Studio A')!
-  const musicRoom1   = mainLocation.rooms.find(r => r.name === 'Music Room 1')!
-  const artStudio    = mainLocation.rooms.find(r => r.name === 'Art Studio')!
-  const onlineRoom   = onlineLocation.rooms[0]
-
-  console.log('✅ Locations and rooms created')
 
   // ─────────────────────────────────────────────
   // CLASSES & SUBCLASSES
@@ -399,7 +353,6 @@ async function main() {
     data: {
       subClassId:      ballet.id,
       teacherId:       teacher1.id,
-      roomId:          danceStudioA.id,
       dayOfWeek:       DayOfWeek.MONDAY,
       startTime:       '10:00',
       endTime:         '11:00',
@@ -416,7 +369,6 @@ async function main() {
     data: {
       subClassId:      piano.id,
       teacherId:       teacher2.id,
-      roomId:          musicRoom1.id,
       dayOfWeek:       DayOfWeek.TUESDAY,
       startTime:       '11:00',
       endTime:         '12:00',
@@ -433,7 +385,6 @@ async function main() {
     data: {
       subClassId:      oilPainting.id,
       teacherId:       teacher3.id,
-      roomId:          artStudio.id,
       dayOfWeek:       DayOfWeek.WEDNESDAY,
       startTime:       '14:00',
       endTime:         '15:30',

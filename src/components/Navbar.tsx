@@ -552,7 +552,7 @@ export default function Navbar() {
                       <span className="relative z-10 w-8 h-8 rounded-xl liquid-glass flex items-center justify-center text-royal-gold/70 group-hover:text-royal-gold transition-colors duration-300 text-sm">
                         <FontAwesomeIcon icon={faPowerOff} />
                       </span>
-                      <span className="relative z-10 text-royal-mauve group-hover:text-royal-cream text-2xl tracking-wide transition-all duration-300 group-hover:translate-x-1">
+                      <span className="relative z-10 text-royal-cream group-hover:text-royal-cream text-2xl tracking-wide transition-all duration-300 group-hover:translate-x-1">
                         {isArabic ? "تسجيل الخروج" : "Sign Out"}
                       </span>
                     </button>

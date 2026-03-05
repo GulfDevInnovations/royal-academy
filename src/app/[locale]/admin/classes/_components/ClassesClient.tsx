@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   Plus,
   ChevronDown,
@@ -8,6 +9,7 @@ import {
   Pencil,
   Trash2,
   BookOpen,
+  Loader2,
 } from "lucide-react";
 import type { SerializedClass, SerializedSubClass } from "../page";
 import {
@@ -30,7 +32,7 @@ import {
 } from "@/components/admin/ui";
 import ClassFormModal from "./ClassFormModal";
 import SubClassFormModal from "./SubClassFormModal";
-import DeleteConfirmModal from "./DeleteConfirmModal";
+import DeleteConfirmModal from "../../../../../components/admin/DeleteConfirmModal";
 import { ToastContainer } from "@/components/admin/Toast";
 import { useToast } from "../../hooks/useToast";
 
@@ -73,31 +75,32 @@ const SESSION_TYPE_VARIANT: Record<
 };
 
 export default function ClassesClient({ initialClasses, teachers }: Props) {
-  const [classes, setClasses] = useState<SerializedClass[]>(initialClasses);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [modal, setModal] = useState<Modal | null>(null);
 
   const toggleExpand = (id: string) =>
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
 
+  const router = useRouter();
+  const [isRefreshing, startRefresh] = useTransition();
+
   // After any mutation, router.refresh() won't work here since we're client-only.
   // We trigger a full reload of the data via window.location.reload() for simplicity,
   // or you can use router.refresh() if you pass router in.
   const handleSuccess = () => {
     setModal(null);
-    window.location.reload();
+    startRefresh(() => {
+      router.refresh();
+    });
   };
-
-  const findParentClass = (subClassId: string) =>
-    classes.find((c) => c.subClasses.some((s) => s.id === subClassId));
-
-  const { toasts, toast, remove } = useToast();
 
   const handleDeleteClass = async (id: string) => {
     const result = await deleteClass(id);
     if (result.error) {
       setModal(null);
       toast(result.error, "error");
+    } else {
+      handleSuccess(); // ← was missing on success path
     }
     return result;
   };
@@ -107,12 +110,30 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
     if (result.error) {
       setModal(null);
       toast(result.error, "error");
+    } else {
+      handleSuccess(); // ← was missing on success path
     }
     return result;
   };
 
+  const findParentClass = (subClassId: string) =>
+    initialClasses.find((c) => c.subClasses.some((s) => s.id === subClassId));
+
+  const { toasts, toast, remove } = useToast();
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
+      {isRefreshing && (
+        <div className="absolute inset-0 z-10 flex items-start justify-end pointer-events-none">
+          <div
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs mt-1"
+            style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b" }}
+          >
+            <Loader2 size={12} className="animate-spin" />
+            Updating...
+          </div>
+        </div>
+      )}
       <AdminPageHeader
         title="Classes"
         subtitle="Manage class categories and their sub-classes"
@@ -127,7 +148,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
         }
       />
 
-      {classes.length === 0 ? (
+      {initialClasses.length === 0 ? (
         <AdminCard>
           <AdminEmptyState
             title="No classes yet"
@@ -145,7 +166,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
         </AdminCard>
       ) : (
         <div className="space-y-3">
-          {classes.map((cls) => (
+          {initialClasses.map((cls) => (
             <AdminCard key={cls.id} noPadding>
               {/* ── Class Row ── */}
               <div
@@ -294,8 +315,18 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                               </AdminBadge>
                             </AdminTd>
                             <AdminTd>
-                              {sub.teacher ? (
-                                `${sub.teacher.firstName} ${sub.teacher.lastName}`
+                              {sub.teachers && sub.teachers.length > 0 ? (
+                                sub.teachers
+                                  .map(
+                                    (t: {
+                                      teacher: {
+                                        firstName: string;
+                                        lastName: string;
+                                      };
+                                    }) =>
+                                      `${t.teacher.firstName} ${t.teacher.lastName}`,
+                                  )
+                                  .join(", ")
                               ) : (
                                 <span style={{ color: adminColors.textMuted }}>
                                   —

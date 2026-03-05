@@ -105,21 +105,6 @@ export function ClassCard({ session, onClick }: ClassCardProps) {
               · {session.subClass.durationMinutes}min
             </span>
           </div>
-
-          {session.room ? (
-            <div className="flex items-center gap-1.5 text-royal-cream/60 text-xs">
-              {session.room.location.isOnline ? (
-                <Wifi className="w-3.5 h-3.5" />
-              ) : (
-                <MapPin className="w-3.5 h-3.5" />
-              )}
-              <span>
-                {session.room.location.isOnline
-                  ? "Online"
-                  : `${session.room.name} · ${session.room.location.name}`}
-              </span>
-            </div>
-          ) : null}
         </div>
 
         {/* Bottom row: level badge + spots */}
