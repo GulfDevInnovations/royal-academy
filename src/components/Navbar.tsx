@@ -5,7 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "@/lib/actions/auth.actions";
@@ -18,14 +18,16 @@ import {
   faBookOpen,
   faCreditCard,
   faPowerOff,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import NotificationBell from "@/components/NotificationBell";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [userImageUrl, setUserImageUrl] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   // Prisma userId resolved from Supabase session
   const [prismaUserId, setPrismaUserId] = useState<string | null>(null);
@@ -33,32 +35,62 @@ export default function Navbar() {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const t = useTranslations("nav");
   const isArabic = locale === "ar";
   const loginHref = `/${locale}/login?redirectTo=${encodeURIComponent(pathname)}`;
+  const avatarSrc = userImageUrl || "/images/user.png";
+  const isExternalAvatar = avatarSrc.startsWith("http");
+  const searchParamsKey = searchParams.toString();
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
+    document.body.style.overflow =
+      menuOpen || userMenuOpen || contactModalOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [menuOpen]);
+  }, [menuOpen, userMenuOpen, contactModalOpen]);
+
+  useEffect(() => {
+    if (!contactModalOpen) return;
+
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setContactModalOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", onEscape);
+    return () => window.removeEventListener("keydown", onEscape);
+  }, [contactModalOpen]);
 
   useEffect(() => {
     const supabase = createClient();
     let mounted = true;
+    const loadUserAvatar = async () => {
+      try {
+        const response = await fetch("/api/auth/avatar", { cache: "no-store" });
+        if (!response.ok) return;
+        const data = (await response.json()) as {
+          authenticated?: boolean;
+          imageUrl?: string | null;
+        };
+        if (!mounted) return;
+        setUserImageUrl(data.authenticated ? (data.imageUrl ?? null) : null);
+      } catch {
+        if (!mounted) return;
+        setUserImageUrl(null);
+      }
+    };
 
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!mounted) return;
       setUser(user ?? null);
-      // User.id IS the Supabase UUID — they share the same primary key
-      if (user) setPrismaUserId(user.id);
+      if (user) {
+        void loadUserAvatar();
+      } else {
+        setUserImageUrl(null);
+      }
       setAuthLoading(false);
     });
 
@@ -66,7 +98,11 @@ export default function Navbar() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      setPrismaUserId(session?.user?.id ?? null);
+      if (session?.user) {
+        void loadUserAvatar();
+      } else {
+        setUserImageUrl(null);
+      }
       if (!session?.user) setUserMenuOpen(false);
       setAuthLoading(false);
     });
@@ -75,13 +111,14 @@ export default function Navbar() {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [pathname, searchParamsKey]);
 
   const switchLanguage = () => {
     const newLocale = isArabic ? "en" : "ar";
     const pathWithoutLocale = pathname.replace(`/${locale}`, "") || "/";
     router.push(`/${newLocale}${pathWithoutLocale}`);
     setMenuOpen(false);
+    setContactModalOpen(false);
   };
 
   const noNavPage =
@@ -124,8 +161,61 @@ export default function Navbar() {
     },
   ];
 
-  // ── Animation variants (unchanged from original) ──
+  const contactContent = isArabic
+    ? {
+        title: "تواصل معنا",
+        subtitle: "يمكنك التواصل مع الأكاديمية عبر الأرقام والمنصات التالية.",
+        phone1: "استفسارات الإنجليزية وواتساب",
+        phone2: "استفسارات العربية",
+        landline: "الهاتف الأرضي",
+        email: "البريد الإلكتروني",
+        platforms: "المنصات",
+      }
+    : {
+        title: "Contact Us",
+        subtitle:
+          "Reach Royal Academy through the following contact numbers and platforms.",
+        phone1: "English Inquiries & WhatsApp",
+        phone2: "Arabic Inquiries",
+        landline: "Landline",
+        email: "Email",
+        platforms: "Platforms",
+      };
 
+  const contactPhones = [
+    {
+      label: contactContent.phone1,
+      value: "+968 9327 6767",
+      href: "tel:+96893276767",
+    },
+    {
+      label: contactContent.phone2,
+      value: "+968 9886 2343",
+      href: "tel:+96898862343",
+    },
+    {
+      label: contactContent.landline,
+      value: "+968 2449 7033",
+      href: "tel:+96824497033",
+    },
+  ];
+
+  const contactPlatforms = [
+    {
+      label: "YouTube",
+      href: "https://www.youtube.com/channel/UCBltWo91oBYJkW9k4r9iZCg",
+    },
+    {
+      label: "LinkedIn",
+      href: "http://www.linkedin.com/in/royal-academy-4729aa3a9",
+    },
+    {
+      label: "TikTok",
+      href: "https://www.tiktok.com/@royalacademymct?is_from_webapp=1&sender_device=pc",
+    },
+  ];
+
+  // Seal from top-right for main menu
   const sealVariants = {
     hidden: { clipPath: "circle(0% at 100% 0%)", opacity: 0, scale: 0.92 },
     visible: {
@@ -287,13 +377,16 @@ export default function Navbar() {
                 ${userMenuOpen ? "liquid-glass-gold" : "liquid-glass"}
               `}
             >
-              <Image
-                src="/images/user.png"
-                alt="User"
-                width={22}
-                height={22}
-                className="object-contain opacity-80 w-12"
-              />
+              <span className="relative h-12 w-12 overflow-hidden rounded-full bg-white/10">
+                <Image
+                  src={avatarSrc}
+                  alt="User"
+                  fill
+                  sizes="48px"
+                  className="object-contain opacity-90"
+                  unoptimized={isExternalAvatar}
+                />
+              </span>
             </motion.button>
           )}
 
@@ -307,20 +400,25 @@ export default function Navbar() {
         <div
           className={`flex items-center gap-3 ${isArabic ? "flex-row-reverse" : "flex-row"}`}
         >
-          {/* Chat With Us */}
+          {/* Contact Us */}
           <motion.div
             whileTap={{ scale: 0.96 }}
             whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.2 }}
           >
-            <Link
-              href={`/${locale}/support`}
+            <button
+              type="button"
+              onClick={() => {
+                setContactModalOpen(true);
+                setMenuOpen(false);
+                setUserMenuOpen(false);
+              }}
               className="liquid-glass-gold shimmer flex items-center justify-center gap-3 px-8 py-4 rounded-full transition-all duration-300 cursor-pointer"
             >
               <span className="text-royal-gold text-sm tracking-widest uppercase font-medium whitespace-nowrap">
-                {isArabic ? "تواصل معنا" : "Chat With Us"}
+                {isArabic ? "تواصل معنا" : "Contact Us"}
               </span>
-            </Link>
+            </button>
           </motion.div>
 
           {/* Language Switcher */}
@@ -421,7 +519,138 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-      {/* Main Nav Menu Box */}
+      <AnimatePresence>
+        {contactModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] backdrop-blur-[2px] px-4 py-8 md:py-10"
+            onClick={() => setContactModalOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 24, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.98 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              onClick={(event) => event.stopPropagation()}
+              className="mx-auto flex max-h-[90vh] w-full max-w-3xl flex-col rounded-3xl border border-white/25 shadow-[0_35px_90px_rgba(0,0,0,0.45)] overflow-hidden"
+              style={{
+                backdropFilter: "blur(20px) saturate(170%)",
+                WebkitBackdropFilter: "blur(20px) saturate(170%)",
+              }}
+            >
+              <div className="flex items-start justify-between gap-4 border-b border-white/15 px-6 py-5">
+                <div>
+                  <h2
+                    className="text-2xl tracking-wider"
+                    style={{ color: "#f2dfc1" }}
+                  >
+                    {contactContent.title}
+                  </h2>
+                  <p
+                    className="mt-1 text-sm"
+                    style={{ color: "rgba(245,236,222,0.9)" }}
+                  >
+                    {contactContent.subtitle}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setContactModalOpen(false)}
+                  className="h-9 w-9 rounded-full border border-white/20 text-[#f2dfc1] transition-colors hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e4d0b5]"
+                  aria-label={isArabic ? "إغلاق" : "Close"}
+                >
+                  <FontAwesomeIcon icon={faXmark} />
+                </button>
+              </div>
+
+              <div className="grid gap-5 overflow-y-auto px-6 py-6 md:grid-cols-2">
+                <section
+                  className="rounded-2xl border border-white/15 p-4"
+                  style={{
+                    boxShadow:
+                      "0 12px 30px rgba(0,0,0,0.22), inset 0 1px 1px rgba(255,255,255,0.08)",
+                  }}
+                >
+                  <div className="space-y-4">
+                    {contactPhones.map((item) => (
+                      <div key={item.label}>
+                        <p
+                          className="text-[11px] uppercase tracking-wider"
+                          style={{ color: "rgba(228,208,181,0.65)" }}
+                        >
+                          {item.label}
+                        </p>
+                        <a
+                          href={item.href}
+                          className="text-base transition-opacity hover:opacity-80"
+                          style={{ color: "#f3e5cf" }}
+                        >
+                          {item.value}
+                        </a>
+                      </div>
+                    ))}
+                    <div>
+                      <p
+                        className="text-[11px] uppercase tracking-wider"
+                        style={{ color: "rgba(228,208,181,0.65)" }}
+                      >
+                        {contactContent.email}
+                      </p>
+                      <a
+                        href="mailto:Admin@royalacademymct.com"
+                        className="text-base break-all transition-opacity hover:opacity-80"
+                        style={{ color: "#f3e5cf" }}
+                      >
+                        Admin@royalacademymct.com
+                      </a>
+                    </div>
+                  </div>
+                </section>
+
+                <section
+                  className="rounded-2xl border border-white/15 p-4"
+                  style={{
+                    boxShadow:
+                      "0 12px 30px rgba(0,0,0,0.22), inset 0 1px 1px rgba(255,255,255,0.08)",
+                  }}
+                >
+                  <h3
+                    className="text-sm uppercase tracking-wider"
+                    style={{ color: "rgba(228,208,181,0.75)" }}
+                  >
+                    {contactContent.platforms}
+                  </h3>
+                  <ul className="mt-3 space-y-3">
+                    {contactPlatforms.map((platform) => (
+                      <li key={platform.label}>
+                        <p
+                          className="text-[11px] uppercase tracking-wider"
+                          style={{ color: "rgba(228,208,181,0.65)" }}
+                        >
+                          {platform.label}
+                        </p>
+                        <a
+                          href={platform.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm break-all transition-opacity hover:opacity-80"
+                          style={{ color: "#f3e5cf" }}
+                        >
+                          {platform.href}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Main Nav Menu Box — seal from top-right */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -497,13 +726,14 @@ export default function Navbar() {
 
             {/* User avatar header */}
             <div className="px-8 pt-8 pb-4 flex items-center gap-4 border-b border-white/5">
-              <div className="w-12 h-12 rounded-full liquid-glass flex items-center justify-center">
+              <div className="relative w-12 h-12 rounded-full liquid-glass overflow-hidden">
                 <Image
-                  src="/images/user.png"
+                  src={avatarSrc}
                   alt="User"
-                  width={28}
-                  height={28}
-                  className="object-contain opacity-80"
+                  fill
+                  sizes="48px"
+                  className="object-contain opacity-90"
+                  unoptimized={isExternalAvatar}
                 />
               </div>
               <div>
