@@ -10,6 +10,8 @@ import ScrollToMissingField from "./ScrollToMissingField";
 import InlineRequiredValidation from "./InlineRequiredValidation";
 import UnsavedChangesGuard from "./UnsavedChangesGuard";
 import MedicalConditionField from "./MedicalConditionField";
+import AvatarUploadField from "./AvatarUploadField";
+import TermsConsentField from "./TermsConsentField";
 
 const PROFILE_DRAFT_COOKIE = "profile_setting_draft";
 
@@ -29,6 +31,7 @@ type ProfileDraft = {
   city: string;
   country: string;
   notes: string;
+  imageUrl: string;
   hasMedicalCondition: boolean;
   medicalConditionDetails: string;
   agreePolicy: boolean;
@@ -77,6 +80,138 @@ function MobileSection({
     </details>
   );
 }
+
+const termsSectionsEn = [
+  {
+    title: "Registration & Fees",
+    items: [
+      "All students must complete the online registration form before attending classes.",
+      "Program fees must be paid upon registration to secure the student's place.",
+      "A 10 OMR registration fee applies to new Ballet students, which includes ballet shoes and a leotard.",
+    ],
+  },
+  {
+    title: "Attendance Policy",
+    items: [
+      "Group classes are non-refundable and non-reschedulable.",
+      "Missed classes due to student absence cannot be refunded or carried forward.",
+    ],
+  },
+  {
+    title: "Private Sessions",
+    items: [
+      "Private sessions may be rescheduled with minimum 24 hours notice.",
+      "Rescheduled sessions must take place within one week, subject to availability.",
+    ],
+  },
+  {
+    title: "Communication",
+    items: [
+      "Parents/Guardians must provide an accurate WhatsApp number and email address for academy communication.",
+      "The academy is not responsible for missed information due to incorrect contact details.",
+    ],
+  },
+  {
+    title: "Schedule Adjustments",
+    items: [
+      "The academy reserves the right to adjust class schedules, instructors, or programs when necessary.",
+      "If a class is canceled by the academy, a make-up class or replacement session will be arranged.",
+    ],
+  },
+  {
+    title: "Withdrawal Policy",
+    items: [
+      "Enrollment is confirmed on a monthly basis. Once a month has started, fees are non-refundable and non-transferable.",
+    ],
+  },
+  {
+    title: "Health & Safety",
+    items: [
+      "Parents/Guardians must inform the academy of any medical conditions before classes begin.",
+      "Students are supervised only during their scheduled class time.",
+    ],
+  },
+  {
+    title: "Conduct",
+    items: [
+      "Students must behave respectfully toward teachers, staff, and fellow students.",
+      "Disruptive behavior may result in removal from class without refund.",
+    ],
+  },
+  {
+    title: "Media & Liability",
+    items: [
+      "The academy may capture photos or videos during classes or events for educational or promotional use.",
+      "Participation in academy activities is voluntary, and the academy is not liable for injuries occurring during classes or on the premises.",
+    ],
+  },
+];
+
+const termsSectionsAr = [
+  {
+    title: "التسجيل والرسوم",
+    items: [
+      "يجب على جميع الطلاب إكمال نموذج التسجيل الإلكتروني قبل حضور الحصص.",
+      "يجب دفع رسوم البرنامج عند التسجيل لتأكيد حجز مقعد الطالب.",
+      "تُطبق رسوم تسجيل بقيمة 10 ريال عماني على طلاب الباليه الجدد، وتشمل حذاء الباليه ولباس الباليه.",
+    ],
+  },
+  {
+    title: "سياسة الحضور",
+    items: [
+      "الحصص الجماعية غير قابلة للاسترداد أو إعادة الجدولة.",
+      "الحصص الفائتة بسبب غياب الطالب لا يمكن استرداد رسومها أو ترحيلها.",
+    ],
+  },
+  {
+    title: "الحصص الخاصة",
+    items: [
+      "يمكن إعادة جدولة الحصص الخاصة بإشعار لا يقل عن 24 ساعة.",
+      "يجب أن تتم الحصة المعاد جدولتها خلال أسبوع واحد حسب التوفر.",
+    ],
+  },
+  {
+    title: "التواصل",
+    items: [
+      "يجب على أولياء الأمور/الأوصياء تقديم رقم واتساب وبريد إلكتروني صحيحين للتواصل مع الأكاديمية.",
+      "الأكاديمية غير مسؤولة عن فوات أي معلومات بسبب بيانات تواصل غير صحيحة.",
+    ],
+  },
+  {
+    title: "تعديلات الجدول",
+    items: [
+      "تحتفظ الأكاديمية بحق تعديل جداول الحصص أو المدربين أو البرامج عند الحاجة.",
+      "إذا تم إلغاء حصة من قبل الأكاديمية، سيتم ترتيب حصة تعويضية أو جلسة بديلة.",
+    ],
+  },
+  {
+    title: "سياسة الانسحاب",
+    items: [
+      "يتم تأكيد التسجيل على أساس شهري. بعد بدء الشهر، الرسوم غير قابلة للاسترداد أو التحويل.",
+    ],
+  },
+  {
+    title: "الصحة والسلامة",
+    items: [
+      "يجب على أولياء الأمور/الأوصياء إبلاغ الأكاديمية بأي حالات صحية قبل بدء الحصص.",
+      "يتم الإشراف على الطلاب فقط خلال وقت حصصهم المجدول.",
+    ],
+  },
+  {
+    title: "السلوك",
+    items: [
+      "يجب على الطلاب التصرف باحترام تجاه المعلمين والموظفين وباقي الطلاب.",
+      "قد يؤدي السلوك المزعج إلى الاستبعاد من الحصة دون استرداد.",
+    ],
+  },
+  {
+    title: "الصور والمسؤولية",
+    items: [
+      "قد تلتقط الأكاديمية صورًا أو مقاطع فيديو خلال الحصص أو الفعاليات للاستخدام التعليمي أو الترويجي.",
+      "المشاركة في أنشطة الأكاديمية طوعية، والأكاديمية غير مسؤولة عن الإصابات التي قد تحدث أثناء الحصص أو داخل المقر.",
+    ],
+  },
+];
 
 export default async function ProfileSettingPage({
   params,
@@ -198,6 +333,7 @@ export default async function ProfileSettingPage({
   const experience =
     draft?.experience ?? dbUser?.studentProfile?.experience ?? "";
   const notes = draft?.notes ?? dbUser?.studentProfile?.notes ?? "";
+  const imageUrl = draft?.imageUrl ?? dbUser?.image ?? "";
   const hasMedicalCondition =
     draft?.hasMedicalCondition ??
     dbUser?.studentProfile?.hasMedicalCondition ??
@@ -247,6 +383,12 @@ export default async function ProfileSettingPage({
         emergency: "جهة الاتصال للطوارئ",
         learning: "معلومات الدراسة",
         boolean: "خيارات الموافقة والتفضيلات",
+        avatar: "الصورة الشخصية",
+        avatarHelp:
+          "ارفع صورة واضحة (الحد الأقصى 2MB). سيتم حفظها في ملفك الشخصي.",
+        uploadAvatar: "رفع صورة",
+        uploadingAvatar: "جارٍ الرفع...",
+        avatarUploadError: "فشل رفع الصورة.",
         firstName: "الاسم الأول",
         lastName: "اسم العائلة",
         email: "البريد الإلكتروني",
@@ -277,6 +419,15 @@ export default async function ProfileSettingPage({
         medicalConditionDetails: "تفاصيل الحالة الصحية",
         medicalConditionPlaceholder: "اذكر الحالة الصحية أو أي ملاحظات مهمة",
         agreePolicy: "أوافق على سياسة الخصوصية وشروط الأكاديمية",
+        viewTerms: "عرض الشروط والأحكام",
+        termsTitle: "الشروط والأحكام",
+        termsIntro: "يرجى قراءة البنود التالية قبل تأكيد الموافقة.",
+        termsCancel: "إغلاق",
+        termsConfirm: "تأكيد الموافقة",
+        termsAccepted: "تمت الموافقة على الشروط والأحكام.",
+        termsConfirmLine:
+          "I confirm that I have read and agree to the Royal Academy Terms and Polocies",
+        termsSections: termsSectionsAr,
         save: "حفظ البيانات",
         back: "العودة إلى الرئيسية",
       }
@@ -297,6 +448,12 @@ export default async function ProfileSettingPage({
         emergency: "Emergency Contact",
         learning: "Learning Details",
         boolean: "Consent & Preferences",
+        avatar: "Profile Photo",
+        avatarHelp:
+          "Upload a clear image (max 2MB). It will be saved to your profile.",
+        uploadAvatar: "Upload Photo",
+        uploadingAvatar: "Uploading...",
+        avatarUploadError: "Avatar upload failed.",
         firstName: "First Name",
         lastName: "Last Name",
         email: "Email Address",
@@ -329,13 +486,22 @@ export default async function ProfileSettingPage({
         medicalConditionPlaceholder:
           "Please describe the condition or important notes",
         agreePolicy: "I agree to the academy privacy policy and terms",
+        viewTerms: "Read terms and policies",
+        termsTitle: "Terms & Conditions",
+        termsIntro: "Please read the following policies before confirming.",
+        termsCancel: "Close",
+        termsConfirm: "Confirm agreement",
+        termsAccepted: "Terms and policies accepted.",
+        termsConfirmLine:
+          "I confirm that I have read and agree to the Royal Academy Terms and Polocies",
+        termsSections: termsSectionsEn,
         save: "Save Profile",
         back: "Back to Home",
       };
 
   return (
     <main
-      className="min-h-screen px-4 py-24 pb-40 md:pb-24"
+      className="min-h-screen px-4 py-14 md:py-16"
       style={{ backgroundColor: "#227b81" }}
     >
       <div
@@ -444,7 +610,7 @@ export default async function ProfileSettingPage({
         <form
           id="profile-settings-form"
           action={saveProfileSettings}
-          className="space-y-8 pb-24 md:pb-0"
+          className="space-y-8"
           noValidate
         >
           <InlineRequiredValidation fieldIds={requiredFieldIds} />
@@ -452,6 +618,14 @@ export default async function ProfileSettingPage({
           <input type="hidden" name="locale" value={locale} />
           <MobileSection title={content.personal}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <AvatarUploadField
+                initialUrl={imageUrl}
+                label={content.avatar}
+                helperText={content.avatarHelp}
+                uploadText={content.uploadAvatar}
+                uploadingText={content.uploadingAvatar}
+                uploadErrorPrefix={content.avatarUploadError}
+              />
               <label htmlFor="firstName" className="block">
                 <span className="text-sm">
                   {content.firstName}{" "}
@@ -718,28 +892,27 @@ export default async function ProfileSettingPage({
                 detailsLabel={content.medicalConditionDetails}
                 detailsPlaceholder={content.medicalConditionPlaceholder}
               />
-              <label htmlFor="agreePolicy" className="flex items-start gap-3">
-                <input
-                  id="agreePolicy"
-                  type="checkbox"
-                  name="agreePolicy"
-                  className={checkboxClassName}
-                  defaultChecked={agreePolicy}
-                  required
-                  {...getFieldA11y("agreePolicy")}
-                />
-                <span>
-                  {content.agreePolicy}{" "}
-                  <span style={{ color: "#f87171" }}>*</span>
-                </span>
-              </label>
+              <TermsConsentField
+                defaultChecked={agreePolicy}
+                checkboxClassName={checkboxClassName}
+                label={content.agreePolicy}
+                viewTermsText={content.viewTerms}
+                modalTitle={content.termsTitle}
+                modalIntro={content.termsIntro}
+                sections={content.termsSections}
+                confirmLine={content.termsConfirmLine}
+                cancelText={content.termsCancel}
+                confirmText={content.termsConfirm}
+                acceptedHint={content.termsAccepted}
+                fieldA11y={getFieldA11y("agreePolicy")}
+              />
               {renderRequiredMessage("agreePolicy")}
             </div>
           </MobileSection>
 
           <button
             type="submit"
-            className={`hidden md:block ${primaryButtonFocusClassName}`}
+            className={primaryButtonFocusClassName}
             style={{
               background:
                 "linear-gradient(135deg, rgba(228,208,181,0.18) 0%, rgba(228,208,181,0.08) 50%, rgba(228,208,181,0.15) 100%)",
@@ -751,37 +924,7 @@ export default async function ProfileSettingPage({
             {content.save}
           </button>
         </form>
-
-        <div
-          className="fixed inset-x-0 bottom-0 z-40 px-4 pt-3 md:hidden"
-          style={{
-            background:
-              "linear-gradient(to top, rgba(34,123,129,0.95), rgba(34,123,129,0.82), rgba(34,123,129,0))",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
-            borderTop: "1px solid rgba(228,208,181,0.15)",
-            paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)",
-          }}
-        >
-          <div className="mx-auto w-full max-w-5xl">
-            <button
-              type="submit"
-              form="profile-settings-form"
-              className={primaryButtonFocusClassName}
-              style={{
-                background:
-                  "linear-gradient(135deg, rgba(228,208,181,0.18) 0%, rgba(228,208,181,0.08) 50%, rgba(228,208,181,0.15) 100%)",
-                border: "1px solid rgba(228,208,181,0.35)",
-                color: "#e4d0b5",
-                opacity: 1,
-              }}
-            >
-              {content.save}
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-6 pt-6 border-t border-white/10">
+        <div className="mt-4 pt-4 border-t border-white/10">
           <Link
             href={`/${locale}`}
             className="text-xs tracking-widest uppercase transition-opacity hover:opacity-70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e4d0b5]"
