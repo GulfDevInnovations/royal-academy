@@ -19,6 +19,7 @@ import {
   faCreditCard,
   faPowerOff,
 } from "@fortawesome/free-solid-svg-icons";
+import NotificationBell from "@/components/NotificationBell";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -26,6 +27,8 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  // Prisma userId resolved from Supabase session
+  const [prismaUserId, setPrismaUserId] = useState<string | null>(null);
 
   const locale = useLocale();
   const router = useRouter();
@@ -54,6 +57,8 @@ export default function Navbar() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!mounted) return;
       setUser(user ?? null);
+      // User.id IS the Supabase UUID — they share the same primary key
+      if (user) setPrismaUserId(user.id);
       setAuthLoading(false);
     });
 
@@ -61,6 +66,7 @@ export default function Navbar() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      setPrismaUserId(session?.user?.id ?? null);
       if (!session?.user) setUserMenuOpen(false);
       setAuthLoading(false);
     });
@@ -118,7 +124,8 @@ export default function Navbar() {
     },
   ];
 
-  // Seal from top-right for main menu
+  // ── Animation variants (unchanged from original) ──
+
   const sealVariants = {
     hidden: { clipPath: "circle(0% at 100% 0%)", opacity: 0, scale: 0.92 },
     visible: {
@@ -143,7 +150,6 @@ export default function Navbar() {
     },
   };
 
-  // Seal from top-left for user menu
   const userSealVariants = {
     hidden: { clipPath: "circle(0% at 0% 0%)", opacity: 0, scale: 0.92 },
     visible: {
@@ -223,7 +229,7 @@ export default function Navbar() {
         transition={{ duration: 0.7, ease: "easeOut" }}
         className="fixed top-4 left-0 right-0 z-50 px-8 py-5 flex items-center justify-between"
       >
-        {/* Left side — Logo + User pill */}
+        {/* Left side — Logo + User pill + Bell */}
         <div className="flex items-center gap-3">
           {/* Logo */}
           <Link
@@ -248,7 +254,7 @@ export default function Navbar() {
             </motion.div>
           </Link>
 
-          {/* User Pill / Start Journey */}
+          {/* User pill / Start Journey */}
           {authLoading ? (
             <div className="liquid-glass px-6 py-3 rounded-full text-royal-cream/70 text-sm">
               ...
@@ -276,10 +282,10 @@ export default function Navbar() {
               whileHover={{ scale: 1.03 }}
               transition={{ duration: 0.2 }}
               className={`
-              shimmer flex items-center justify-center gap-3 px-2 py-1 rounded-full
-              transition-all duration-300 cursor-pointer
-              ${userMenuOpen ? "liquid-glass-gold" : "liquid-glass"}
-            `}
+                shimmer flex items-center justify-center gap-3 px-2 py-1 rounded-full
+                transition-all duration-300 cursor-pointer
+                ${userMenuOpen ? "liquid-glass-gold" : "liquid-glass"}
+              `}
             >
               <Image
                 src="/images/user.png"
@@ -289,6 +295,11 @@ export default function Navbar() {
                 className="object-contain opacity-80 w-12"
               />
             </motion.button>
+          )}
+
+          {/* ── Notification Bell — only when logged in ── */}
+          {user && prismaUserId && (
+            <NotificationBell userId={prismaUserId} isArabic={isArabic} />
           )}
         </div>
 
@@ -303,7 +314,7 @@ export default function Navbar() {
             transition={{ duration: 0.2 }}
           >
             <Link
-              href={`/${locale}/contact`}
+              href={`/${locale}/support`}
               className="liquid-glass-gold shimmer flex items-center justify-center gap-3 px-8 py-4 rounded-full transition-all duration-300 cursor-pointer"
             >
               <span className="text-royal-gold text-sm tracking-widest uppercase font-medium whitespace-nowrap">
@@ -394,7 +405,7 @@ export default function Navbar() {
         </div>
       </motion.header>
 
-      {/* Invisible backdrop — closes any open menu */}
+      {/* Invisible backdrop */}
       <AnimatePresence>
         {(menuOpen || userMenuOpen) && (
           <motion.div
@@ -410,7 +421,7 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-      {/* Main Nav Menu Box — seal from top-right */}
+      {/* Main Nav Menu Box */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -452,9 +463,7 @@ export default function Navbar() {
                         className="absolute inset-0 -mx-4 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none"
                         style={glassHoverStyle}
                       />
-                      <span
-                        className={`relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 translate-x-0 group-hover:-translate-x-2 transition-all duration-300 ease-out`}
-                      >
+                      <span className="relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 translate-x-0 group-hover:-translate-x-2 transition-all duration-300 ease-out">
                         <FontAwesomeIcon
                           icon={isArabic ? faCaretRight : faCaretLeft}
                         />
@@ -474,7 +483,7 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-      {/* User Menu Box — seal from top-left */}
+      {/* User Menu Box */}
       <AnimatePresence>
         {userMenuOpen && user && (
           <motion.div
@@ -522,16 +531,13 @@ export default function Navbar() {
                       onClick={() => setUserMenuOpen(false)}
                       className="group relative flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300"
                     >
-                      {/* Glass hover bg */}
                       <span
                         className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-300 ease-out pointer-events-none"
                         style={glassHoverStyle}
                       />
-                      {/* Icon */}
                       <span className="relative z-10 w-8 h-8 rounded-xl liquid-glass flex items-center justify-center text-royal-gold/70 group-hover:text-royal-gold transition-colors duration-300 text-sm">
                         <FontAwesomeIcon icon={link.icon} />
                       </span>
-                      {/* Label */}
                       <span className="relative z-10 text-royal-cream group-hover:text-royal-cream text-2xl tracking-wide transition-all duration-300 group-hover:translate-x-1">
                         {link.label}
                       </span>

@@ -9,11 +9,12 @@ export type EnrollmentResult =
   | { success: true; redirectTo: string }
   | { success: false; error: string };
 
-// ─── Monthly Enrollment (Public / Music) ─────────────────────────
+// ─── Monthly Enrollment ───────────────────────────────────────────
 
 export async function createMonthlyEnrollment({
   studentId,
   subClassId,
+  teacherId,
   month,
   year,
   frequency,
@@ -21,30 +22,39 @@ export async function createMonthlyEnrollment({
 }: {
   studentId: string;
   subClassId: string;
+  teacherId: string;
   month: number;
   year: number;
   frequency: "ONCE_PER_WEEK" | "TWICE_PER_WEEK";
   preferredDays: string[];
 }): Promise<EnrollmentResult> {
   try {
-    // Check for existing enrollment
-    const existing = await prisma.monthlyEnrollment.findUnique({
-      where: { studentId_subClassId_month_year: { studentId, subClassId, month, year } },
+    // Check for existing enrollment for this student + subclass + teacher + month
+    const existing = await prisma.monthlyEnrollment.findFirst({
+      where: { studentId, subClassId, month, year },
     });
 
     if (existing) {
       if (existing.status === "PENDING") {
-        return { success: true, redirectTo: `/payment/monthly?enrollmentId=${existing.id}` };
+        return {
+          success: true,
+          redirectTo: `/payment/monthly?enrollmentId=${existing.id}`,
+        };
       }
-      return { success: false, error: "You are already enrolled in this class for this month." };
+      return {
+        success: false,
+        error: "You are already enrolled in this class for this month.",
+      };
     }
 
-    const subClass = await prisma.subClass.findUniqueOrThrow({ where: { id: subClassId } });
+    const subClass = await prisma.subClass.findUniqueOrThrow({
+      where: { id: subClassId },
+    });
 
     const amount =
       frequency === "ONCE_PER_WEEK"
-        ? subClass.oncePriceMonthly ?? subClass.price
-        : subClass.twicePriceMonthly ?? subClass.price;
+        ? (subClass.oncePriceMonthly ?? subClass.price)
+        : (subClass.twicePriceMonthly ?? subClass.price);
 
     const enrollment = await prisma.monthlyEnrollment.create({
       data: {
@@ -69,10 +79,16 @@ export async function createMonthlyEnrollment({
       },
     });
 
-    return { success: true, redirectTo: `/payment/monthly?enrollmentId=${enrollment.id}` };
+    return {
+      success: true,
+      redirectTo: `/payment/monthly?enrollmentId=${enrollment.id}`,
+    };
   } catch (err: any) {
     if (err?.code === "P2002") {
-      return { success: false, error: "You are already enrolled in this class for this month." };
+      return {
+        success: false,
+        error: "You are already enrolled in this class for this month.",
+      };
     }
     console.error("createMonthlyEnrollment error:", err);
     return { success: false, error: "Something went wrong. Please try again." };
@@ -84,9 +100,11 @@ export async function createMonthlyEnrollment({
 export async function createTrialEnrollment({
   studentId,
   subClassId,
+  teacherId,
 }: {
   studentId: string;
   subClassId: string;
+  teacherId: string;
 }): Promise<EnrollmentResult> {
   try {
     const existing = await prisma.trialBooking.findUnique({
@@ -95,17 +113,26 @@ export async function createTrialEnrollment({
 
     if (existing) {
       if (existing.status === "PENDING") {
-        return { success: true, redirectTo: `/payment/trial?trialBookingId=${existing.id}` };
+        return {
+          success: true,
+          redirectTo: `/payment/trial?trialBookingId=${existing.id}`,
+        };
       }
-      return { success: false, error: "You have already taken a trial for this class." };
+      return {
+        success: false,
+        error: "You have already taken a trial for this class.",
+      };
     }
 
-    // Find the next available session for this subClass
+    // Find next available session for this subclass + this specific teacher
     const nextSession = await prisma.classSession.findFirst({
       where: {
         sessionDate: { gte: new Date() },
         status: "ACTIVE",
-        schedule: { subClassId },
+        schedule: {
+          subClassId,
+          teacherId, // ← scoped to chosen teacher
+        },
       },
       orderBy: { sessionDate: "asc" },
     });
@@ -113,11 +140,13 @@ export async function createTrialEnrollment({
     if (!nextSession) {
       return {
         success: false,
-        error: "No upcoming sessions available for trial. Please contact us.",
+        error: "No upcoming sessions available for this instructor. Please contact us.",
       };
     }
 
-    const subClass = await prisma.subClass.findUniqueOrThrow({ where: { id: subClassId } });
+    const subClass = await prisma.subClass.findUniqueOrThrow({
+      where: { id: subClassId },
+    });
 
     const trial = await prisma.trialBooking.create({
       data: {
@@ -128,7 +157,6 @@ export async function createTrialEnrollment({
       },
     });
 
-    // ✅ Now uses trialBookingId instead of bookingId
     await prisma.payment.create({
       data: {
         trialBookingId: trial.id,
@@ -138,10 +166,16 @@ export async function createTrialEnrollment({
       },
     });
 
-    return { success: true, redirectTo: `/payment/trial?trialBookingId=${trial.id}` };
+    return {
+      success: true,
+      redirectTo: `/payment/trial?trialBookingId=${trial.id}`,
+    };
   } catch (err: any) {
     if (err?.code === "P2002") {
-      return { success: false, error: "You have already taken a trial for this class." };
+      return {
+        success: false,
+        error: "You have already taken a trial for this class.",
+      };
     }
     console.error("createTrialEnrollment error:", err);
     return { success: false, error: "Something went wrong. Please try again." };

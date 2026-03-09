@@ -450,16 +450,24 @@ export default function TeacherFormModal({
                     name="isAvailable"
                     defaultValue={editing.isAvailable ? "true" : "false"}
                   >
-                    <option value="true">Available</option>
-                    <option value="false">Unavailable</option>
+                    <option className="text-black" value="true">
+                      Available
+                    </option>
+                    <option className="text-black" value="false">
+                      Unavailable
+                    </option>
                   </AdminSelect>
                   <AdminSelect
                     label="Status"
                     name="isActive"
                     defaultValue={editing.isActive ? "true" : "false"}
                   >
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
+                    <option className="text-black" value="true">
+                      Active
+                    </option>
+                    <option className="text-black" value="false">
+                      Inactive
+                    </option>
                   </AdminSelect>
                 </div>
               </Section>
