@@ -55,6 +55,7 @@ const profileSchema = z.object({
   city: z.string().trim().optional(),
   country: z.string().trim().optional(),
   notes: z.string().trim().optional(),
+  imageUrl: z.string().trim().optional(),
   hasMedicalCondition: z.boolean().default(false),
   medicalConditionDetails: z.string().trim().optional(),
   agreePolicy: z.literal(true),
@@ -81,6 +82,7 @@ export async function saveProfileSettings(formData: FormData) {
     city: getString(formData, "city"),
     country: getString(formData, "country"),
     notes: getString(formData, "notes"),
+    imageUrl: getString(formData, "imageUrl"),
     hasMedicalCondition: formData.get("hasMedicalCondition") === "on",
     medicalConditionDetails: getString(formData, "medicalConditionDetails"),
     agreePolicy: formData.get("agreePolicy") === "on",
@@ -126,12 +128,14 @@ export async function saveProfileSettings(formData: FormData) {
     city: getString(formData, "city"),
     country: getString(formData, "country"),
     notes: getString(formData, "notes"),
+    imageUrl: getString(formData, "imageUrl"),
     hasMedicalCondition: formData.get("hasMedicalCondition") === "on",
     medicalConditionDetails: getString(formData, "medicalConditionDetails"),
     agreePolicy: formData.get("agreePolicy") === "on",
   });
 
   if (!parsed.success) {
+    console.log("Profile validation errors:", parsed.error.flatten());
     redirect(`/${locale}/profile-setting?error=invalid`);
   }
 
@@ -149,7 +153,10 @@ export async function saveProfileSettings(formData: FormData) {
     select: { role: true },
   });
 
+  console.log("AUTH_USER_ID", user?.id);
+
   if (!dbUser) {
+    console.log("DB_USER_NOT_FOUND_FOR_SUPABASE_ID", user.id);
     redirect(`/${locale}/profile-setting?error=invalid`);
   }
 
@@ -166,6 +173,7 @@ export async function saveProfileSettings(formData: FormData) {
       data: {
         email: data.email,
         phone: data.phone,
+        image: data.imageUrl || null,
         studentProfile: {
           upsert: {
             create: {
