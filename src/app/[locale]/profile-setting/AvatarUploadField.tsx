@@ -72,12 +72,12 @@ export default function AvatarUploadField({
   }
 
   return (
-    <div className="md:col-span-2 rounded-2xl border border-white/10 p-4">
+    <div className="md:col-span-2 rounded-2xl p-4 liquid-glass">
       <input type="hidden" name={hiddenInputName} value={imageUrl} />
 
       <p className="text-sm mb-2">{label}</p>
       <div className="flex items-center gap-4">
-        <div className="relative h-20 w-20 overflow-hidden rounded-full border border-white/20 bg-white/5">
+        <div className="relative h-20 w-20 overflow-hidden rounded-full border border-white/20">
           <Image
             src={imageUrl || defaultAvatarUrl}
             alt="Profile avatar preview"
@@ -105,12 +105,9 @@ export default function AvatarUploadField({
             type="button"
             disabled={uploading}
             onClick={() => fileInputRef.current?.click()}
-            className="rounded-xl px-4 py-2 text-xs tracking-[0.15em] uppercase transition-opacity disabled:opacity-60"
+            className="rounded-xl px-4 py-2 text-xs tracking-[0.15em] uppercase transition-opacity disabled:opacity-60 liquid-glass-gold shimmer"
             style={{
               color: "#e4d0b5",
-              border: "1px solid rgba(228,208,181,0.3)",
-              background:
-                "linear-gradient(135deg, rgba(228,208,181,0.14) 0%, rgba(228,208,181,0.06) 100%)",
             }}
           >
             {uploading ? uploadingText : uploadText}

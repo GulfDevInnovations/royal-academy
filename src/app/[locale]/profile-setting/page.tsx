@@ -12,6 +12,8 @@ import UnsavedChangesGuard from "./UnsavedChangesGuard";
 import MedicalConditionField from "./MedicalConditionField";
 import AvatarUploadField from "./AvatarUploadField";
 import TermsConsentField from "./TermsConsentField";
+import CountryCityFields from "./CountryCityFields";
+import GlassSelectField from "./GlassSelectField";
 
 const PROFILE_DRAFT_COOKIE = "profile_setting_draft";
 
@@ -40,9 +42,9 @@ type ProfileDraft = {
 function inputStyle() {
   return {
     background:
-      "linear-gradient(135deg, rgba(228,208,181,0.09) 0%, rgba(228,208,181,0.04) 100%)",
-    border: "1px solid rgba(228,208,181,0.15)",
-    color: "#e4d0b5",
+      "linear-gradient(135deg, rgba(228,208,181,0.56) 0%, rgba(228,208,181,0.48) 100%)",
+    border: "1px solid rgba(75,48,68,0.22)",
+    color: "#4b3044",
   };
 }
 
@@ -52,6 +54,14 @@ const checkboxClassName =
   "mt-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e4d0b5]";
 const primaryButtonFocusClassName =
   "w-full py-3 rounded-2xl text-sm tracking-[0.2em] uppercase focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e4d0b5]";
+
+function toLocalOmPhone(raw: string) {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.startsWith("968") && digits.length >= 11) {
+    return digits.slice(3, 11);
+  }
+  return digits.slice(0, 8);
+}
 
 function MobileSection({
   title,
@@ -297,7 +307,7 @@ export default async function ProfileSettingPage({
   const firstName = draft?.firstName ?? dbUser?.studentProfile?.firstName ?? "";
   const lastName = draft?.lastName ?? dbUser?.studentProfile?.lastName ?? "";
   const email = draft?.email ?? dbUser?.email ?? user.email ?? "";
-  const phone = draft?.phone ?? dbUser?.phone ?? user.phone ?? "";
+  const phone = toLocalOmPhone(draft?.phone ?? dbUser?.phone ?? user.phone ?? "");
 
   const dbDateOfBirth = dbUser?.studentProfile?.dateOfBirth
     ? dbUser.studentProfile.dateOfBirth.toISOString().slice(0, 10)
@@ -312,9 +322,11 @@ export default async function ProfileSettingPage({
     dbUser?.studentProfile?.emergencyContactName ??
     "";
   const emergencyPhone =
-    draft?.emergencyContactPhone ??
-    dbUser?.studentProfile?.emergencyContactPhone ??
-    "";
+    toLocalOmPhone(
+      draft?.emergencyContactPhone ??
+        dbUser?.studentProfile?.emergencyContactPhone ??
+        "",
+    );
   const emergencyRelationship =
     draft?.emergencyRelationship ??
     dbUser?.studentProfile?.emergencyRelationship ??
@@ -396,8 +408,14 @@ export default async function ProfileSettingPage({
         dob: "تاريخ الميلاد",
         gender: "الجنس",
         address: "العنوان",
-        city: "المدينة",
         country: "الدولة",
+        city: "المدينة",
+        countryPlaceholder: "ابحث عن الدولة",
+        cityPlaceholder: "ابحث عن المدينة",
+        noResults: "لا توجد نتائج",
+        selectCountryFirst: "اختر الدولة أولًا",
+        loadingLocations: "جارٍ تحميل قائمة الدول والمدن...",
+        locationLoadError: "تعذر تحميل القوائم. حاول مرة أخرى.",
         emergencyName: "اسم جهة الطوارئ",
         emergencyPhone: "رقم جهة الطوارئ",
         relationship: "صلة القرابة",
@@ -418,6 +436,7 @@ export default async function ProfileSettingPage({
         hasMedicalCondition: "لدي حالة صحية يجب إبلاغ الأكاديمية بها",
         medicalConditionDetails: "تفاصيل الحالة الصحية",
         medicalConditionPlaceholder: "اذكر الحالة الصحية أو أي ملاحظات مهمة",
+        phonePlaceholder: "87654321",
         agreePolicy: "أوافق على سياسة الخصوصية وشروط الأكاديمية",
         viewTerms: "عرض الشروط والأحكام",
         termsTitle: "الشروط والأحكام",
@@ -461,8 +480,14 @@ export default async function ProfileSettingPage({
         dob: "Date of Birth",
         gender: "Gender",
         address: "Address",
-        city: "City",
         country: "Country",
+        city: "City",
+        countryPlaceholder: "Search country",
+        cityPlaceholder: "Search city",
+        noResults: "No results",
+        selectCountryFirst: "Select country first",
+        loadingLocations: "Loading countries and cities...",
+        locationLoadError: "Could not load location lists. Please try again.",
         emergencyName: "Emergency Contact Name",
         emergencyPhone: "Emergency Contact Phone",
         relationship: "Relationship",
@@ -485,6 +510,7 @@ export default async function ProfileSettingPage({
         medicalConditionDetails: "Medical Condition Details",
         medicalConditionPlaceholder:
           "Please describe the condition or important notes",
+        phonePlaceholder: "87654321",
         agreePolicy: "I agree to the academy privacy policy and terms",
         viewTerms: "Read terms and policies",
         termsTitle: "Terms & Conditions",
@@ -499,10 +525,46 @@ export default async function ProfileSettingPage({
         back: "Back to Home",
       };
 
+  const genderA11y = getFieldA11y("gender");
+  const genderOptions = [
+    { value: "", label: content.selectGender },
+    { value: "MALE", label: isArabic ? "ذكر" : "Male" },
+    { value: "FEMALE", label: isArabic ? "أنثى" : "Female" },
+    { value: "OTHER", label: isArabic ? "آخر" : "Other" },
+  ];
+  const relationshipOptions = [
+    { value: "", label: content.selectRelationship },
+    { value: "PARENT", label: content.relationshipParent },
+    { value: "GUARDIAN", label: content.relationshipGuardian },
+    { value: "FRIEND", label: content.relationshipFriend },
+    { value: "OTHER", label: content.relationshipOther },
+  ];
+  const trackOptions = [
+    { value: "", label: content.selectTrack },
+    { value: "DANCE", label: isArabic ? "الرقص" : "Dance" },
+    { value: "MUSIC", label: isArabic ? "الموسيقى" : "Music" },
+    { value: "ART", label: isArabic ? "الفن" : "Art" },
+  ];
+  const experienceOptions = [
+    { value: "", label: content.selectExperience },
+    {
+      value: "NO_EXPERIENCE",
+      label: isArabic ? "بدون خبرة" : "No experience",
+    },
+    {
+      value: "LESS_THAN_ONE_YEAR",
+      label: isArabic ? "خبرة أقل من سنة" : "Less than a year experience",
+    },
+    {
+      value: "MORE_THAN_ONE_YEAR",
+      label: isArabic ? "خبرة أكثر من سنة" : "More than a year experience",
+    },
+  ];
+
   return (
     <main
       className="min-h-screen px-4 py-14 md:py-16"
-      style={{ backgroundColor: "#227b81" }}
+      style={{ backgroundColor: "transparent" }}
     >
       <div
         className="fixed inset-0 pointer-events-none"
@@ -510,23 +572,12 @@ export default async function ProfileSettingPage({
           backgroundImage: "url('/images/pattern.svg')",
           backgroundRepeat: "repeat",
           backgroundSize: "1200px auto",
-          opacity: 0.02,
+          opacity: 0.08,
           filter: "sepia(1) saturate(0.6) brightness(2)",
         }}
       />
 
-      <section
-        className="relative z-10 mx-auto w-full max-w-5xl rounded-3xl p-6 md:p-8"
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(228,208,181,0.13) 0%, rgba(228,208,181,0.05) 50%, rgba(228,208,181,0.10) 100%)",
-          backdropFilter: "blur(24px) saturate(1.8)",
-          WebkitBackdropFilter: "blur(24px) saturate(1.8)",
-          border: "1px solid rgba(228,208,181,0.20)",
-          boxShadow:
-            "0 24px 64px rgba(0,0,0,0.25), inset 0 1px 1px rgba(228,208,181,0.30)",
-        }}
-      >
+      <section className="relative z-10 mx-auto w-full max-w-5xl rounded-3xl p-6 md:p-8 liquid-glass">
         <h1
           className="text-3xl font-light tracking-widest mb-2"
           style={{ color: "#e4d0b5" }}
@@ -537,13 +588,7 @@ export default async function ProfileSettingPage({
           {content.subtitle}
         </p>
 
-        <div
-          className="mb-6 rounded-xl px-4 py-3"
-          style={{
-            background: "rgba(228,208,181,0.06)",
-            border: "1px solid rgba(228,208,181,0.18)",
-          }}
-        >
+        <div className="mb-6 rounded-xl px-4 py-3 liquid-glass">
           <div className="flex items-center justify-between">
             <p className="text-sm" style={{ color: "#e4d0b5" }}>
               {isArabic ? "تقدم الحقول المطلوبة" : "Required Fields Progress"}
@@ -552,13 +597,15 @@ export default async function ProfileSettingPage({
               {requiredCompletedCount}/{requiredTotal}
             </p>
           </div>
-          <div className="mt-2 h-2 w-full rounded-full bg-white/10 overflow-hidden">
+          <div
+            className="mt-2 h-2 w-full rounded-full overflow-hidden"
+            style={{ border: "1px solid rgba(228,208,181,0.22)" }}
+          >
             <div
               className="h-full rounded-full"
               style={{
                 width: `${completionPercent}%`,
-                background:
-                  "linear-gradient(90deg, rgba(228,208,181,0.45), rgba(228,208,181,0.8))",
+                background: "rgba(228,208,181,0.55)",
               }}
             />
           </div>
@@ -673,24 +720,22 @@ export default async function ProfileSettingPage({
                 />
                 {renderRequiredMessage("dateOfBirth")}
               </label>
-              <label htmlFor="gender" className="block">
+              <label htmlFor="genderDisplay" className="block">
                 <span className="text-sm">
                   {content.gender} <span style={{ color: "#f87171" }}>*</span>
                 </span>
-                <select
+                <GlassSelectField
                   id="gender"
-                  className={fieldClassName}
-                  style={inputStyle()}
                   name="gender"
-                  defaultValue={gender}
-                  required
-                  {...getFieldA11y("gender")}
-                >
-                  <option value="">{content.selectGender}</option>
-                  <option value="MALE">{isArabic ? "ذكر" : "Male"}</option>
-                  <option value="FEMALE">{isArabic ? "أنثى" : "Female"}</option>
-                  <option value="OTHER">{isArabic ? "آخر" : "Other"}</option>
-                </select>
+                  value={gender}
+                  options={genderOptions}
+                  placeholder={content.selectGender}
+                  noResultsText={content.noResults}
+                  inputClassName={fieldClassName}
+                  inputStyle={inputStyle()}
+                  ariaInvalid={Boolean(genderA11y["aria-invalid"])}
+                  ariaDescribedBy={genderA11y["aria-describedby"]}
+                />
                 {renderRequiredMessage("gender")}
               </label>
             </div>
@@ -718,16 +763,30 @@ export default async function ProfileSettingPage({
                 <span className="text-sm">
                   {content.phone} <span style={{ color: "#f87171" }}>*</span>
                 </span>
-                <input
-                  id="phone"
-                  type="tel"
-                  className={fieldClassName}
+                <div
+                  className="mt-2 flex items-center gap-2 rounded-2xl px-4 py-3 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#e4d0b5]"
                   style={inputStyle()}
-                  name="phone"
-                  defaultValue={phone}
-                  required
-                  {...getFieldA11y("phone")}
-                />
+                >
+                  <span
+                    className="text-sm select-none"
+                    style={{ color: "rgba(75,48,68,0.82)" }}
+                  >
+                    +968
+                  </span>
+                  <input
+                    id="phone"
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]{8}"
+                    maxLength={8}
+                    className="w-full bg-transparent text-[#4b3044] outline-none placeholder:text-[#4b304499]"
+                    name="phone"
+                    defaultValue={phone}
+                    placeholder={content.phonePlaceholder}
+                    required
+                    {...getFieldA11y("phone")}
+                  />
+                </div>
                 {renderRequiredMessage("phone")}
               </label>
               <label htmlFor="address" className="block md:col-span-2">
@@ -740,26 +799,20 @@ export default async function ProfileSettingPage({
                   defaultValue={address}
                 />
               </label>
-              <label htmlFor="city" className="block">
-                <span className="text-sm">{content.city}</span>
-                <input
-                  id="city"
-                  className={fieldClassName}
-                  style={inputStyle()}
-                  name="city"
-                  defaultValue={city}
-                />
-              </label>
-              <label htmlFor="country" className="block">
-                <span className="text-sm">{content.country}</span>
-                <input
-                  id="country"
-                  className={fieldClassName}
-                  style={inputStyle()}
-                  name="country"
-                  defaultValue={country}
-                />
-              </label>
+              <CountryCityFields
+                countryLabel={content.country}
+                cityLabel={content.city}
+                countryPlaceholder={content.countryPlaceholder}
+                cityPlaceholder={content.cityPlaceholder}
+                noResultsText={content.noResults}
+                selectCountryFirstText={content.selectCountryFirst}
+                loadingText={content.loadingLocations}
+                loadErrorText={content.locationLoadError}
+                initialCountry={country}
+                initialCity={city}
+                inputClassName={fieldClassName}
+                inputStyle={inputStyle()}
+              />
             </div>
           </MobileSection>
 
@@ -786,86 +839,81 @@ export default async function ProfileSettingPage({
                   {content.emergencyPhone}{" "}
                   <span style={{ color: "#f87171" }}>*</span>
                 </span>
-                <input
-                  id="emergencyContactPhone"
-                  type="tel"
-                  className={fieldClassName}
+                <div
+                  className="mt-2 flex items-center gap-2 rounded-2xl px-4 py-3 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#e4d0b5]"
                   style={inputStyle()}
-                  name="emergencyContactPhone"
-                  defaultValue={emergencyPhone}
-                  required
-                  {...getFieldA11y("emergencyContactPhone")}
-                />
+                >
+                  <span
+                    className="text-sm select-none"
+                    style={{ color: "rgba(75,48,68,0.82)" }}
+                  >
+                    +968
+                  </span>
+                  <input
+                    id="emergencyContactPhone"
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]{8}"
+                    maxLength={8}
+                    className="w-full bg-transparent text-[#4b3044] outline-none placeholder:text-[#4b304499]"
+                    name="emergencyContactPhone"
+                    defaultValue={emergencyPhone}
+                    placeholder={content.phonePlaceholder}
+                    required
+                    {...getFieldA11y("emergencyContactPhone")}
+                  />
+                </div>
                 {renderRequiredMessage("emergencyContactPhone")}
               </label>
-              <label htmlFor="emergencyRelationship" className="block">
+              <label htmlFor="emergencyRelationshipDisplay" className="block">
                 <span className="text-sm">{content.relationship}</span>
-                <select
+                <GlassSelectField
                   id="emergencyRelationship"
-                  className={fieldClassName}
-                  style={inputStyle()}
                   name="emergencyRelationship"
-                  defaultValue={emergencyRelationshipValue}
-                >
-                  <option value="">{content.selectRelationship}</option>
-                  <option value="PARENT">{content.relationshipParent}</option>
-                  <option value="GUARDIAN">{content.relationshipGuardian}</option>
-                  <option value="FRIEND">{content.relationshipFriend}</option>
-                  <option value="OTHER">{content.relationshipOther}</option>
-                </select>
+                  value={emergencyRelationshipValue}
+                  options={relationshipOptions}
+                  placeholder={content.selectRelationship}
+                  noResultsText={content.noResults}
+                  inputClassName={fieldClassName}
+                  inputStyle={inputStyle()}
+                />
               </label>
             </div>
           </MobileSection>
 
           <MobileSection title={content.learning}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <label htmlFor="preferredTrack" className="block">
+              <label htmlFor="preferredTrackDisplay" className="block">
                 <span className="text-sm">{content.track}</span>
                 <p className="mt-1 text-xs" style={{ color: "rgba(228,208,181,0.65)" }}>
                   {content.trackHelp}
                 </p>
-                <select
+                <GlassSelectField
                   id="preferredTrack"
-                  className={fieldClassName}
-                  style={inputStyle()}
                   name="preferredTrack"
-                  defaultValue={preferredTrack}
-                >
-                  <option value="">{content.selectTrack}</option>
-                  <option value="DANCE">{isArabic ? "الرقص" : "Dance"}</option>
-                  <option value="MUSIC">
-                    {isArabic ? "الموسيقى" : "Music"}
-                  </option>
-                  <option value="ART">{isArabic ? "الفن" : "Art"}</option>
-                </select>
+                  value={preferredTrack}
+                  options={trackOptions}
+                  placeholder={content.selectTrack}
+                  noResultsText={content.noResults}
+                  inputClassName={fieldClassName}
+                  inputStyle={inputStyle()}
+                />
               </label>
-              <label htmlFor="experience" className="block">
+              <label htmlFor="experienceDisplay" className="block">
                 <span className="text-sm">{content.level}</span>
                 <p className="mt-1 text-xs" style={{ color: "rgba(228,208,181,0.65)" }}>
                   {content.experienceHelp}
                 </p>
-                <select
+                <GlassSelectField
                   id="experience"
-                  className={fieldClassName}
-                  style={inputStyle()}
                   name="experience"
-                  defaultValue={experience}
-                >
-                  <option value="">{content.selectExperience}</option>
-                  <option value="NO_EXPERIENCE">
-                    {isArabic ? "بدون خبرة" : "No experience"}
-                  </option>
-                  <option value="LESS_THAN_ONE_YEAR">
-                    {isArabic
-                      ? "خبرة أقل من سنة"
-                      : "Less than a year experience"}
-                  </option>
-                  <option value="MORE_THAN_ONE_YEAR">
-                    {isArabic
-                      ? "خبرة أكثر من سنة"
-                      : "More than a year experience"}
-                  </option>
-                </select>
+                  value={experience}
+                  options={experienceOptions}
+                  placeholder={content.selectExperience}
+                  noResultsText={content.noResults}
+                  inputClassName={fieldClassName}
+                  inputStyle={inputStyle()}
+                />
               </label>
               <label htmlFor="notes" className="block md:col-span-2">
                 <span className="text-sm">{content.notes}</span>
@@ -912,11 +960,8 @@ export default async function ProfileSettingPage({
 
           <button
             type="submit"
-            className={primaryButtonFocusClassName}
+            className={`${primaryButtonFocusClassName} liquid-glass-gold shimmer`}
             style={{
-              background:
-                "linear-gradient(135deg, rgba(228,208,181,0.18) 0%, rgba(228,208,181,0.08) 50%, rgba(228,208,181,0.15) 100%)",
-              border: "1px solid rgba(228,208,181,0.35)",
               color: "#e4d0b5",
               opacity: 1,
             }}

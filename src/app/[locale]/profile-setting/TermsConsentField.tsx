@@ -129,13 +129,7 @@ export default function TermsConsentField({
           role="dialog"
           aria-modal="false"
           aria-labelledby="terms-modal-title"
-          className="mt-3 w-full rounded-3xl border border-[#e4d0b5]/35 shadow-[0_20px_60px_rgba(0,0,0,0.45)]"
-          style={{
-            background:
-              "linear-gradient(150deg, rgba(22,78,84,0.82) 0%, rgba(21,92,99,0.68) 45%, rgba(31,113,121,0.70) 100%)",
-            backdropFilter: "blur(18px) saturate(160%)",
-            WebkitBackdropFilter: "blur(18px) saturate(160%)",
-          }}
+          className="mt-3 w-full rounded-3xl liquid-glass overflow-hidden"
         >
           <div className="border-b border-white/10 px-5 py-4">
             <h3
@@ -157,7 +151,7 @@ export default function TermsConsentField({
             {sections.map((section) => (
               <section
                 key={section.title}
-                className="rounded-xl border border-white/10 bg-white/[0.06] p-3"
+                className="rounded-xl liquid-glass p-3"
               >
                 <h4
                   className="text-sm font-semibold tracking-wide"
@@ -176,7 +170,7 @@ export default function TermsConsentField({
               </section>
             ))}
 
-            <div className="rounded-xl border border-[#e4d0b5]/30 bg-[#1a6a71]/65 p-3 shadow-inner">
+            <div className="rounded-xl liquid-glass p-3">
               <label className="flex items-start gap-3">
                 <input
                   type="checkbox"
@@ -198,7 +192,7 @@ export default function TermsConsentField({
                 setIsPanelOpen(false);
                 setModalConfirmChecked(false);
               }}
-              className="rounded-xl border border-white/20 px-4 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e4d0b5]"
+              className="rounded-xl px-4 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e4d0b5] liquid-glass"
               style={{ color: "rgba(228,208,181,0.9)" }}
             >
               {cancelText}
@@ -207,11 +201,8 @@ export default function TermsConsentField({
               type="button"
               onClick={confirmTerms}
               disabled={!modalConfirmChecked}
-              className="rounded-xl px-4 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e4d0b5] disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl px-4 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e4d0b5] disabled:cursor-not-allowed disabled:opacity-50 liquid-glass-gold shimmer"
               style={{
-                background:
-                  "linear-gradient(135deg, rgba(228,208,181,0.18) 0%, rgba(228,208,181,0.08) 50%, rgba(228,208,181,0.15) 100%)",
-                border: "1px solid rgba(228,208,181,0.35)",
                 color: "#e4d0b5",
               }}
             >

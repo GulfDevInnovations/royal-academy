@@ -26,17 +26,17 @@ export default function TimedAlert({
     tone === "success"
       ? {
           color: "#86efac",
-          background: "rgba(134,239,172,0.08)",
+          background: "transparent",
           border: "1px solid rgba(134,239,172,0.20)",
         }
       : {
           color: "#fca5a5",
-          background: "rgba(248,113,113,0.08)",
+          background: "transparent",
           border: "1px solid rgba(248,113,113,0.20)",
         };
 
   return (
-    <p className="mb-4 rounded-xl px-4 py-3 text-sm" style={styles}>
+    <p className="mb-4 rounded-xl px-4 py-3 text-sm liquid-glass" style={styles}>
       {message}
     </p>
   );
