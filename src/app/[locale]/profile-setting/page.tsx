@@ -45,6 +45,7 @@ function inputStyle() {
       "linear-gradient(135deg, rgba(228,208,181,0.56) 0%, rgba(228,208,181,0.48) 100%)",
     border: "1px solid rgba(75,48,68,0.22)",
     color: "#4b3044",
+    fontFamily: "Tahoma, Arial, 'Noto Sans Arabic', sans-serif",
   };
 }
 
@@ -765,11 +766,11 @@ export default async function ProfileSettingPage({
                 </span>
                 <div
                   className="mt-2 flex items-center gap-2 rounded-2xl px-4 py-3 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#e4d0b5]"
-                  style={inputStyle()}
+                  style={{ ...inputStyle(), direction: "ltr" }}
                 >
                   <span
                     className="text-sm select-none"
-                    style={{ color: "rgba(75,48,68,0.82)" }}
+                    style={{ color: "rgba(75,48,68,0.82)", direction: "ltr" }}
                   >
                     +968
                   </span>
@@ -780,6 +781,7 @@ export default async function ProfileSettingPage({
                     pattern="[0-9]{8}"
                     maxLength={8}
                     className="w-full bg-transparent text-[#4b3044] outline-none placeholder:text-[#4b304499]"
+                    style={{ direction: "ltr", textAlign: "left" }}
                     name="phone"
                     defaultValue={phone}
                     placeholder={content.phonePlaceholder}
@@ -800,6 +802,7 @@ export default async function ProfileSettingPage({
                 />
               </label>
               <CountryCityFields
+                locale={locale}
                 countryLabel={content.country}
                 cityLabel={content.city}
                 countryPlaceholder={content.countryPlaceholder}
@@ -841,11 +844,11 @@ export default async function ProfileSettingPage({
                 </span>
                 <div
                   className="mt-2 flex items-center gap-2 rounded-2xl px-4 py-3 focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#e4d0b5]"
-                  style={inputStyle()}
+                  style={{ ...inputStyle(), direction: "ltr" }}
                 >
                   <span
                     className="text-sm select-none"
-                    style={{ color: "rgba(75,48,68,0.82)" }}
+                    style={{ color: "rgba(75,48,68,0.82)", direction: "ltr" }}
                   >
                     +968
                   </span>
@@ -856,6 +859,7 @@ export default async function ProfileSettingPage({
                     pattern="[0-9]{8}"
                     maxLength={8}
                     className="w-full bg-transparent text-[#4b3044] outline-none placeholder:text-[#4b304499]"
+                    style={{ direction: "ltr", textAlign: "left" }}
                     name="emergencyContactPhone"
                     defaultValue={emergencyPhone}
                     placeholder={content.phonePlaceholder}
