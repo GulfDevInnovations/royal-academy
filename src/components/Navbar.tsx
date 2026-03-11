@@ -20,15 +20,20 @@ import {
   faPowerOff,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
+import NotificationBell from "./NotificationBell";
+import { useNavbarState } from "@/components/NavbarStateContext";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const { navSolid } = useNavbarState();
   const [userImageUrl, setUserImageUrl] = useState<string | null>(null);
   const [userDisplayName, setUserDisplayName] = useState<string>("User");
   const [authLoading, setAuthLoading] = useState(true);
+  // Prisma userId resolved from Supabase session
+  const [prismaUserId, setPrismaUserId] = useState<string | null>(null);
 
   const locale = useLocale();
   const router = useRouter();
@@ -52,6 +57,17 @@ export default function Navbar() {
           ? "text-base md:text-xl"
           : "text-xl md:text-3xl";
 
+  const solidBg: React.CSSProperties = navSolid
+    ? {
+        backgroundColor: "var(--royal-purple)",
+        backdropFilter: "none",
+        WebkitBackdropFilter: "none",
+        border: "1px solid rgba(196,168,130,0.18)",
+        boxShadow: "0 4px 24px rgba(0,0,0,0.35)",
+      }
+    : {};
+
+  // ── 1. Body scroll lock ───────────────────────────────────────────────────────
   useEffect(() => {
     document.body.style.overflow =
       menuOpen || userMenuOpen || contactModalOpen ? "hidden" : "";
@@ -60,27 +76,26 @@ export default function Navbar() {
     };
   }, [menuOpen, userMenuOpen, contactModalOpen]);
 
+  // ── 2. Escape key closes contact modal ───────────────────────────────────────
   useEffect(() => {
     if (!contactModalOpen) return;
-
-    const onEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setContactModalOpen(false);
-      }
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setContactModalOpen(false);
     };
-
     window.addEventListener("keydown", onEscape);
     return () => window.removeEventListener("keydown", onEscape);
   }, [contactModalOpen]);
 
+  // ── 3. Auth + avatar — single effect, runs on pathname/searchParams changes ──
   useEffect(() => {
     const supabase = createClient();
     let mounted = true;
+
     const loadUserAvatar = async () => {
       try {
-        const response = await fetch("/api/auth/avatar", { cache: "no-store" });
-        if (!response.ok) return;
-        const data = (await response.json()) as {
+        const res = await fetch("/api/auth/avatar", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = (await res.json()) as {
           authenticated?: boolean;
           imageUrl?: string | null;
           displayName?: string | null;
@@ -101,9 +116,11 @@ export default function Navbar() {
       }
     };
 
+    // Initial load
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!mounted) return;
       setUser(user ?? null);
+      setPrismaUserId(user?.id ?? null);
       if (user) {
         void loadUserAvatar();
       } else {
@@ -113,10 +130,13 @@ export default function Navbar() {
       setAuthLoading(false);
     });
 
+    // Subsequent auth state changes (login, logout, token refresh)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
       setUser(session?.user ?? null);
+      setPrismaUserId(session?.user?.id ?? null);
       if (session?.user) {
         void loadUserAvatar();
       } else {
@@ -203,9 +223,21 @@ export default function Navbar() {
       };
 
   const contactPhones = [
-    { label: contactContent.phone1, value: "+968 9327 6767", href: "tel:+96893276767" },
-    { label: contactContent.phone2, value: "+968 9886 2343", href: "tel:+96898862343" },
-    { label: contactContent.landline, value: "+968 2449 7033", href: "tel:+96824497033" },
+    {
+      label: contactContent.phone1,
+      value: "+968 9327 6767",
+      href: "tel:+96893276767",
+    },
+    {
+      label: contactContent.phone2,
+      value: "+968 9886 2343",
+      href: "tel:+96898862343",
+    },
+    {
+      label: contactContent.landline,
+      value: "+968 2449 7033",
+      href: "tel:+96824497033",
+    },
   ];
 
   const contactPlatforms = [
@@ -248,7 +280,6 @@ export default function Navbar() {
     },
   };
 
-  // Seal from top-left for user menu
   const userSealVariants = {
     hidden: { clipPath: "circle(0% at 0% 0%)", opacity: 0, scale: 0.92 },
     visible: {
@@ -328,78 +359,98 @@ export default function Navbar() {
         transition={{ duration: 0.7, ease: "easeOut" }}
         className="fixed top-4 left-0 right-0 z-50 px-8 py-5 flex items-center justify-between"
       >
-        {/* Left side — Logo + User pill */}
+        {/* Left side — Logo + User pill + Bell */}
         <div className="flex items-center gap-3">
-          {/* Logo */}
-          <Link
-            href={`/${locale}`}
-            onClick={() => {
-              setMenuOpen(false);
-              setUserMenuOpen(false);
-            }}
-          >
-            <motion.div
-              whileHover={{ scale: 1.04 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Image
-                src="/images/Logo-gray-cropped.png"
-                alt="Royal Academy"
-                width={155}
-                height={58}
-                className="object-contain"
-                priority
-              />
-            </motion.div>
-          </Link>
+          {/* Logo — hidden until navSolid, then fades in */}
+          <AnimatePresence>
+            {navSolid && (
+              <motion.div
+                initial={{ opacity: 0, x: -16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <Link
+                  href={`/${locale}`}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setUserMenuOpen(false);
+                  }}
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.04 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Image
+                      src="/images/Logo-gray-cropped.png"
+                      alt="Royal Academy"
+                      width={80}
+                      height={80}
+                      className="object-contain"
+                      priority
+                    />
+                  </motion.div>
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {/* User Pill / Start Journey */}
-          {authLoading ? (
-            <div className="liquid-glass px-6 py-3 rounded-full text-royal-cream/70 text-sm">
-              ...
-            </div>
-          ) : !user ? (
-            <Link
-              href={loginHref}
-              onClick={() => {
-                setMenuOpen(false);
-                setUserMenuOpen(false);
-              }}
-              className="liquid-glass-gold shimmer flex items-center justify-center gap-3 px-6 py-3 rounded-full transition-all duration-300 cursor-pointer"
-            >
-              <span className="text-royal-gold text-sm tracking-widest uppercase font-medium whitespace-nowrap">
-                {t("startJourney")}
-              </span>
-            </Link>
-          ) : (
-            <motion.button
-              onClick={() => {
-                setUserMenuOpen(!userMenuOpen);
-                setMenuOpen(false);
-              }}
-              whileTap={{ scale: 0.96 }}
-              whileHover={{ scale: 1.03 }}
-              transition={{ duration: 0.2 }}
-              className={`
-              shimmer flex items-center justify-center gap-3 px-2 py-1 rounded-full
-              transition-all duration-300 cursor-pointer
-              ${userMenuOpen ? "liquid-glass-gold" : "liquid-glass"}
-            `}
-            >
-              <span className="relative h-12 w-12 overflow-hidden rounded-full bg-white/10">
-                <Image
-                  src={avatarSrc}
-                  alt="User"
-                  fill
-                  sizes="48px"
-                  className="object-contain opacity-90"
-                  unoptimized={isExternalAvatar}
-                />
-              </span>
-            </motion.button>
+          {/* User pill / Start Journey — always visible, shifts right when logo appears */}
+          <motion.div
+            animate={{ x: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {authLoading ? (
+              <div
+                className="liquid-glass px-6 py-3 rounded-full text-royal-cream/70 text-sm"
+                style={navSolid ? solidBg : {}}
+              >
+                ...
+              </div>
+            ) : !user ? (
+              <Link
+                href={loginHref}
+                onClick={() => {
+                  setMenuOpen(false);
+                  setUserMenuOpen(false);
+                }}
+                className="liquid-glass-gold shimmer flex items-center justify-center gap-3 px-6 py-3 rounded-full transition-all duration-300 cursor-pointer"
+                style={navSolid ? solidBg : {}}
+              >
+                <span className="text-royal-gold text-sm tracking-widest uppercase font-medium whitespace-nowrap">
+                  {t("startJourney")}
+                </span>
+              </Link>
+            ) : (
+              <motion.button
+                onClick={() => {
+                  setUserMenuOpen(!userMenuOpen);
+                  setMenuOpen(false);
+                }}
+                whileTap={{ scale: 0.96 }}
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.2 }}
+                className={`shimmer flex items-center justify-center gap-3 px-2 py-1 rounded-full transition-all duration-300 cursor-pointer ${userMenuOpen ? "liquid-glass-gold" : "liquid-glass"}`}
+                style={navSolid ? solidBg : {}}
+              >
+                <span className="relative h-12 w-12 overflow-hidden rounded-full bg-white/10">
+                  <Image
+                    src={avatarSrc}
+                    alt="User"
+                    fill
+                    sizes="48px"
+                    className="object-contain opacity-90"
+                    unoptimized={isExternalAvatar}
+                  />
+                </span>
+              </motion.button>
+            )}
+          </motion.div>
+
+          {/* Notification Bell — only when logged in */}
+          {user && prismaUserId && (
+            <NotificationBell userId={prismaUserId} isArabic={isArabic} />
           )}
         </div>
-
         {/* Right Side Pills */}
         <div
           className={`flex items-center gap-3 ${isArabic ? "flex-row-reverse" : "flex-row"}`}
@@ -418,6 +469,7 @@ export default function Navbar() {
                 setUserMenuOpen(false);
               }}
               className="liquid-glass-gold shimmer flex items-center justify-center gap-3 px-8 py-4 rounded-full transition-all duration-300 cursor-pointer"
+              style={solidBg}
             >
               <span className="text-royal-gold text-sm tracking-widest uppercase font-medium whitespace-nowrap">
                 {isArabic ? "تواصل معنا" : "Contact Us"}
@@ -432,6 +484,7 @@ export default function Navbar() {
             transition={{ duration: 0.2 }}
             onClick={switchLanguage}
             className="liquid-glass shimmer flex items-center justify-center gap-3 px-8 py-3 rounded-full transition-all duration-300 cursor-pointer"
+            style={solidBg}
           >
             <span className="text-royal-cream text-xl tracking-widest uppercase whitespace-nowrap">
               {isArabic ? "EN" : "عربي"}
@@ -452,6 +505,7 @@ export default function Navbar() {
               transition-all duration-300 cursor-pointer
               ${menuOpen ? "liquid-glass-gold" : "liquid-glass"}
             `}
+            style={solidBg}
           >
             <div className="flex flex-col gap-1.5">
               <motion.span
@@ -507,7 +561,7 @@ export default function Navbar() {
         </div>
       </motion.header>
 
-      {/* Invisible backdrop — closes any open menu */}
+      {/* Invisible backdrop */}
       <AnimatePresence>
         {(menuOpen || userMenuOpen) && (
           <motion.div
@@ -539,10 +593,7 @@ export default function Navbar() {
               transition={{ duration: 0.25, ease: "easeOut" }}
               onClick={(event) => event.stopPropagation()}
               className="mx-auto flex max-h-[90vh] w-full max-w-3xl flex-col rounded-3xl border border-white/25 shadow-[0_35px_90px_rgba(0,0,0,0.45)] overflow-hidden"
-              style={{
-                backdropFilter: "blur(20px) saturate(170%)",
-                WebkitBackdropFilter: "blur(20px) saturate(170%)",
-              }}
+              style={solidBg}
             >
               <div className="flex items-start justify-between gap-4 border-b border-white/15 px-6 py-5">
                 <div>
@@ -696,9 +747,7 @@ export default function Navbar() {
                         className="absolute inset-0 -mx-4 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none"
                         style={glassHoverStyle}
                       />
-                      <span
-                        className={`relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 translate-x-0 group-hover:-translate-x-2 transition-all duration-300 ease-out`}
-                      >
+                      <span className="relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 translate-x-0 group-hover:-translate-x-2 transition-all duration-300 ease-out">
                         <FontAwesomeIcon
                           icon={isArabic ? faCaretRight : faCaretLeft}
                         />
@@ -718,7 +767,7 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-      {/* User Menu Box — seal from top-left */}
+      {/* User Menu Box */}
       <AnimatePresence>
         {userMenuOpen && user && (
           <motion.div
@@ -766,16 +815,13 @@ export default function Navbar() {
                       onClick={() => setUserMenuOpen(false)}
                       className="group relative flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300"
                     >
-                      {/* Glass hover bg */}
                       <span
                         className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-300 ease-out pointer-events-none"
                         style={glassHoverStyle}
                       />
-                      {/* Icon */}
                       <span className="relative z-10 w-8 h-8 rounded-xl liquid-glass flex items-center justify-center text-royal-gold/70 group-hover:text-royal-gold transition-colors duration-300 text-sm">
                         <FontAwesomeIcon icon={link.icon} />
                       </span>
-                      {/* Label */}
                       <span className="relative z-10 text-royal-cream group-hover:text-royal-cream text-2xl tracking-wide transition-all duration-300 group-hover:translate-x-1">
                         {link.label}
                       </span>

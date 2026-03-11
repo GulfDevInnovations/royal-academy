@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { SubClassDetail } from "@/lib/actions/classes";
+import { SubClassDetail, SubClassTeacherInfo } from "@/lib/actions/classes";
 import {
   createMonthlyEnrollment,
   createTrialEnrollment,
@@ -11,7 +11,6 @@ import {
 import {
   ChevronLeft,
   Clock,
-  MapPin,
   Award,
   Users,
   Crown,
@@ -20,6 +19,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
+  ChevronRight,
 } from "lucide-react";
 import { format, addMonths, startOfMonth } from "date-fns";
 
@@ -54,30 +54,35 @@ const DAY_ORDER = [
 
 type Plan = "TRIAL" | "ONCE" | "TWICE";
 
-interface SubClassDetailClientProps {
+export function SubClassDetailClient({
+  subClass,
+}: {
   subClass: SubClassDetail;
-}
-
-export function SubClassDetailClient({ subClass }: SubClassDetailClientProps) {
+}) {
   const router = useRouter();
   const accent = CLASS_ACCENT[subClass.class.name] ?? CLASS_ACCENT.default;
 
+  // ── Step state ──────────────────────────────────────────────────
+  const [selectedTeacher, setSelectedTeacher] =
+    useState<SubClassTeacherInfo | null>(
+      subClass.teachers.length === 1 ? subClass.teachers[0] : null,
+    );
   const [plan, setPlan] = useState<Plan | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<Date | null>(null);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Generate next 4 months
   const availableMonths = useMemo(() => {
     const now = new Date();
     return [0, 1, 2, 3].map((i) => addMonths(startOfMonth(now), i));
   }, []);
 
-  const sortedAvailableDays = useMemo(
-    () => DAY_ORDER.filter((d) => subClass.availableDays.includes(d)),
-    [subClass.availableDays],
-  );
+  // Days available for the selected teacher
+  const sortedAvailableDays = useMemo(() => {
+    if (!selectedTeacher) return [];
+    return DAY_ORDER.filter((d) => selectedTeacher.availableDays.includes(d));
+  }, [selectedTeacher]);
 
   const requiredDays = plan === "ONCE" ? 1 : plan === "TWICE" ? 2 : 0;
 
@@ -97,26 +102,36 @@ export function SubClassDetailClient({ subClass }: SubClassDetailClientProps) {
   }, [plan, subClass]);
 
   const canProceed = useMemo(() => {
+    if (!selectedTeacher) return false;
     if (!plan) return false;
     if (plan === "TRIAL") return true;
     if (!selectedMonth) return false;
     if (selectedDays.length !== requiredDays) return false;
     return true;
-  }, [plan, selectedMonth, selectedDays, requiredDays]);
+  }, [selectedTeacher, plan, selectedMonth, selectedDays, requiredDays]);
+
+  const handleSelectTeacher = (teacher: SubClassTeacherInfo) => {
+    setSelectedTeacher(teacher);
+    // Reset downstream selections when teacher changes
+    setPlan(null);
+    setSelectedMonth(null);
+    setSelectedDays([]);
+    setError(null);
+  };
 
   const handleProceed = async () => {
-    if (!canProceed || !plan) return;
+    if (!canProceed || !plan || !selectedTeacher) return;
     setIsLoading(true);
     setError(null);
 
     try {
-      // Check auth
       const authRes = await fetch("/api/auth/check");
       const { authenticated, studentId } = await authRes.json();
 
       if (!authenticated) {
-        const redirectUrl = `/reservation/${subClass.id}`;
-        router.push(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
+        router.push(
+          `/login?redirect=${encodeURIComponent(`/reservation/${subClass.id}`)}`,
+        );
         return;
       }
 
@@ -126,11 +141,13 @@ export function SubClassDetailClient({ subClass }: SubClassDetailClientProps) {
         result = await createTrialEnrollment({
           studentId,
           subClassId: subClass.id,
+          teacherId: selectedTeacher.id,
         });
       } else {
         result = await createMonthlyEnrollment({
           studentId,
           subClassId: subClass.id,
+          teacherId: selectedTeacher.id,
           month: selectedMonth!.getMonth() + 1,
           year: selectedMonth!.getFullYear(),
           frequency: plan === "ONCE" ? "ONCE_PER_WEEK" : "TWICE_PER_WEEK",
@@ -150,6 +167,16 @@ export function SubClassDetailClient({ subClass }: SubClassDetailClientProps) {
       setIsLoading(false);
     }
   };
+
+  const ctaLabel = useMemo(() => {
+    if (!selectedTeacher) return "Select an Instructor";
+    if (!plan) return "Select a Plan";
+    if (plan === "TRIAL") return "Book Trial Session";
+    if (!selectedMonth) return "Select a Month";
+    if (selectedDays.length < requiredDays)
+      return `Choose ${requiredDays - selectedDays.length} More Day${requiredDays - selectedDays.length > 1 ? "s" : ""}`;
+    return "Proceed to Payment";
+  }, [selectedTeacher, plan, selectedMonth, selectedDays, requiredDays]);
 
   return (
     <main className="min-h-screen pt-24 pb-20">
@@ -238,15 +265,13 @@ export function SubClassDetailClient({ subClass }: SubClassDetailClientProps) {
 
             {/* Description */}
             {subClass.description && (
-              <div className="mb-8">
-                <p className="text-royal-cream/65 leading-relaxed text-base">
-                  {subClass.description}
-                </p>
-              </div>
+              <p className="text-royal-cream/65 leading-relaxed text-base mb-8">
+                {subClass.description}
+              </p>
             )}
 
-            {/* Details chips */}
-            <div className="grid grid-cols-2 gap-3 mb-8">
+            {/* Detail chips */}
+            <div className="grid grid-cols-2 gap-3 mb-10">
               <Chip
                 icon={<Clock className="w-4 h-4" />}
                 label="Duration"
@@ -271,61 +296,148 @@ export function SubClassDetailClient({ subClass }: SubClassDetailClientProps) {
               )}
             </div>
 
-            {/* Teacher */}
-            {subClass.teacher && (
-              <div
-                className="rounded-2xl p-6 border"
-                style={{
-                  background: `${accent}08`,
-                  borderColor: `${accent}20`,
-                }}
-              >
-                <p
-                  className="text-xs font-bold uppercase tracking-widest mb-4"
-                  style={{ color: accent }}
-                >
-                  Your Instructor
-                </p>
-                <div className="flex items-start gap-4">
-                  {subClass.teacher.photoUrl ? (
-                    <img
-                      src={subClass.teacher.photoUrl}
-                      alt={subClass.teacher.firstName}
-                      className="w-16 h-16 rounded-2xl object-cover flex-shrink-0"
-                    />
-                  ) : (
-                    <div
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-bold text-royal-dark flex-shrink-0 font-goudy"
-                      style={{
-                        background: `linear-gradient(135deg, ${accent}, ${accent}88)`,
-                      }}
-                    >
-                      {subClass.teacher.firstName[0]}
-                      {subClass.teacher.lastName[0]}
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="text-lg font-bold text-royal-cream font-goudy">
-                      {subClass.teacher.firstName} {subClass.teacher.lastName}
-                    </h3>
-                    {subClass.teacher.specialties.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mt-1.5">
-                        {subClass.teacher.specialties.slice(0, 4).map((s) => (
-                          <span
-                            key={s}
-                            className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/8 text-royal-cream/50"
-                          >
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    {subClass.teacher.bio && (
-                      <p className="text-royal-cream/55 text-sm mt-3 leading-relaxed">
-                        {subClass.teacher.bio}
-                      </p>
-                    )}
-                  </div>
+            {/* ── Teachers list ── */}
+            {subClass.teachers.length > 0 && (
+              <div>
+                <div className="flex items-center gap-4 mb-5">
+                  <p
+                    className="text-xs font-bold uppercase tracking-widest whitespace-nowrap"
+                    style={{ color: accent }}
+                  >
+                    {subClass.teachers.length === 1
+                      ? "Instructor"
+                      : "Choose Your Instructor"}
+                  </p>
+                  <div
+                    className="h-px flex-1"
+                    style={{
+                      background: `linear-gradient(90deg, ${accent}40, transparent)`,
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  {subClass.teachers.map((teacher) => {
+                    const isSelected = selectedTeacher?.id === teacher.id;
+                    return (
+                      <motion.button
+                        key={teacher.id}
+                        onClick={() => handleSelectTeacher(teacher)}
+                        whileHover={{ x: 2 }}
+                        className="w-full text-left rounded-2xl p-5 border transition-all duration-200 relative overflow-hidden"
+                        style={
+                          isSelected
+                            ? {
+                                background: `${accent}12`,
+                                borderColor: accent,
+                              }
+                            : {
+                                background: "rgba(255,255,255,0.02)",
+                                borderColor: "rgba(255,255,255,0.08)",
+                              }
+                        }
+                      >
+                        <div className="flex items-start gap-4">
+                          {/* Avatar */}
+                          {teacher.photoUrl ? (
+                            <img
+                              src={teacher.photoUrl}
+                              alt={teacher.firstName}
+                              className="w-14 h-14 rounded-2xl object-cover flex-shrink-0"
+                            />
+                          ) : (
+                            <div
+                              className="w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-bold text-royal-dark flex-shrink-0 font-goudy"
+                              style={{
+                                background: isSelected
+                                  ? `linear-gradient(135deg, ${accent}, ${accent}88)`
+                                  : "rgba(255,255,255,0.06)",
+                                color: isSelected ? "#100e0c" : accent,
+                              }}
+                            >
+                              {teacher.firstName[0]}
+                              {teacher.lastName[0]}
+                            </div>
+                          )}
+
+                          <div className="flex-1 min-w-0">
+                            <h3
+                              className="text-base font-bold font-goudy transition-colors"
+                              style={{
+                                color: isSelected
+                                  ? "white"
+                                  : "rgba(255,255,255,0.75)",
+                              }}
+                            >
+                              {teacher.firstName} {teacher.lastName}
+                            </h3>
+
+                            {/* Teacher's days for this subclass */}
+                            {teacher.availableDays.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 mt-2">
+                                {DAY_ORDER.filter((d) =>
+                                  teacher.availableDays.includes(d),
+                                ).map((d) => (
+                                  <span
+                                    key={d}
+                                    className="text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider"
+                                    style={
+                                      isSelected
+                                        ? {
+                                            background: `${accent}25`,
+                                            color: accent,
+                                            border: `1px solid ${accent}40`,
+                                          }
+                                        : {
+                                            background:
+                                              "rgba(255,255,255,0.04)",
+                                            color: "rgba(255,255,255,0.4)",
+                                            border:
+                                              "1px solid rgba(255,255,255,0.08)",
+                                          }
+                                    }
+                                  >
+                                    {DAY_LABELS[d]}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+
+                            {teacher.specialties.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 mt-2">
+                                {teacher.specialties.slice(0, 3).map((s) => (
+                                  <span
+                                    key={s}
+                                    className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/[0.06] text-royal-cream/40"
+                                  >
+                                    {s}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+
+                            {teacher.bio && (
+                              <p className="text-royal-cream/45 text-xs mt-2 leading-relaxed line-clamp-2">
+                                {teacher.bio}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Selected indicator */}
+                          <div className="flex-shrink-0 self-center">
+                            {isSelected ? (
+                              <CheckCircle2
+                                className="w-5 h-5"
+                                style={{ color: accent }}
+                              />
+                            ) : (
+                              <ChevronRight className="w-4 h-4 text-royal-cream/20" />
+                            )}
+                          </div>
+                        </div>
+                      </motion.button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -345,7 +457,7 @@ export function SubClassDetailClient({ subClass }: SubClassDetailClientProps) {
                 borderColor: `${accent}25`,
               }}
             >
-              {/* Gold top bar */}
+              {/* Accent top bar */}
               <div
                 className="h-0.5"
                 style={{
@@ -355,185 +467,263 @@ export function SubClassDetailClient({ subClass }: SubClassDetailClientProps) {
 
               <div className="p-6">
                 <h2 className="text-xl font-bold text-royal-cream font-goudy mb-1">
-                  Choose Your Plan
+                  Book This Class
                 </h2>
                 <p className="text-xs text-royal-cream/40 mb-6">
-                  Select how you&apos;d like to join this class
+                  {!selectedTeacher
+                    ? "Start by choosing an instructor"
+                    : "Choose how you'd like to join"}
                 </p>
 
-                {/* ── Plan selector ── */}
-                <div className="space-y-3 mb-6">
-                  {/* Trial */}
-                  {subClass.isTrialAvailable && (
-                    <PlanOption
-                      selected={plan === "TRIAL"}
-                      onClick={() => {
-                        setPlan("TRIAL");
-                        setSelectedMonth(null);
-                        setSelectedDays([]);
-                      }}
-                      accent={accent}
-                      icon={<Sparkles className="w-4 h-4" />}
-                      title="Trial Session"
-                      subtitle="One-time taster class"
-                      price={`${subClass.trialPrice} ${subClass.currency}`}
-                      badge="One-time"
-                    />
-                  )}
-
-                  {/* Once a week */}
-                  {subClass.oncePriceMonthly && (
-                    <PlanOption
-                      selected={plan === "ONCE"}
-                      onClick={() => {
-                        setPlan("ONCE");
-                        setSelectedDays([]);
-                      }}
-                      accent={accent}
-                      icon={<Calendar className="w-4 h-4" />}
-                      title="Once a Week"
-                      subtitle="4 sessions per month"
-                      price={`${subClass.oncePriceMonthly} ${subClass.currency}/mo`}
-                    />
-                  )}
-
-                  {/* Twice a week */}
-                  {subClass.twicePriceMonthly && (
-                    <PlanOption
-                      selected={plan === "TWICE"}
-                      onClick={() => {
-                        setPlan("TWICE");
-                        setSelectedDays([]);
-                      }}
-                      accent={accent}
-                      icon={<Crown className="w-4 h-4" />}
-                      title="Twice a Week"
-                      subtitle="8 sessions per month"
-                      price={`${subClass.twicePriceMonthly} ${subClass.currency}/mo`}
-                      badge="Best value"
-                    />
-                  )}
-                </div>
-
-                {/* ── Month picker (monthly plans) ── */}
+                {/* Selected teacher summary (sticky reminder) */}
                 <AnimatePresence>
-                  {plan && plan !== "TRIAL" && (
+                  {selectedTeacher && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden mb-5"
+                    >
+                      <div
+                        className="flex items-center gap-3 p-3 rounded-xl border"
+                        style={{
+                          background: `${accent}10`,
+                          borderColor: `${accent}30`,
+                        }}
+                      >
+                        {selectedTeacher.photoUrl ? (
+                          <img
+                            src={selectedTeacher.photoUrl}
+                            alt={selectedTeacher.firstName}
+                            className="w-8 h-8 rounded-lg object-cover flex-shrink-0"
+                          />
+                        ) : (
+                          <div
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-royal-dark flex-shrink-0"
+                            style={{ background: accent }}
+                          >
+                            {selectedTeacher.firstName[0]}
+                            {selectedTeacher.lastName[0]}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-royal-cream/40 leading-none mb-0.5">
+                            Instructor
+                          </p>
+                          <p
+                            className="text-sm font-semibold truncate"
+                            style={{ color: accent }}
+                          >
+                            {selectedTeacher.firstName}{" "}
+                            {selectedTeacher.lastName}
+                          </p>
+                        </div>
+                        {subClass.teachers.length > 1 && (
+                          <button
+                            onClick={() => {
+                              setSelectedTeacher(null);
+                              setPlan(null);
+                              setSelectedMonth(null);
+                              setSelectedDays([]);
+                            }}
+                            className="text-[10px] text-royal-cream/30 hover:text-royal-cream/60 transition-colors flex-shrink-0"
+                          >
+                            Change
+                          </button>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Plan selector — only shown after teacher selected */}
+                <AnimatePresence>
+                  {selectedTeacher && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="mb-6">
-                        <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 mb-3">
-                          Select Month
-                        </p>
-                        <div className="grid grid-cols-2 gap-2">
-                          {availableMonths.map((month) => {
-                            const isSelected =
-                              selectedMonth?.getTime() === month.getTime();
-                            return (
-                              <button
-                                key={month.toISOString()}
-                                onClick={() => setSelectedMonth(month)}
-                                className="py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200 border"
-                                style={
-                                  isSelected
-                                    ? {
-                                        background: `${accent}20`,
-                                        borderColor: accent,
-                                        color: accent,
-                                      }
-                                    : {
-                                        background: "rgba(255,255,255,0.02)",
-                                        borderColor: "rgba(255,255,255,0.08)",
-                                        color: "rgba(255,255,255,0.5)",
-                                      }
-                                }
-                              >
-                                {format(month, "MMM yyyy")}
-                              </button>
-                            );
-                          })}
-                        </div>
+                      <div className="space-y-3 mb-6">
+                        {subClass.isTrialAvailable && (
+                          <PlanOption
+                            selected={plan === "TRIAL"}
+                            onClick={() => {
+                              setPlan("TRIAL");
+                              setSelectedMonth(null);
+                              setSelectedDays([]);
+                            }}
+                            accent={accent}
+                            icon={<Sparkles className="w-4 h-4" />}
+                            title="Trial Session"
+                            subtitle="One-time taster class"
+                            price={`${subClass.trialPrice} ${subClass.currency}`}
+                            badge="One-time"
+                          />
+                        )}
+                        {subClass.oncePriceMonthly && (
+                          <PlanOption
+                            selected={plan === "ONCE"}
+                            onClick={() => {
+                              setPlan("ONCE");
+                              setSelectedDays([]);
+                            }}
+                            accent={accent}
+                            icon={<Calendar className="w-4 h-4" />}
+                            title="Once a Week"
+                            subtitle="4 sessions per month"
+                            price={`${subClass.oncePriceMonthly} ${subClass.currency}/mo`}
+                          />
+                        )}
+                        {subClass.twicePriceMonthly && (
+                          <PlanOption
+                            selected={plan === "TWICE"}
+                            onClick={() => {
+                              setPlan("TWICE");
+                              setSelectedDays([]);
+                            }}
+                            accent={accent}
+                            icon={<Crown className="w-4 h-4" />}
+                            title="Twice a Week"
+                            subtitle="8 sessions per month"
+                            price={`${subClass.twicePriceMonthly} ${subClass.currency}/mo`}
+                            badge="Best value"
+                          />
+                        )}
                       </div>
 
-                      {/* ── Day picker ── */}
-                      {sortedAvailableDays.length > 0 && (
-                        <div className="mb-6">
-                          <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 mb-1">
-                            Preferred Day{requiredDays > 1 ? "s" : ""}
-                          </p>
-                          <p className="text-[10px] text-royal-cream/30 mb-3">
-                            {requiredDays === 1
-                              ? "Choose 1 day"
-                              : "Choose 2 days"}
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {sortedAvailableDays.map((day) => {
-                              const isSelected = selectedDays.includes(day);
-                              return (
-                                <button
-                                  key={day}
-                                  onClick={() => toggleDay(day)}
-                                  className="px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border"
-                                  style={
-                                    isSelected
-                                      ? {
-                                          background: `${accent}20`,
-                                          borderColor: accent,
-                                          color: accent,
+                      {/* Month + Day pickers */}
+                      <AnimatePresence>
+                        {plan && plan !== "TRIAL" && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="overflow-hidden"
+                          >
+                            {/* Month picker */}
+                            <div className="mb-6">
+                              <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 mb-3">
+                                Select Month
+                              </p>
+                              <div className="grid grid-cols-2 gap-2">
+                                {availableMonths.map((month) => {
+                                  const isSelected =
+                                    selectedMonth?.getTime() ===
+                                    month.getTime();
+                                  return (
+                                    <button
+                                      key={month.toISOString()}
+                                      onClick={() => setSelectedMonth(month)}
+                                      className="py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200 border"
+                                      style={
+                                        isSelected
+                                          ? {
+                                              background: `${accent}20`,
+                                              borderColor: accent,
+                                              color: accent,
+                                            }
+                                          : {
+                                              background:
+                                                "rgba(255,255,255,0.02)",
+                                              borderColor:
+                                                "rgba(255,255,255,0.08)",
+                                              color: "rgba(255,255,255,0.5)",
+                                            }
+                                      }
+                                    >
+                                      {format(month, "MMM yyyy")}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Day picker — scoped to selected teacher */}
+                            {sortedAvailableDays.length > 0 && (
+                              <div className="mb-6">
+                                <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 mb-1">
+                                  Preferred Day{requiredDays > 1 ? "s" : ""}
+                                </p>
+                                <p className="text-[10px] text-royal-cream/30 mb-3">
+                                  {requiredDays === 1
+                                    ? "Choose 1 day"
+                                    : "Choose 2 days"}
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                  {sortedAvailableDays.map((day) => {
+                                    const isSelected =
+                                      selectedDays.includes(day);
+                                    return (
+                                      <button
+                                        key={day}
+                                        onClick={() => toggleDay(day)}
+                                        className="px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border"
+                                        style={
+                                          isSelected
+                                            ? {
+                                                background: `${accent}20`,
+                                                borderColor: accent,
+                                                color: accent,
+                                              }
+                                            : {
+                                                background:
+                                                  "rgba(255,255,255,0.02)",
+                                                borderColor:
+                                                  "rgba(255,255,255,0.08)",
+                                                color: "rgba(255,255,255,0.4)",
+                                              }
                                         }
-                                      : {
-                                          background: "rgba(255,255,255,0.02)",
-                                          borderColor: "rgba(255,255,255,0.08)",
-                                          color: "rgba(255,255,255,0.4)",
-                                        }
-                                  }
-                                >
-                                  {DAY_LABELS[day]}
-                                </button>
-                              );
-                            })}
+                                      >
+                                        {DAY_LABELS[day]}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Price summary */}
+                      {plan && price && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="rounded-xl p-4 mb-5 border"
+                          style={{
+                            background: `${accent}08`,
+                            borderColor: `${accent}20`,
+                          }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-royal-cream/60">
+                              Total
+                            </span>
+                            <span
+                              className="text-2xl font-bold font-goudy"
+                              style={{ color: accent }}
+                            >
+                              {price}{" "}
+                              <span className="text-sm font-normal text-royal-cream/40">
+                                {subClass.currency}
+                              </span>
+                            </span>
                           </div>
-                        </div>
+                          {plan !== "TRIAL" && selectedMonth && (
+                            <p className="text-xs text-royal-cream/30 mt-1">
+                              for {format(selectedMonth, "MMMM yyyy")}
+                              {selectedDays.length > 0 &&
+                                ` · ${selectedDays.map((d) => DAY_LABELS[d]).join(" & ")}`}
+                            </p>
+                          )}
+                        </motion.div>
                       )}
                     </motion.div>
                   )}
                 </AnimatePresence>
-
-                {/* ── Price summary ── */}
-                {plan && price && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="rounded-xl p-4 mb-5 border"
-                    style={{
-                      background: `${accent}08`,
-                      borderColor: `${accent}20`,
-                    }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-royal-cream/60">Total</span>
-                      <span
-                        className="text-2xl font-bold font-goudy"
-                        style={{ color: accent }}
-                      >
-                        {price}{" "}
-                        <span className="text-sm font-normal text-royal-cream/40">
-                          {subClass.currency}
-                        </span>
-                      </span>
-                    </div>
-                    {plan !== "TRIAL" && selectedMonth && (
-                      <p className="text-xs text-royal-cream/30 mt-1">
-                        for {format(selectedMonth, "MMMM yyyy")}
-                        {selectedDays.length > 0 &&
-                          ` · ${selectedDays.map((d) => DAY_LABELS[d]).join(" & ")}`}
-                      </p>
-                    )}
-                  </motion.div>
-                )}
 
                 {/* Error */}
                 <AnimatePresence>
@@ -554,7 +744,7 @@ export function SubClassDetailClient({ subClass }: SubClassDetailClientProps) {
                 <button
                   onClick={handleProceed}
                   disabled={!canProceed || isLoading}
-                  className="w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] hover:shadow-xl"
+                  className="w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
                   style={
                     canProceed
                       ? {
@@ -573,16 +763,8 @@ export function SubClassDetailClient({ subClass }: SubClassDetailClientProps) {
                       <Loader2 className="w-4 h-4 animate-spin" />
                       Processing…
                     </span>
-                  ) : !plan ? (
-                    "Select a Plan"
-                  ) : plan === "TRIAL" ? (
-                    "Book Trial Session"
-                  ) : !selectedMonth ? (
-                    "Select a Month"
-                  ) : selectedDays.length < requiredDays ? (
-                    `Choose ${requiredDays - selectedDays.length} More Day${requiredDays - selectedDays.length > 1 ? "s" : ""}`
                   ) : (
-                    "Proceed to Payment"
+                    ctaLabel
                   )}
                 </button>
 
@@ -657,13 +839,10 @@ function PlanOption({
   return (
     <button
       onClick={onClick}
-      className="w-full text-left p-4 rounded-xl border transition-all duration-200 relative overflow-hidden"
+      className="w-full text-left p-4 rounded-xl border transition-all duration-200 relative"
       style={
         selected
-          ? {
-              background: `${accent}14`,
-              borderColor: accent,
-            }
+          ? { background: `${accent}14`, borderColor: accent }
           : {
               background: "rgba(255,255,255,0.02)",
               borderColor: "rgba(255,255,255,0.08)",
@@ -673,7 +852,7 @@ function PlanOption({
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{
               background: selected ? `${accent}25` : "rgba(255,255,255,0.04)",
               color: selected ? accent : "rgba(255,255,255,0.3)",
@@ -683,7 +862,9 @@ function PlanOption({
           </div>
           <div>
             <p
-              className={`text-sm font-bold transition-colors ${selected ? "text-royal-cream" : "text-royal-cream/60"}`}
+              className={`text-sm font-bold transition-colors ${
+                selected ? "text-royal-cream" : "text-royal-cream/60"
+              }`}
             >
               {title}
             </p>

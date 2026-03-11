@@ -108,10 +108,18 @@ export default function StudentEditModal({
                   name="gender"
                   defaultValue={student.gender ?? ""}
                 >
-                  <option value="">Not specified</option>
-                  <option value="MALE">Male</option>
-                  <option value="FEMALE">Female</option>
-                  <option value="OTHER">Other</option>
+                  <option className="text-black" value="">
+                    Not specified
+                  </option>
+                  <option className="text-black" value="MALE">
+                    Male
+                  </option>
+                  <option className="text-black" value="FEMALE">
+                    Female
+                  </option>
+                  <option className="text-black" value="OTHER">
+                    Other
+                  </option>
                 </AdminSelect>
               </div>
               <AdminInput

@@ -5,6 +5,16 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+export type SubClassTeacherInfo = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  photoUrl: string | null;
+  bio: string | null;
+  specialties: string[];
+  availableDays: string[]; // days THIS teacher teaches THIS subclass
+};
+
 export type SubClassCard = {
   id: string;
   name: string;
@@ -24,33 +34,21 @@ export type SubClassCard = {
     name: string;
     iconUrl: string | null;
   };
-  teacher: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    photoUrl: string | null;
-    specialties: string[];
-  } | null;
+  teachers: SubClassTeacherInfo[];
 };
 
-export type SubClassDetail = SubClassCard & {
-  teacher: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    photoUrl: string | null;
-    bio: string | null;
-    specialties: string[];
-  } | null;
-  availableDays: string[]; // DayOfWeek values from active schedules
-};
+export type SubClassDetail = SubClassCard;
 
 export async function getSubClassCards(): Promise<SubClassCard[]> {
   const subClasses = await prisma.subClass.findMany({
     where: { isActive: true },
     include: {
       class: true,
-      teacher: true,
+      teachers: {
+        include: {
+          teacher: true,
+        },
+      },
     },
     orderBy: [{ class: { sortOrder: "asc" } }, { name: "asc" }],
   });
@@ -74,34 +72,45 @@ export async function getSubClassCards(): Promise<SubClassCard[]> {
       name: s.class.name,
       iconUrl: s.class.iconUrl,
     },
-    teacher: s.teacher
-      ? {
-          id: s.teacher.id,
-          firstName: s.teacher.firstName,
-          lastName: s.teacher.lastName,
-          photoUrl: s.teacher.photoUrl,
-          specialties: s.teacher.specialties,
-        }
-      : null,
+    teachers: s.teachers.map((t) => ({
+      id: t.teacher.id,
+      firstName: t.teacher.firstName,
+      lastName: t.teacher.lastName,
+      photoUrl: t.teacher.photoUrl,
+      bio: t.teacher.bio,
+      specialties: t.teacher.specialties,
+      availableDays: [], // not needed on cards page
+    })),
   }));
 }
 
-export async function getSubClassDetail(id: string): Promise<SubClassDetail | null> {
+export async function getSubClassDetail(
+  id: string
+): Promise<SubClassDetail | null> {
   const s = await prisma.subClass.findUnique({
     where: { id, isActive: true },
     include: {
       class: true,
-      teacher: true,
-      classSchedules: {
-        where: { status: "ACTIVE" },
-        select: { dayOfWeek: true },
+      teachers: {
+        include: {
+          teacher: {
+            include: {
+              // Get schedules for THIS subclass only
+              classSchedules: {
+                where: {
+                  subClassId: id,
+                  status: "ACTIVE",
+                },
+                select: { dayOfWeek: true },
+              },
+            },
+          },
+        },
       },
     },
   });
 
   if (!s) return null;
-
-  const availableDays = [...new Set(s.classSchedules.map((cs) => cs.dayOfWeek))];
 
   return {
     id: s.id,
@@ -122,17 +131,20 @@ export async function getSubClassDetail(id: string): Promise<SubClassDetail | nu
       name: s.class.name,
       iconUrl: s.class.iconUrl,
     },
-    teacher: s.teacher
-      ? {
-          id: s.teacher.id,
-          firstName: s.teacher.firstName,
-          lastName: s.teacher.lastName,
-          photoUrl: s.teacher.photoUrl,
-          bio: s.teacher.bio,
-          specialties: s.teacher.specialties,
-        }
-      : null,
-    availableDays,
+    teachers: s.teachers.map((t) => ({
+      id: t.teacher.id,
+      firstName: t.teacher.firstName,
+      lastName: t.teacher.lastName,
+      photoUrl: t.teacher.photoUrl,
+      bio: t.teacher.bio,
+      specialties: t.teacher.specialties,
+      // Days THIS teacher teaches THIS subclass
+      availableDays: [
+        ...new Set(
+          t.teacher.classSchedules.map((cs) => cs.dayOfWeek)
+        ),
+      ],
+    })),
   };
 }
 
@@ -145,7 +157,10 @@ export async function checkTrialEligibility(
   });
 
   if (existing) {
-    return { eligible: false, reason: "You have already taken a trial for this class." };
+    return {
+      eligible: false,
+      reason: "You have already taken a trial for this class.",
+    };
   }
 
   return { eligible: true };

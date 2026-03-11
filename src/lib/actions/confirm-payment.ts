@@ -116,6 +116,8 @@ export type MonthlyPaymentData = {
   } | null;
 };
 
+// ─── UPDATE these two functions in src/lib/actions/confirm-payment.ts ───
+
 export async function getMonthlyPaymentData(
   enrollmentId: string
 ): Promise<MonthlyPaymentData | null> {
@@ -126,13 +128,18 @@ export async function getMonthlyPaymentData(
       subClass: {
         include: {
           class: true,
-          teacher: true,
+          teachers: {           // ← was: teacher: true
+            include: { teacher: true },
+            take: 1,            // just the first teacher for the payment summary
+          },
         },
       },
     },
   });
 
   if (!enrollment) return null;
+
+  const firstTeacher = enrollment.subClass.teachers[0]?.teacher ?? null;
 
   return {
     enrollmentId: enrollment.id,
@@ -152,11 +159,62 @@ export async function getMonthlyPaymentData(
       className: enrollment.subClass.class.name,
       sessionType: enrollment.subClass.sessionType,
     },
-    teacher: enrollment.subClass.teacher
+    teacher: firstTeacher
       ? {
-          firstName: enrollment.subClass.teacher.firstName,
-          lastName: enrollment.subClass.teacher.lastName,
-          photoUrl: enrollment.subClass.teacher.photoUrl,
+          firstName: firstTeacher.firstName,
+          lastName: firstTeacher.lastName,
+          photoUrl: firstTeacher.photoUrl,
+        }
+      : null,
+  };
+}
+
+export async function getTrialPaymentData(
+  trialBookingId: string
+): Promise<TrialPaymentData | null> {
+  const trial = await prisma.trialBooking.findUnique({
+    where: { id: trialBookingId },
+    include: {
+      student: { include: { user: true } },
+      subClass: {
+        include: {
+          class: true,
+          teachers: {           // ← was: teacher: true
+            include: { teacher: true },
+            take: 1,
+          },
+        },
+      },
+      session: true,
+      payment: true,
+    },
+  });
+
+  if (!trial) return null;
+
+  const firstTeacher = trial.subClass.teachers[0]?.teacher ?? null;
+
+  return {
+    trialBookingId: trial.id,
+    status: trial.status,
+    amount: trial.payment?.amount.toString() ?? trial.subClass.trialPrice.toString(),
+    currency: trial.payment?.currency ?? trial.subClass.currency,
+    studentName: `${trial.student.firstName} ${trial.student.lastName}`,
+    studentEmail: trial.student.user.email,
+    sessionDate: trial.session.sessionDate.toISOString(),
+    startTime: trial.session.startTime,
+    endTime: trial.session.endTime,
+    subClass: {
+      name: trial.subClass.name,
+      level: trial.subClass.level,
+      durationMinutes: trial.subClass.durationMinutes,
+      className: trial.subClass.class.name,
+    },
+    teacher: firstTeacher
+      ? {
+          firstName: firstTeacher.firstName,
+          lastName: firstTeacher.lastName,
+          photoUrl: firstTeacher.photoUrl,
         }
       : null,
   };
@@ -187,48 +245,3 @@ export type TrialPaymentData = {
   } | null;
 };
 
-export async function getTrialPaymentData(
-  trialBookingId: string
-): Promise<TrialPaymentData | null> {
-  const trial = await prisma.trialBooking.findUnique({
-    where: { id: trialBookingId },
-    include: {
-      student: { include: { user: true } },
-      subClass: {
-        include: {
-          class: true,
-          teacher: true,
-        },
-      },
-      session: true,
-      payment: true, // now a proper relation via trialBookingId
-    },
-  });
-
-  if (!trial) return null;
-
-  return {
-    trialBookingId: trial.id,
-    status: trial.status,
-    amount: trial.payment?.amount.toString() ?? trial.subClass.trialPrice.toString(),
-    currency: trial.payment?.currency ?? trial.subClass.currency,
-    studentName: `${trial.student.firstName} ${trial.student.lastName}`,
-    studentEmail: trial.student.user.email,
-    sessionDate: trial.session.sessionDate.toISOString(),
-    startTime: trial.session.startTime,
-    endTime: trial.session.endTime,
-    subClass: {
-      name: trial.subClass.name,
-      level: trial.subClass.level,
-      durationMinutes: trial.subClass.durationMinutes,
-      className: trial.subClass.class.name,
-    },
-    teacher: trial.subClass.teacher
-      ? {
-          firstName: trial.subClass.teacher.firstName,
-          lastName: trial.subClass.teacher.lastName,
-          photoUrl: trial.subClass.teacher.photoUrl,
-        }
-      : null,
-  };
-}

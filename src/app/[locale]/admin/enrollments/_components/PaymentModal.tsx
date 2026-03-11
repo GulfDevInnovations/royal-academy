@@ -135,9 +135,11 @@ export default function PaymentModal({
                 defaultValue={enrollment.payment?.method ?? ""}
                 required
               >
-                <option value="">Select…</option>
+                <option className="text-black" value="">
+                  Select…
+                </option>
                 {PAYMENT_METHODS.map((m) => (
-                  <option key={m.value} value={m.value}>
+                  <option className="text-black" key={m.value} value={m.value}>
                     {m.label}
                   </option>
                 ))}

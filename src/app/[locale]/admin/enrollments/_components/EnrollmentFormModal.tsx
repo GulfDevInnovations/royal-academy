@@ -198,7 +198,9 @@ export default function EnrollmentFormModal({
                 required
                 defaultValue=""
               >
-                <option value="">Search and select a student…</option>
+                <option className="text-black" value="">
+                  Search and select a student…
+                </option>
                 {formOptions.students.map((s) => (
                   <option key={s.id} value={s.id}>
                     {s.firstName} {s.lastName}
@@ -217,9 +219,11 @@ export default function EnrollmentFormModal({
                 onChange={(e) => handleSubClassChange(e.target.value)}
                 required
               >
-                <option value="">Select a sub-class…</option>
+                <option className="text-black" value="">
+                  Select a sub-class…
+                </option>
                 {formOptions.subClasses.map((s) => (
-                  <option key={s.id} value={s.id}>
+                  <option className="text-black" key={s.id} value={s.id}>
                     {s.class.name} → {s.name}
                   </option>
                 ))}
@@ -233,7 +237,11 @@ export default function EnrollmentFormModal({
                   required
                 >
                   {MONTHS.map((m, i) => (
-                    <option key={i + 1} value={String(i + 1)}>
+                    <option
+                      className="text-black"
+                      key={i + 1}
+                      value={String(i + 1)}
+                    >
                       {m}
                     </option>
                   ))}
@@ -245,7 +253,7 @@ export default function EnrollmentFormModal({
                   required
                 >
                   {yearOptions.map((y) => (
-                    <option key={y} value={String(y)}>
+                    <option className="text-black" key={y} value={String(y)}>
                       {y}
                     </option>
                   ))}
@@ -481,9 +489,15 @@ export default function EnrollmentFormModal({
                       required={payNow}
                       defaultValue=""
                     >
-                      <option value="">Select…</option>
+                      <option className="text-black" value="">
+                        Select…
+                      </option>
                       {PAYMENT_METHODS.map((m) => (
-                        <option key={m.value} value={m.value}>
+                        <option
+                          className="text-black"
+                          key={m.value}
+                          value={m.value}
+                        >
                           {m.label}
                         </option>
                       ))}
