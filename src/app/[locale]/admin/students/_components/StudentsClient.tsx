@@ -431,9 +431,11 @@ export default function StudentsClient({
                 className="w-full px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
                 style={{ borderColor: adminColors.border }}
               >
-                <option value="">All classes</option>
+                <option className="text-black" value="">
+                  All classes
+                </option>
                 {filterOptions.classes.map((c) => (
-                  <option key={c.id} value={c.id}>
+                  <option className="text-black" key={c.id} value={c.id}>
                     {c.name}
                   </option>
                 ))}
@@ -454,9 +456,11 @@ export default function StudentsClient({
                 className="w-full px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
                 style={{ borderColor: adminColors.border }}
               >
-                <option value="">All sub-classes</option>
+                <option className="text-black" value="">
+                  All sub-classes
+                </option>
                 {filteredSubClasses.map((s) => (
-                  <option key={s.id} value={s.id}>
+                  <option className="text-black" key={s.id} value={s.id}>
                     {s.name}
                   </option>
                 ))}
@@ -477,9 +481,11 @@ export default function StudentsClient({
                 className="w-full px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
                 style={{ borderColor: adminColors.border }}
               >
-                <option value="">Any day</option>
+                <option className="text-black" value="">
+                  Any day
+                </option>
                 {DAYS.map((d) => (
-                  <option key={d} value={d}>
+                  <option className="text-black" key={d} value={d}>
                     {d.charAt(0) + d.slice(1).toLowerCase()}
                   </option>
                 ))}
@@ -500,9 +506,15 @@ export default function StudentsClient({
                 className="w-full px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
                 style={{ borderColor: adminColors.border }}
               >
-                <option value="all">All</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                <option className="text-black" value="all">
+                  All
+                </option>
+                <option className="text-black" value="active">
+                  Active
+                </option>
+                <option className="text-black" value="inactive">
+                  Inactive
+                </option>
               </select>
             </div>
           </div>

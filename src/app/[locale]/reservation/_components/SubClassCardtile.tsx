@@ -38,6 +38,7 @@ interface SubClassCardTileProps {
 export function SubClassCardTile({ subClass }: SubClassCardTileProps) {
   const accent = CLASS_ACCENT[subClass.class.name] ?? CLASS_ACCENT.default;
   const glow = CLASS_GLOW[subClass.class.name] ?? CLASS_GLOW.default;
+  const hasTeachers = subClass.teachers.length > 0;
 
   const lowestPrice =
     subClass.oncePriceMonthly ?? subClass.twicePriceMonthly ?? null;
@@ -177,25 +178,35 @@ export function SubClassCardTile({ subClass }: SubClassCardTileProps) {
             {subClass.name}
           </h3>
 
-          {/* Teacher */}
-          {subClass.teacher && (
+          {/* Teachers — stacked avatars if multiple */}
+          {hasTeachers && (
             <div className="flex items-center gap-2 mb-3">
-              {subClass.teacher.photoUrl ? (
-                <img
-                  src={subClass.teacher.photoUrl}
-                  alt={subClass.teacher.firstName}
-                  className="w-5 h-5 rounded-full object-cover"
-                />
-              ) : (
-                <div
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold text-royal-dark"
-                  style={{ background: accent }}
-                >
-                  {subClass.teacher.firstName[0]}
-                </div>
-              )}
+              {/* Stacked avatars */}
+              <div className="flex -space-x-2">
+                {subClass.teachers.slice(0, 3).map((t) =>
+                  t.photoUrl ? (
+                    <img
+                      key={t.id}
+                      src={t.photoUrl}
+                      alt={t.firstName}
+                      className="w-6 h-6 rounded-full object-cover ring-2 ring-[#1a1610]"
+                    />
+                  ) : (
+                    <div
+                      key={t.id}
+                      className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-royal-dark ring-2 ring-[#1a1610]"
+                      style={{ background: accent }}
+                    >
+                      {t.firstName[0]}
+                      {t.lastName[0]}
+                    </div>
+                  ),
+                )}
+              </div>
               <span className="text-xs text-royal-cream/50">
-                {subClass.teacher.firstName} {subClass.teacher.lastName}
+                {subClass.teachers.length === 1
+                  ? `${subClass.teachers[0].firstName} ${subClass.teachers[0].lastName}`
+                  : `${subClass.teachers.length} instructors`}
               </span>
             </div>
           )}

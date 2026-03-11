@@ -1001,9 +1001,11 @@ export default function EnrollmentsClient({
               className="px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none"
               style={{ borderColor: "rgba(255,255,255,0.08)" }}
             >
-              <option value="">All classes</option>
+              <option className="text-black" value="">
+                All classes
+              </option>
               {uniqueClasses.map((c) => (
-                <option key={c.id} value={c.id}>
+                <option className="text-black" key={c.id} value={c.id}>
                   {c.name}
                 </option>
               ))}
@@ -1015,9 +1017,11 @@ export default function EnrollmentsClient({
               className="px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none"
               style={{ borderColor: "rgba(255,255,255,0.08)" }}
             >
-              <option value="">All sub-classes</option>
+              <option className="text-black" value="">
+                All sub-classes
+              </option>
               {filteredSubClasses.map((s) => (
-                <option key={s.id} value={s.id}>
+                <option className="text-black" key={s.id} value={s.id}>
                   {s.name}
                 </option>
               ))}
@@ -1029,9 +1033,11 @@ export default function EnrollmentsClient({
               className="px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none"
               style={{ borderColor: "rgba(255,255,255,0.08)" }}
             >
-              <option value="">All statuses</option>
+              <option className="text-black" value="">
+                All statuses
+              </option>
               {Object.entries(STATUS_CONFIG).map(([v, c]) => (
-                <option key={v} value={v}>
+                <option className="text-black" key={v} value={v}>
                   {c.label}
                 </option>
               ))}

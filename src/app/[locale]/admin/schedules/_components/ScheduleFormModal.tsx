@@ -156,9 +156,11 @@ export default function ScheduleFormModal({
                   onChange={(e) => setSelectedSubClassId(e.target.value)}
                   required
                 >
-                  <option value="">Select a sub-class…</option>
+                  <option className="text-black" value="">
+                    Select a sub-class…
+                  </option>
                   {subClasses.map((s) => (
-                    <option key={s.id} value={s.id}>
+                    <option className="text-black" key={s.id} value={s.id}>
                       {s.class.name} → {s.name}
                     </option>
                   ))}
@@ -183,9 +185,11 @@ export default function ScheduleFormModal({
                 defaultValue={editing?.teacherId ?? ""}
                 required
               >
-                <option value="">Select a teacher…</option>
+                <option className="text-black" value="">
+                  Select a teacher…
+                </option>
                 {availableTeachers.map((t) => (
-                  <option key={t.id} value={t.id}>
+                  <option className="text-black" key={t.id} value={t.id}>
                     {t.firstName} {t.lastName}
                   </option>
                 ))}
@@ -223,9 +227,11 @@ export default function ScheduleFormModal({
                 defaultValue={editing?.dayOfWeek ?? ""}
                 required
               >
-                <option value="">Select day…</option>
+                <option className="text-black" value="">
+                  Select day…
+                </option>
                 {DAYS.map((d) => (
-                  <option key={d} value={d}>
+                  <option className="text-black" key={d} value={d}>
                     {DAY_LABELS[d]}
                   </option>
                 ))}
@@ -305,8 +311,12 @@ export default function ScheduleFormModal({
                   name="isPublic"
                   defaultValue={editing?.isPublic ? "true" : "false"}
                 >
-                  <option value="false">Private</option>
-                  <option value="true">Public</option>
+                  <option className="text-black" value="false">
+                    Private
+                  </option>
+                  <option className="text-black" value="true">
+                    Public
+                  </option>
                 </AdminSelect>
               </div>
               <AdminSelect
@@ -314,8 +324,12 @@ export default function ScheduleFormModal({
                 name="isRecurring"
                 defaultValue={editing?.isRecurring !== false ? "true" : "false"}
               >
-                <option value="true">Yes — weekly recurring</option>
-                <option value="false">No — one-off</option>
+                <option className="text-black" value="true">
+                  Yes — weekly recurring
+                </option>
+                <option className="text-black" value="false">
+                  No — one-off
+                </option>
               </AdminSelect>
               <AdminInput
                 label="Online Link (optional)"
@@ -331,7 +345,11 @@ export default function ScheduleFormModal({
                   defaultValue={editing.status}
                 >
                   {STATUS_OPTIONS.map((s) => (
-                    <option key={s.value} value={s.value}>
+                    <option
+                      className="text-black"
+                      key={s.value}
+                      value={s.value}
+                    >
                       {s.label}
                     </option>
                   ))}
