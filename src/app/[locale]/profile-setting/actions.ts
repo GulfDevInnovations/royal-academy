@@ -30,16 +30,24 @@ function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
+function normalizeLocalOmPhone(raw: string) {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.startsWith("968") && digits.length >= 11) {
+    return digits.slice(3, 11);
+  }
+  return digits.slice(0, 8);
+}
+
 const profileSchema = z.object({
   locale: z.enum(["en", "ar"]).default("en"),
   firstName: z.string().trim().min(1),
   lastName: z.string().trim().min(1),
   email: z.string().trim().email(),
-  phone: z.string().trim().min(1),
+  phone: z.string().regex(/^\d{8}$/),
   dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER]),
   emergencyContactName: z.string().trim().min(1),
-  emergencyContactPhone: z.string().trim().min(1),
+  emergencyContactPhone: z.string().regex(/^\d{8}$/),
   emergencyRelationship: z.string().trim().optional(),
   preferredTrack: z
     .enum([ProfileTrack.DANCE, ProfileTrack.MUSIC, ProfileTrack.ART])
@@ -70,11 +78,13 @@ export async function saveProfileSettings(formData: FormData) {
     firstName: getString(formData, "firstName"),
     lastName: getString(formData, "lastName"),
     email: getString(formData, "email"),
-    phone: getString(formData, "phone"),
+    phone: normalizeLocalOmPhone(getString(formData, "phone")),
     dateOfBirth: getString(formData, "dateOfBirth"),
     gender: getString(formData, "gender"),
     emergencyContactName: getString(formData, "emergencyContactName"),
-    emergencyContactPhone: getString(formData, "emergencyContactPhone"),
+    emergencyContactPhone: normalizeLocalOmPhone(
+      getString(formData, "emergencyContactPhone"),
+    ),
     emergencyRelationship: getString(formData, "emergencyRelationship"),
     preferredTrack: getString(formData, "preferredTrack"),
     experience: getString(formData, "experience"),
@@ -116,11 +126,13 @@ export async function saveProfileSettings(formData: FormData) {
     firstName: getString(formData, "firstName"),
     lastName: getString(formData, "lastName"),
     email: getString(formData, "email"),
-    phone: getString(formData, "phone"),
+    phone: normalizeLocalOmPhone(getString(formData, "phone")),
     dateOfBirth: getString(formData, "dateOfBirth"),
     gender: formData.get("gender"),
     emergencyContactName: getString(formData, "emergencyContactName"),
-    emergencyContactPhone: getString(formData, "emergencyContactPhone"),
+    emergencyContactPhone: normalizeLocalOmPhone(
+      getString(formData, "emergencyContactPhone"),
+    ),
     emergencyRelationship: getString(formData, "emergencyRelationship"),
     preferredTrack: getString(formData, "preferredTrack") || undefined,
     experience: getString(formData, "experience") || undefined,
@@ -172,7 +184,7 @@ export async function saveProfileSettings(formData: FormData) {
       where: { id: user.id },
       data: {
         email: data.email,
-        phone: data.phone,
+        phone: `+968${data.phone}`,
         image: data.imageUrl || null,
         studentProfile: {
           upsert: {
@@ -185,7 +197,7 @@ export async function saveProfileSettings(formData: FormData) {
               city: data.city || null,
               country: data.country || null,
               emergencyContactName: data.emergencyContactName,
-              emergencyContactPhone: data.emergencyContactPhone,
+              emergencyContactPhone: `+968${data.emergencyContactPhone}`,
               emergencyRelationship: data.emergencyRelationship,
               hasMedicalCondition: data.hasMedicalCondition,
               medicalConditionDetails: data.hasMedicalCondition
@@ -205,7 +217,7 @@ export async function saveProfileSettings(formData: FormData) {
               city: data.city || null,
               country: data.country || null,
               emergencyContactName: data.emergencyContactName,
-              emergencyContactPhone: data.emergencyContactPhone,
+              emergencyContactPhone: `+968${data.emergencyContactPhone}`,
               emergencyRelationship: data.emergencyRelationship,
               hasMedicalCondition: data.hasMedicalCondition,
               medicalConditionDetails: data.hasMedicalCondition
