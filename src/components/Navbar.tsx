@@ -91,7 +91,7 @@ export default function Navbar() {
     const supabase = createClient();
     let mounted = true;
 
-    const loadAvatar = async () => {
+    const loadUserAvatar = async () => {
       try {
         const res = await fetch("/api/auth/avatar", { cache: "no-store" });
         if (!res.ok) return;
@@ -120,6 +120,7 @@ export default function Navbar() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!mounted) return;
       setUser(user ?? null);
+      setPrismaUserId(user?.id ?? null);
       if (user) {
         void loadUserAvatar();
       } else {
@@ -135,6 +136,7 @@ export default function Navbar() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
       setUser(session?.user ?? null);
+      setPrismaUserId(session?.user?.id ?? null);
       if (session?.user) {
         void loadUserAvatar();
       } else {
