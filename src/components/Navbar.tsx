@@ -30,6 +30,7 @@ export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const { navSolid } = useNavbarState();
   const [userImageUrl, setUserImageUrl] = useState<string | null>(null);
+  const [userDisplayName, setUserDisplayName] = useState<string>("User");
   const [authLoading, setAuthLoading] = useState(true);
   // Prisma userId resolved from Supabase session
   const [prismaUserId, setPrismaUserId] = useState<string | null>(null);
@@ -44,6 +45,17 @@ export default function Navbar() {
   const avatarSrc = userImageUrl || "/images/user.png";
   const isExternalAvatar = avatarSrc.startsWith("http");
   const searchParamsKey = searchParams.toString();
+  const greetingText = isArabic
+    ? `مرحباً عزيزنا ${userDisplayName}!`
+    : `Welcome dear ${userDisplayName}!`;
+  const greetingSizeClass =
+    greetingText.length > 36
+      ? "text-xs md:text-sm"
+      : greetingText.length > 26
+        ? "text-sm md:text-base"
+        : greetingText.length > 18
+          ? "text-base md:text-xl"
+          : "text-xl md:text-3xl";
 
   const solidBg: React.CSSProperties = navSolid
     ? {
@@ -86,12 +98,21 @@ export default function Navbar() {
         const data = (await res.json()) as {
           authenticated?: boolean;
           imageUrl?: string | null;
+          displayName?: string | null;
         };
         if (!mounted) return;
         setUserImageUrl(data.authenticated ? (data.imageUrl ?? null) : null);
+        setUserDisplayName(
+          data.authenticated && data.displayName
+            ? data.displayName
+            : isArabic
+              ? "المستخدم"
+              : "User",
+        );
       } catch {
         if (!mounted) return;
         setUserImageUrl(null);
+        setUserDisplayName(isArabic ? "المستخدم" : "User");
       }
     };
 
@@ -99,9 +120,12 @@ export default function Navbar() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!mounted) return;
       setUser(user ?? null);
-      setPrismaUserId(user?.id ?? null); // Supabase UUID == Prisma User.id
-      if (user) void loadAvatar();
-      else setUserImageUrl(null);
+      if (user) {
+        void loadUserAvatar();
+      } else {
+        setUserImageUrl(null);
+        setUserDisplayName(isArabic ? "المستخدم" : "User");
+      }
       setAuthLoading(false);
     });
 
@@ -111,9 +135,12 @@ export default function Navbar() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
       setUser(session?.user ?? null);
-      setPrismaUserId(session?.user?.id ?? null);
-      if (session?.user) void loadAvatar();
-      else setUserImageUrl(null);
+      if (session?.user) {
+        void loadUserAvatar();
+      } else {
+        setUserImageUrl(null);
+        setUserDisplayName(isArabic ? "المستخدم" : "User");
+      }
       if (!session?.user) setUserMenuOpen(false);
       setAuthLoading(false);
     });
@@ -122,7 +149,7 @@ export default function Navbar() {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [pathname, searchParamsKey]);
+  }, [pathname, searchParamsKey, isArabic]);
 
   const switchLanguage = () => {
     const newLocale = isArabic ? "en" : "ar";
@@ -752,7 +779,7 @@ export default function Navbar() {
 
             {/* User avatar header */}
             <div className="px-8 pt-8 pb-4 flex items-center gap-4 border-b border-white/5">
-              <div className="relative w-12 h-12 rounded-full liquid-glass overflow-hidden">
+              <div className="relative w-12 h-12 shrink-0 rounded-full liquid-glass overflow-hidden">
                 <Image
                   src={avatarSrc}
                   alt="User"
@@ -763,11 +790,10 @@ export default function Navbar() {
                 />
               </div>
               <div>
-                <p className="text-royal-cream text-3xl tracking-wide">
-                  {isArabic ? "مرحباً" : "Welcome"}
-                </p>
-                <p className="text-royal-gold/60 text-xs tracking-widest uppercase">
-                  {isArabic ? "الطالب" : "Student"}
+                <p
+                  className={`max-w-[12rem] break-words leading-tight text-royal-cream tracking-wide ${greetingSizeClass}`}
+                >
+                  {greetingText}
                 </p>
               </div>
             </div>
