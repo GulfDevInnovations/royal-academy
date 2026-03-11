@@ -9,10 +9,7 @@ import {
   markAllNotificationsRead,
 } from "@/lib/actions/notifications.client.actions";
 import { useRouter } from "next/navigation";
-
-// ─────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────
+import { useNavbarState } from "@/components/NavbarStateContext";
 
 interface AppNotification {
   id: string;
@@ -29,15 +26,10 @@ interface Props {
   isArabic: boolean;
 }
 
-// ─────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────
-
 function timeAgo(date: Date | string, isArabic: boolean): string {
   const now = new Date();
   const then = new Date(date);
   const diff = Math.floor((now.getTime() - then.getTime()) / 1000);
-
   if (diff < 60) return isArabic ? "الآن" : "just now";
   if (diff < 3600)
     return isArabic
@@ -52,10 +44,6 @@ function timeAgo(date: Date | string, isArabic: boolean): string {
     : `${Math.floor(diff / 86400)}d ago`;
 }
 
-// ─────────────────────────────────────────────
-// Component
-// ─────────────────────────────────────────────
-
 export default function NotificationBell({ userId, isArabic }: Props) {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
@@ -63,10 +51,20 @@ export default function NotificationBell({ userId, isArabic }: Props) {
   const [isPending, startTransition] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { navSolid } = useNavbarState();
 
   const unread = notifications.filter((n) => !n.readAt).length;
 
-  // ── Fetch on mount and when opening ──
+  const solidBg: React.CSSProperties = navSolid
+    ? {
+        backgroundColor: "var(--royal-purple)",
+        backdropFilter: "none",
+        WebkitBackdropFilter: "none",
+        border: "1px solid rgba(196,168,130,0.18)",
+        boxShadow: "0 4px 24px rgba(0,0,0,0.35)",
+      }
+    : {};
+
   const fetchNotifications = async () => {
     setLoading(true);
     const data = await getMyNotifications(userId);
@@ -76,12 +74,10 @@ export default function NotificationBell({ userId, isArabic }: Props) {
 
   useEffect(() => {
     fetchNotifications();
-    // Poll every 60 seconds for new notifications
-    const interval = setInterval(fetchNotifications, 60_000);
+    const interval = setInterval(fetchNotifications, 100_000);
     return () => clearInterval(interval);
   }, [userId]);
 
-  // ── Close on outside click ──
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (
@@ -95,15 +91,8 @@ export default function NotificationBell({ userId, isArabic }: Props) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // ── Mark one as read + open link ──
   const handleNotificationClick = (n: AppNotification) => {
-    // Open the window FIRST — synchronously in the click handler,
-    // before any await, so the browser doesn't treat it as a popup.
-    if (n.linkUrl) {
-      window.open(n.linkUrl, "_blank", "noopener,noreferrer");
-    }
-
-    // Then mark as read asynchronously — order doesn't matter for UX
+    if (n.linkUrl) window.open(n.linkUrl, "_blank", "noopener,noreferrer");
     if (!n.readAt) {
       startTransition(async () => {
         await markNotificationRead(n.id, userId);
@@ -116,7 +105,6 @@ export default function NotificationBell({ userId, isArabic }: Props) {
     }
   };
 
-  // ── Mark all as read ──
   const handleMarkAllRead = () => {
     startTransition(async () => {
       await markAllNotificationsRead(userId);
@@ -126,7 +114,6 @@ export default function NotificationBell({ userId, isArabic }: Props) {
     });
   };
 
-  // ── Dropdown animation — seals from top (matching navbar style) ──
   const dropdownVariants = {
     hidden: { clipPath: "circle(0% at 50% 0%)", opacity: 0, scale: 0.94 },
     visible: {
@@ -166,31 +153,23 @@ export default function NotificationBell({ userId, isArabic }: Props) {
     backdropFilter: "blur(12px)",
     WebkitBackdropFilter: "blur(12px)",
     border: "1px solid rgba(255,255,255,0.10)",
-    boxShadow: `
-      0 4px 20px rgba(0,0,0,0.2),
-      inset 0 1px 1px rgba(255,255,255,0.22),
-      inset 0 -1px 1px rgba(0,0,0,0.12),
-      inset 1px 0 1px rgba(255,255,255,0.09),
-      inset -1px 0 1px rgba(0,0,0,0.08)
-    `,
+    boxShadow: `0 4px 20px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.22),
+      inset 0 -1px 1px rgba(0,0,0,0.12), inset 1px 0 1px rgba(255,255,255,0.09),
+      inset -1px 0 1px rgba(0,0,0,0.08)`,
   };
 
   return (
     <div ref={containerRef} className="relative">
-      {/* ── Bell button — same pill style as navbar buttons ── */}
+      {/* Bell button */}
       <motion.button
         onClick={() => setOpen((v) => !v)}
         whileTap={{ scale: 0.96 }}
         whileHover={{ scale: 1.03 }}
         transition={{ duration: 0.2 }}
-        className={`
-          shimmer relative flex items-center justify-center
-          w-18 h-14 rounded-full transition-all duration-300 cursor-pointer
-          ${open ? "liquid-glass-gold" : "liquid-glass"}
-        `}
+        className={`shimmer relative flex items-center justify-center w-18 h-14 rounded-full transition-all duration-300 cursor-pointer ${open ? "liquid-glass-gold" : "liquid-glass"}`}
+        style={solidBg}
         aria-label="Notifications"
       >
-        {/* Bell icon — SVG so no extra dep */}
         <svg
           width="22"
           height="22"
@@ -205,8 +184,6 @@ export default function NotificationBell({ userId, isArabic }: Props) {
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
           <path d="M13.73 21a2 2 0 0 1-3.46 0" />
         </svg>
-
-        {/* Unread badge */}
         <AnimatePresence>
           {unread > 0 && (
             <motion.span
@@ -216,10 +193,7 @@ export default function NotificationBell({ userId, isArabic }: Props) {
               exit={{ scale: 0, opacity: 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 20 }}
               className="min-w-4.5 h-4.5 rounded-full flex items-center justify-center text-[10px] font-bold px-1"
-              style={{
-                background: "#d4b896",
-                color: "#592c41",
-              }}
+              style={{ background: "#d4b896", color: "#592c41" }}
             >
               {unread > 99 ? "99+" : unread}
             </motion.span>
@@ -227,7 +201,7 @@ export default function NotificationBell({ userId, isArabic }: Props) {
         </AnimatePresence>
       </motion.button>
 
-      {/* ── Dropdown ── */}
+      {/* Dropdown */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -238,10 +212,7 @@ export default function NotificationBell({ userId, isArabic }: Props) {
             className="absolute top-20 left-1/2 -translate-x-1/2 w-80 rounded-3xl overflow-hidden liquid-glass shadow-2xl shadow-black/60 z-50"
             style={{ minWidth: "320px" }}
           >
-            {/* Top gold line */}
             <div className="h-px w-full bg-gradient-to-r from-transparent via-royal-gold/50 to-transparent" />
-
-            {/* Header */}
             <div className="flex items-center justify-between px-6 pt-5 pb-3">
               <p className="text-royal-cream text-xl tracking-wide">
                 {isArabic ? "الإشعارات" : "Notifications"}
@@ -257,17 +228,16 @@ export default function NotificationBell({ userId, isArabic }: Props) {
               )}
             </div>
 
-            {/* Notification list */}
             <div
-              className="max-h-[420px] overflow-y-auto px-3 pb-4 space-y-1
-              scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+              className="max-h-[420px] overflow-y-auto px-3 pb-4 space-y-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+              onWheel={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
             >
               {loading && (
                 <div className="flex items-center justify-center py-10">
                   <div className="w-6 h-6 rounded-full border-2 border-royal-gold/30 border-t-royal-gold animate-spin" />
                 </div>
               )}
-
               {!loading && notifications.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-10 gap-3">
                   <svg
@@ -287,12 +257,10 @@ export default function NotificationBell({ userId, isArabic }: Props) {
                   </p>
                 </div>
               )}
-
               {!loading &&
                 notifications.map((n, i) => {
                   const isUnread = !n.readAt;
                   const hasLink = !!n.linkUrl;
-
                   return (
                     <motion.div
                       key={n.id}
@@ -303,28 +271,19 @@ export default function NotificationBell({ userId, isArabic }: Props) {
                     >
                       <button
                         onClick={() => handleNotificationClick(n)}
-                        className={`
-                        group relative w-full text-left rounded-2xl p-4
-                        transition-all duration-300
-                        ${hasLink ? "cursor-pointer" : "cursor-default"}
-                      `}
+                        className={`group relative w-full text-left rounded-2xl p-4 transition-all duration-300 ${hasLink ? "cursor-pointer" : "cursor-default"}`}
                       >
-                        {/* Hover glass bg */}
                         <span
                           className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-300 pointer-events-none"
                           style={glassHoverStyle}
                         />
-
-                        {/* Unread dot */}
                         {isUnread && (
                           <span
                             className="absolute top-4 right-4 w-2 h-2 rounded-full flex-shrink-0"
                             style={{ background: "#f59e0b" }}
                           />
                         )}
-
                         <div className="relative z-10 flex gap-3">
-                          {/* Image */}
                           {n.imageUrl && (
                             <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 liquid-glass">
                               <Image
@@ -336,36 +295,25 @@ export default function NotificationBell({ userId, isArabic }: Props) {
                               />
                             </div>
                           )}
-
                           <div className="flex-1 min-w-0">
-                            {/* Subject */}
                             {n.subject && (
                               <p
-                                className={`text-sm font-medium tracking-wide truncate
-                              ${isUnread ? "text-royal-cream" : "text-royal-cream/60"}`}
+                                className={`text-sm font-medium tracking-wide truncate ${isUnread ? "text-royal-cream" : "text-royal-cream/60"}`}
                               >
                                 {n.subject}
                               </p>
                             )}
-
-                            {/* Body */}
                             <p
-                              className={`text-xs leading-relaxed mt-0.5 line-clamp-2
-                            ${isUnread ? "text-royal-cream/80" : "text-royal-cream/40"}`}
+                              className={`text-xs leading-relaxed mt-0.5 line-clamp-2 ${isUnread ? "text-royal-cream/80" : "text-royal-cream/40"}`}
                             >
                               {n.body}
                             </p>
-
-                            {/* Footer row */}
                             <div className="flex items-center justify-between mt-2 gap-2">
                               <p className="text-[10px] text-royal-gold/40 tracking-widest">
                                 {timeAgo(n.createdAt, isArabic)}
                               </p>
                               {hasLink && (
-                                <span
-                                  className="flex items-center gap-1 text-[10px] text-royal-gold/50
-                                group-hover:text-royal-gold transition-colors duration-200 tracking-widest uppercase"
-                                >
+                                <span className="flex items-center gap-1 text-[10px] text-royal-gold/50 group-hover:text-royal-gold transition-colors duration-200 tracking-widest uppercase">
                                   {isArabic ? "فتح" : "Open"}
                                   <svg
                                     width="10"
@@ -384,16 +332,12 @@ export default function NotificationBell({ userId, isArabic }: Props) {
                             </div>
                           </div>
                         </div>
-
-                        {/* Bottom divider — not on last item */}
                         <div className="absolute bottom-0 left-4 right-4 h-px bg-white/[0.04]" />
                       </button>
                     </motion.div>
                   );
                 })}
             </div>
-
-            {/* Bottom gold line */}
             <div className="h-px w-full bg-gradient-to-r from-transparent via-royal-gold/50 to-transparent" />
           </motion.div>
         )}

@@ -20,13 +20,15 @@ import {
   faPowerOff,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import NotificationBell from "@/components/NotificationBell";
+import NotificationBell from "./NotificationBell";
+import { useNavbarState } from "@/components/NavbarStateContext";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const { navSolid } = useNavbarState();
   const [userImageUrl, setUserImageUrl] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   // Prisma userId resolved from Supabase session
@@ -43,6 +45,17 @@ export default function Navbar() {
   const isExternalAvatar = avatarSrc.startsWith("http");
   const searchParamsKey = searchParams.toString();
 
+  const solidBg: React.CSSProperties = navSolid
+    ? {
+        backgroundColor: "var(--royal-purple)",
+        backdropFilter: "none",
+        WebkitBackdropFilter: "none",
+        border: "1px solid rgba(196,168,130,0.18)",
+        boxShadow: "0 4px 24px rgba(0,0,0,0.35)",
+      }
+    : {};
+
+  // ── 1. Body scroll lock ───────────────────────────────────────────────────────
   useEffect(() => {
     document.body.style.overflow =
       menuOpen || userMenuOpen || contactModalOpen ? "hidden" : "";
@@ -51,27 +64,26 @@ export default function Navbar() {
     };
   }, [menuOpen, userMenuOpen, contactModalOpen]);
 
+  // ── 2. Escape key closes contact modal ───────────────────────────────────────
   useEffect(() => {
     if (!contactModalOpen) return;
-
-    const onEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setContactModalOpen(false);
-      }
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setContactModalOpen(false);
     };
-
     window.addEventListener("keydown", onEscape);
     return () => window.removeEventListener("keydown", onEscape);
   }, [contactModalOpen]);
 
+  // ── 3. Auth + avatar — single effect, runs on pathname/searchParams changes ──
   useEffect(() => {
     const supabase = createClient();
     let mounted = true;
-    const loadUserAvatar = async () => {
+
+    const loadAvatar = async () => {
       try {
-        const response = await fetch("/api/auth/avatar", { cache: "no-store" });
-        if (!response.ok) return;
-        const data = (await response.json()) as {
+        const res = await fetch("/api/auth/avatar", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = (await res.json()) as {
           authenticated?: boolean;
           imageUrl?: string | null;
         };
@@ -83,26 +95,25 @@ export default function Navbar() {
       }
     };
 
+    // Initial load
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!mounted) return;
       setUser(user ?? null);
-      if (user) {
-        void loadUserAvatar();
-      } else {
-        setUserImageUrl(null);
-      }
+      setPrismaUserId(user?.id ?? null); // Supabase UUID == Prisma User.id
+      if (user) void loadAvatar();
+      else setUserImageUrl(null);
       setAuthLoading(false);
     });
 
+    // Subsequent auth state changes (login, logout, token refresh)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
       setUser(session?.user ?? null);
-      if (session?.user) {
-        void loadUserAvatar();
-      } else {
-        setUserImageUrl(null);
-      }
+      setPrismaUserId(session?.user?.id ?? null);
+      if (session?.user) void loadAvatar();
+      else setUserImageUrl(null);
       if (!session?.user) setUserMenuOpen(false);
       setAuthLoading(false);
     });
@@ -321,81 +332,96 @@ export default function Navbar() {
       >
         {/* Left side — Logo + User pill + Bell */}
         <div className="flex items-center gap-3">
-          {/* Logo */}
-          <Link
-            href={`/${locale}`}
-            onClick={() => {
-              setMenuOpen(false);
-              setUserMenuOpen(false);
-            }}
+          {/* Logo — hidden until navSolid, then fades in */}
+          <AnimatePresence>
+            {navSolid && (
+              <motion.div
+                initial={{ opacity: 0, x: -16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <Link
+                  href={`/${locale}`}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setUserMenuOpen(false);
+                  }}
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.04 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Image
+                      src="/images/Logo-gray-cropped.png"
+                      alt="Royal Academy"
+                      width={80}
+                      height={80}
+                      className="object-contain"
+                      priority
+                    />
+                  </motion.div>
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* User pill / Start Journey — always visible, shifts right when logo appears */}
+          <motion.div
+            animate={{ x: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
-            <motion.div
-              whileHover={{ scale: 1.04 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Image
-                src="/images/Logo-gray-cropped.png"
-                alt="Royal Academy"
-                width={155}
-                height={58}
-                className="object-contain"
-                priority
-              />
-            </motion.div>
-          </Link>
+            {authLoading ? (
+              <div
+                className="liquid-glass px-6 py-3 rounded-full text-royal-cream/70 text-sm"
+                style={navSolid ? solidBg : {}}
+              >
+                ...
+              </div>
+            ) : !user ? (
+              <Link
+                href={loginHref}
+                onClick={() => {
+                  setMenuOpen(false);
+                  setUserMenuOpen(false);
+                }}
+                className="liquid-glass-gold shimmer flex items-center justify-center gap-3 px-6 py-3 rounded-full transition-all duration-300 cursor-pointer"
+                style={navSolid ? solidBg : {}}
+              >
+                <span className="text-royal-gold text-sm tracking-widest uppercase font-medium whitespace-nowrap">
+                  {t("startJourney")}
+                </span>
+              </Link>
+            ) : (
+              <motion.button
+                onClick={() => {
+                  setUserMenuOpen(!userMenuOpen);
+                  setMenuOpen(false);
+                }}
+                whileTap={{ scale: 0.96 }}
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.2 }}
+                className={`shimmer flex items-center justify-center gap-3 px-2 py-1 rounded-full transition-all duration-300 cursor-pointer ${userMenuOpen ? "liquid-glass-gold" : "liquid-glass"}`}
+                style={navSolid ? solidBg : {}}
+              >
+                <span className="relative h-12 w-12 overflow-hidden rounded-full bg-white/10">
+                  <Image
+                    src={avatarSrc}
+                    alt="User"
+                    fill
+                    sizes="48px"
+                    className="object-contain opacity-90"
+                    unoptimized={isExternalAvatar}
+                  />
+                </span>
+              </motion.button>
+            )}
+          </motion.div>
 
-          {/* User pill / Start Journey */}
-          {authLoading ? (
-            <div className="liquid-glass px-6 py-3 rounded-full text-royal-cream/70 text-sm">
-              ...
-            </div>
-          ) : !user ? (
-            <Link
-              href={loginHref}
-              onClick={() => {
-                setMenuOpen(false);
-                setUserMenuOpen(false);
-              }}
-              className="liquid-glass-gold shimmer flex items-center justify-center gap-3 px-6 py-3 rounded-full transition-all duration-300 cursor-pointer"
-            >
-              <span className="text-royal-gold text-sm tracking-widest uppercase font-medium whitespace-nowrap">
-                {t("startJourney")}
-              </span>
-            </Link>
-          ) : (
-            <motion.button
-              onClick={() => {
-                setUserMenuOpen(!userMenuOpen);
-                setMenuOpen(false);
-              }}
-              whileTap={{ scale: 0.96 }}
-              whileHover={{ scale: 1.03 }}
-              transition={{ duration: 0.2 }}
-              className={`
-                shimmer flex items-center justify-center gap-3 px-2 py-1 rounded-full
-                transition-all duration-300 cursor-pointer
-                ${userMenuOpen ? "liquid-glass-gold" : "liquid-glass"}
-              `}
-            >
-              <span className="relative h-12 w-12 overflow-hidden rounded-full bg-white/10">
-                <Image
-                  src={avatarSrc}
-                  alt="User"
-                  fill
-                  sizes="48px"
-                  className="object-contain opacity-90"
-                  unoptimized={isExternalAvatar}
-                />
-              </span>
-            </motion.button>
-          )}
-
-          {/* ── Notification Bell — only when logged in ── */}
+          {/* Notification Bell — only when logged in */}
           {user && prismaUserId && (
             <NotificationBell userId={prismaUserId} isArabic={isArabic} />
           )}
         </div>
-
         {/* Right Side Pills */}
         <div
           className={`flex items-center gap-3 ${isArabic ? "flex-row-reverse" : "flex-row"}`}
@@ -414,6 +440,7 @@ export default function Navbar() {
                 setUserMenuOpen(false);
               }}
               className="liquid-glass-gold shimmer flex items-center justify-center gap-3 px-8 py-4 rounded-full transition-all duration-300 cursor-pointer"
+              style={solidBg}
             >
               <span className="text-royal-gold text-sm tracking-widest uppercase font-medium whitespace-nowrap">
                 {isArabic ? "تواصل معنا" : "Contact Us"}
@@ -428,6 +455,7 @@ export default function Navbar() {
             transition={{ duration: 0.2 }}
             onClick={switchLanguage}
             className="liquid-glass shimmer flex items-center justify-center gap-3 px-8 py-3 rounded-full transition-all duration-300 cursor-pointer"
+            style={solidBg}
           >
             <span className="text-royal-cream text-xl tracking-widest uppercase whitespace-nowrap">
               {isArabic ? "EN" : "عربي"}
@@ -448,6 +476,7 @@ export default function Navbar() {
               transition-all duration-300 cursor-pointer
               ${menuOpen ? "liquid-glass-gold" : "liquid-glass"}
             `}
+            style={solidBg}
           >
             <div className="flex flex-col gap-1.5">
               <motion.span
@@ -535,10 +564,7 @@ export default function Navbar() {
               transition={{ duration: 0.25, ease: "easeOut" }}
               onClick={(event) => event.stopPropagation()}
               className="mx-auto flex max-h-[90vh] w-full max-w-3xl flex-col rounded-3xl border border-white/25 shadow-[0_35px_90px_rgba(0,0,0,0.45)] overflow-hidden"
-              style={{
-                backdropFilter: "blur(20px) saturate(170%)",
-                WebkitBackdropFilter: "blur(20px) saturate(170%)",
-              }}
+              style={solidBg}
             >
               <div className="flex items-start justify-between gap-4 border-b border-white/15 px-6 py-5">
                 <div>

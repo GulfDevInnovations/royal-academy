@@ -120,7 +120,7 @@ export default async function LocaleLayout({
       <body
         className={`
           antialiased min-h-screen
-          bg-royal-dark text-royal-cream
+          bg-royal-purple text-royal-cream
           ${isArabic ? "font-layla" : "font-goudy"}
         `}
       >

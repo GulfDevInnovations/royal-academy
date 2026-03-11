@@ -1,4 +1,4 @@
-import HeroSection from "@/components/HeroSection";
+import HomeClient from "@/components/HomeClient";
 
 export default async function Home({
   params,
@@ -6,11 +6,5 @@ export default async function Home({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const isArabic = locale === "ar";
-
-  return (
-    <main className="flex min-h-screen items-center justify-center">
-      {/* <HeroSection /> */}
-    </main>
-  );
+  return <HomeClient locale={locale} />;
 }

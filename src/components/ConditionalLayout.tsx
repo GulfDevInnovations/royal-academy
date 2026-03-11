@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Navbar from "./Navbar";
 import PatternBackground from "./PatternBackground";
+import { NavbarStateProvider } from "./NavbarStateContext";
 
 export default function ConditionalLayout({
   children,
@@ -17,10 +18,10 @@ export default function ConditionalLayout({
     pathname.includes("/admin");
 
   return (
-    <>
+    <NavbarStateProvider>
       {!noNavPage && <PatternBackground />}
       {!noNavPage && <Navbar />}
       {children}
-    </>
+    </NavbarStateProvider>
   );
 }
