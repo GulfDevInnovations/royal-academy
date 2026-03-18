@@ -19,8 +19,8 @@ export default function ConditionalLayout({
 
   return (
     <NavbarStateProvider>
-      {!noNavPage && <PatternBackground />}
-      {!noNavPage && <Navbar />}
+      {/* {!noNavPage && <PatternBackground />} */}
+      {/* {!noNavPage && <Navbar />} */}
       {children}
     </NavbarStateProvider>
   );

@@ -1,7 +1,7 @@
 // src/app/[locale]/payment/trial/page.tsx
 import { notFound } from "next/navigation";
 import { getTrialPaymentData } from "@/lib/actions/confirm-payment";
-import { TrialPaymentClient } from "./_components/TrialPaymentClient";
+import { TrialPaymentClient } from "./components/TrialPaymentClient";
 
 export const metadata = {
   title: "Complete Payment | Royal Academy",
