@@ -1,4 +1,3 @@
-// src/app/[locale]/payments/_components/ShareModal.tsx
 "use client";
 
 import { X, Share2, Mail, MessageCircle, Send } from "lucide-react";

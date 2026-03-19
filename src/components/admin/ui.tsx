@@ -236,10 +236,12 @@ export function AdminTd({
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  helperText?: string; // ← add this
 }
 export function AdminInput({
   label,
   error,
+  helperText, // ← destructure so it never reaches ...props
   className = "",
   ...props
 }: InputProps) {
@@ -254,18 +256,21 @@ export function AdminInput({
         </label>
       )}
       <input
-        className={`
-          w-full px-3 py-2 rounded-lg text-sm border
-          bg-white/[0.04] text-white/80 placeholder-white/20
-          focus:outline-none focus:border-amber-500/50 focus:bg-white/[0.06]
-          transition-all duration-150 ${className}
-        `}
+        className={`w-full px-3 py-2 rounded-lg text-sm border
+          bg-white/4 text-white/80 placeholder-white/20
+          focus:outline-none focus:border-amber-500/50 focus:bg-white/6
+          transition-all duration-150 ${className}`}
         style={{ borderColor: error ? "#f87171" : adminColors.border }}
         {...props}
       />
       {error && (
         <p className="text-xs" style={{ color: "#f87171" }}>
           {error}
+        </p>
+      )}
+      {helperText && !error && (
+        <p className="text-xs" style={{ color: adminColors.textMuted }}>
+          {helperText}
         </p>
       )}
     </div>

@@ -5,7 +5,14 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { SubClassDetail, SubClassTeacherInfo } from "@/lib/actions/classes";
 import {
+  TeacherAvailabilityPicker,
+  slotKey,
+  type AvailableSlot,
+  type SlotKey,
+} from "./TeacherAvailibilityPicker";
+import {
   createMonthlyEnrollment,
+  createMultiMonthStudentEnrollment,
   createTrialEnrollment,
 } from "@/lib/actions/enrollment";
 import {
@@ -20,6 +27,7 @@ import {
   AlertCircle,
   Loader2,
   ChevronRight,
+  Layers,
 } from "lucide-react";
 import { format, addMonths, startOfMonth } from "date-fns";
 
@@ -62,60 +70,134 @@ export function SubClassDetailClient({
   const router = useRouter();
   const accent = CLASS_ACCENT[subClass.class.name] ?? CLASS_ACCENT.default;
 
-  // ── Step state ──────────────────────────────────────────────────
+  // ── State ──────────────────────────────────────────────────────
   const [selectedTeacher, setSelectedTeacher] =
     useState<SubClassTeacherInfo | null>(
       subClass.teachers.length === 1 ? subClass.teachers[0] : null,
     );
   const [plan, setPlan] = useState<Plan | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<Date | null>(null);
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [totalMonths, setTotalMonths] = useState<number>(1);
+  // Each selected slot is identified by a composite key "DAY|startTime|endTime"
+  // so two Friday slots at different times are treated as distinct selections.
+  const [selectedSlotKeys, setSelectedSlotKeys] = useState<string[]>([]);
+  // The specific date+time the student picked from the availability calendar
+  const [selectedSlot, setSelectedSlot] = useState<AvailableSlot | null>(null);
+  const [selectedSlotPickerKey, setSelectedSlotPickerKey] =
+    useState<SlotKey | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Available months — always start from current month
   const availableMonths = useMemo(() => {
     const now = new Date();
     return [0, 1, 2, 3].map((i) => addMonths(startOfMonth(now), i));
   }, []);
 
-  // Days available for the selected teacher
-  const sortedAvailableDays = useMemo(() => {
-    if (!selectedTeacher) return [];
-    return DAY_ORDER.filter((d) => selectedTeacher.availableDays.includes(d));
+  // Max months the student can book with the selected teacher
+  // Capped by the teacher's schedule endDate and by how far out we show months
+  const maxMonths = useMemo(() => {
+    if (!selectedTeacher) return 1;
+    // Use teacher's schedule endDate cap directly — not the display window.
+    // Fall back to 12 if schedules run indefinitely.
+    return selectedTeacher.maxBookableMonths ?? 12;
   }, [selectedTeacher]);
+
+  // All schedule slots sorted by day then startTime
+  const availableSlots = useMemo(() => {
+    if (!selectedTeacher) return [];
+    return [...selectedTeacher.schedules].sort((a, b) => {
+      const dayDiff =
+        DAY_ORDER.indexOf(a.dayOfWeek) - DAY_ORDER.indexOf(b.dayOfWeek);
+      if (dayDiff !== 0) return dayDiff;
+      return a.startTime.localeCompare(b.startTime);
+    });
+  }, [selectedTeacher]);
+
+  const slotKey = (s: {
+    dayOfWeek: string;
+    startTime: string;
+    endTime: string;
+  }) => `${s.dayOfWeek}|${s.startTime}|${s.endTime}`;
+
+  // Derive preferredDays (day names) from selected slot keys for the server action
+  const preferredDays = useMemo(
+    () =>
+      selectedSlotKeys
+        .map((key) => key.split("|")[0])
+        .filter(Boolean) as import("@prisma/client").DayOfWeek[],
+    [selectedSlotKeys],
+  );
+
+  // Derive the actual ClassSchedule IDs for the selected slots
+  // These are stored on the enrollment so capacity checks and slot display are exact
+  const preferredSlotIds = useMemo(() => {
+    if (!selectedTeacher) return [];
+    return selectedSlotKeys
+      .map((key) => {
+        const [day, startTime, endTime] = key.split("|");
+        const match = selectedTeacher.schedules.find(
+          (s) =>
+            s.dayOfWeek === day &&
+            s.startTime === startTime &&
+            s.endTime === endTime,
+        );
+        return match?.id ?? null;
+      })
+      .filter(Boolean) as string[];
+  }, [selectedSlotKeys, selectedTeacher]);
 
   const requiredDays = plan === "ONCE" ? 1 : plan === "TWICE" ? 2 : 0;
 
-  const toggleDay = (day: string) => {
-    setSelectedDays((prev) => {
-      if (prev.includes(day)) return prev.filter((d) => d !== day);
-      if (prev.length >= requiredDays) return [...prev.slice(1), day];
-      return [...prev, day];
+  const toggleSlot = (key: string) => {
+    setSelectedSlotKeys((prev) => {
+      if (prev.includes(key)) return prev.filter((k) => k !== key);
+      if (prev.length >= requiredDays) return [...prev.slice(1), key];
+      return [...prev, key];
     });
   };
 
-  const price = useMemo(() => {
+  const monthlyPrice = useMemo(() => {
     if (plan === "TRIAL") return subClass.trialPrice;
     if (plan === "ONCE") return subClass.oncePriceMonthly ?? null;
     if (plan === "TWICE") return subClass.twicePriceMonthly ?? null;
     return null;
   }, [plan, subClass]);
 
+  // Total price across all months
+  const totalPrice = useMemo(() => {
+    if (!monthlyPrice) return null;
+    if (plan === "TRIAL") return monthlyPrice;
+    return (parseFloat(monthlyPrice) * totalMonths).toFixed(3);
+  }, [monthlyPrice, totalMonths, plan]);
+
+  const isMultiMonth = plan !== "TRIAL" && totalMonths > 1;
+
   const canProceed = useMemo(() => {
     if (!selectedTeacher) return false;
+    if (!selectedSlot) return false; // must pick a date+time first
     if (!plan) return false;
     if (plan === "TRIAL") return true;
     if (!selectedMonth) return false;
-    if (selectedDays.length !== requiredDays) return false;
+    if (selectedSlotKeys.length !== requiredDays) return false;
     return true;
-  }, [selectedTeacher, plan, selectedMonth, selectedDays, requiredDays]);
+  }, [
+    selectedTeacher,
+    selectedSlot,
+    plan,
+    selectedMonth,
+    selectedSlotKeys,
+    requiredDays,
+  ]);
 
   const handleSelectTeacher = (teacher: SubClassTeacherInfo) => {
     setSelectedTeacher(teacher);
-    // Reset downstream selections when teacher changes
     setPlan(null);
     setSelectedMonth(null);
-    setSelectedDays([]);
+    setTotalMonths(1);
+    setSelectedSlotKeys([]);
+    setSelectedSlot(null);
+    setSelectedSlotPickerKey(null);
     setError(null);
   };
 
@@ -137,21 +219,47 @@ export function SubClassDetailClient({
 
       let result;
 
+      // Derive start month from the calendar-picked slot date when no
+      // explicit month was chosen (single-month path defaults to slot's month)
+      const slotDate = selectedSlot
+        ? (() => {
+            const [y, m, d] = selectedSlot.date.split("-").map(Number);
+            return new Date(y, m - 1, d);
+          })()
+        : null;
+      const effectiveMonth = selectedMonth ?? slotDate;
+      // For non-trial paths, effectiveMonth must be set (canProceed guards this)
+      const safeMonth = effectiveMonth ?? new Date();
+
       if (plan === "TRIAL") {
         result = await createTrialEnrollment({
           studentId,
           subClassId: subClass.id,
           teacherId: selectedTeacher.id,
+          sessionDate: selectedSlot?.date,
+        });
+      } else if (isMultiMonth) {
+        result = await createMultiMonthStudentEnrollment({
+          studentId,
+          subClassId: subClass.id,
+          teacherId: selectedTeacher.id,
+          startMonth: safeMonth.getMonth() + 1,
+          startYear: safeMonth.getFullYear(),
+          totalMonths,
+          frequency: plan === "ONCE" ? "ONCE_PER_WEEK" : "TWICE_PER_WEEK",
+          preferredDays,
+          preferredSlotIds,
         });
       } else {
         result = await createMonthlyEnrollment({
           studentId,
           subClassId: subClass.id,
           teacherId: selectedTeacher.id,
-          month: selectedMonth!.getMonth() + 1,
-          year: selectedMonth!.getFullYear(),
+          month: safeMonth.getMonth() + 1,
+          year: safeMonth.getFullYear(),
           frequency: plan === "ONCE" ? "ONCE_PER_WEEK" : "TWICE_PER_WEEK",
-          preferredDays: selectedDays,
+          preferredDays,
+          preferredSlotIds,
         });
       }
 
@@ -170,13 +278,23 @@ export function SubClassDetailClient({
 
   const ctaLabel = useMemo(() => {
     if (!selectedTeacher) return "Select an Instructor";
+    if (!selectedSlot) return "Pick a Session Date";
     if (!plan) return "Select a Plan";
     if (plan === "TRIAL") return "Book Trial Session";
     if (!selectedMonth) return "Select a Month";
-    if (selectedDays.length < requiredDays)
-      return `Choose ${requiredDays - selectedDays.length} More Day${requiredDays - selectedDays.length > 1 ? "s" : ""}`;
+    if (selectedSlotKeys.length < requiredDays)
+      return `Choose ${requiredDays - selectedSlotKeys.length} More Slot${requiredDays - selectedSlotKeys.length > 1 ? "s" : ""}`;
+    if (isMultiMonth) return `Enroll for ${totalMonths} Months`;
     return "Proceed to Payment";
-  }, [selectedTeacher, plan, selectedMonth, selectedDays, requiredDays]);
+  }, [
+    selectedTeacher,
+    plan,
+    selectedMonth,
+    selectedSlotKeys,
+    requiredDays,
+    isMultiMonth,
+    totalMonths,
+  ]);
 
   return (
     <main className="min-h-screen pt-24 pb-20">
@@ -191,7 +309,7 @@ export function SubClassDetailClient({
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 lg:gap-12">
-          {/* ── LEFT: class info ── */}
+          {/* ── LEFT ── */}
           <motion.div
             initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
@@ -263,7 +381,6 @@ export function SubClassDetailClient({
               </div>
             )}
 
-            {/* Description */}
             {subClass.description && (
               <p className="text-royal-cream/65 leading-relaxed text-base mb-8">
                 {subClass.description}
@@ -296,7 +413,7 @@ export function SubClassDetailClient({
               )}
             </div>
 
-            {/* ── Teachers list ── */}
+            {/* Teachers */}
             {subClass.teachers.length > 0 && (
               <div>
                 <div className="flex items-center gap-4 mb-5">
@@ -327,10 +444,7 @@ export function SubClassDetailClient({
                         className="w-full text-left rounded-2xl p-5 border transition-all duration-200 relative overflow-hidden"
                         style={
                           isSelected
-                            ? {
-                                background: `${accent}12`,
-                                borderColor: accent,
-                              }
+                            ? { background: `${accent}12`, borderColor: accent }
                             : {
                                 background: "rgba(255,255,255,0.02)",
                                 borderColor: "rgba(255,255,255,0.08)",
@@ -372,34 +486,58 @@ export function SubClassDetailClient({
                               {teacher.firstName} {teacher.lastName}
                             </h3>
 
-                            {/* Teacher's days for this subclass */}
-                            {teacher.availableDays.length > 0 && (
-                              <div className="flex flex-wrap gap-1.5 mt-2">
-                                {DAY_ORDER.filter((d) =>
-                                  teacher.availableDays.includes(d),
-                                ).map((d) => (
-                                  <span
-                                    key={d}
-                                    className="text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider"
-                                    style={
-                                      isSelected
-                                        ? {
-                                            background: `${accent}25`,
-                                            color: accent,
-                                            border: `1px solid ${accent}40`,
-                                          }
-                                        : {
-                                            background:
-                                              "rgba(255,255,255,0.04)",
-                                            color: "rgba(255,255,255,0.4)",
-                                            border:
-                                              "1px solid rgba(255,255,255,0.08)",
-                                          }
-                                    }
-                                  >
-                                    {DAY_LABELS[d]}
-                                  </span>
-                                ))}
+                            {/* All schedule slots — one pill per slot, not per day */}
+                            {teacher.schedules.length > 0 && (
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                {[...teacher.schedules]
+                                  .sort((a, b) => {
+                                    const dd =
+                                      DAY_ORDER.indexOf(a.dayOfWeek) -
+                                      DAY_ORDER.indexOf(b.dayOfWeek);
+                                    return dd !== 0
+                                      ? dd
+                                      : a.startTime.localeCompare(b.startTime);
+                                  })
+                                  .map((slot, i) => (
+                                    <div
+                                      key={i}
+                                      className="flex flex-col items-center px-2.5 py-1.5 rounded-xl"
+                                      style={
+                                        isSelected
+                                          ? {
+                                              background: `${accent}25`,
+                                              border: `1px solid ${accent}40`,
+                                            }
+                                          : {
+                                              background:
+                                                "rgba(255,255,255,0.04)",
+                                              border:
+                                                "1px solid rgba(255,255,255,0.08)",
+                                            }
+                                      }
+                                    >
+                                      <span
+                                        className="text-[10px] font-bold uppercase tracking-wider"
+                                        style={{
+                                          color: isSelected
+                                            ? accent
+                                            : "rgba(255,255,255,0.4)",
+                                        }}
+                                      >
+                                        {DAY_LABELS[slot.dayOfWeek]}
+                                      </span>
+                                      <span
+                                        className="text-[9px] mt-0.5"
+                                        style={{
+                                          color: isSelected
+                                            ? `${accent}99`
+                                            : "rgba(255,255,255,0.25)",
+                                        }}
+                                      >
+                                        {slot.startTime}–{slot.endTime}
+                                      </span>
+                                    </div>
+                                  ))}
                               </div>
                             )}
 
@@ -421,9 +559,21 @@ export function SubClassDetailClient({
                                 {teacher.bio}
                               </p>
                             )}
+
+                            {/* Schedule end warning */}
+                            {teacher.maxBookableMonths != null &&
+                              teacher.maxBookableMonths <= 3 && (
+                                <p
+                                  className="text-[10px] mt-2"
+                                  style={{ color: "#f59e0b" }}
+                                >
+                                  Schedule available for{" "}
+                                  {teacher.maxBookableMonths} more month
+                                  {teacher.maxBookableMonths !== 1 ? "s" : ""}
+                                </p>
+                              )}
                           </div>
 
-                          {/* Selected indicator */}
                           <div className="flex-shrink-0 self-center">
                             {isSelected ? (
                               <CheckCircle2
@@ -457,7 +607,6 @@ export function SubClassDetailClient({
                 borderColor: `${accent}25`,
               }}
             >
-              {/* Accent top bar */}
               <div
                 className="h-0.5"
                 style={{
@@ -475,7 +624,7 @@ export function SubClassDetailClient({
                     : "Choose how you'd like to join"}
                 </p>
 
-                {/* Selected teacher summary (sticky reminder) */}
+                {/* Selected teacher reminder */}
                 <AnimatePresence>
                   {selectedTeacher && (
                     <motion.div
@@ -524,7 +673,8 @@ export function SubClassDetailClient({
                               setSelectedTeacher(null);
                               setPlan(null);
                               setSelectedMonth(null);
-                              setSelectedDays([]);
+                              setTotalMonths(1);
+                              setSelectedSlotKeys([]);
                             }}
                             className="text-[10px] text-royal-cream/30 hover:text-royal-cream/60 transition-colors flex-shrink-0"
                           >
@@ -536,7 +686,7 @@ export function SubClassDetailClient({
                   )}
                 </AnimatePresence>
 
-                {/* Plan selector — only shown after teacher selected */}
+                {/* Plan selector */}
                 <AnimatePresence>
                   {selectedTeacher && (
                     <motion.div
@@ -545,150 +695,348 @@ export function SubClassDetailClient({
                       exit={{ opacity: 0, height: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="space-y-3 mb-6">
-                        {subClass.isTrialAvailable && (
-                          <PlanOption
-                            selected={plan === "TRIAL"}
-                            onClick={() => {
-                              setPlan("TRIAL");
-                              setSelectedMonth(null);
-                              setSelectedDays([]);
-                            }}
-                            accent={accent}
-                            icon={<Sparkles className="w-4 h-4" />}
-                            title="Trial Session"
-                            subtitle="One-time taster class"
-                            price={`${subClass.trialPrice} ${subClass.currency}`}
-                            badge="One-time"
-                          />
-                        )}
-                        {subClass.oncePriceMonthly && (
-                          <PlanOption
-                            selected={plan === "ONCE"}
-                            onClick={() => {
-                              setPlan("ONCE");
-                              setSelectedDays([]);
-                            }}
-                            accent={accent}
-                            icon={<Calendar className="w-4 h-4" />}
-                            title="Once a Week"
-                            subtitle="4 sessions per month"
-                            price={`${subClass.oncePriceMonthly} ${subClass.currency}/mo`}
-                          />
-                        )}
-                        {subClass.twicePriceMonthly && (
-                          <PlanOption
-                            selected={plan === "TWICE"}
-                            onClick={() => {
-                              setPlan("TWICE");
-                              setSelectedDays([]);
-                            }}
-                            accent={accent}
-                            icon={<Crown className="w-4 h-4" />}
-                            title="Twice a Week"
-                            subtitle="8 sessions per month"
-                            price={`${subClass.twicePriceMonthly} ${subClass.currency}/mo`}
-                            badge="Best value"
-                          />
-                        )}
-                      </div>
-
-                      {/* Month + Day pickers */}
+                      {/* ── Availability calendar (shown after teacher selected) ── */}
                       <AnimatePresence>
-                        {plan && plan !== "TRIAL" && (
+                        {selectedTeacher && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="overflow-hidden mb-6"
+                          >
+                            <TeacherAvailabilityPicker
+                              teacher={selectedTeacher}
+                              accent={accent}
+                              selected={selectedSlotPickerKey}
+                              onSelect={(slot) => {
+                                setSelectedSlot(slot);
+                                setSelectedSlotPickerKey(slotKey(slot));
+                                // Auto-populate the slot picker with the chosen day
+                                // so the student doesn't have to pick day twice
+                                const key = `${slot.dayOfWeek}|${slot.startTime}|${slot.endTime}`;
+                                setSelectedSlotKeys([key]);
+                                // Reset plan/month when changing slot
+                                setPlan(null);
+                                setSelectedMonth(null);
+                                setTotalMonths(1);
+                              }}
+                            />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* ── Plan options (shown after slot selected) ── */}
+                      <AnimatePresence>
+                        {selectedSlot && (
                           <motion.div
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
                             className="overflow-hidden"
                           >
-                            {/* Month picker */}
-                            <div className="mb-6">
-                              <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 mb-3">
-                                Select Month
+                            <div className="flex items-center gap-3 mb-4">
+                              <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 whitespace-nowrap">
+                                Choose Plan
                               </p>
-                              <div className="grid grid-cols-2 gap-2">
-                                {availableMonths.map((month) => {
-                                  const isSelected =
-                                    selectedMonth?.getTime() ===
-                                    month.getTime();
-                                  return (
-                                    <button
-                                      key={month.toISOString()}
-                                      onClick={() => setSelectedMonth(month)}
-                                      className="py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200 border"
-                                      style={
-                                        isSelected
-                                          ? {
-                                              background: `${accent}20`,
-                                              borderColor: accent,
-                                              color: accent,
-                                            }
-                                          : {
-                                              background:
-                                                "rgba(255,255,255,0.02)",
-                                              borderColor:
-                                                "rgba(255,255,255,0.08)",
-                                              color: "rgba(255,255,255,0.5)",
-                                            }
-                                      }
-                                    >
-                                      {format(month, "MMM yyyy")}
-                                    </button>
-                                  );
-                                })}
-                              </div>
+                              <div className="h-px flex-1 bg-white/[0.06]" />
+                            </div>
+                            <div className="space-y-3 mb-6">
+                              {subClass.isTrialAvailable && (
+                                <PlanOption
+                                  selected={plan === "TRIAL"}
+                                  onClick={() => {
+                                    setPlan("TRIAL");
+                                    setSelectedMonth(null);
+                                    setTotalMonths(
+                                      1,
+                                    ); /* keep selectedSlotKeys — calendar pick stays */
+                                  }}
+                                  accent={accent}
+                                  icon={<Sparkles className="w-4 h-4" />}
+                                  title="Trial Session"
+                                  subtitle="One-time taster class"
+                                  price={`${subClass.trialPrice} ${subClass.currency}`}
+                                  badge="One-time"
+                                />
+                              )}
+                              {subClass.oncePriceMonthly && (
+                                <PlanOption
+                                  selected={plan === "ONCE"}
+                                  onClick={() => {
+                                    setPlan(
+                                      "ONCE",
+                                    ); /* keep selectedSlotKeys from calendar pick */
+                                  }}
+                                  accent={accent}
+                                  icon={<Calendar className="w-4 h-4" />}
+                                  title="Once a Week"
+                                  subtitle="4 sessions per month"
+                                  price={`${subClass.oncePriceMonthly} ${subClass.currency}/mo`}
+                                />
+                              )}
+                              {subClass.twicePriceMonthly && (
+                                <PlanOption
+                                  selected={plan === "TWICE"}
+                                  onClick={() => {
+                                    setPlan("TWICE");
+                                    setSelectedSlotKeys([]);
+                                  }}
+                                  accent={accent}
+                                  icon={<Crown className="w-4 h-4" />}
+                                  title="Twice a Week"
+                                  subtitle="8 sessions per month"
+                                  price={`${subClass.twicePriceMonthly} ${subClass.currency}/mo`}
+                                  badge="Best value"
+                                />
+                              )}
                             </div>
 
-                            {/* Day picker — scoped to selected teacher */}
-                            {sortedAvailableDays.length > 0 && (
-                              <div className="mb-6">
-                                <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 mb-1">
-                                  Preferred Day{requiredDays > 1 ? "s" : ""}
-                                </p>
-                                <p className="text-[10px] text-royal-cream/30 mb-3">
-                                  {requiredDays === 1
-                                    ? "Choose 1 day"
-                                    : "Choose 2 days"}
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                  {sortedAvailableDays.map((day) => {
-                                    const isSelected =
-                                      selectedDays.includes(day);
-                                    return (
-                                      <button
-                                        key={day}
-                                        onClick={() => toggleDay(day)}
-                                        className="px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border"
-                                        style={
-                                          isSelected
-                                            ? {
-                                                background: `${accent}20`,
-                                                borderColor: accent,
-                                                color: accent,
-                                              }
-                                            : {
-                                                background:
-                                                  "rgba(255,255,255,0.02)",
-                                                borderColor:
-                                                  "rgba(255,255,255,0.08)",
-                                                color: "rgba(255,255,255,0.4)",
-                                              }
-                                        }
+                            {/* Month, duration, and day pickers */}
+                            <AnimatePresence>
+                              {plan && plan !== "TRIAL" && (
+                                <motion.div
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: "auto" }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  className="overflow-hidden"
+                                >
+                                  {/* Start month picker */}
+                                  <div className="mb-5">
+                                    <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 mb-3">
+                                      Start Month
+                                    </p>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      {availableMonths.map((month) => {
+                                        const isSelected =
+                                          selectedMonth?.getTime() ===
+                                          month.getTime();
+                                        return (
+                                          <button
+                                            key={month.toISOString()}
+                                            onClick={() => {
+                                              setSelectedMonth(month);
+                                              setTotalMonths(
+                                                1,
+                                              ); /* keep selectedSlotKeys */
+                                            }}
+                                            className="py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200 border"
+                                            style={
+                                              isSelected
+                                                ? {
+                                                    background: `${accent}20`,
+                                                    borderColor: accent,
+                                                    color: accent,
+                                                  }
+                                                : {
+                                                    background:
+                                                      "rgba(255,255,255,0.02)",
+                                                    borderColor:
+                                                      "rgba(255,255,255,0.08)",
+                                                    color:
+                                                      "rgba(255,255,255,0.5)",
+                                                  }
+                                            }
+                                          >
+                                            {format(month, "MMM yyyy")}
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+
+                                  {/* Number of months — only shown after start month selected */}
+                                  <AnimatePresence>
+                                    {selectedMonth && maxMonths > 1 && (
+                                      <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: "auto" }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="overflow-hidden mb-5"
                                       >
-                                        {DAY_LABELS[day]}
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            )}
+                                        <div className="flex items-center justify-between mb-3">
+                                          <div>
+                                            <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50">
+                                              Duration
+                                            </p>
+                                            <p className="text-[10px] text-royal-cream/30 mt-0.5">
+                                              How many months? (max {maxMonths})
+                                            </p>
+                                          </div>
+                                          <div
+                                            className="flex items-center gap-1 px-1 rounded-xl border"
+                                            style={{
+                                              borderColor:
+                                                "rgba(255,255,255,0.08)",
+                                              background:
+                                                "rgba(255,255,255,0.02)",
+                                            }}
+                                          >
+                                            <button
+                                              onClick={() =>
+                                                setTotalMonths((n) =>
+                                                  Math.max(1, n - 1),
+                                                )
+                                              }
+                                              disabled={totalMonths <= 1}
+                                              className="w-8 h-8 rounded-lg flex items-center justify-center text-royal-cream/40 hover:text-royal-cream disabled:opacity-20 transition-colors"
+                                            >
+                                              −
+                                            </button>
+                                            <span
+                                              className="w-8 text-center text-sm font-bold"
+                                              style={{ color: accent }}
+                                            >
+                                              {totalMonths}
+                                            </span>
+                                            <button
+                                              onClick={() =>
+                                                setTotalMonths((n) =>
+                                                  Math.min(maxMonths, n + 1),
+                                                )
+                                              }
+                                              disabled={
+                                                totalMonths >= maxMonths
+                                              }
+                                              className="w-8 h-8 rounded-lg flex items-center justify-center text-royal-cream/40 hover:text-royal-cream disabled:opacity-20 transition-colors"
+                                            >
+                                              +
+                                            </button>
+                                          </div>
+                                        </div>
+
+                                        {/* Month range preview */}
+                                        {totalMonths > 1 && (
+                                          <div
+                                            className="flex items-center gap-2 px-3 py-2 rounded-xl border"
+                                            style={{
+                                              background: `${accent}08`,
+                                              borderColor: `${accent}20`,
+                                            }}
+                                          >
+                                            <Layers
+                                              className="w-3.5 h-3.5 flex-shrink-0"
+                                              style={{ color: accent }}
+                                            />
+                                            <p
+                                              className="text-xs"
+                                              style={{ color: accent }}
+                                            >
+                                              {format(
+                                                selectedMonth,
+                                                "MMM yyyy",
+                                              )}
+                                              {" → "}
+                                              {format(
+                                                addMonths(
+                                                  selectedMonth,
+                                                  totalMonths - 1,
+                                                ),
+                                                "MMM yyyy",
+                                              )}
+                                              <span className="text-royal-cream/40 ml-1">
+                                                · {totalMonths} months
+                                              </span>
+                                            </p>
+                                          </div>
+                                        )}
+
+                                        {/* Schedule limit warning */}
+                                        {selectedTeacher?.maxBookableMonths !=
+                                          null &&
+                                          totalMonths >=
+                                            selectedTeacher.maxBookableMonths && (
+                                            <p
+                                              className="text-[10px] mt-2"
+                                              style={{ color: "#f59e0b" }}
+                                            >
+                                              This instructor's schedule ends
+                                              after{" "}
+                                              {
+                                                selectedTeacher.maxBookableMonths
+                                              }{" "}
+                                              month
+                                              {selectedTeacher.maxBookableMonths !==
+                                              1
+                                                ? "s"
+                                                : ""}{" "}
+                                              from now.
+                                            </p>
+                                          )}
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
+
+                                  {/* Slot picker — one button per schedule slot */}
+                                  {availableSlots.length > 0 && (
+                                    <div className="mb-5">
+                                      <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 mb-1">
+                                        Preferred Slot
+                                        {requiredDays > 1 ? "s" : ""}
+                                      </p>
+                                      <p className="text-[10px] text-royal-cream/30 mb-3">
+                                        {requiredDays === 1
+                                          ? "Choose 1 slot"
+                                          : "Choose 2 slots"}
+                                      </p>
+                                      <div className="flex flex-wrap gap-2">
+                                        {availableSlots.map((slot) => {
+                                          const key = slotKey(slot);
+                                          const isSelected =
+                                            selectedSlotKeys.includes(key);
+                                          return (
+                                            <button
+                                              key={key}
+                                              onClick={() => toggleSlot(key)}
+                                              className="flex flex-col items-center px-3.5 py-2 rounded-xl transition-all duration-200 border"
+                                              style={
+                                                isSelected
+                                                  ? {
+                                                      background: `${accent}20`,
+                                                      borderColor: accent,
+                                                    }
+                                                  : {
+                                                      background:
+                                                        "rgba(255,255,255,0.02)",
+                                                      borderColor:
+                                                        "rgba(255,255,255,0.08)",
+                                                    }
+                                              }
+                                            >
+                                              <span
+                                                className="text-xs font-bold uppercase tracking-wider"
+                                                style={{
+                                                  color: isSelected
+                                                    ? accent
+                                                    : "rgba(255,255,255,0.4)",
+                                                }}
+                                              >
+                                                {DAY_LABELS[slot.dayOfWeek]}
+                                              </span>
+                                              <span
+                                                className="text-[9px] mt-0.5"
+                                                style={{
+                                                  color: isSelected
+                                                    ? `${accent}99`
+                                                    : "rgba(255,255,255,0.25)",
+                                                }}
+                                              >
+                                                {slot.startTime}–{slot.endTime}
+                                              </span>
+                                            </button>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  )}
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                           </motion.div>
                         )}
                       </AnimatePresence>
 
                       {/* Price summary */}
-                      {plan && price && (
+                      {plan && totalPrice && (
                         <motion.div
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
@@ -698,26 +1046,62 @@ export function SubClassDetailClient({
                             borderColor: `${accent}20`,
                           }}
                         >
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-royal-cream/60">
-                              Total
-                            </span>
-                            <span
-                              className="text-2xl font-bold font-goudy"
-                              style={{ color: accent }}
-                            >
-                              {price}{" "}
-                              <span className="text-sm font-normal text-royal-cream/40">
-                                {subClass.currency}
-                              </span>
-                            </span>
-                          </div>
-                          {plan !== "TRIAL" && selectedMonth && (
-                            <p className="text-xs text-royal-cream/30 mt-1">
-                              for {format(selectedMonth, "MMMM yyyy")}
-                              {selectedDays.length > 0 &&
-                                ` · ${selectedDays.map((d) => DAY_LABELS[d]).join(" & ")}`}
-                            </p>
+                          {isMultiMonth ? (
+                            <>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-sm text-royal-cream/60">
+                                  Total ({totalMonths} months)
+                                </span>
+                                <span
+                                  className="text-2xl font-bold font-goudy"
+                                  style={{ color: accent }}
+                                >
+                                  {totalPrice}{" "}
+                                  <span className="text-sm font-normal text-royal-cream/40">
+                                    {subClass.currency}
+                                  </span>
+                                </span>
+                              </div>
+                              <p className="text-xs text-royal-cream/30">
+                                {monthlyPrice} {subClass.currency}/mo
+                                {selectedSlotKeys.length > 0 &&
+                                  ` · ${selectedSlotKeys
+                                    .map((k) => {
+                                      const [day, st, et] = k.split("|");
+                                      return `${DAY_LABELS[day] ?? day} ${st}–${et}`;
+                                    })
+                                    .join(" & ")}`}
+                              </p>
+                            </>
+                          ) : (
+                            <>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-royal-cream/60">
+                                  Total
+                                </span>
+                                <span
+                                  className="text-2xl font-bold font-goudy"
+                                  style={{ color: accent }}
+                                >
+                                  {totalPrice}{" "}
+                                  <span className="text-sm font-normal text-royal-cream/40">
+                                    {subClass.currency}
+                                  </span>
+                                </span>
+                              </div>
+                              {plan !== "TRIAL" && selectedMonth && (
+                                <p className="text-xs text-royal-cream/30 mt-1">
+                                  for {format(selectedMonth, "MMMM yyyy")}
+                                  {selectedSlotKeys.length > 0 &&
+                                    ` · ${selectedSlotKeys
+                                      .map((k) => {
+                                        const [day, st, et] = k.split("|");
+                                        return `${DAY_LABELS[day] ?? day} ${st}–${et}`;
+                                      })
+                                      .join(" & ")}`}
+                                </p>
+                              )}
+                            </>
                           )}
                         </motion.div>
                       )}
@@ -768,7 +1152,6 @@ export function SubClassDetailClient({
                   )}
                 </button>
 
-                {/* Ornamental divider */}
                 <div className="flex items-center justify-center gap-3 mt-5 opacity-30">
                   <div className="h-px w-12" style={{ background: accent }} />
                   <div
@@ -786,7 +1169,7 @@ export function SubClassDetailClient({
   );
 }
 
-// ── Helper components ──────────────────────────────────────────────
+// ── Helper components ─────────────────────────────────────────────
 
 function Chip({
   icon,
@@ -862,9 +1245,7 @@ function PlanOption({
           </div>
           <div>
             <p
-              className={`text-sm font-bold transition-colors ${
-                selected ? "text-royal-cream" : "text-royal-cream/60"
-              }`}
+              className={`text-sm font-bold transition-colors ${selected ? "text-royal-cream" : "text-royal-cream/60"}`}
             >
               {title}
             </p>

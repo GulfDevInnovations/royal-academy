@@ -1,46 +1,66 @@
 // src/lib/actions/confirm-payment.ts
 "use server";
 
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
+import { DayOfWeek, FrequencyType } from "@prisma/client";
 
 export type ConfirmResult =
   | { success: true }
   | { success: false; error: string };
 
 // ─── Confirm Monthly Enrollment Payment ──────────────────────────
+// Called from /payment/monthly after successful payment
+// Creates enrollment + payment in one transaction — nothing existed before
 
-export async function confirmMonthlyPayment(
-  enrollmentId: string
-): Promise<ConfirmResult> {
+export async function confirmMonthlyPayment(params: {
+  studentId:     string;
+  subClassId:    string;
+  month:         number;
+  year:          number;
+  frequency:     FrequencyType;
+  preferredDays: DayOfWeek[];
+  amount:        number;
+  currency:      string;
+}): Promise<ConfirmResult> {
   try {
-    const enrollment = await prisma.monthlyEnrollment.findUnique({
-      where: { id: enrollmentId },
-      include: { payment: true },
+    // Guard: don't double-create if webhook fires twice
+    const existing = await prisma.monthlyEnrollment.findFirst({
+      where: {
+        studentId:  params.studentId,
+        subClassId: params.subClassId,
+        month:      params.month,
+        year:       params.year,
+        status:     "CONFIRMED",
+      },
     });
+    if (existing) return { success: true };
 
-    if (!enrollment) return { success: false, error: "Enrollment not found." };
-    if (enrollment.status === "CONFIRMED") return { success: true }; // already paid
+    await prisma.$transaction(async (tx) => {
+      const enrollment = await tx.monthlyEnrollment.create({
+        data: {
+          studentId:     params.studentId,
+          subClassId:    params.subClassId,
+          month:         params.month,
+          year:          params.year,
+          frequency:     params.frequency,
+          preferredDays: params.preferredDays,
+          status:        "CONFIRMED",
+          totalAmount:   params.amount,
+          currency:      params.currency,
+        },
+      });
 
-    await prisma.$transaction([
-      prisma.monthlyEnrollment.update({
-        where: { id: enrollmentId },
-        data: { status: "CONFIRMED" },
-      }),
-      ...(enrollment.payment
-        ? [
-            prisma.monthlyPayment.update({
-              where: { id: enrollment.payment.id },
-              data: {
-                status: "PAID",
-                method: "CREDIT_CARD",
-                paidAt: new Date(),
-              },
-            }),
-          ]
-        : []),
-    ]);
+      await tx.monthlyPayment.create({
+        data: {
+          enrollmentId: enrollment.id,
+          amount:       params.amount,
+          currency:     params.currency,
+          status:       "PAID",
+          method:       "CREDIT_CARD", // replace with Thawani method when ready
+          paidAt:       new Date(),
+        },
+      });
+    });
 
     return { success: true };
   } catch (err) {
@@ -49,38 +69,141 @@ export async function confirmMonthlyPayment(
   }
 }
 
-// ─── Confirm Trial Payment ────────────────────────────────────────
+// ─── Confirm Multi-Month Enrollment Payment ───────────────────────
+// Called from /payment/multi-month after successful payment
 
-export async function confirmTrialPayment(
-  trialBookingId: string
-): Promise<ConfirmResult> {
+export async function confirmMultiMonthPayment(params: {
+  studentId:     string;
+  subClassId:    string;
+  startMonth:    number;
+  startYear:     number;
+  endMonth:      number;
+  endYear:       number;
+  totalMonths:   number;
+  frequency:     FrequencyType;
+  preferredDays: DayOfWeek[];
+  monthlyPrice:  number;
+  totalAmount:   number;
+  currency:      string;
+}): Promise<ConfirmResult> {
   try {
-    const trial = await prisma.trialBooking.findUnique({
-      where: { id: trialBookingId },
-      include: { payment: true },
+    // Guard: idempotency check on parent
+    const existing = await prisma.multiMonthEnrollment.findFirst({
+      where: {
+        studentId:  params.studentId,
+        subClassId: params.subClassId,
+        startMonth: params.startMonth,
+        startYear:  params.startYear,
+        status:     "CONFIRMED",
+      },
+    });
+    if (existing) return { success: true };
+
+    // Build month range
+    const months: { month: number; year: number }[] = [];
+    let m = params.startMonth;
+    let y = params.startYear;
+    for (let i = 0; i < params.totalMonths; i++) {
+      months.push({ month: m, year: y });
+      m++;
+      if (m > 12) { m = 1; y++; }
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // 1. Parent record
+      const parent = await tx.multiMonthEnrollment.create({
+        data: {
+          studentId:     params.studentId,
+          subClassId:    params.subClassId,
+          frequency:     params.frequency,
+          preferredDays: params.preferredDays,
+          startMonth:    params.startMonth,
+          startYear:     params.startYear,
+          endMonth:      params.endMonth,
+          endYear:       params.endYear,
+          totalMonths:   params.totalMonths,
+          totalAmount:   params.totalAmount,
+          currency:      params.currency,
+          status:        "CONFIRMED",
+        },
+      });
+
+      // 2. One MonthlyEnrollment per month
+      for (const { month, year } of months) {
+        await tx.monthlyEnrollment.create({
+          data: {
+            studentId:              params.studentId,
+            subClassId:             params.subClassId,
+            month,
+            year,
+            frequency:              params.frequency,
+            preferredDays:          params.preferredDays,
+            status:                 "CONFIRMED",
+            totalAmount:            params.monthlyPrice,
+            currency:               params.currency,
+            multiMonthEnrollmentId: parent.id,
+          },
+        });
+      }
+
+      // 3. Single payment covering all months
+      await tx.multiMonthPayment.create({
+        data: {
+          multiMonthEnrollmentId: parent.id,
+          amount:   params.totalAmount,
+          currency: params.currency,
+          status:   "PAID",
+          method:   "CREDIT_CARD",
+          paidAt:   new Date(),
+        },
+      });
     });
 
-    if (!trial) return { success: false, error: "Trial booking not found." };
-    if (trial.status === "CONFIRMED") return { success: true };
+    return { success: true };
+  } catch (err) {
+    console.error("confirmMultiMonthPayment error:", err);
+    return { success: false, error: "Payment confirmation failed. Please try again." };
+  }
+}
 
-    await prisma.$transaction([
-      prisma.trialBooking.update({
-        where: { id: trialBookingId },
-        data: { status: "CONFIRMED" },
-      }),
-      ...(trial.payment
-        ? [
-            prisma.payment.update({
-              where: { id: trial.payment.id },
-              data: {
-                status: "PAID",
-                method: "CREDIT_CARD",
-                paidAt: new Date(),
-              },
-            }),
-          ]
-        : []),
-    ]);
+// ─── Confirm Trial Payment ────────────────────────────────────────
+// Called from /payment/trial after successful payment
+
+export async function confirmTrialPayment(params: {
+  studentId:  string;
+  subClassId: string;
+  sessionId:  string;
+  amount:     number;
+  currency:   string;
+}): Promise<ConfirmResult> {
+  try {
+    // Guard: already confirmed
+    const existing = await prisma.trialBooking.findUnique({
+      where: { studentId_subClassId: { studentId: params.studentId, subClassId: params.subClassId } },
+    });
+    if (existing) return { success: true };
+
+    await prisma.$transaction(async (tx) => {
+      const trial = await tx.trialBooking.create({
+        data: {
+          studentId:  params.studentId,
+          subClassId: params.subClassId,
+          sessionId:  params.sessionId,
+          status:     "CONFIRMED",
+        },
+      });
+
+      await tx.payment.create({
+        data: {
+          trialBookingId: trial.id,
+          amount:         params.amount,
+          currency:       params.currency,
+          status:         "PAID",
+          method:         "CREDIT_CARD",
+          paidAt:         new Date(),
+        },
+      });
+    });
 
     return { success: true };
   } catch (err) {
@@ -88,160 +211,3 @@ export async function confirmTrialPayment(
     return { success: false, error: "Payment confirmation failed. Please try again." };
   }
 }
-
-// ─── Fetch Monthly Enrollment for payment page ───────────────────
-
-export type MonthlyPaymentData = {
-  enrollmentId: string;
-  status: string;
-  month: number;
-  year: number;
-  frequency: string;
-  preferredDays: string[];
-  totalAmount: string;
-  currency: string;
-  studentName: string;
-  studentEmail: string;
-  subClass: {
-    name: string;
-    level: string | null;
-    durationMinutes: number;
-    className: string;
-    sessionType: string;
-  };
-  teacher: {
-    firstName: string;
-    lastName: string;
-    photoUrl: string | null;
-  } | null;
-};
-
-// ─── UPDATE these two functions in src/lib/actions/confirm-payment.ts ───
-
-export async function getMonthlyPaymentData(
-  enrollmentId: string
-): Promise<MonthlyPaymentData | null> {
-  const enrollment = await prisma.monthlyEnrollment.findUnique({
-    where: { id: enrollmentId },
-    include: {
-      student: { include: { user: true } },
-      subClass: {
-        include: {
-          class: true,
-          teachers: {           // ← was: teacher: true
-            include: { teacher: true },
-            take: 1,            // just the first teacher for the payment summary
-          },
-        },
-      },
-    },
-  });
-
-  if (!enrollment) return null;
-
-  const firstTeacher = enrollment.subClass.teachers[0]?.teacher ?? null;
-
-  return {
-    enrollmentId: enrollment.id,
-    status: enrollment.status,
-    month: enrollment.month,
-    year: enrollment.year,
-    frequency: enrollment.frequency,
-    preferredDays: enrollment.preferredDays,
-    totalAmount: enrollment.totalAmount.toString(),
-    currency: enrollment.currency,
-    studentName: `${enrollment.student.firstName} ${enrollment.student.lastName}`,
-    studentEmail: enrollment.student.user.email,
-    subClass: {
-      name: enrollment.subClass.name,
-      level: enrollment.subClass.level,
-      durationMinutes: enrollment.subClass.durationMinutes,
-      className: enrollment.subClass.class.name,
-      sessionType: enrollment.subClass.sessionType,
-    },
-    teacher: firstTeacher
-      ? {
-          firstName: firstTeacher.firstName,
-          lastName: firstTeacher.lastName,
-          photoUrl: firstTeacher.photoUrl,
-        }
-      : null,
-  };
-}
-
-export async function getTrialPaymentData(
-  trialBookingId: string
-): Promise<TrialPaymentData | null> {
-  const trial = await prisma.trialBooking.findUnique({
-    where: { id: trialBookingId },
-    include: {
-      student: { include: { user: true } },
-      subClass: {
-        include: {
-          class: true,
-          teachers: {           // ← was: teacher: true
-            include: { teacher: true },
-            take: 1,
-          },
-        },
-      },
-      session: true,
-      payment: true,
-    },
-  });
-
-  if (!trial) return null;
-
-  const firstTeacher = trial.subClass.teachers[0]?.teacher ?? null;
-
-  return {
-    trialBookingId: trial.id,
-    status: trial.status,
-    amount: trial.payment?.amount.toString() ?? trial.subClass.trialPrice.toString(),
-    currency: trial.payment?.currency ?? trial.subClass.currency,
-    studentName: `${trial.student.firstName} ${trial.student.lastName}`,
-    studentEmail: trial.student.user.email,
-    sessionDate: trial.session.sessionDate.toISOString(),
-    startTime: trial.session.startTime,
-    endTime: trial.session.endTime,
-    subClass: {
-      name: trial.subClass.name,
-      level: trial.subClass.level,
-      durationMinutes: trial.subClass.durationMinutes,
-      className: trial.subClass.class.name,
-    },
-    teacher: firstTeacher
-      ? {
-          firstName: firstTeacher.firstName,
-          lastName: firstTeacher.lastName,
-          photoUrl: firstTeacher.photoUrl,
-        }
-      : null,
-  };
-}
-
-// ─── Fetch Trial Booking for payment page ────────────────────────
-
-export type TrialPaymentData = {
-  trialBookingId: string;
-  status: string;
-  amount: string;
-  currency: string;
-  studentName: string;
-  studentEmail: string;
-  sessionDate: string;
-  startTime: string;
-  endTime: string;
-  subClass: {
-    name: string;
-    level: string | null;
-    durationMinutes: number;
-    className: string;
-  };
-  teacher: {
-    firstName: string;
-    lastName: string;
-    photoUrl: string | null;
-  } | null;
-};
-

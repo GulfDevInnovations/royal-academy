@@ -42,11 +42,6 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
       label: "Paid",
       cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
     },
-    PENDING: {
-      icon: <Clock size={11} />,
-      label: "Pending",
-      cls: "bg-amber-500/15 text-amber-300 border-amber-500/30",
-    },
     FAILED: {
       icon: <XCircle size={11} />,
       label: "Failed",
@@ -63,12 +58,15 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
       cls: "bg-purple-500/15 text-purple-300 border-purple-500/30",
     },
   };
-  const { icon, label, cls } = map[status] ?? map.PENDING;
+
+  // Fallback to FAILED styling if somehow an unknown status slips through
+  const config = map[status] ?? map.FAILED;
+
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${cls}`}
+      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${config.cls}`}
     >
-      {icon} {label}
+      {config.icon} {config.label}
     </span>
   );
 }
@@ -80,6 +78,10 @@ function TypeBadge({ type }: { type: StudentPaymentRecord["type"] }) {
     MONTHLY: {
       label: "Monthly",
       cls: "text-royal-gold/70 border-royal-gold/20",
+    },
+    MULTI_MONTHLY: {
+      label: "Multi-Month",
+      cls: "text-amber-300/70 border-amber-500/20",
     },
     TRIAL: { label: "Trial", cls: "text-violet-300/70 border-violet-500/20" },
     WORKSHOP: { label: "Workshop", cls: "text-sky-300/70 border-sky-500/20" },
@@ -127,7 +129,7 @@ function PaymentCard({
     {
       icon: <Clock size={10} />,
       label: "Time",
-      value: `${payment.startTime} – ${payment.endTime}`,
+      value: payment.timeString ?? `${payment.startTime} – ${payment.endTime}`,
     },
     ...(payment.frequency
       ? [
@@ -351,7 +353,6 @@ function PaymentStats({ payments }: { payments: StudentPaymentRecord[] }) {
     .filter((p) => p.status === "PAID")
     .reduce((s, p) => s + p.amount, 0);
   const paidCount = payments.filter((p) => p.status === "PAID").length;
-  const pendingCount = payments.filter((p) => p.status === "PENDING").length;
   const currency = payments[0]?.currency ?? "OMR";
 
   return (
@@ -361,11 +362,6 @@ function PaymentStats({ payments }: { payments: StudentPaymentRecord[] }) {
           label: "Total Paid",
           value: `${totalPaid} ${currency}`,
           sub: `${paidCount} transactions`,
-        },
-        {
-          label: "Pending",
-          value: String(pendingCount),
-          sub: "awaiting payment",
         },
         {
           label: "Classes",
@@ -416,16 +412,11 @@ export default function PaymentsClient({
     return statusOk && typeOk;
   });
 
-  const statusTabs: FilterStatus[] = [
-    "ALL",
-    "PAID",
-    "PENDING",
-    "FAILED",
-    "REFUNDED",
-  ];
+  const statusTabs: FilterStatus[] = ["ALL", "PAID", "FAILED", "REFUNDED"];
   const typeTabs: Array<{ key: FilterType; label: string }> = [
     { key: "ALL", label: "All Types" },
     { key: "MONTHLY", label: "Monthly" },
+    { key: "MULTI_MONTHLY", label: "Multi-Month" },
     { key: "TRIAL", label: "Trial" },
     { key: "WORKSHOP", label: "Workshop" },
     { key: "BOOKING", label: "Session" },

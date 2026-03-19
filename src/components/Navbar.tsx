@@ -22,6 +22,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import NotificationBell from "./NotificationBell";
 import { useNavbarState } from "@/components/NavbarStateContext";
+import { useHomeNav, NAV_FLOOR_MAP } from "@/context/HomeNavigationContext";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -34,6 +35,7 @@ export default function Navbar() {
   const [authLoading, setAuthLoading] = useState(true);
   // Prisma userId resolved from Supabase session
   const [prismaUserId, setPrismaUserId] = useState<string | null>(null);
+  const { navigateToFloor } = useHomeNav();
 
   const locale = useLocale();
   const router = useRouter();
@@ -57,23 +59,30 @@ export default function Navbar() {
           ? "text-base md:text-xl"
           : "text-xl md:text-3xl";
 
-  const solidBg: React.CSSProperties = navSolid
-    ? {
-        backgroundColor: "var(--royal-purple)",
-        backdropFilter: "none",
-        WebkitBackdropFilter: "none",
-        border: "1px solid rgba(196,168,130,0.18)",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.35)",
-      }
-    : {};
+  const handleNavClick = (e: React.MouseEvent, href: string) => {
+    const floor = NAV_FLOOR_MAP[href];
+    if (floor === undefined) return; // e.g. /reservation — let it navigate normally
+
+    e.preventDefault();
+
+    const isHomePath = /^\/[a-z]{2}(\/)?$/.test(pathname); // matches /en or /ar or /en/
+
+    if (isHomePath) {
+      navigateToFloor(floor);
+    } else {
+      router.push(`/${locale}?floor=${floor}`);
+    }
+
+    setMenuOpen(false); // close mobile menu if open
+  };
 
   // ── 1. Body scroll lock ───────────────────────────────────────────────────────
   useEffect(() => {
-    document.body.style.overflow =
-      menuOpen || userMenuOpen || contactModalOpen ? "hidden" : "";
-    return () => {
+    if (menuOpen || userMenuOpen || contactModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
       document.body.style.overflow = "";
-    };
+    }
   }, [menuOpen, userMenuOpen, contactModalOpen]);
 
   // ── 2. Escape key closes contact modal ───────────────────────────────────────
@@ -173,9 +182,9 @@ export default function Navbar() {
     { href: "/", label: t("home") },
     { href: "/teachers", label: t("teachers") },
     { href: "/classes", label: t("classes") },
-    { href: "/schedule", label: t("schedule") },
-    { href: "/gallery", label: t("gallery") },
+    { href: "/reservation", label: t("reservation") },
     { href: "/about", label: t("about") },
+    { href: "/aesthetics", label: t("aesthetics") },
   ];
 
   const userLinks = [
@@ -183,11 +192,6 @@ export default function Navbar() {
       href: "/profile-setting",
       label: isArabic ? "الملف الشخصي" : "Profile Settings",
       icon: faUser,
-    },
-    {
-      href: "/customization",
-      label: isArabic ? "التخصيص" : "Customization",
-      icon: faPalette,
     },
     {
       href: "/my-classes",
@@ -400,10 +404,7 @@ export default function Navbar() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
             {authLoading ? (
-              <div
-                className="liquid-glass px-6 py-3 rounded-full text-royal-cream/70 text-sm"
-                style={navSolid ? solidBg : {}}
-              >
+              <div className="liquid-glass backdrop-blur-xs px-6 py-3 rounded-full text-royal-cream/70 text-sm">
                 ...
               </div>
             ) : !user ? (
@@ -413,8 +414,7 @@ export default function Navbar() {
                   setMenuOpen(false);
                   setUserMenuOpen(false);
                 }}
-                className="liquid-glass-gold shimmer flex items-center justify-center gap-3 px-6 py-3 rounded-full transition-all duration-300 cursor-pointer"
-                style={navSolid ? solidBg : {}}
+                className="liquid-glass-gold backdrop-blur-xs shimmer flex items-center justify-center gap-3 px-6 py-3 rounded-full transition-all duration-300 cursor-pointer"
               >
                 <span className="text-royal-gold text-sm tracking-widest uppercase font-medium whitespace-nowrap">
                   {t("startJourney")}
@@ -429,8 +429,7 @@ export default function Navbar() {
                 whileTap={{ scale: 0.96 }}
                 whileHover={{ scale: 1.03 }}
                 transition={{ duration: 0.2 }}
-                className={`shimmer flex items-center justify-center gap-3 px-2 py-1 rounded-full transition-all duration-300 cursor-pointer ${userMenuOpen ? "liquid-glass-gold" : "liquid-glass"}`}
-                style={navSolid ? solidBg : {}}
+                className={`shimmer backdrop-blur-xs flex items-center justify-center gap-3 px-2 py-1 rounded-full transition-all duration-300 cursor-pointer ${userMenuOpen ? "liquid-glass-gold" : "liquid-glass"}`}
               >
                 <span className="relative h-12 w-12 overflow-hidden rounded-full bg-white/10">
                   <Image
@@ -468,8 +467,7 @@ export default function Navbar() {
                 setMenuOpen(false);
                 setUserMenuOpen(false);
               }}
-              className="liquid-glass-gold shimmer flex items-center justify-center gap-3 px-8 py-4 rounded-full transition-all duration-300 cursor-pointer"
-              style={solidBg}
+              className="liquid-glass-gold backdrop-blur-xs shimmer flex items-center justify-center gap-3 px-8 py-4 rounded-full transition-all duration-300 cursor-pointer"
             >
               <span className="text-royal-gold text-sm tracking-widest uppercase font-medium whitespace-nowrap">
                 {isArabic ? "تواصل معنا" : "Contact Us"}
@@ -483,8 +481,7 @@ export default function Navbar() {
             whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.2 }}
             onClick={switchLanguage}
-            className="liquid-glass shimmer flex items-center justify-center gap-3 px-8 py-3 rounded-full transition-all duration-300 cursor-pointer"
-            style={solidBg}
+            className="liquid-glass backdrop-blur-xs shimmer flex items-center justify-center gap-3 px-8 py-3 rounded-full transition-all duration-300 cursor-pointer"
           >
             <span className="text-royal-cream text-xl tracking-widest uppercase whitespace-nowrap">
               {isArabic ? "EN" : "عربي"}
@@ -501,11 +498,10 @@ export default function Navbar() {
             whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.2 }}
             className={`
-              shimmer flex items-center justify-center gap-3 px-8 py-4 rounded-full
+              shimmer backdrop-blur-xs flex items-center justify-center gap-3 px-8 py-4 rounded-full
               transition-all duration-300 cursor-pointer
               ${menuOpen ? "liquid-glass-gold" : "liquid-glass"}
             `}
-            style={solidBg}
           >
             <div className="flex flex-col gap-1.5">
               <motion.span
@@ -583,7 +579,7 @@ export default function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[70] backdrop-blur-[2px] px-4 py-8 md:py-10"
+            className="fixed inset-0 z-70 px-4 py-8 md:py-10"
             onClick={() => setContactModalOpen(false)}
           >
             <motion.div
@@ -592,8 +588,7 @@ export default function Navbar() {
               exit={{ opacity: 0, y: 20, scale: 0.98 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
               onClick={(event) => event.stopPropagation()}
-              className="mx-auto flex max-h-[90vh] w-full max-w-3xl flex-col rounded-3xl border border-white/25 shadow-[0_35px_90px_rgba(0,0,0,0.45)] overflow-hidden"
-              style={solidBg}
+              className="mx-auto flex backdrop-blur-sm max-h-[90vh] w-full max-w-3xl flex-col rounded-3xl border border-white/25 shadow-[0_35px_90px_rgba(0,0,0,0.45)] overflow-hidden"
             >
               <div className="flex items-start justify-between gap-4 border-b border-white/15 px-6 py-5">
                 <div>
@@ -716,8 +711,11 @@ export default function Navbar() {
             className={`
               fixed z-50 top-28 w-96
               ${isArabic ? "left-8" : "right-8"}
-              rounded-3xl overflow-hidden liquid-glass shadow-2xl shadow-black/60
+              rounded-3xl liquid-glass backdrop-blur-xs shadow-2xl shadow-black/60
             `}
+            style={{
+              clipPath: "inset(0 round 1.5rem)", // matches rounded-3xl = 24px
+            }}
           >
             <div className="h-px w-full bg-gradient-to-r from-transparent via-royal-gold/50 to-transparent" />
             <div className="px-10 py-10">
@@ -736,12 +734,15 @@ export default function Navbar() {
                   >
                     <Link
                       href={`/${locale}${link.href}`}
-                      onClick={() => setMenuOpen(false)}
+                      onClick={(e) => {
+                        handleNavClick(e, link.href);
+                        setMenuOpen(false);
+                      }}
                       className={`
-                        group relative flex items-center gap-1 py-5 w-full
-                        border-b border-white/5 last:border-0
-                        ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}
-                      `}
+        group relative flex items-center gap-1 py-5 w-full
+        border-b border-white/5 last:border-0
+        ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}
+      `}
                     >
                       <span
                         className="absolute inset-0 -mx-4 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none"
@@ -775,13 +776,16 @@ export default function Navbar() {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="fixed z-50 top-28 left-8 w-72 rounded-3xl overflow-hidden liquid-glass shadow-2xl shadow-black/60"
+            className="fixed z-50 top-28 left-8 w-72 rounded-3xl liquid-glass shadow-2xl shadow-black/60"
+            style={{
+              clipPath: "inset(0 round 1.5rem)", // matches rounded-3xl = 24px
+            }}
           >
             <div className="h-px w-full bg-gradient-to-r from-transparent via-royal-gold/50 to-transparent" />
 
             {/* User avatar header */}
             <div className="px-8 pt-8 pb-4 flex items-center gap-4 border-b border-white/5">
-              <div className="relative w-12 h-12 shrink-0 rounded-full liquid-glass overflow-hidden">
+              <div className="relative w-12 h-12 shrink-0 rounded-full liquid-glass backdrop-blur-xs overflow-hidden">
                 <Image
                   src={avatarSrc}
                   alt="User"
@@ -793,7 +797,7 @@ export default function Navbar() {
               </div>
               <div>
                 <p
-                  className={`max-w-[12rem] break-words leading-tight text-royal-cream tracking-wide ${greetingSizeClass}`}
+                  className={`max-w-48 wrap-break-word leading-tight text-royal-cream tracking-wide ${greetingSizeClass}`}
                 >
                   {greetingText}
                 </p>
@@ -851,7 +855,7 @@ export default function Navbar() {
               </motion.nav>
             </div>
 
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-royal-gold/50 to-transparent" />
+            <div className="h-px w-full bg-linear-to-r from-transparent via-royal-gold/50 to-transparent" />
           </motion.div>
         )}
       </AnimatePresence>

@@ -4,9 +4,13 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavbarState } from "@/components/NavbarStateContext";
 import RoyalIntro from "@/components/RoyalIntro";
 import RoyalHeroSection from "@/components/RoyalHeroSection";
+import TeachersSection from "@/components/TeachersSection";
+import AboutSection from "@/components/AboutSection";
+import GallerySection from "@/components/GallerySection";
+import type { PublicGalleryItem } from "@/lib/actions/gallery.public.actions";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useHomeNav } from "@/context/HomeNavigationContext";
 
-// Physics state lives HERE so it survives RoyalIntro re-renders
-// and bubbles are exactly where they were left when coming back up
 export type BubblePhysics = {
   x: number;
   y: number;
@@ -26,22 +30,28 @@ const BUBBLE_DEFS = [
   { baseSize: 142 },
 ];
 
-export default function HomeClient({ locale }: { locale: string }) {
-  const { setNavSolid } = useNavbarState();
+const FLOOR_COUNT = 5; // 0=intro, 1=hero, 2=teachers, 3=about, 4=gallery
 
-  // "floor" 0 = intro visible, 1 = hero visible
+interface Props {
+  locale: string;
+  galleryItems: PublicGalleryItem[];
+}
+
+export default function HomeClient({ locale, galleryItems }: Props) {
+  const { setNavSolid } = useNavbarState();
   const [floor, setFloor] = useState(0);
   const isAnimating = useRef(false);
-
-  // Elevator container ref — we translate this div
   const elevatorRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const { requestedFloor, clearRequest } = useHomeNav();
 
-  // Bubble physics — persistent, never reset
   const bubblePhysics = useRef<BubblePhysics[]>(
-    BUBBLE_DEFS.map((b, i) => ({
+    BUBBLE_DEFS.map((b) => ({
       x: 0,
       y: 0,
-      z: 0.3 + Math.random() * 0.5,
+      z: 0.5,
       vx: 0,
       vy: 0,
       vz: 0,
@@ -49,21 +59,23 @@ export default function HomeClient({ locale }: { locale: string }) {
     })),
   );
 
-  // Animate the elevator slide
   const slideTo = useCallback(
     (targetFloor: number) => {
       if (isAnimating.current) return;
       if (targetFloor === floor) return;
+      if (targetFloor < 0 || targetFloor >= FLOOR_COUNT) return;
       isAnimating.current = true;
 
       const el = elevatorRef.current;
-      if (!el) return;
+      if (!el) {
+        isAnimating.current = false;
+        return;
+      }
 
-      const targetY = targetFloor === 1 ? "-100vh" : "0vh";
       el.style.transition = "transform 0.85s cubic-bezier(0.76, 0, 0.24, 1)";
-      el.style.transform = `translateY(${targetY})`;
+      el.style.transform = `translateY(${targetFloor * -100}vh)`;
 
-      setNavSolid(targetFloor === 1);
+      setNavSolid(targetFloor >= 1);
       setFloor(targetFloor);
 
       setTimeout(() => {
@@ -73,24 +85,17 @@ export default function HomeClient({ locale }: { locale: string }) {
     [floor, setNavSolid],
   );
 
-  // Scroll down from intro
-  const handleScrollDown = useCallback(() => {
-    slideTo(1);
-  }, [slideTo]);
-
-  // Scroll up from hero
-  const handleScrollUp = useCallback(() => {
-    slideTo(0);
-  }, [slideTo]);
-
-  // Wheel listener on hero floor
+  // Global wheel + key — only for floors 0-3
+  // Floor 4 (gallery) owns its own wheel/key listeners
   useEffect(() => {
-    if (floor !== 1) return;
+    if (floor === 4) return;
     const onWheel = (e: WheelEvent) => {
-      if (e.deltaY < -30) handleScrollUp();
+      if (e.deltaY > 30) slideTo(floor + 1);
+      else if (e.deltaY < -30) slideTo(floor - 1);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (["ArrowUp", "PageUp"].includes(e.key)) handleScrollUp();
+      if (["ArrowDown", " ", "PageDown"].includes(e.key)) slideTo(floor + 1);
+      if (["ArrowUp", "PageUp"].includes(e.key)) slideTo(floor - 1);
     };
     window.addEventListener("wheel", onWheel);
     window.addEventListener("keydown", onKey);
@@ -98,20 +103,31 @@ export default function HomeClient({ locale }: { locale: string }) {
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKey);
     };
-  }, [floor, handleScrollUp]);
+  }, [floor, slideTo]);
 
-  // Lock body scroll always — we handle it ourselves
+  // Handle navbar context requests (user already on home page)
   useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, []);
+    if (requestedFloor === null) return;
+    slideTo(requestedFloor);
+    clearRequest();
+  }, [requestedFloor, slideTo, clearRequest]);
 
+  // Handle ?floor= query param (user navigated from another page)
+  useEffect(() => {
+    const floorParam = searchParams.get("floor");
+    if (!floorParam) return;
+    const targetFloor = parseInt(floorParam, 10);
+    if (isNaN(targetFloor)) return;
+
+    const timer = setTimeout(() => {
+      slideTo(targetFloor);
+      router.replace(pathname, { scroll: false });
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
   return (
-    // Outer viewport clip
     <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
-      {/* Elevator shaft — 200vh tall, slides up/down */}
       <div
         ref={elevatorRef}
         style={{
@@ -119,29 +135,29 @@ export default function HomeClient({ locale }: { locale: string }) {
           top: 0,
           left: 0,
           right: 0,
-          height: "200vh",
+          height: `${FLOOR_COUNT * 100}vh`,
           transform: "translateY(0vh)",
           willChange: "transform",
         }}
       >
-        {/* Floor 0 — Intro (top 100vh) */}
+        {/* Floor 0 — Intro */}
         <div
           style={{
             position: "absolute",
-            top: 0,
+            top: "0vh",
             left: 0,
             right: 0,
             height: "100vh",
           }}
         >
           <RoyalIntro
-            onScrolled={handleScrollDown}
+            onScrolled={() => slideTo(1)}
             active={floor === 0}
             bubblePhysics={bubblePhysics}
           />
         </div>
 
-        {/* Floor 1 — Hero (bottom 100vh) */}
+        {/* Floor 1 — Hero */}
         <div
           style={{
             position: "absolute",
@@ -152,6 +168,58 @@ export default function HomeClient({ locale }: { locale: string }) {
           }}
         >
           <RoyalHeroSection />
+        </div>
+
+        {/* Floor 2 — Teachers */}
+        <div
+          style={{
+            position: "absolute",
+            top: "200vh",
+            left: 0,
+            right: 0,
+            height: "100vh",
+          }}
+        >
+          <TeachersSection
+            locale={locale}
+            isArabic={locale === "ar"}
+            onScrollUp={() => slideTo(1)}
+            onScrollDown={() => slideTo(3)}
+          />
+        </div>
+
+        {/* Floor 3 — About */}
+        <div
+          style={{
+            position: "absolute",
+            top: "300vh",
+            left: 0,
+            right: 0,
+            height: "100vh",
+          }}
+        >
+          <AboutSection
+            active={floor === 3}
+            onScrollUp={() => slideTo(2)}
+            onScrollDown={() => slideTo(4)}
+          />
+        </div>
+
+        <div
+          style={{
+            position: "absolute",
+            top: "400vh",
+            left: 0,
+            right: 0,
+            height: "100vh",
+          }}
+        >
+          <GallerySection
+            items={galleryItems}
+            active={floor === 4}
+            onScrollUp={() => slideTo(3)}
+            onScrollDown={() => {}}
+          />
         </div>
       </div>
     </div>

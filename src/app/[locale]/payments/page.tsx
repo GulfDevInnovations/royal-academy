@@ -1,20 +1,23 @@
 // src/app/[locale]/payments/page.tsx
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { getStudentPayments } from "@/lib/actions/student-payments";
 import PaymentsClient from "./_components/PaymentsClient";
-import { Crown } from "lucide-react";
+
+export const metadata = { title: "My Payments | Royal Academy" };
 
 export default async function PaymentsPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login?redirect=/payments");
+
   const { data: payments, error } = await getStudentPayments();
 
-  if (error === "Not authenticated") {
-    // Let your middleware handle the redirect; this is a fallback
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-royal-cream/50 text-sm">
-          Please sign in to view your payments.
-        </p>
-      </div>
-    );
+  if (error && error !== "Not authenticated") {
+    // Non-auth error — still render with empty state
+    console.error("PaymentsPage error:", error);
   }
 
   return <PaymentsClient payments={payments} />;

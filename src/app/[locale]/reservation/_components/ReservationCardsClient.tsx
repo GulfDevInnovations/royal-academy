@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 import { SubClassCard } from "@/lib/actions/classes";
 import { SubClassCardTile } from "./SubClassCardtile";
 import { PrivateClassCard } from "./PrivateClassCard";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 
 const FILTERS = [
   "All",
@@ -41,8 +42,31 @@ interface ReservationCardsClientProps {
 export function ReservationCardsClient({
   subClasses,
 }: ReservationCardsClientProps) {
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("All");
+  // teacherId from ?teacher= param — null means no filter
+  const [teacherId, setTeacherId] = useState<string | null>(null);
+  const [teacherName, setTeacherName] = useState<string | null>(null);
+
+  // Read ?teacher=id on mount and whenever searchParams changes
+  useEffect(() => {
+    const paramId = searchParams.get("teacher");
+    if (!paramId) {
+      setTeacherId(null);
+      setTeacherName(null);
+      return;
+    }
+    setTeacherId(paramId);
+    // Resolve the teacher name from the subClasses data
+    for (const s of subClasses) {
+      const match = s.teachers.find((t) => t.id === paramId);
+      if (match) {
+        setTeacherName(`${match.firstName} ${match.lastName}`);
+        break;
+      }
+    }
+  }, [searchParams, subClasses]);
 
   const filtered = useMemo(() => {
     return subClasses.filter((s) => {
@@ -52,13 +76,19 @@ export function ReservationCardsClient({
         search.trim() === "" ||
         s.name.toLowerCase().includes(search.toLowerCase()) ||
         s.class.name.toLowerCase().includes(search.toLowerCase()) ||
-        s.teacher?.firstName.toLowerCase().includes(search.toLowerCase()) ||
-        s.teacher?.lastName.toLowerCase().includes(search.toLowerCase()) ||
+        s.teachers.some(
+          (t) =>
+            t.firstName.toLowerCase().includes(search.toLowerCase()) ||
+            t.lastName.toLowerCase().includes(search.toLowerCase()),
+        ) ||
         s.level?.toLowerCase().includes(search.toLowerCase()) ||
         false;
-      return matchesFilter && matchesSearch;
+      // Teacher filter — only show subClasses that have this teacher
+      const matchesTeacher =
+        !teacherId || s.teachers.some((t) => t.id === teacherId);
+      return matchesFilter && matchesSearch && matchesTeacher;
     });
-  }, [subClasses, search, activeFilter]);
+  }, [subClasses, search, activeFilter, teacherId]);
 
   // Group by class name for section headers
   const grouped = useMemo(() => {
@@ -70,9 +100,17 @@ export function ReservationCardsClient({
     return map;
   }, [filtered]);
 
+  const clearTeacherFilter = () => {
+    setTeacherId(null);
+    setTeacherName(null);
+    // Clean the URL without reload
+    const url = new URL(window.location.href);
+    url.searchParams.delete("teacher");
+    window.history.replaceState({}, "", url.toString());
+  };
+
   return (
     <main className="min-h-screen pt-28 pb-24">
-      {/* ── Hero header ── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: -16 }}
@@ -98,7 +136,6 @@ export function ReservationCardsClient({
             journey.
           </p>
 
-          {/* Ornamental line bottom */}
           <div className="flex items-center justify-center gap-4 mt-6">
             <div className="h-px w-8 bg-gradient-to-r from-transparent to-royal-gold/40" />
             <div className="w-1 h-1 rotate-45 bg-royal-gold/40" />
@@ -107,6 +144,35 @@ export function ReservationCardsClient({
             <div className="h-px w-8 bg-gradient-to-l from-transparent to-royal-gold/40" />
           </div>
         </motion.div>
+
+        {/* ── Active teacher filter banner ── */}
+        <AnimatePresence>
+          {teacherId && teacherName && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.3 }}
+              className="flex items-center gap-3 mb-6 px-5 py-3 rounded-2xl border border-royal-gold/25 bg-royal-gold/8"
+              style={{ background: "rgba(196,168,130,0.07)" }}
+            >
+              <div className="w-1.5 h-1.5 rounded-full bg-royal-gold" />
+              <span className="text-royal-cream/70 text-sm font-goudy tracking-wide">
+                Showing classes by{" "}
+                <span className="text-royal-gold font-semibold">
+                  {teacherName}
+                </span>
+              </span>
+              <button
+                onClick={clearTeacherFilter}
+                className="ml-auto flex items-center gap-1.5 text-royal-cream/40 hover:text-royal-cream/80 transition-colors text-xs tracking-widest uppercase"
+              >
+                <X className="w-3 h-3" />
+                Clear
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ── Search + Filter bar ── */}
         <motion.div
@@ -172,8 +238,18 @@ export function ReservationCardsClient({
                 No classes found
               </p>
               <p className="text-royal-cream/25 text-sm mt-1">
-                Try adjusting your search or filter
+                {teacherName
+                  ? `${teacherName} has no available classes`
+                  : "Try adjusting your search or filter"}
               </p>
+              {teacherId && (
+                <button
+                  onClick={clearTeacherFilter}
+                  className="mt-6 text-royal-gold/60 hover:text-royal-gold text-xs tracking-widest uppercase transition-colors"
+                >
+                  Clear teacher filter
+                </button>
+              )}
             </motion.div>
           ) : (
             <motion.div
@@ -184,7 +260,6 @@ export function ReservationCardsClient({
             >
               {[...grouped.entries()].map(([className, cards], groupIdx) => (
                 <div key={className} className="mb-16">
-                  {/* Section header */}
                   {activeFilter === "All" && (
                     <motion.div
                       initial={{ opacity: 0, x: -12 }}
@@ -198,8 +273,6 @@ export function ReservationCardsClient({
                       <div className="h-px flex-1 bg-gradient-to-r from-royal-gold/30 to-transparent" />
                     </motion.div>
                   )}
-
-                  {/* Cards grid */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     {cards.map((subClass, i) => (
                       <motion.div
@@ -218,8 +291,7 @@ export function ReservationCardsClient({
                 </div>
               ))}
 
-              {/* Private classes card — always at bottom */}
-              {activeFilter === "All" && (
+              {activeFilter === "All" && !teacherId && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}

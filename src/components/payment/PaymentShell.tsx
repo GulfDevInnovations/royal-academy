@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   Loader2,
   AlertCircle,
-  User,
 } from "lucide-react";
 
 const CLASS_ACCENT: Record<string, string> = {
@@ -21,15 +20,12 @@ const CLASS_ACCENT: Record<string, string> = {
   default: "#C9A84C",
 };
 
-export type PaymentLineItem = {
-  label: string;
-  value: string;
-};
+export type PaymentLineItem = { label: string; value: string };
 
 export type PaymentShellProps = {
-  className: string; // e.g. "Music"
-  subClassName: string; // e.g. "Piano — Beginner"
-  badge: string; // e.g. "Monthly · Twice a Week" or "Trial Session"
+  className: string;
+  subClassName: string;
+  badge: string;
   teacher: {
     firstName: string;
     lastName: string;
@@ -40,6 +36,7 @@ export type PaymentShellProps = {
   lineItems: PaymentLineItem[];
   total: string;
   currency: string;
+  // true = records already exist, show receipt UI (no payment button)
   alreadyPaid: boolean;
   onConfirm: () => Promise<{ success: boolean; error?: string }>;
   successRedirect: string;
@@ -63,7 +60,7 @@ export function PaymentShell({
   const accent = CLASS_ACCENT[className] ?? CLASS_ACCENT.default;
 
   const [isPaying, setIsPaying] = useState(false);
-  const [paid, setPaid] = useState(initiallyPaid);
+  const [justPaid, setJustPaid] = useState(false); // true only after clicking confirm
   const [error, setError] = useState<string | null>(null);
 
   const handleConfirm = async () => {
@@ -72,7 +69,7 @@ export function PaymentShell({
     try {
       const result = await onConfirm();
       if (result.success) {
-        setPaid(true);
+        setJustPaid(true);
         setTimeout(() => router.push(successRedirect), 1800);
       } else {
         setError(result.error ?? "Something went wrong. Please try again.");
@@ -83,6 +80,9 @@ export function PaymentShell({
       setIsPaying(false);
     }
   };
+
+  // Receipt mode — payment already exists, just show confirmation
+  const isReceipt = initiallyPaid && !justPaid;
 
   return (
     <main className="min-h-screen pt-24 pb-20">
@@ -102,7 +102,6 @@ export function PaymentShell({
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          {/* Ornamental */}
           <div className="flex items-center gap-3 mb-3">
             <div className="h-px w-8" style={{ background: accent }} />
             <p
@@ -113,7 +112,7 @@ export function PaymentShell({
             </p>
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold text-royal-cream font-goudy leading-none">
-            Complete Payment
+            {isReceipt ? "Booking Confirmed" : "Complete Payment"}
           </h1>
         </motion.div>
 
@@ -135,6 +134,29 @@ export function PaymentShell({
               background: `linear-gradient(90deg, transparent, ${accent}, transparent)`,
             }}
           />
+
+          {/* Receipt banner — shown when already paid */}
+          {isReceipt && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mx-6 sm:mx-8 mt-6 flex items-center gap-3 px-4 py-3 rounded-xl border"
+              style={{
+                background: "rgba(16,185,129,0.07)",
+                borderColor: "rgba(16,185,129,0.25)",
+              }}
+            >
+              <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-emerald-400">
+                  Payment Received
+                </p>
+                <p className="text-xs text-royal-cream/40">
+                  Your class has been booked successfully.
+                </p>
+              </div>
+            </motion.div>
+          )}
 
           {/* Class summary */}
           <div className="p-6 sm:p-8 pb-0">
@@ -219,7 +241,6 @@ export function PaymentShell({
             </div>
           </div>
 
-          {/* Divider */}
           <div className="h-px bg-white/5 mx-6 sm:mx-8" />
 
           {/* Student info */}
@@ -249,7 +270,6 @@ export function PaymentShell({
             </div>
           </div>
 
-          {/* Divider */}
           <div className="h-px bg-white/5 mx-6 sm:mx-8" />
 
           {/* Price breakdown */}
@@ -288,12 +308,10 @@ export function PaymentShell({
             </div>
           </div>
 
-          {/* Divider */}
           <div className="h-px bg-white/5 mx-6 sm:mx-8" />
 
           {/* CTA */}
           <div className="px-6 sm:px-8 py-6">
-            {/* Error */}
             <AnimatePresence>
               {error && (
                 <motion.div
@@ -308,7 +326,8 @@ export function PaymentShell({
               )}
             </AnimatePresence>
 
-            {paid ? (
+            {/* Just paid — success animation then redirect */}
+            {justPaid ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -324,7 +343,21 @@ export function PaymentShell({
                   Redirecting you back…
                 </p>
               </motion.div>
+            ) : isReceipt ? (
+              /* Receipt mode — already paid, just a "Go to My Classes" button */
+              <button
+                onClick={() => router.push("/my-classes")}
+                className="w-full py-4 rounded-xl font-bold text-base tracking-wide transition-all duration-300 hover:scale-[1.01] active:scale-[0.99]"
+                style={{
+                  background: `linear-gradient(135deg, ${accent}, ${accent}cc)`,
+                  color: "#100e0c",
+                  boxShadow: `0 8px 32px ${accent}33`,
+                }}
+              >
+                Go to My Classes
+              </button>
             ) : (
+              /* Normal payment mode */
               <>
                 <button
                   onClick={handleConfirm}
@@ -346,7 +379,6 @@ export function PaymentShell({
                   )}
                 </button>
 
-                {/* Trust note */}
                 <div className="flex items-center justify-center gap-2 mt-4 text-royal-cream/25 text-xs">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>
@@ -354,7 +386,6 @@ export function PaymentShell({
                   </span>
                 </div>
 
-                {/* Ornamental */}
                 <div className="flex items-center justify-center gap-3 mt-5 opacity-20">
                   <div className="h-px w-12" style={{ background: accent }} />
                   <div

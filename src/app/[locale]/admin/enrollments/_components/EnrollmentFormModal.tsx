@@ -1,14 +1,17 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition, useEffect } from "react";
 import {
   X,
   Loader2,
   AlertTriangle,
   CheckCircle2,
-  CreditCard,
+  CalendarDays,
 } from "lucide-react";
-import { createEnrollment } from "@/lib/actions/admin/Enrollments.actions";
+import {
+  createEnrollment,
+  createMultiMonthEnrollment,
+} from "@/lib/actions/admin/Enrollments.actions";
 import type { SerializedFormOptions } from "../page";
 import {
   AdminInput,
@@ -16,6 +19,10 @@ import {
   AdminButton,
   adminColors,
 } from "@/components/admin/ui";
+
+// ─────────────────────────────────────────────
+// Constants
+// ─────────────────────────────────────────────
 
 const MONTHS = [
   "January",
@@ -31,7 +38,20 @@ const MONTHS = [
   "November",
   "December",
 ];
-
+const MONTHS_SHORT = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 const DAYS_ORDER = [
   "MONDAY",
   "TUESDAY",
@@ -50,13 +70,18 @@ const DAY_SHORT: Record<string, string> = {
   SATURDAY: "Sat",
   SUNDAY: "Sun",
 };
-
 const PAYMENT_METHODS = [
   { value: "CASH", label: "Cash" },
   { value: "BANK_TRANSFER", label: "Bank Transfer" },
   { value: "CREDIT_CARD", label: "Credit Card" },
   { value: "DEBIT_CARD", label: "Debit Card" },
 ];
+
+type EnrollmentType = "single" | "multi";
+
+// ─────────────────────────────────────────────
+// Props
+// ─────────────────────────────────────────────
 
 interface Props {
   onClose: () => void;
@@ -65,6 +90,10 @@ interface Props {
   defaultMonth: number;
   defaultYear: number;
 }
+
+// ─────────────────────────────────────────────
+// Component
+// ─────────────────────────────────────────────
 
 export default function EnrollmentFormModal({
   onClose,
@@ -77,43 +106,108 @@ export default function EnrollmentFormModal({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  // ── Type toggle ──
+  const [enrollType, setEnrollType] = useState<EnrollmentType>("single");
+
+  // ── Shared state ──
   const [selectedSubClassId, setSelectedSubClassId] = useState("");
   const [frequency, setFrequency] = useState<
     "ONCE_PER_WEEK" | "TWICE_PER_WEEK"
   >("ONCE_PER_WEEK");
   const [payNow, setPayNow] = useState(false);
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  // Stores selected schedule IDs — tracks by slot, not day name,
+  // because a sub-class can have two slots on the same day.
+  const [selectedSlotIds, setSelectedSlotIds] = useState<string[]>([]);
+
+  // ── Single-month state ──
+  const [singleMonth, setSingleMonth] = useState(defaultMonth);
+  const [singleYear, setSingleYear] = useState(defaultYear);
+
+  // ── Multi-month state ──
+  const [startMonth, setStartMonth] = useState(defaultMonth);
+  const [startYear, setStartYear] = useState(defaultYear);
+  const [totalMonths, setTotalMonths] = useState(3);
 
   const selectedSubClass = formOptions.subClasses.find(
     (s) => s.id === selectedSubClassId,
   );
 
-  // Available days from schedules
-  const availableDays = selectedSubClass
-    ? [
-        ...new Set(selectedSubClass.classSchedules.map((s) => s.dayOfWeek)),
-      ].sort((a, b) => DAYS_ORDER.indexOf(a) - DAYS_ORDER.indexOf(b))
-    : [];
+  // All schedule slots for the selected sub-class, already ordered
+  // by dayOfWeek + startTime from the action query.
+  const availableSlots = selectedSubClass?.classSchedules ?? [];
 
-  // Price based on frequency
-  const price =
+  // Compute maxBookableMonths from the selected slots' endDates and the
+  // chosen start month. This is slot-specific and start-month-aware:
+  // - Only the endDates of the currently selected slots matter
+  // - "5 months from July" ends in November, regardless of today
+  // Falls back to 12 if no slots selected or all endDates are null.
+  const maxBookableMonths = (() => {
+    const selectedSlots = selectedSlotIds
+      .map((id) => availableSlots.find((s) => s.id === id))
+      .filter(Boolean) as typeof availableSlots;
+
+    if (selectedSlots.length === 0) return 12;
+
+    const finiteEnds = selectedSlots
+      .map((s) => (s.endDate ? new Date(s.endDate) : null))
+      .filter(Boolean) as Date[];
+
+    if (finiteEnds.length === 0) return 12; // all slots run indefinitely
+
+    // Use the earliest endDate among the selected slots as the hard cap
+    const earliest = new Date(Math.min(...finiteEnds.map((d) => d.getTime())));
+
+    // How many full months from startMonth/startYear to earliest?
+    const diffMonths =
+      (earliest.getFullYear() - startYear) * 12 +
+      (earliest.getMonth() + 1 - startMonth) +
+      1; // +1 because the end month is inclusive
+
+    return Math.max(1, Math.min(12, diffMonths));
+  })();
+
+  const monthlyPrice =
     frequency === "TWICE_PER_WEEK"
       ? selectedSubClass?.twicePriceMonthly
       : selectedSubClass?.oncePriceMonthly;
 
-  // When subclass changes, reset days
+  // Clamp totalMonths whenever the cap changes (slots or start month changed)
+  useEffect(() => {
+    setTotalMonths((prev) => Math.min(prev, Math.max(2, maxBookableMonths)));
+  }, [maxBookableMonths]);
+
+  const totalPrice =
+    enrollType === "multi" && monthlyPrice != null
+      ? monthlyPrice * totalMonths
+      : monthlyPrice;
+
+  // ── Month range preview for multi ──
+  const monthRange = (() => {
+    if (enrollType !== "multi") return [];
+    const result: { month: number; year: number }[] = [];
+    for (let i = 0; i < totalMonths; i++) {
+      const d = new Date(startYear, startMonth - 1 + i, 1);
+      result.push({ month: d.getMonth() + 1, year: d.getFullYear() });
+    }
+    return result;
+  })();
+  const endPeriod = monthRange[monthRange.length - 1];
+
   const handleSubClassChange = (id: string) => {
     setSelectedSubClassId(id);
-    setSelectedDays([]);
+    setSelectedSlotIds([]);
+    // Reset totalMonths when subClass changes — slots change so the cap changes
+    setTotalMonths(3);
   };
 
-  // Toggle a preferred day
-  const toggleDay = (day: string) => {
+  const toggleSlot = (slotId: string) => {
     if (frequency === "ONCE_PER_WEEK") {
-      setSelectedDays([day]); // only one day for once/week
+      setSelectedSlotIds([slotId]);
     } else {
-      setSelectedDays((prev) =>
-        prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
+      setSelectedSlotIds((prev) =>
+        prev.includes(slotId)
+          ? prev.filter((id) => id !== slotId)
+          : [...prev, slotId],
       );
     }
   };
@@ -126,26 +220,53 @@ export default function EnrollmentFormModal({
       setError("Please select a sub-class.");
       return;
     }
-    if (selectedDays.length === 0) {
-      setError("Please select at least one preferred day.");
+    if (selectedSlotIds.length === 0) {
+      setError("Please select at least one preferred slot.");
       return;
     }
-    if (frequency === "TWICE_PER_WEEK" && selectedDays.length < 2) {
-      setError("Please select two days for twice-per-week enrollment.");
+    if (frequency === "TWICE_PER_WEEK" && selectedSlotIds.length < 2) {
+      setError("Please select two slots for twice-per-week enrollment.");
+      return;
+    }
+    if (enrollType === "multi" && totalMonths < 2) {
+      setError("Multi-month enrollment requires at least 2 months.");
       return;
     }
 
     const fd = new FormData(formRef.current!);
     fd.set("subClassId", selectedSubClassId);
     fd.set("frequency", frequency);
-    fd.set("preferredDays", selectedDays.join(","));
+    // Derive day names from the selected slot IDs for the server action
+    const selectedDayNames = selectedSlotIds
+      .map(
+        (id) =>
+          selectedSubClass?.classSchedules.find((s) => s.id === id)?.dayOfWeek,
+      )
+      .filter(Boolean)
+      .join(",");
+    fd.set("preferredDays", selectedDayNames);
+    // Also send slot IDs so the action can resolve exact teacher+time per slot
+    fd.set("preferredSlotIds", selectedSlotIds.join(","));
     fd.set("payNow", payNow ? "true" : "false");
 
-    startTransition(async () => {
-      const result = await createEnrollment(fd);
-      if (result.error) setError(result.error);
-      else onSuccess();
-    });
+    if (enrollType === "single") {
+      fd.set("month", String(singleMonth));
+      fd.set("year", String(singleYear));
+      startTransition(async () => {
+        const result = await createEnrollment(fd);
+        if (result.error) setError(result.error);
+        else onSuccess();
+      });
+    } else {
+      fd.set("startMonth", String(startMonth));
+      fd.set("startYear", String(startYear));
+      fd.set("totalMonths", String(totalMonths));
+      startTransition(async () => {
+        const result = await createMultiMonthEnrollment(fd);
+        if (result.error) setError(result.error);
+        else onSuccess();
+      });
+    }
   };
 
   const currentYear = new Date().getFullYear();
@@ -161,6 +282,7 @@ export default function EnrollmentFormModal({
         className="relative w-full max-w-lg rounded-2xl border border-white/[0.08] shadow-2xl z-10 max-h-[92vh] flex flex-col"
         style={{ background: "#1a1d27" }}
       >
+        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] flex-shrink-0">
           <div>
             <h2
@@ -190,6 +312,59 @@ export default function EnrollmentFormModal({
             onSubmit={handleSubmit}
             className="px-6 py-5 space-y-5"
           >
+            {/* ── Enrollment type toggle ── */}
+            <div className="grid grid-cols-2 gap-2">
+              {(
+                [
+                  {
+                    value: "single",
+                    label: "Single Month",
+                    desc: "One month enrollment",
+                  },
+                  {
+                    value: "multi",
+                    label: "Multi-Month",
+                    desc: "2–12 months, one payment",
+                  },
+                ] as const
+              ).map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setEnrollType(opt.value)}
+                  className="flex flex-col items-start px-4 py-3 rounded-xl border transition-all"
+                  style={{
+                    borderColor:
+                      enrollType === opt.value
+                        ? "rgba(245,158,11,0.5)"
+                        : "rgba(255,255,255,0.07)",
+                    background:
+                      enrollType === opt.value
+                        ? "rgba(245,158,11,0.08)"
+                        : "rgba(255,255,255,0.02)",
+                  }}
+                >
+                  <span
+                    className="text-xs font-semibold"
+                    style={{
+                      color:
+                        enrollType === opt.value
+                          ? "#f59e0b"
+                          : adminColors.textSecondary,
+                    }}
+                  >
+                    {opt.label}
+                  </span>
+                  <span
+                    className="text-[10px] mt-0.5"
+                    style={{ color: adminColors.textMuted }}
+                  >
+                    {opt.desc}
+                  </span>
+                </button>
+              ))}
+            </div>
+
             {/* ── Student ── */}
             <Section title="Student">
               <AdminSelect
@@ -210,7 +385,7 @@ export default function EnrollmentFormModal({
               </AdminSelect>
             </Section>
 
-            {/* ── Class & Month ── */}
+            {/* ── Class & Period ── */}
             <Section title="Class & Period">
               <AdminSelect
                 label="Sub-class *"
@@ -229,42 +404,223 @@ export default function EnrollmentFormModal({
                 ))}
               </AdminSelect>
 
-              <div className="grid grid-cols-2 gap-3">
-                <AdminSelect
-                  label="Month *"
-                  name="month"
-                  defaultValue={String(defaultMonth)}
-                  required
-                >
-                  {MONTHS.map((m, i) => (
-                    <option
-                      className="text-black"
-                      key={i + 1}
-                      value={String(i + 1)}
+              {/* Single month pickers */}
+              {enrollType === "single" && (
+                <div className="grid grid-cols-2 gap-3">
+                  <AdminSelect
+                    label="Month *"
+                    name="month"
+                    value={String(singleMonth)}
+                    onChange={(e) => setSingleMonth(Number(e.target.value))}
+                    required
+                  >
+                    {MONTHS.map((m, i) => (
+                      <option
+                        className="text-black"
+                        key={i + 1}
+                        value={String(i + 1)}
+                      >
+                        {m}
+                      </option>
+                    ))}
+                  </AdminSelect>
+                  <AdminSelect
+                    label="Year *"
+                    name="year"
+                    value={String(singleYear)}
+                    onChange={(e) => setSingleYear(Number(e.target.value))}
+                    required
+                  >
+                    {yearOptions.map((y) => (
+                      <option className="text-black" key={y} value={String(y)}>
+                        {y}
+                      </option>
+                    ))}
+                  </AdminSelect>
+                </div>
+              )}
+
+              {/* Multi-month pickers */}
+              {enrollType === "multi" && (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-3 gap-3">
+                    <AdminSelect
+                      label="Start Month *"
+                      name="startMonth"
+                      value={String(startMonth)}
+                      onChange={(e) => setStartMonth(Number(e.target.value))}
+                      required
                     >
-                      {m}
-                    </option>
-                  ))}
-                </AdminSelect>
-                <AdminSelect
-                  label="Year *"
-                  name="year"
-                  defaultValue={String(defaultYear)}
-                  required
-                >
-                  {yearOptions.map((y) => (
-                    <option className="text-black" key={y} value={String(y)}>
-                      {y}
-                    </option>
-                  ))}
-                </AdminSelect>
-              </div>
+                      {MONTHS.map((m, i) => (
+                        <option
+                          className="text-black"
+                          key={i + 1}
+                          value={String(i + 1)}
+                        >
+                          {m}
+                        </option>
+                      ))}
+                    </AdminSelect>
+                    <AdminSelect
+                      label="Start Year *"
+                      name="startYear"
+                      value={String(startYear)}
+                      onChange={(e) => setStartYear(Number(e.target.value))}
+                      required
+                    >
+                      {yearOptions.map((y) => (
+                        <option
+                          className="text-black"
+                          key={y}
+                          value={String(y)}
+                        >
+                          {y}
+                        </option>
+                      ))}
+                    </AdminSelect>
+                    <div className="space-y-1">
+                      <label
+                        className="text-xs font-medium"
+                        style={{ color: adminColors.textSecondary }}
+                      >
+                        Months *
+                        {maxBookableMonths < 12 && (
+                          <span
+                            className="ml-1.5 text-[10px]"
+                            style={{ color: "#f59e0b" }}
+                          >
+                            max {maxBookableMonths}
+                          </span>
+                        )}
+                      </label>
+                      <div
+                        className="flex items-center gap-1 px-1 rounded-xl border h-10"
+                        style={{
+                          borderColor: "rgba(255,255,255,0.1)",
+                          background: "rgba(255,255,255,0.04)",
+                        }}
+                      >
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setTotalMonths((n) => Math.max(2, n - 1))
+                          }
+                          disabled={totalMonths <= 2}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-20"
+                          style={{ color: adminColors.textMuted }}
+                        >
+                          −
+                        </button>
+                        <span
+                          className="flex-1 text-center text-sm font-bold"
+                          style={{ color: "#f59e0b" }}
+                        >
+                          {totalMonths}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setTotalMonths((n) =>
+                              Math.min(maxBookableMonths, n + 1),
+                            )
+                          }
+                          disabled={totalMonths >= maxBookableMonths}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-20"
+                          style={{ color: adminColors.textMuted }}
+                        >
+                          +
+                        </button>
+                      </div>
+                      {/* Hidden input so FormData still gets the value */}
+                      <input
+                        type="hidden"
+                        name="totalMonths"
+                        value={String(totalMonths)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Month range preview */}
+                  {monthRange.length > 0 && (
+                    <div
+                      className="px-3 py-2.5 rounded-xl border"
+                      style={{
+                        background: "rgba(96,165,250,0.05)",
+                        borderColor: "rgba(96,165,250,0.15)",
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <CalendarDays size={12} style={{ color: "#60a5fa" }} />
+                        <span
+                          className="text-[10px] font-semibold"
+                          style={{ color: "#60a5fa" }}
+                        >
+                          {MONTHS_SHORT[startMonth - 1]} {startYear}
+                          {" → "}
+                          {endPeriod &&
+                            `${MONTHS_SHORT[endPeriod.month - 1]} ${endPeriod.year}`}
+                          {" · "}
+                          {totalMonths} months
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {monthRange.map(({ month, year }, i) => (
+                          <span
+                            key={i}
+                            className="text-[10px] px-2 py-0.5 rounded-full"
+                            style={{
+                              background: "rgba(96,165,250,0.1)",
+                              color: "#60a5fa",
+                            }}
+                          >
+                            {MONTHS_SHORT[month - 1]} {year}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Schedule limit warning — show when cap is reached */}
+                  {maxBookableMonths < 12 &&
+                    totalMonths >= maxBookableMonths &&
+                    (() => {
+                      // Compute the actual end month label for the warning
+                      const endD = new Date(
+                        startYear,
+                        startMonth - 1 + maxBookableMonths - 1,
+                        1,
+                      );
+                      const endLabel = endD.toLocaleDateString("en-GB", {
+                        month: "long",
+                        year: "numeric",
+                      });
+                      return (
+                        <div
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg"
+                          style={{
+                            background: "rgba(245,158,11,0.06)",
+                            border: "1px solid rgba(245,158,11,0.2)",
+                          }}
+                        >
+                          <AlertTriangle
+                            size={12}
+                            style={{ color: "#f59e0b" }}
+                          />
+                          <p className="text-xs" style={{ color: "#f59e0b" }}>
+                            Schedule ends in {endLabel}. Enrollment cannot go
+                            beyond this month.
+                          </p>
+                        </div>
+                      );
+                    })()}
+                </div>
+              )}
             </Section>
 
-            {/* ── Frequency & Days ── */}
+            {/* ── Schedule preference ── */}
             {selectedSubClassId && (
               <Section title="Schedule Preference">
-                {/* Frequency toggle */}
+                {/* Frequency */}
                 <div className="space-y-1.5">
                   <label
                     className="text-xs font-medium"
@@ -273,24 +629,26 @@ export default function EnrollmentFormModal({
                     Frequency *
                   </label>
                   <div className="grid grid-cols-2 gap-2">
-                    {[
-                      {
-                        value: "ONCE_PER_WEEK",
-                        label: "Once / week",
-                        price: selectedSubClass?.oncePriceMonthly,
-                      },
-                      {
-                        value: "TWICE_PER_WEEK",
-                        label: "Twice / week",
-                        price: selectedSubClass?.twicePriceMonthly,
-                      },
-                    ].map((opt) => (
+                    {(
+                      [
+                        {
+                          value: "ONCE_PER_WEEK",
+                          label: "Once / week",
+                          price: selectedSubClass?.oncePriceMonthly,
+                        },
+                        {
+                          value: "TWICE_PER_WEEK",
+                          label: "Twice / week",
+                          price: selectedSubClass?.twicePriceMonthly,
+                        },
+                      ] as const
+                    ).map((opt) => (
                       <button
                         key={opt.value}
                         type="button"
                         onClick={() => {
-                          setFrequency(opt.value as any);
-                          setSelectedDays([]); // reset days on frequency change
+                          setFrequency(opt.value);
+                          setSelectedSlotIds([]);
                         }}
                         className="flex flex-col items-start px-4 py-3 rounded-xl border transition-all"
                         style={{
@@ -335,19 +693,19 @@ export default function EnrollmentFormModal({
                   </div>
                 </div>
 
-                {/* Preferred days */}
+                {/* Preferred slots */}
                 <div className="space-y-1.5">
                   <label
                     className="text-xs font-medium"
                     style={{ color: adminColors.textSecondary }}
                   >
-                    Preferred Day
+                    Preferred Slot
                     {frequency === "TWICE_PER_WEEK"
                       ? "s (pick 2)"
                       : " (pick 1)"}{" "}
                     *
                   </label>
-                  {availableDays.length === 0 ? (
+                  {availableSlots.length === 0 ? (
                     <div
                       className="flex items-center gap-2 px-3 py-2 rounded-lg"
                       style={{
@@ -363,18 +721,17 @@ export default function EnrollmentFormModal({
                     </div>
                   ) : (
                     <div className="flex flex-wrap gap-2">
-                      {availableDays.map((day) => {
-                        // Find schedule for this day to show time
-                        const sched = selectedSubClass?.classSchedules.find(
-                          (s) => s.dayOfWeek === day,
-                        );
-                        const isSelected = selectedDays.includes(day);
+                      {availableSlots.map((slot) => {
+                        const isSelected = selectedSlotIds.includes(slot.id);
+                        const teacherName = slot.teacher
+                          ? `${slot.teacher.firstName} ${slot.teacher.lastName}`
+                          : null;
                         return (
                           <button
-                            key={day}
+                            key={slot.id}
                             type="button"
-                            onClick={() => toggleDay(day)}
-                            className="flex flex-col items-center px-3 py-2 rounded-xl border transition-all"
+                            onClick={() => toggleSlot(slot.id)}
+                            className="flex flex-col items-start px-3 py-2 rounded-xl border transition-all"
                             style={{
                               borderColor: isSelected
                                 ? "rgba(245,158,11,0.5)"
@@ -392,14 +749,24 @@ export default function EnrollmentFormModal({
                                   : adminColors.textSecondary,
                               }}
                             >
-                              {DAY_SHORT[day]}
+                              {DAY_SHORT[slot.dayOfWeek]}
                             </span>
-                            {sched && (
+                            <span
+                              className="text-[10px] mt-0.5"
+                              style={{ color: adminColors.textMuted }}
+                            >
+                              {slot.startTime}–{slot.endTime}
+                            </span>
+                            {teacherName && (
                               <span
-                                className="text-[10px] mt-0.5"
-                                style={{ color: adminColors.textMuted }}
+                                className="text-[10px]"
+                                style={{
+                                  color: isSelected
+                                    ? "rgba(245,158,11,0.7)"
+                                    : adminColors.textMuted,
+                                }}
                               >
-                                {sched.startTime}–{sched.endTime}
+                                {teacherName}
                               </span>
                             )}
                           </button>
@@ -410,38 +777,84 @@ export default function EnrollmentFormModal({
                 </div>
 
                 {/* Price summary */}
-                {price != null && selectedDays.length > 0 && (
+                {monthlyPrice != null && selectedSlotIds.length > 0 && (
                   <div
-                    className="flex items-center justify-between px-4 py-3 rounded-xl"
+                    className="px-4 py-3 rounded-xl"
                     style={{
                       background: "rgba(52,211,153,0.06)",
                       border: "1px solid rgba(52,211,153,0.15)",
                     }}
                   >
-                    <div>
-                      <p
-                        className="text-xs font-medium"
-                        style={{ color: "#34d399" }}
-                      >
-                        Total for this month
-                      </p>
-                      <p
-                        className="text-xs mt-0.5"
-                        style={{ color: adminColors.textMuted }}
-                      >
-                        {frequency === "TWICE_PER_WEEK"
-                          ? "Twice / week"
-                          : "Once / week"}
-                        {" · "}
-                        {selectedDays.map((d) => DAY_SHORT[d]).join(" + ")}
-                      </p>
-                    </div>
-                    <p
-                      className="text-lg font-bold"
-                      style={{ color: "#34d399" }}
-                    >
-                      {price} <span className="text-sm font-normal">OMR</span>
-                    </p>
+                    {enrollType === "single" ? (
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p
+                            className="text-xs font-medium"
+                            style={{ color: "#34d399" }}
+                          >
+                            Total for this month
+                          </p>
+                          <p
+                            className="text-xs mt-0.5"
+                            style={{ color: adminColors.textMuted }}
+                          >
+                            {frequency === "TWICE_PER_WEEK"
+                              ? "Twice / week"
+                              : "Once / week"}
+                            {" · "}
+                            {selectedSlotIds
+                              .map((id) => {
+                                const s = availableSlots.find(
+                                  (sl) => sl.id === id,
+                                );
+                                return s ? DAY_SHORT[s.dayOfWeek] : "";
+                              })
+                              .join(" + ")}
+                          </p>
+                        </div>
+                        <p
+                          className="text-lg font-bold"
+                          style={{ color: "#34d399" }}
+                        >
+                          {monthlyPrice}{" "}
+                          <span className="text-sm font-normal">OMR</span>
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <p
+                            className="text-xs font-medium"
+                            style={{ color: "#34d399" }}
+                          >
+                            Total for {totalMonths} months
+                          </p>
+                          <p
+                            className="text-lg font-bold"
+                            style={{ color: "#34d399" }}
+                          >
+                            {(totalPrice ?? 0).toFixed(3)}{" "}
+                            <span className="text-sm font-normal">OMR</span>
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <p
+                            className="text-xs"
+                            style={{ color: adminColors.textMuted }}
+                          >
+                            {monthlyPrice} OMR/month × {totalMonths} months
+                          </p>
+                          <p
+                            className="text-xs"
+                            style={{ color: adminColors.textMuted }}
+                          >
+                            {frequency === "TWICE_PER_WEEK"
+                              ? "Twice / week"
+                              : "Once / week"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </Section>
@@ -477,10 +890,14 @@ export default function EnrollmentFormModal({
                       label="Amount (OMR) *"
                       name="payAmount"
                       type="number"
-                      step="0.01"
+                      step="0.001"
                       min="0"
-                      placeholder={price != null ? String(price) : "0.00"}
-                      defaultValue={price != null ? String(price) : ""}
+                      placeholder={
+                        totalPrice != null ? totalPrice.toFixed(3) : "0.000"
+                      }
+                      defaultValue={
+                        totalPrice != null ? String(totalPrice) : ""
+                      }
                       required={payNow}
                     />
                     <AdminSelect
@@ -544,7 +961,9 @@ export default function EnrollmentFormModal({
               </AdminButton>
               <AdminButton type="submit" variant="primary" disabled={isPending}>
                 {isPending && <Loader2 size={13} className="animate-spin" />}
-                Create Enrollment
+                {enrollType === "multi"
+                  ? `Enroll for ${totalMonths} Months`
+                  : "Create Enrollment"}
               </AdminButton>
             </div>
           </form>

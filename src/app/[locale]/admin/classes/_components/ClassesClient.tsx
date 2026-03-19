@@ -57,7 +57,6 @@ type Modal =
 
 const SESSION_TYPE_LABELS: Record<string, string> = {
   PUBLIC: "Public",
-  MUSIC: "Music",
   TRIAL: "Trial",
   WORKSHOP: "Workshop",
   PRIVATE: "Private",

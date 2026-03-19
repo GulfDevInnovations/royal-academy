@@ -5,10 +5,12 @@
     "classes": "الدروس",
     "schedule": "الجدول",
     "gallery": "المعرض",
-    "about": "عن الأكاديمية",
+    "about": "خلفيتنا",
     "startJourney": "ابدأ رحلتك",
     "dontHaveAccount": "ليس لديك حساب؟",
-    "signUp": "إنشاء حساب"
+    "signUp": "إنشاء حساب",
+    "reservation": "حجز",
+    "aesthetics": "جماليات"
 
   },
   "home": {

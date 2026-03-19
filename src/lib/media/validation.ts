@@ -23,8 +23,8 @@ const VIDEO_MIME_TYPES = new Set([
   "video/x-matroska",
 ]);
 
-const DEFAULT_MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2 MB
-const DEFAULT_MAX_VIDEO_BYTES = 20 * 1024 * 1024; // 20 MB
+const DEFAULT_MAX_IMAGE_BYTES = 4 * 1024 * 1024;  // 4 MB
+const DEFAULT_MAX_VIDEO_BYTES = 20 * 1024 * 1024; // 20 MBB
 
 function parsePositiveInt(value: string | undefined, fallback: number) {
   const parsed = Number(value);
