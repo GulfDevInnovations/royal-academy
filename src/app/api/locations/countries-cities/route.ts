@@ -8,9 +8,29 @@ type CountriesNowResponse = {
   }>;
 };
 
+type RestCountriesItem = {
+  name?: {
+    common?: string;
+    official?: string;
+  };
+  altSpellings?: string[];
+  translations?: {
+    ara?: {
+      common?: string;
+      official?: string;
+    };
+    eng?: {
+      common?: string;
+      official?: string;
+    };
+  };
+};
+
 type CountryCity = {
   country: string;
+  countryAr?: string;
   cities: string[];
+  cityArMap?: Record<string, string>;
 };
 
 let cache: CountryCity[] | null = null;
@@ -18,6 +38,8 @@ let cachedAt = 0;
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const DATASET_URL = "https://countriesnow.space/api/v0.1/countries";
+const REST_COUNTRIES_URL =
+  "https://restcountries.com/v3.1/all?fields=name,translations,altSpellings";
 
 const MAJOR_CITIES_BY_COUNTRY: Record<string, string[]> = {
   oman: ["Muscat", "Salalah", "Sohar", "Nizwa", "Sur", "Buraimi", "Ibri"],
@@ -100,6 +122,41 @@ const COUNTRY_ALIASES: Record<string, string> = {
   uk: "united kingdom",
 };
 
+const CITY_ARABIC_LABELS: Record<string, Record<string, string>> = {
+  oman: {
+    Muscat: "مسقط",
+    Salalah: "صلالة",
+    Sohar: "صحار",
+    Nizwa: "نزوى",
+    Sur: "صور",
+    Buraimi: "البريمي",
+    Ibri: "عبري",
+  },
+  iran: {
+    Tehran: "طهران",
+    Mashhad: "مشهد",
+    Isfahan: "أصفهان",
+    Shiraz: "شيراز",
+    Tabriz: "تبريز",
+    Karaj: "كرج",
+    Ahvaz: "الأهواز",
+    Qom: "قم",
+    Kermanshah: "كرمانشاه",
+    Rasht: "رشت",
+  },
+};
+
+function normalizeSearchText(raw: string) {
+  return raw
+    .trim()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ى/g, "ي")
+    .replace(/ة/g, "ه");
+}
+
 function getMajorCitiesOverride(country: string): string[] | null {
   const key = country.trim().toLowerCase();
   const alias = COUNTRY_ALIASES[key];
@@ -107,7 +164,44 @@ function getMajorCitiesOverride(country: string): string[] | null {
   return MAJOR_CITIES_BY_COUNTRY[resolved] ?? null;
 }
 
-function normalizeDataset(items: CountriesNowResponse["data"]): CountryCity[] {
+function getCityArabicMap(country: string): Record<string, string> | undefined {
+  const key = country.trim().toLowerCase();
+  const alias = COUNTRY_ALIASES[key];
+  const resolved = alias ?? key;
+  const mapping = CITY_ARABIC_LABELS[resolved];
+  if (!mapping) return undefined;
+  return mapping;
+}
+
+function buildCountryArabicMap(restItems: RestCountriesItem[]): Map<string, string> {
+  const result = new Map<string, string>();
+
+  for (const item of restItems) {
+    const ar =
+      item.translations?.ara?.common?.trim() ||
+      item.translations?.ara?.official?.trim();
+    if (!ar) continue;
+
+    const candidates = [
+      item.name?.common,
+      item.name?.official,
+      item.translations?.eng?.common,
+      item.translations?.eng?.official,
+      ...(item.altSpellings ?? []),
+    ].filter((v): v is string => Boolean(v?.trim()));
+
+    for (const candidate of candidates) {
+      result.set(normalizeSearchText(candidate), ar);
+    }
+  }
+
+  return result;
+}
+
+function normalizeDataset(
+  items: CountriesNowResponse["data"],
+  countryArabicMap: Map<string, string>,
+): CountryCity[] {
   if (!items) return [];
 
   const merged = new Map<string, Set<string>>();
@@ -131,12 +225,21 @@ function normalizeDataset(items: CountriesNowResponse["data"]): CountryCity[] {
   return [...merged.entries()]
     .map(([country, cities]) => {
       const curated = getMajorCitiesOverride(country);
+      const countryAr = countryArabicMap.get(normalizeSearchText(country));
+      const cityArMap = getCityArabicMap(country);
       if (curated) {
-        return { country, cities: [...new Set(curated)] };
+        return {
+          country,
+          countryAr,
+          cities: [...new Set(curated)],
+          cityArMap,
+        };
       }
       return {
         country,
+        countryAr,
         cities: [...cities].sort((a, b) => a.localeCompare(b)),
+        cityArMap,
       };
     })
     .sort((a, b) => {
@@ -154,19 +257,28 @@ export async function GET() {
   }
 
   try {
-    const response = await fetch(DATASET_URL, {
-      next: { revalidate: 60 * 60 * 24 },
-    });
+    const [countriesResponse, restResponse] = await Promise.all([
+      fetch(DATASET_URL, {
+        next: { revalidate: 60 * 60 * 24 },
+      }),
+      fetch(REST_COUNTRIES_URL, {
+        next: { revalidate: 60 * 60 * 24 },
+      }).catch(() => null),
+    ]);
 
-    if (!response.ok) {
+    if (!countriesResponse.ok) {
       return NextResponse.json(
         { error: "Failed to fetch countries and cities." },
         { status: 502 },
       );
     }
 
-    const payload = (await response.json()) as CountriesNowResponse;
-    const normalized = normalizeDataset(payload.data);
+    const payload = (await countriesResponse.json()) as CountriesNowResponse;
+    const restPayload = restResponse?.ok
+      ? ((await restResponse.json()) as RestCountriesItem[])
+      : [];
+    const countryArabicMap = buildCountryArabicMap(restPayload);
+    const normalized = normalizeDataset(payload.data, countryArabicMap);
 
     if (normalized.length === 0) {
       return NextResponse.json(

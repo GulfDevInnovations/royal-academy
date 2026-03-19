@@ -109,7 +109,10 @@ export default function GlassSelectField({
         id={displayId}
         name={`${name}Display`}
         className={`${inputClassName} placeholder:text-[#4b304499]`}
-        style={inputStyle}
+        style={{
+          ...inputStyle,
+          fontFamily: "Tahoma, Arial, 'Noto Sans Arabic', sans-serif",
+        }}
         value={query}
         placeholder={placeholder}
         autoComplete="new-password"
@@ -159,7 +162,10 @@ export default function GlassSelectField({
                 key={option.value || "__empty__"}
                 type="button"
                 className="w-full rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-[#4b30441a]"
-                style={{ color: "#4b3044" }}
+                style={{
+                  color: "#4b3044",
+                  fontFamily: "Tahoma, Arial, 'Noto Sans Arabic', sans-serif",
+                }}
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => {
                   setSelectedValue(option.value);

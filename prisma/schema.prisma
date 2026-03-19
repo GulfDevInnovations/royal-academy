@@ -1,4 +1,5 @@
-// prisma/schema.prisma
+//@ts-ignore
+
 
 generator client {
   provider = "prisma-client-js"
@@ -100,11 +101,11 @@ enum DayOfWeek {
 }
 
 enum SessionType {
-  PUBLIC       // Art, Dance, Ballet, Music Awakening — fixed monthly schedule
-  MUSIC        // Instrument lessons — teacher-driven schedule
-  TRIAL        // One-time 10 OMR taster
-  WORKSHOP     // One-off event
-  PRIVATE      // Private classes (future)
+  PUBLIC // Art, Dance, Ballet, Music Awakening — fixed monthly schedule
+  MUSIC // Instrument lessons — teacher-driven schedule
+  TRIAL // One-time 10 OMR taster
+  WORKSHOP // One-off event
+  PRIVATE // Private classes (future)
 }
 
 enum BookingType {
@@ -133,7 +134,6 @@ enum TicketPriority {
   HIGH
   URGENT
 }
-
 
 // ─────────────────────────────────────────────
 
@@ -171,30 +171,30 @@ model User {
 }
 
 model StudentProfile {
-  id               String    @id @default(cuid())
-  userId           String    @unique
-  firstName        String
-  lastName         String
-  dateOfBirth      DateTime?
-  gender           Gender?
-  address          String?
-  city             String?
-  country          String?
-  emergencyContact String?
-  emergencyContactName String?
-  emergencyContactPhone String?
-  emergencyRelationship String?
-  hasMedicalCondition   Boolean            @default(false)
+  id                      String             @id @default(cuid())
+  userId                  String             @unique
+  firstName               String
+  lastName                String
+  dateOfBirth             DateTime?
+  gender                  Gender?
+  address                 String?
+  city                    String?
+  country                 String?
+  emergencyContact        String?
+  emergencyContactName    String?
+  emergencyContactPhone   String?
+  emergencyRelationship   String?
+  hasMedicalCondition     Boolean            @default(false)
   medicalConditionDetails String?
-  agreePolicy           Boolean            @default(false)
-  preferredTrack        ProfileTrack?
-  experience            ProfileExperience?
-  notes                 String?
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
+  agreePolicy             Boolean            @default(false)
+  preferredTrack          ProfileTrack?
+  experience              ProfileExperience?
+  notes                   String?
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bookings Booking[]
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookings           Booking[]
   monthlyEnrollments MonthlyEnrollment[]
   trialBookings      TrialBooking[]
   workshopBookings   WorkshopBooking[]
@@ -204,7 +204,7 @@ model StudentProfile {
 
 model TeacherProfile {
   id          String   @id @default(cuid())
-  userId      String?  @unique                    // ← String? (nullable)
+  userId      String?  @unique // ← String? (nullable)
   firstName   String
   lastName    String
   bio         String?
@@ -212,14 +212,14 @@ model TeacherProfile {
   photoUrl    String?
   cvUrl       String?
   isAvailable Boolean  @default(true)
-  isActive    Boolean  @default(true)             // ← new field
+  isActive    Boolean  @default(true) // ← new field
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user                User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)  // ← SetNull not Cascade
+  user                User?                 @relation(fields: [userId], references: [id], onDelete: SetNull) // ← SetNull not Cascade
   teacherAvailability TeacherAvailability[]
   classSchedules      ClassSchedule[]
-  subClassTeachers SubClassTeacher[]
+  subClassTeachers    SubClassTeacher[]
   workshops           Workshop[]
 
   @@map("teacher_profiles")
@@ -288,7 +288,7 @@ model VerificationToken {
 
 model Class {
   id          String   @id @default(cuid())
-  name        String   // e.g. "Dance & Wellness", "Music", "Art", "Ballet", "Workshops"
+  name        String // e.g. "Dance & Wellness", "Music", "Art", "Ballet", "Workshops"
   description String?
   iconUrl     String?
   coverUrl    String?
@@ -303,32 +303,32 @@ model Class {
 }
 
 model SubClass {
-  id               String      @id @default(cuid())
-  classId          String
-  name             String      // e.g. "Piano", "Piano for Kids", "Ballet"
-  description      String?
-  coverUrl         String?
-  capacity         Int         @default(10)
-  durationMinutes  Int         @default(60)
-  price            Decimal     @db.Decimal(10, 2)
-  currency         String      @default("OMR")
-  level            String?     // Beginner, Intermediate, Advanced
-  ageGroup         String?     // Kids, Teens, Adults, All Ages
-  isActive         Boolean     @default(true)
+  id                String      @id @default(cuid())
+  classId           String
+  name              String // e.g. "Piano", "Piano for Kids", "Ballet"
+  description       String?
+  coverUrl          String?
+  capacity          Int         @default(10)
+  durationMinutes   Int         @default(60)
+  price             Decimal     @db.Decimal(10, 2)
+  currency          String      @default("OMR")
+  level             String? // Beginner, Intermediate, Advanced
+  ageGroup          String? // Kids, Teens, Adults, All Ages
+  isActive          Boolean     @default(true)
   // ── NEW fields ──
-  sessionType      SessionType @default(PUBLIC)
-  oncePriceMonthly  Decimal?   @db.Decimal(10, 2)  // price for once/week for a month
-  twicePriceMonthly Decimal?   @db.Decimal(10, 2)  // price for twice/week for a month
-  trialPrice        Decimal    @default(10)  @db.Decimal(10, 2)
-  isTrialAvailable  Boolean    @default(true)
+  sessionType       SessionType @default(PUBLIC)
+  oncePriceMonthly  Decimal?    @db.Decimal(10, 2) // price for once/week for a month
+  twicePriceMonthly Decimal?    @db.Decimal(10, 2) // price for twice/week for a month
+  trialPrice        Decimal     @default(10) @db.Decimal(10, 2)
+  isTrialAvailable  Boolean     @default(true)
   // ────────────────
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
 
-  class          Class           @relation(fields: [classId], references: [id])
-  classSchedules ClassSchedule[]
-  trialBookings  TrialBooking[]
-  teachers SubClassTeacher[]
+  class              Class               @relation(fields: [classId], references: [id])
+  classSchedules     ClassSchedule[]
+  trialBookings      TrialBooking[]
+  teachers           SubClassTeacher[]
   monthlyEnrollments MonthlyEnrollment[]
 
   @@map("sub_classes")
@@ -358,14 +358,14 @@ model ClassSchedule {
   subClassId      String
   teacherId       String
   dayOfWeek       DayOfWeek
-  startTime       String      // "10:00"
-  endTime         String      // "11:00"
+  startTime       String // "10:00"
+  endTime         String // "11:00"
   startDate       DateTime
   endDate         DateTime?
   maxCapacity     Int
   currentEnrolled Int         @default(0)
   isRecurring     Boolean     @default(true)
-  isPublic        Boolean     @default(false)  // true = public fixed schedule
+  isPublic        Boolean     @default(false) // true = public fixed schedule
   status          ClassStatus @default(ACTIVE)
   onlineLink      String?
   createdAt       DateTime    @default(now())
@@ -374,6 +374,7 @@ model ClassSchedule {
   subClass SubClass       @relation(fields: [subClassId], references: [id])
   teacher  TeacherProfile @relation(fields: [teacherId], references: [id])
   sessions ClassSession[]
+
   @@map("class_schedules")
 }
 
@@ -431,7 +432,7 @@ model MonthlyEnrollment {
   id            String        @id @default(cuid())
   studentId     String
   subClassId    String
-  month         Int           // 1–12
+  month         Int // 1–12
   year          Int
   frequency     FrequencyType
   preferredDays DayOfWeek[]
@@ -451,16 +452,16 @@ model MonthlyEnrollment {
 }
 
 model MonthlyPayment {
-  id                    String        @id @default(cuid())
-  enrollmentId          String        @unique
-  amount                Decimal       @db.Decimal(10, 2)
-  currency              String        @default("OMR")
-  status                PaymentStatus @default(PENDING)
+  id                    String         @id @default(cuid())
+  enrollmentId          String         @unique
+  amount                Decimal        @db.Decimal(10, 2)
+  currency              String         @default("OMR")
+  status                PaymentStatus  @default(PENDING)
   method                PaymentMethod?
-  stripePaymentIntentId String?       @unique
+  stripePaymentIntentId String?        @unique
   paidAt                DateTime?
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
 
   enrollment MonthlyEnrollment @relation(fields: [enrollmentId], references: [id])
 
@@ -538,10 +539,10 @@ model WorkshopBooking {
 // ─────────────────────────────────────────────
 
 model Payment {
-  id                    String        @id @default(cuid())
-  bookingId             String?       @unique   // regular ClassSession booking
-  trialBookingId        String?       @unique   // trial booking
-  workshopBookingId     String?       @unique   // workshop booking (future)
+  id                    String         @id @default(cuid())
+  bookingId             String?        @unique // regular ClassSession booking
+  trialBookingId        String?        @unique // trial booking
+  workshopBookingId     String?        @unique // workshop booking (future)
   invoiceId             String?
   amount                Decimal        @db.Decimal(10, 2)
   currency              String         @default("OMR")
@@ -560,10 +561,10 @@ model Payment {
   createdAt             DateTime       @default(now())
   updatedAt             DateTime       @updatedAt
 
-  booking         Booking?        @relation(fields: [bookingId], references: [id])
-  trialBooking    TrialBooking?   @relation(fields: [trialBookingId], references: [id])
+  booking         Booking?         @relation(fields: [bookingId], references: [id])
+  trialBooking    TrialBooking?    @relation(fields: [trialBookingId], references: [id])
   workshopBooking WorkshopBooking? @relation(fields: [workshopBookingId], references: [id])
-  invoice         Invoice?        @relation(fields: [invoiceId], references: [id])
+  invoice         Invoice?         @relation(fields: [invoiceId], references: [id])
 
   @@map("payments")
 }
@@ -623,8 +624,8 @@ model Notification {
 model AuditLog {
   id        String   @id @default(cuid())
   userId    String?
-  action    String   // e.g. "BOOKING_CREATED", "PAYMENT_FAILED"
-  entity    String   // e.g. "Booking", "Payment"
+  action    String // e.g. "BOOKING_CREATED", "PAYMENT_FAILED"
+  entity    String // e.g. "Booking", "Payment"
   entityId  String
   oldValues Json?
   newValues Json?
@@ -638,7 +639,7 @@ model AuditLog {
 model SubClassTeacher {
   teacherId  String
   subClassId String
-  teacher    TeacherProfile @relation(fields: [teacherId],  references: [id], onDelete: Cascade)
+  teacher    TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   subClass   SubClass       @relation(fields: [subClassId], references: [id], onDelete: Cascade)
 
   @@id([teacherId, subClassId])
@@ -669,7 +670,7 @@ model TicketReply {
   createdAt DateTime @default(now())
 
   ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  user   User          @relation(fields: [userId],   references: [id], onDelete: Cascade)
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("ticket_replies")
 }

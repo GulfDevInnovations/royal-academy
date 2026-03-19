@@ -10,7 +10,9 @@ import {
 
 type CountryCity = {
   country: string;
+  countryAr?: string;
   cities: string[];
+  cityArMap?: Record<string, string>;
 };
 
 type ApiResponse = {
@@ -21,19 +23,40 @@ type ApiResponse = {
 const INITIAL_COUNTRY_ALIASES: Record<string, string> = {
   usa: "United States",
   us: "United States",
+  america: "United States",
+  أمريكا: "United States",
+  امريكا: "United States",
+  "الولايات المتحدة": "United States",
   "united states of america": "United States",
   uk: "United Kingdom",
+  "المملكة المتحدة": "United Kingdom",
+  بريطانيا: "United Kingdom",
   "iran, islamic republic of": "Iran",
+  ايران: "Iran",
+  إيران: "Iran",
+  عمان: "Oman",
 };
 
 function normalizeInitialCountry(raw: string) {
   const trimmed = raw.trim();
   if (!trimmed) return "";
-  const mapped = INITIAL_COUNTRY_ALIASES[trimmed.toLowerCase()];
+  const mapped = INITIAL_COUNTRY_ALIASES[normalizeSearchText(trimmed)];
   return mapped ?? trimmed;
 }
 
+function normalizeSearchText(raw: string) {
+  return raw
+    .trim()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ى/g, "ي")
+    .replace(/ة/g, "ه");
+}
+
 type CountryCityFieldsProps = {
+  locale: "en" | "ar";
   countryLabel: string;
   cityLabel: string;
   countryPlaceholder: string;
@@ -54,6 +77,7 @@ type SearchableSelectProps = {
   label: string;
   value: string;
   options: string[];
+  optionLabelByValue?: Record<string, string>;
   placeholder: string;
   disabled?: boolean;
   pinFirstOption?: string;
@@ -71,6 +95,7 @@ function SearchableSelect({
   label,
   value,
   options,
+  optionLabelByValue,
   placeholder,
   disabled = false,
   pinFirstOption,
@@ -97,13 +122,32 @@ function SearchableSelect({
   }, []);
 
   const filteredOptions = useMemo(() => {
-    const query = value.trim().toLowerCase();
+    const query = normalizeSearchText(value);
     if (!query) return options.slice(0, 120);
+
+    const hasExactMatch = options.some((option) => {
+      const normalizedOption = normalizeSearchText(option);
+      const normalizedLabel = normalizeSearchText(
+        optionLabelByValue?.[option] ?? option,
+      );
+      if (normalizedOption === query || normalizedLabel === query) return true;
+      const aliases = searchAliasesByOption?.[option] ?? [];
+      return aliases.some((alias) => normalizeSearchText(alias) === query);
+    });
+
+    // When input already equals a selected option (e.g. default Oman),
+    // keep the full list visible on open instead of collapsing to one row.
+    if (hasExactMatch) return options.slice(0, 120);
+
     const matched = options
       .filter((option) => {
-        if (option.toLowerCase().includes(query)) return true;
+        if (normalizeSearchText(option).includes(query)) return true;
+        const label = optionLabelByValue?.[option] ?? option;
+        if (normalizeSearchText(label).includes(query)) return true;
         const aliases = searchAliasesByOption?.[option] ?? [];
-        return aliases.some((alias) => alias.toLowerCase().includes(query));
+        return aliases.some((alias) =>
+          normalizeSearchText(alias).includes(query),
+        );
       })
       .slice(0, 120);
 
@@ -117,7 +161,7 @@ function SearchableSelect({
     const pinned = matched[index];
     const withoutPinned = matched.filter((_, i) => i !== index);
     return [pinned, ...withoutPinned];
-  }, [options, pinFirstOption, searchAliasesByOption, value]);
+  }, [optionLabelByValue, options, pinFirstOption, searchAliasesByOption, value]);
 
   return (
     <label htmlFor={id} className="block">
@@ -128,9 +172,15 @@ function SearchableSelect({
           id={id}
           name={`${name}Display`}
           className={`${inputClassName} placeholder:text-[#4b304499]`}
-          style={inputStyle}
+          style={{
+            ...inputStyle,
+            unicodeBidi: "plaintext",
+            textAlign: "start",
+            letterSpacing: "normal",
+          }}
           value={value}
           placeholder={placeholder}
+          dir="auto"
           autoComplete="new-password"
           data-lpignore="true"
           disabled={disabled}
@@ -173,14 +223,18 @@ function SearchableSelect({
                   key={option}
                   type="button"
                   className="w-full rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-[#4b30441a]"
-                  style={{ color: "#4b3044" }}
+                  style={{
+                    color: "#4b3044",
+                    fontFamily: "Tahoma, Arial, 'Noto Sans Arabic', sans-serif",
+                  }}
+                  dir="auto"
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => {
                     onChange(option);
                     setOpen(false);
                   }}
                 >
-                  {option}
+                  {optionLabelByValue?.[option] ?? option}
                 </button>
               ))
             )}
@@ -192,6 +246,7 @@ function SearchableSelect({
 }
 
 export default function CountryCityFields({
+  locale,
   countryLabel,
   cityLabel,
   countryPlaceholder,
@@ -253,19 +308,26 @@ export default function CountryCityFields({
   }, []);
 
   const cityLookup = useMemo(() => {
-    const map = new Map<string, string[]>();
+    const map = new Map<
+      string,
+      { cities: string[]; cityArMap?: Record<string, string> }
+    >();
     for (const item of items) {
-      map.set(item.country.toLowerCase(), item.cities);
+      map.set(normalizeSearchText(item.country), {
+        cities: item.cities,
+        cityArMap: item.cityArMap,
+      });
     }
     return map;
   }, [items]);
 
-  const countryKey = country.trim().toLowerCase();
+  const countryKey = normalizeSearchText(country);
+  const selectedCountryData = cityLookup.get(countryKey);
   const cityOptions = useMemo(
-    () => cityLookup.get(countryKey) ?? [],
-    [cityLookup, countryKey],
+    () => selectedCountryData?.cities ?? [],
+    [selectedCountryData],
   );
-  const isKnownCountry = cityLookup.has(countryKey);
+  const isKnownCountry = Boolean(selectedCountryData);
   const isCityDisabled = !country || !isKnownCountry;
   const countryOptions = useMemo(() => items.map((item) => item.country), [items]);
   const countryOptionsWithOmanPinned = useMemo(() => {
@@ -283,13 +345,32 @@ export default function CountryCityFields({
     const map: Record<string, string[]> = {};
     for (const option of countryOptions) {
       if (option === "United States") {
-        map[option] = ["USA", "US", "America", "United States of America"];
+        map[option] = [
+          "USA",
+          "US",
+          "America",
+          "United States of America",
+          "أمريكا",
+          "امريكا",
+          "الولايات المتحدة",
+        ];
       } else if (option === "United Kingdom") {
-        map[option] = ["UK", "Britain", "Great Britain", "England"];
+        map[option] = [
+          "UK",
+          "Britain",
+          "Great Britain",
+          "England",
+          "المملكة المتحدة",
+          "بريطانيا",
+          "إنجلترا",
+          "انجلترا",
+        ];
       } else if (option === "United Arab Emirates") {
-        map[option] = ["UAE", "Emirates"];
+        map[option] = ["UAE", "Emirates", "الإمارات", "الامارات"];
       } else if (option === "Iran") {
-        map[option] = ["Iran, Islamic Republic of"];
+        map[option] = ["Iran, Islamic Republic of", "إيران", "ايران"];
+      } else if (option === "Oman") {
+        map[option] = ["عمان"];
       } else {
         map[option] = [];
       }
@@ -300,13 +381,54 @@ export default function CountryCityFields({
   const aliasToCanonical = useMemo(() => {
     const map = new Map<string, string>();
     for (const option of countryOptions) {
-      map.set(option.toLowerCase(), option);
+      map.set(normalizeSearchText(option), option);
       for (const alias of countryAliasMap[option] ?? []) {
-        map.set(alias.toLowerCase(), option);
+        map.set(normalizeSearchText(alias), option);
       }
     }
     return map;
   }, [countryAliasMap, countryOptions]);
+
+  const countryLabelMap = useMemo(() => {
+    if (locale !== "ar") return {};
+    const map: Record<string, string> = {};
+    for (const item of items) {
+      if (item.countryAr) {
+        map[item.country] = item.countryAr;
+      }
+    }
+    return map;
+  }, [items, locale]);
+
+  const cityLabelMap = useMemo(() => {
+    if (locale !== "ar") return {};
+    return selectedCountryData?.cityArMap ?? {};
+  }, [locale, selectedCountryData]);
+
+  const cityAliasMap = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    if (locale !== "ar") return map;
+
+    if (countryKey === "oman") {
+      map["Muscat"] = ["مسقط"];
+      map["Salalah"] = ["صلالة"];
+      map["Sohar"] = ["صحار"];
+      map["Nizwa"] = ["نزوى"];
+      map["Sur"] = ["صور"];
+      map["Buraimi"] = ["البريمي"];
+      map["Ibri"] = ["عبري"];
+    }
+
+    if (countryKey === "iran") {
+      map["Tehran"] = ["طهران"];
+      map["Shiraz"] = ["شيراز"];
+      map["Mashhad"] = ["مشهد"];
+      map["Isfahan"] = ["أصفهان", "اصفهان"];
+      map["Tabriz"] = ["تبريز"];
+    }
+
+    return map;
+  }, [countryKey, locale]);
 
   useEffect(() => {
     if (isCityDisabled) {
@@ -323,13 +445,14 @@ export default function CountryCityFields({
         label={countryLabel}
         value={country}
         options={countryOptionsWithOmanPinned}
+        optionLabelByValue={countryLabelMap}
         placeholder={countryPlaceholder}
         noResultsText={noResultsText}
         inputClassName={inputClassName}
         inputStyle={inputStyle}
         searchAliasesByOption={countryAliasMap}
         normalizeValue={(raw) => {
-          const key = raw.trim().toLowerCase();
+          const key = normalizeSearchText(raw);
           return aliasToCanonical.get(key) ?? raw;
         }}
         pinFirstOption="Oman"
@@ -352,11 +475,13 @@ export default function CountryCityFields({
         label={cityLabel}
         value={city}
         options={cityOptions}
+        optionLabelByValue={cityLabelMap}
         placeholder={isCityDisabled ? selectCountryFirstText : cityPlaceholder}
         disabled={isCityDisabled}
         noResultsText={noResultsText}
         inputClassName={inputClassName}
         inputStyle={inputStyle}
+        searchAliasesByOption={cityAliasMap}
         onChange={setCity}
       />
     </>
