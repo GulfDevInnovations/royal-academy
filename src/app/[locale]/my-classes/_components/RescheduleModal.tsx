@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { performReschedule } from "@/lib/actions/reschedule";
 import type { EnrolledClass } from "./MyClassesClient";
+import { dispatchNotificationNew } from "@/lib/notifications/dispatch";
 
 // ─────────────────────────────────────────────
 // Types from API
@@ -188,8 +189,6 @@ export default function RescheduleModal({
   async function submit() {
     if (!selectedSession || !selectedSlot) return;
     setSubmitting(true);
-    // Pass bookingId if it exists; otherwise pass null + oldSessionId so the
-    // server action can handle the "no pre-existing booking" case.
     const res = await performReschedule(
       selectedSession.bookingId ?? null,
       selectedSlot.sessionId,
@@ -197,6 +196,7 @@ export default function RescheduleModal({
     );
     setSubmitting(false);
     if (res.success) {
+      dispatchNotificationNew(); // ← ADD this line
       setResult({
         ok: true,
         message: "Your session has been successfully rescheduled.",
@@ -361,7 +361,7 @@ function StepBar({ step, ac }: { step: Step; ac: string }) {
           <div key={i} className="flex items-center gap-1 flex-1">
             <div className="flex items-center gap-1.5">
               <div
-                className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0 transition-all"
+                className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 transition-all"
                 style={{
                   background: done
                     ? ac

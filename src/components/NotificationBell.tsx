@@ -7,7 +7,7 @@ import {
   getMyNotifications,
   markNotificationRead,
   markAllNotificationsRead,
-} from "@/lib/actions/notifications.client.actions";
+} from "@/lib/actions/notifications/notifications.client.actions";
 import { useRouter } from "next/navigation";
 
 interface AppNotification {
@@ -62,9 +62,15 @@ export default function NotificationBell({ userId, isArabic }: Props) {
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 100_000);
+    const interval = setInterval(fetchNotifications, 300_000);
     return () => clearInterval(interval);
   }, [userId]);
+
+  useEffect(() => {
+    const handler = () => fetchNotifications();
+    window.addEventListener("notification:new", handler);
+    return () => window.removeEventListener("notification:new", handler);
+  }, []);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {

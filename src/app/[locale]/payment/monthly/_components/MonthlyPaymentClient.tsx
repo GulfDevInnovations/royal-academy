@@ -1,7 +1,6 @@
-// src/components/payment/MonthlyPaymentClient.tsx
 "use client";
 
-import { confirmMonthlyPayment } from "@/lib/actions/confirm-payment";
+import { useRouter } from "next/navigation";
 import { PaymentShell } from "@/components/payment/PaymentShell";
 import { DayOfWeek, FrequencyType } from "@prisma/client";
 
@@ -90,19 +89,8 @@ export function MonthlyPaymentClient({ data }: { data: MonthlyPaymentProps }) {
       lineItems={lineItems}
       total={data.amount.toString()}
       currency={data.currency}
-      alreadyPaid={false} // nothing is ever pre-confirmed now
-      onConfirm={() =>
-        confirmMonthlyPayment({
-          studentId: data.studentId,
-          subClassId: data.subClassId,
-          month: data.month,
-          year: data.year,
-          frequency: data.frequency,
-          preferredDays: data.preferredDays,
-          amount: data.amount,
-          currency: data.currency,
-        })
-      }
+      alreadyPaid={true}
+      onConfirm={async () => ({ success: true })}
       successRedirect="/reservation?success=1"
     />
   );

@@ -1,8 +1,6 @@
-// src/app/[locale]/payment/trial/_components/TrialPaymentClient.tsx
 "use client";
 
 import { format, parseISO } from "date-fns";
-import { confirmTrialPayment } from "@/lib/actions/confirm-payment";
 import { PaymentShell } from "@/components/payment/PaymentShell";
 
 export type TrialPaymentProps = {
@@ -50,16 +48,8 @@ export function TrialPaymentClient({ data }: { data: TrialPaymentProps }) {
       lineItems={lineItems}
       total={data.amount.toString()}
       currency={data.currency}
-      alreadyPaid={false}
-      onConfirm={() =>
-        confirmTrialPayment({
-          studentId: data.studentId,
-          subClassId: data.subClassId,
-          sessionId: data.sessionId,
-          amount: data.amount,
-          currency: data.currency,
-        })
-      }
+      alreadyPaid={true}
+      onConfirm={async () => ({ success: true })}
       successRedirect="/reservation?success=1"
     />
   );
