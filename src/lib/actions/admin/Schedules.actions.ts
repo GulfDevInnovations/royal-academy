@@ -50,6 +50,8 @@ export async function getSchedules() {
         select: {
           id: true,
           name: true,
+          isReschedulable: true,
+          sessionType: true,
           class: { select: { id: true, name: true } },
         },
       },
@@ -57,6 +59,7 @@ export async function getSchedules() {
         select: { id: true, firstName: true, lastName: true, photoUrl: true },
       },
       _count: { select: { sessions: true } },
+      
     },
   });
 }
@@ -87,6 +90,8 @@ export async function getScheduleFormOptions() {
       select: {
         id: true,
         name: true,
+        isReschedulable: true,
+        sessionType: true,
         class: { select: { id: true, name: true } },
         // Only teachers assigned to this subclass via junction
         teachers: {
@@ -162,9 +167,7 @@ export async function createSchedule(formData: FormData) {
   const endTime       = formData.get("endTime")       as string;
   const startDateStr  = formData.get("startDate")     as string;
   const endDateStr    = formData.get("endDate")       as string | null;
-  const maxCapacity   = parseInt(formData.get("maxCapacity") as string) || 10;
   const isRecurring   = formData.get("isRecurring")   !== "false";
-  const isPublic      = formData.get("isPublic")      === "true";
   const onlineLink    = (formData.get("onlineLink")   as string | null) || null;
 
   if (!subClassId) return { error: "Sub-class is required." };
@@ -174,6 +177,18 @@ export async function createSchedule(formData: FormData) {
   if (!endTime)    return { error: "End time is required." };
   if (!startDateStr) return { error: "Start date is required." };
   if (startTime >= endTime) return { error: "End time must be after start time." };
+
+  const subClass = await prisma.subClass.findUnique({
+    where: { id: subClassId },
+    select: { sessionType: true },
+  });
+  if (!subClass) return { error: "Sub-class not found." };
+
+  const isPrivate = ["MUSIC", "PRIVATE"].includes(subClass.sessionType);
+  const maxCapacity = isPrivate
+    ? 1
+    : parseInt(formData.get("maxCapacity") as string) || 10;
+
 
   const startDate = new Date(startDateStr);
   const endDate   = endDateStr ? new Date(endDateStr) : null;
@@ -195,27 +210,32 @@ export async function createSchedule(formData: FormData) {
         endDate,
         maxCapacity,
         isRecurring,
-        isPublic,
         onlineLink,
         status: "ACTIVE",
       },
     });
 
-    // Auto-generate sessions
     if (endDate) {
-      const sessionDates = generateSessionDates(startDate, endDate, dayOfWeek);
-      if (sessionDates.length > 0) {
-        await tx.classSession.createMany({
-          data: sessionDates.map((date) => ({
-            scheduleId: newSchedule.id,
-            sessionDate: date,
-            startTime,
-            endTime,
-            status: "ACTIVE" as ClassStatus,
-          })),
-        });
-      }
-    }
+  const sessionDates = generateSessionDates(startDate, endDate, dayOfWeek);
+  if (sessionDates.length > 0) {
+    await tx.classSession.createMany({
+      data: sessionDates.map((date) => {
+        const [hours, minutes] = startTime.split(":").map(Number);
+        const sessionDatetime = new Date(date);
+        sessionDatetime.setHours(hours, minutes, 0, 0);
+        return {
+          scheduleId:      newSchedule.id,
+          sessionDate:     date,
+          startTime,
+          endTime,
+          sessionDatetime,
+          status:          "ACTIVE" as ClassStatus,
+        };
+      }),
+      skipDuplicates: true,
+    });
+  }
+}
 
     return newSchedule;
   });
@@ -232,18 +252,25 @@ export async function updateSchedule(id: string, formData: FormData) {
   const dayOfWeek   = formData.get("dayOfWeek")   as DayOfWeek;
   const startTime   = formData.get("startTime")   as string;
   const endTime     = formData.get("endTime")     as string;
-  const maxCapacity = parseInt(formData.get("maxCapacity") as string) || 10;
-  const isPublic    = formData.get("isPublic")    === "true";
   const onlineLink  = (formData.get("onlineLink") as string | null) || null;
   const status      = formData.get("status")      as ClassStatus;
+  const endDateRaw  = formData.get("endDate") as string | null;
+  const endDate     = endDateRaw ? new Date(endDateRaw) : null;
 
   if (!teacherId) return { error: "Teacher is required." };
   if (startTime >= endTime) return { error: "End time must be after start time." };
 
-  const existing = await prisma.classSchedule.findUnique({ where: { id } });
+  const existing = await prisma.classSchedule.findUnique({
+    where: { id },
+    include: { subClass: { select: { sessionType: true } } },
+  });
   if (!existing) return { error: "Schedule not found." };
 
-  // Conflict check (exclude self)
+  const isPrivate = ["MUSIC", "PRIVATE"].includes(existing.subClass.sessionType);
+  const maxCapacity = isPrivate
+    ? 1
+    : parseInt(formData.get("maxCapacity") as string) || 10;
+
   const conflict = await checkConflicts(
     dayOfWeek, startTime, endTime, teacherId, existing.subClassId, id
   );
@@ -251,9 +278,12 @@ export async function updateSchedule(id: string, formData: FormData) {
 
   await prisma.classSchedule.update({
     where: { id },
-    data: { teacherId, dayOfWeek, startTime, endTime, maxCapacity, isPublic, onlineLink, status },
+    data: {
+      teacherId, dayOfWeek, startTime, endTime,
+      maxCapacity, onlineLink, status,
+      endDate, // ↓ add this
+    },
   });
-
   return { success: true };
 }
 
@@ -327,17 +357,23 @@ export async function regenerateSessions(scheduleId: string) {
   const sessionDates = generateSessionDates(fromDate, schedule.endDate, schedule.dayOfWeek);
 
   if (sessionDates.length > 0) {
-    await prisma.classSession.createMany({
-      data: sessionDates.map((date) => ({
-        scheduleId,
-        sessionDate: date,
-        startTime:   schedule.startTime,
-        endTime:     schedule.endTime,
-        status:      "ACTIVE" as ClassStatus,
-      })),
-      skipDuplicates: true,
-    });
-  }
+  await prisma.classSession.createMany({
+    data: sessionDates.map((date) => {
+      const [hours, minutes] = schedule.startTime.split(":").map(Number);
+      const sessionDatetime = new Date(date);
+      sessionDatetime.setHours(hours, minutes, 0, 0);
+      return {
+        scheduleId:   schedule.id,
+        sessionDate:  date,
+        startTime:    schedule.startTime,
+        endTime:      schedule.endTime,
+        sessionDatetime,
+        status:       "ACTIVE" as ClassStatus,
+      };
+    }),
+    skipDuplicates: true,
+  });
+}
 
   return { success: true, count: sessionDates.length };
 }

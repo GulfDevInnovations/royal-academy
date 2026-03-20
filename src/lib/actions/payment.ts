@@ -1,44 +1,61 @@
 // src/lib/actions/payment.ts
 "use server";
 
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
+export type ConfirmResult =
+  | { success: true }
+  | { success: false; error: string };
 
-export async function confirmPayment(
-  bookingId: string,
-  paymentId: string | null
-): Promise<{ success: boolean; error?: string }> {
+// Called from /payment/session after successful payment.
+// Creates Booking + Payment in one transaction — nothing existed before.
+
+export async function confirmPayment(params: {
+  studentId: string;
+  sessionId: string;
+  amount:    number;
+  currency:  string;
+}): Promise<ConfirmResult> {
   try {
+    // Idempotency guard
+    const existing = await prisma.booking.findUnique({
+      where: {
+        studentId_sessionId: {
+          studentId: params.studentId,
+          sessionId: params.sessionId,
+        },
+      },
+    });
+    if (existing) return { success: true };
+
     await prisma.$transaction(async (tx) => {
-      // Mark booking as CONFIRMED
-      await tx.booking.update({
-        where: { id: bookingId },
-        data: { status: "CONFIRMED" },
-      });
-
-      // Mark payment as PAID
-      if (paymentId) {
-        await tx.payment.update({
-          where: { id: paymentId },
-          data: {
-            status: "PAID",
-            method: "CREDIT_CARD", // placeholder until Thawani integration
-            paidAt: new Date(),
-          },
-        });
-      }
-
-      // Increment currentEnrolled on the schedule
-      const booking = await tx.booking.findUnique({
-        where: { id: bookingId },
+      // 1. Create the booking — CONFIRMED from the start
+      const booking = await tx.booking.create({
+        data: {
+          studentId: params.studentId,
+          sessionId: params.sessionId,
+          status:    "CONFIRMED",
+        },
         include: { session: true },
       });
 
-      if (booking?.session.scheduleId) {
+      // 2. Create the payment — PAID from the start
+      await tx.payment.create({
+        data: {
+          bookingId: booking.id,
+          amount:    params.amount,
+          currency:  params.currency,
+          status:    "PAID",
+          method:    "CREDIT_CARD", // swap for Thawani method when ready
+          paidAt:    new Date(),
+        },
+      });
+
+      // 3. Increment currentEnrolled on the schedule
+      if (booking.session.scheduleId) {
         await tx.classSchedule.update({
           where: { id: booking.session.scheduleId },
-          data: { currentEnrolled: { increment: 1 } },
+          data:  { currentEnrolled: { increment: 1 } },
         });
       }
     });
@@ -46,6 +63,6 @@ export async function confirmPayment(
     return { success: true };
   } catch (err) {
     console.error("confirmPayment error:", err);
-    return { success: false, error: "Payment confirmation failed" };
+    return { success: false, error: "Payment confirmation failed." };
   }
 }

@@ -1,14 +1,18 @@
 "use client";
 
-import { useState, useMemo, useTransition, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useTransition,
+  useCallback,
+} from "react";
 import {
   Plus,
   Users,
   CreditCard,
   XCircle,
   AlertTriangle,
-  CalendarDays,
   List,
   ChevronLeft,
   ChevronRight,
@@ -17,15 +21,21 @@ import {
   Ban,
   MoreHorizontal,
   Trash2,
+  CalendarDays,
+  Layers,
 } from "lucide-react";
 import {
   cancelEnrollment,
+  cancelMultiMonthEnrollment,
   deleteEnrollment,
+  deleteMultiMonthEnrollment,
   getEnrollments,
   getCapacitySummary,
+  getMultiMonthEnrollments,
 } from "@/lib/actions/admin/Enrollments.actions";
 import type {
   SerializedEnrollment,
+  SerializedMultiMonthEnrollment,
   SerializedCapacityItem,
   SerializedFormOptions,
 } from "../page";
@@ -81,7 +91,6 @@ const MONTHS_SHORT = [
   "Nov",
   "Dec",
 ];
-
 const DAY_SHORT: Record<string, string> = {
   MONDAY: "Mon",
   TUESDAY: "Tue",
@@ -96,7 +105,7 @@ const STATUS_CONFIG: Record<
   string,
   {
     label: string;
-    variant: "success" | "warning" | "error" | "info" | "default";
+    variant: "success" | "warning" | "default" | "info";
     icon: React.ReactNode;
   }
 > = {
@@ -106,16 +115,15 @@ const STATUS_CONFIG: Record<
     icon: <CheckCircle2 size={11} />,
   },
   PENDING: { label: "Pending", variant: "warning", icon: <Clock size={11} /> },
-  CANCELLED: { label: "Cancelled", variant: "error", icon: <Ban size={11} /> },
+  CANCELLED: {
+    label: "Cancelled",
+    variant: "default",
+    icon: <Ban size={11} />,
+  },
   COMPLETED: {
     label: "Completed",
     variant: "info",
     icon: <CheckCircle2 size={11} />,
-  },
-  NO_SHOW: {
-    label: "No Show",
-    variant: "default",
-    icon: <XCircle size={11} />,
   },
 };
 
@@ -126,7 +134,6 @@ const PAYMENT_CONFIG: Record<string, { label: string; color: string }> = {
   REFUNDED: { label: "Refunded", color: "#60a5fa" },
 };
 
-// Capacity color thresholds
 function capacityColor(enrolled: number, capacity: number) {
   const pct = capacity > 0 ? enrolled / capacity : 0;
   if (pct >= 1) return { bar: "#f87171", text: "#f87171" };
@@ -135,11 +142,12 @@ function capacityColor(enrolled: number, capacity: number) {
 }
 
 // ─────────────────────────────────────────────
-// Props
+// Types
 // ─────────────────────────────────────────────
 
 interface Props {
   initialEnrollments: SerializedEnrollment[];
+  initialMultiMonthEnrollments: SerializedMultiMonthEnrollment[];
   initialCapacity: SerializedCapacityItem[];
   formOptions: SerializedFormOptions;
   defaultMonth: number;
@@ -148,9 +156,12 @@ interface Props {
 
 type Modal =
   | { type: "add" }
-  | { type: "payment"; data: SerializedEnrollment }
-  | { type: "cancel"; data: SerializedEnrollment }
-  | { type: "delete"; data: SerializedEnrollment };
+  | { type: "payment-single"; data: SerializedEnrollment }
+  | { type: "payment-multi"; data: SerializedMultiMonthEnrollment }
+  | { type: "cancel-single"; data: SerializedEnrollment }
+  | { type: "cancel-multi"; data: SerializedMultiMonthEnrollment }
+  | { type: "delete-single"; data: SerializedEnrollment }
+  | { type: "delete-multi"; data: SerializedMultiMonthEnrollment };
 
 // ─────────────────────────────────────────────
 // Component
@@ -158,90 +169,49 @@ type Modal =
 
 export default function EnrollmentsClient({
   initialEnrollments,
+  initialMultiMonthEnrollments,
   initialCapacity,
   formOptions,
   defaultMonth,
   defaultYear,
 }: Props) {
-  const router = useRouter();
   const { toasts, toast, remove } = useToast();
   const [, startRefresh] = useTransition();
 
-  // View state
-  const [viewMode, setViewMode] = useState<"month" | "list">("month");
+  // View
+  const [viewMode, setViewMode] = useState<"month" | "list" | "multi">("month");
   const [modal, setModal] = useState<Modal | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
-  // Month/year navigation (shared between views)
+  // Month navigation
   const [month, setMonth] = useState(defaultMonth);
   const [year, setYear] = useState(defaultYear);
 
-  // List view filters
+  // List-view filters
   const [filterStatus, setFilterStatus] = useState("");
   const [filterClass, setFilterClass] = useState("");
   const [filterSubClass, setFilterSubClass] = useState("");
 
-  // Data — refreshed client-side after mutations
+  // Data
   const [enrollments, setEnrollments] = useState(initialEnrollments);
+  const [multiMonthEnrollments, setMultiMonthEnrollments] = useState(
+    initialMultiMonthEnrollments,
+  );
   const [capacity, setCapacity] = useState(initialCapacity);
 
-  // ── Data refresh ──
+  // ── Refresh ──
+  // Actions return plain() serialized data — cast to serialized types.
   const refreshData = useCallback(async () => {
-    const [newEnrollments, newCapacity] = await Promise.all([
+    const [newE, newME, newCap] = await Promise.all([
       getEnrollments({ month, year }),
+      getMultiMonthEnrollments(),
       getCapacitySummary(month, year),
     ]);
-    // Serialize client-side (Decimal comes back as string from action)
-    setEnrollments(
-      newEnrollments.map((e) => ({
-        ...e,
-        bookedAt: e.bookedAt.toISOString(),
-        createdAt: e.createdAt.toISOString(),
-        updatedAt: e.updatedAt.toISOString(),
-        totalAmount: Number(e.totalAmount),
-        subClass: {
-          ...e.subClass,
-          oncePriceMonthly:
-            e.subClass.oncePriceMonthly != null
-              ? Number(e.subClass.oncePriceMonthly)
-              : null,
-          twicePriceMonthly:
-            e.subClass.twicePriceMonthly != null
-              ? Number(e.subClass.twicePriceMonthly)
-              : null,
-        },
-        payment: e.payment
-          ? {
-              ...e.payment,
-              amount: Number(e.payment.amount),
-              paidAt: e.payment.paidAt?.toISOString() ?? null,
-            }
-          : null,
-      })) as any,
+    setEnrollments(newE as unknown as SerializedEnrollment[]);
+    setMultiMonthEnrollments(
+      newME as unknown as SerializedMultiMonthEnrollment[],
     );
-    setCapacity(
-      newCapacity.map((sc) => ({
-        ...sc,
-        oncePriceMonthly:
-          sc.oncePriceMonthly != null ? Number(sc.oncePriceMonthly) : null,
-        twicePriceMonthly:
-          sc.twicePriceMonthly != null ? Number(sc.twicePriceMonthly) : null,
-        monthlyEnrollments: sc.monthlyEnrollments.map((e) => ({
-          ...e,
-          bookedAt: e.bookedAt.toISOString(),
-          createdAt: e.createdAt.toISOString(),
-          updatedAt: e.updatedAt.toISOString(),
-          totalAmount: Number(e.totalAmount),
-          payment: e.payment
-            ? {
-                ...e.payment,
-                amount: Number(e.payment.amount),
-                paidAt: e.payment.paidAt?.toISOString() ?? null,
-              }
-            : null,
-        })),
-      })) as any,
-    );
+    setCapacity(newCap as unknown as SerializedCapacityItem[]);
   }, [month, year]);
 
   const handleSuccess = useCallback(() => {
@@ -265,17 +235,14 @@ export default function EnrollmentsClient({
     setYear(y);
   };
 
-  // Refresh when month/year changes
-  const [prevMonth, setPrevMonth] = useState(month);
-  const [prevYear, setPrevYear] = useState(year);
-  if (month !== prevMonth || year !== prevYear) {
-    setPrevMonth(month);
-    setPrevYear(year);
+  // Refresh data whenever month/year navigation changes — must be in
+  // useEffect to avoid calling setState during render.
+  useEffect(() => {
     refreshData();
-  }
+  }, [month, year]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Actions ──
-  const handleCancel = async (id: string) => {
+  const handleCancelSingle = async (id: string) => {
     const result = await cancelEnrollment(id);
     if (result.error) toast(result.error, "error");
     else {
@@ -285,7 +252,20 @@ export default function EnrollmentsClient({
     return result;
   };
 
-  const handleDelete = async (id: string) => {
+  const handleCancelMulti = async (id: string) => {
+    const result = await cancelMultiMonthEnrollment(id);
+    if (result.error) toast(result.error, "error");
+    else {
+      toast(
+        `Multi-month enrollment cancelled. ${(result as any).cancelledMonths ?? 0} future months cancelled.`,
+        "success",
+      );
+      handleSuccess();
+    }
+    return result;
+  };
+
+  const handleDeleteSingle = async (id: string) => {
     const result = await deleteEnrollment(id);
     if (result.error) {
       toast(result.error, "error");
@@ -297,7 +277,19 @@ export default function EnrollmentsClient({
     return result;
   };
 
-  // ── Derived data ──
+  const handleDeleteMulti = async (id: string) => {
+    const result = await deleteMultiMonthEnrollment(id);
+    if (result.error) {
+      toast(result.error, "error");
+      setModal(null);
+    } else {
+      toast("Multi-month enrollment deleted.", "success");
+      handleSuccess();
+    }
+    return result;
+  };
+
+  // ── Derived ──
   const uniqueClasses = useMemo(
     () => [
       ...new Map(
@@ -306,7 +298,6 @@ export default function EnrollmentsClient({
     ],
     [formOptions],
   );
-
   const filteredSubClasses = useMemo(
     () =>
       filterClass
@@ -314,7 +305,6 @@ export default function EnrollmentsClient({
         : formOptions.subClasses,
     [filterClass, formOptions],
   );
-
   const filteredEnrollments = useMemo(() => {
     let list = enrollments;
     if (filterStatus) list = list.filter((e) => e.status === filterStatus);
@@ -325,28 +315,25 @@ export default function EnrollmentsClient({
     return list;
   }, [enrollments, filterStatus, filterClass, filterSubClass]);
 
-  // Summary stats for header
   const stats = useMemo(
     () => ({
       total: enrollments.length,
       confirmed: enrollments.filter((e) => e.status === "CONFIRMED").length,
       pending: enrollments.filter((e) => e.status === "PENDING").length,
-      unpaid: enrollments.filter(
-        (e) => !e.payment || e.payment.status !== "PAID",
-      ).length,
       revenue: enrollments
         .filter((e) => e.payment?.status === "PAID")
         .reduce((sum, e) => sum + (e.payment?.amount ?? 0), 0),
+      multiPlans: multiMonthEnrollments.filter((m) => m.status !== "CANCELLED")
+        .length,
     }),
-    [enrollments],
+    [enrollments, multiMonthEnrollments],
   );
 
   // ─────────────────────────────────────────────
-  // MONTH VIEW — subclass cards with roster
+  // MONTH VIEW — sub-class roster cards
   // ─────────────────────────────────────────────
 
   const MonthView = () => {
-    // Only show subclasses that have at least one enrollment OR have capacity warnings
     const activeSubClasses = capacity.filter(
       (sc) => sc.monthlyEnrollments.length > 0 || sc.capacity <= 3,
     );
@@ -358,7 +345,6 @@ export default function EnrollmentsClient({
 
     return (
       <div className="space-y-4">
-        {/* Capacity warnings */}
         {fullSubClasses.length > 0 && (
           <div
             className="flex items-start gap-3 px-4 py-3 rounded-xl border"
@@ -369,7 +355,7 @@ export default function EnrollmentsClient({
           >
             <AlertTriangle
               size={15}
-              className="flex-shrink-0 mt-0.5"
+              className="shrink-0 mt-0.5"
               style={{ color: "#f87171" }}
             />
             <div>
@@ -432,7 +418,6 @@ export default function EnrollmentsClient({
                   background: "#1a1d27",
                 }}
               >
-                {/* Card header */}
                 <div
                   className="px-4 py-3 border-b"
                   style={{ borderColor: "rgba(255,255,255,0.06)" }}
@@ -457,7 +442,7 @@ export default function EnrollmentsClient({
                         )}
                       </p>
                     </div>
-                    <div className="text-right flex-shrink-0">
+                    <div className="text-right shrink-0">
                       <p
                         className="text-sm font-bold"
                         style={{ color: colors.text }}
@@ -473,7 +458,6 @@ export default function EnrollmentsClient({
                     </div>
                   </div>
 
-                  {/* Capacity bar */}
                   <div
                     className="mt-3 h-1.5 rounded-full overflow-hidden"
                     style={{ background: "rgba(255,255,255,0.06)" }}
@@ -484,7 +468,6 @@ export default function EnrollmentsClient({
                     />
                   </div>
 
-                  {/* Stats row */}
                   <div className="flex items-center gap-4 mt-2.5">
                     <span className="text-[11px]" style={{ color: "#34d399" }}>
                       ✓ {confirmed.length} confirmed
@@ -506,11 +489,7 @@ export default function EnrollmentsClient({
                   </div>
                 </div>
 
-                {/* Student roster */}
-                <div
-                  className="divide-y"
-                  style={{ divideColor: "rgba(255,255,255,0.04)" }}
-                >
+                <div className="divide-y divide-white/4">
                   {active.length === 0 ? (
                     <p
                       className="px-4 py-3 text-xs"
@@ -523,18 +502,19 @@ export default function EnrollmentsClient({
                       const payStatus = enrollment.payment?.status ?? "PENDING";
                       const payConf =
                         PAYMENT_CONFIG[payStatus] ?? PAYMENT_CONFIG.PENDING;
-                      const statusConf =
-                        STATUS_CONFIG[enrollment.status] ??
-                        STATUS_CONFIG.PENDING;
+                      // Find matching full enrollment to get multiMonthEnrollment link
+                      const full = enrollments.find(
+                        (e) => e.id === enrollment.id,
+                      );
+                      const isMultiChild = !!full?.multiMonthEnrollment;
 
                       return (
                         <div
                           key={enrollment.id}
-                          className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.01] transition-colors"
+                          className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/1 transition-colors"
                         >
-                          {/* Avatar */}
                           <div
-                            className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[11px] font-semibold"
+                            className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[11px] font-semibold"
                             style={{
                               background: "rgba(245,158,11,0.12)",
                               color: "#f59e0b",
@@ -545,13 +525,26 @@ export default function EnrollmentsClient({
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <p
-                              className="text-xs font-medium truncate"
-                              style={{ color: adminColors.textPrimary }}
-                            >
-                              {enrollment.student.firstName}{" "}
-                              {enrollment.student.lastName}
-                            </p>
+                            <div className="flex items-center gap-1.5">
+                              <p
+                                className="text-xs font-medium truncate"
+                                style={{ color: adminColors.textPrimary }}
+                              >
+                                {enrollment.student.firstName}{" "}
+                                {enrollment.student.lastName}
+                              </p>
+                              {isMultiChild && (
+                                <span
+                                  className="text-[9px] px-1.5 py-0.5 rounded-full shrink-0 flex items-center gap-0.5"
+                                  style={{
+                                    background: "rgba(96,165,250,0.1)",
+                                    color: "#60a5fa",
+                                  }}
+                                >
+                                  <Layers size={8} /> Multi
+                                </span>
+                              )}
+                            </div>
                             <p
                               className="text-[10px]"
                               style={{ color: adminColors.textMuted }}
@@ -570,9 +563,8 @@ export default function EnrollmentsClient({
                             </p>
                           </div>
 
-                          {/* Payment badge */}
                           <span
-                            className="text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0"
+                            className="text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0"
                             style={{
                               background: `${payConf.color}18`,
                               color: payConf.color,
@@ -581,8 +573,7 @@ export default function EnrollmentsClient({
                             {payConf.label}
                           </span>
 
-                          {/* Action menu */}
-                          <div className="relative flex-shrink-0">
+                          <div className="relative shrink-0">
                             <button
                               onClick={() =>
                                 setOpenMenuId(
@@ -591,59 +582,108 @@ export default function EnrollmentsClient({
                                     : enrollment.id,
                                 )
                               }
-                              className="p-1 rounded-lg transition-colors text-white/20 hover:text-white/60 hover:bg-white/[0.05]"
+                              className="p-1 rounded-lg transition-colors text-white/20 hover:text-white/60 hover:bg-white/5"
                             >
                               <MoreHorizontal size={13} />
                             </button>
                             {openMenuId === enrollment.id && (
                               <div
-                                className="absolute right-0 top-7 z-20 rounded-xl border shadow-xl overflow-hidden w-40"
+                                className="absolute right-0 top-7 z-20 rounded-xl border shadow-xl overflow-hidden w-44"
                                 style={{
                                   background: "#1a1d27",
                                   borderColor: "rgba(255,255,255,0.1)",
                                 }}
                               >
-                                {payStatus !== "PAID" && (
-                                  <MenuBtn
-                                    icon={<CreditCard size={12} />}
-                                    label="Record Payment"
-                                    color="#34d399"
-                                    onClick={() => {
-                                      setOpenMenuId(null);
-                                      setModal({
-                                        type: "payment",
-                                        data: enrollment as any,
-                                      });
-                                    }}
-                                  />
-                                )}
-                                {enrollment.status !== "CANCELLED" && (
-                                  <MenuBtn
-                                    icon={<XCircle size={12} />}
-                                    label="Cancel"
-                                    color="#f87171"
-                                    onClick={() => {
-                                      setOpenMenuId(null);
-                                      setModal({
-                                        type: "cancel",
-                                        data: enrollment as any,
-                                      });
-                                    }}
-                                  />
-                                )}
-                                {payStatus !== "PAID" && (
-                                  <MenuBtn
-                                    icon={<Trash2 size={12} />}
-                                    label="Delete"
-                                    color="#f87171"
-                                    onClick={() => {
-                                      setOpenMenuId(null);
-                                      setModal({
-                                        type: "delete",
-                                        data: enrollment as any,
-                                      });
-                                    }}
-                                  />
+                                {/* If multi-child: show payment action on the parent */}
+                                {isMultiChild && full?.multiMonthEnrollment ? (
+                                  <>
+                                    {full.multiMonthEnrollment.payment
+                                      ?.status !== "PAID" && (
+                                      <MenuBtn
+                                        icon={<CreditCard size={12} />}
+                                        label="Pay Multi-plan"
+                                        color="#34d399"
+                                        onClick={() => {
+                                          setOpenMenuId(null);
+                                          // We need the full multi-month enrollment — find it
+                                          const mme =
+                                            multiMonthEnrollments.find(
+                                              (m) =>
+                                                m.id ===
+                                                full.multiMonthEnrollment!.id,
+                                            );
+                                          if (mme)
+                                            setModal({
+                                              type: "payment-multi",
+                                              data: mme,
+                                            });
+                                        }}
+                                      />
+                                    )}
+                                    <MenuBtn
+                                      icon={<XCircle size={12} />}
+                                      label="Cancel Multi-plan"
+                                      color="#f87171"
+                                      onClick={() => {
+                                        setOpenMenuId(null);
+                                        const mme = multiMonthEnrollments.find(
+                                          (m) =>
+                                            m.id ===
+                                            full.multiMonthEnrollment!.id,
+                                        );
+                                        if (mme)
+                                          setModal({
+                                            type: "cancel-multi",
+                                            data: mme,
+                                          });
+                                      }}
+                                    />
+                                  </>
+                                ) : (
+                                  <>
+                                    {payStatus !== "PAID" && (
+                                      <MenuBtn
+                                        icon={<CreditCard size={12} />}
+                                        label="Record Payment"
+                                        color="#34d399"
+                                        onClick={() => {
+                                          setOpenMenuId(null);
+                                          setModal({
+                                            type: "payment-single",
+                                            data: enrollment as any,
+                                          });
+                                        }}
+                                      />
+                                    )}
+                                    {enrollment.status !== "CANCELLED" && (
+                                      <MenuBtn
+                                        icon={<XCircle size={12} />}
+                                        label="Cancel"
+                                        color="#f87171"
+                                        onClick={() => {
+                                          setOpenMenuId(null);
+                                          setModal({
+                                            type: "cancel-single",
+                                            data: enrollment as any,
+                                          });
+                                        }}
+                                      />
+                                    )}
+                                    {payStatus !== "PAID" && (
+                                      <MenuBtn
+                                        icon={<Trash2 size={12} />}
+                                        label="Delete"
+                                        color="#f87171"
+                                        onClick={() => {
+                                          setOpenMenuId(null);
+                                          setModal({
+                                            type: "delete-single",
+                                            data: enrollment as any,
+                                          });
+                                        }}
+                                      />
+                                    )}
+                                  </>
                                 )}
                               </div>
                             )}
@@ -662,7 +702,7 @@ export default function EnrollmentsClient({
   };
 
   // ─────────────────────────────────────────────
-  // LIST VIEW — filterable table
+  // LIST VIEW — single-month enrollments table
   // ─────────────────────────────────────────────
 
   const ListView = () => (
@@ -687,6 +727,8 @@ export default function EnrollmentsClient({
             <AdminTh>Sub-class</AdminTh>
             <AdminTh>Period</AdminTh>
             <AdminTh>Frequency</AdminTh>
+            <AdminTh>Teacher</AdminTh>
+            <AdminTh>Schedule</AdminTh>
             <AdminTh>Amount</AdminTh>
             <AdminTh>Payment</AdminTh>
             <AdminTh>Status</AdminTh>
@@ -699,13 +741,14 @@ export default function EnrollmentsClient({
                 PAYMENT_CONFIG[payStatus] ?? PAYMENT_CONFIG.PENDING;
               const statusConf =
                 STATUS_CONFIG[enrollment.status] ?? STATUS_CONFIG.PENDING;
+              const isMultiChild = !!enrollment.multiMonthEnrollment;
 
               return (
                 <AdminTr key={enrollment.id}>
                   <AdminTd>
                     <div className="flex items-center gap-2">
                       <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-semibold"
+                        className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[10px] font-semibold"
                         style={{
                           background: "rgba(245,158,11,0.1)",
                           color: "#f59e0b",
@@ -750,35 +793,116 @@ export default function EnrollmentsClient({
                   </AdminTd>
 
                   <AdminTd>
-                    <p
-                      className="text-sm"
-                      style={{ color: adminColors.textSecondary }}
-                    >
-                      {MONTHS_SHORT[enrollment.month - 1]} {enrollment.year}
-                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <p
+                        className="text-sm"
+                        style={{ color: adminColors.textSecondary }}
+                      >
+                        {MONTHS_SHORT[enrollment.month - 1]} {enrollment.year}
+                      </p>
+                      {isMultiChild && (
+                        <span
+                          className="text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5"
+                          style={{
+                            background: "rgba(96,165,250,0.1)",
+                            color: "#60a5fa",
+                          }}
+                        >
+                          <Layers size={8} />
+                          {
+                            MONTHS_SHORT[
+                              enrollment.multiMonthEnrollment!.startMonth - 1
+                            ]
+                          }{" "}
+                          {enrollment.multiMonthEnrollment!.startYear}
+                          {" → "}
+                          {
+                            MONTHS_SHORT[
+                              enrollment.multiMonthEnrollment!.endMonth - 1
+                            ]
+                          }{" "}
+                          {enrollment.multiMonthEnrollment!.endYear}
+                        </span>
+                      )}
+                    </div>
                   </AdminTd>
 
                   <AdminTd>
-                    <div>
+                    <p
+                      className="text-xs"
+                      style={{ color: adminColors.textSecondary }}
+                    >
+                      {enrollment.frequency === "TWICE_PER_WEEK"
+                        ? "2× / week"
+                        : "1× / week"}
+                    </p>
+                    {enrollment.preferredDays.length > 0 && (
                       <p
-                        className="text-xs"
-                        style={{ color: adminColors.textSecondary }}
+                        className="text-[10px]"
+                        style={{ color: adminColors.textMuted }}
                       >
-                        {enrollment.frequency === "TWICE_PER_WEEK"
-                          ? "2× / week"
-                          : "1× / week"}
+                        {enrollment.preferredDays
+                          .map((d: string) => DAY_SHORT[d] ?? d)
+                          .join(" + ")}
                       </p>
-                      {enrollment.preferredDays.length > 0 && (
-                        <p
-                          className="text-[10px]"
-                          style={{ color: adminColors.textMuted }}
-                        >
-                          {enrollment.preferredDays
-                            .map((d: string) => DAY_SHORT[d] ?? d)
-                            .join(" + ")}
-                        </p>
-                      )}
-                    </div>
+                    )}
+                  </AdminTd>
+
+                  {/* Teacher column */}
+                  <AdminTd>
+                    {(enrollment.resolvedSlots ?? []).length === 0 ? (
+                      <span
+                        className="text-xs"
+                        style={{ color: adminColors.textMuted }}
+                      >
+                        —
+                      </span>
+                    ) : (
+                      <div className="space-y-1">
+                        {enrollment.resolvedSlots.map((slot, i) => (
+                          <p
+                            key={i}
+                            className="text-xs font-medium"
+                            style={{ color: adminColors.textSecondary }}
+                          >
+                            {slot.teacher
+                              ? `${slot.teacher.firstName} ${slot.teacher.lastName}`
+                              : "—"}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </AdminTd>
+
+                  {/* Schedule column */}
+                  <AdminTd>
+                    {(enrollment.resolvedSlots ?? []).length === 0 ? (
+                      <span
+                        className="text-xs"
+                        style={{ color: adminColors.textMuted }}
+                      >
+                        —
+                      </span>
+                    ) : (
+                      <div className="space-y-1">
+                        {enrollment.resolvedSlots.map((slot, i) => (
+                          <div key={i}>
+                            <p
+                              className="text-xs font-medium"
+                              style={{ color: adminColors.textSecondary }}
+                            >
+                              {DAY_SHORT[slot.dayOfWeek] ?? slot.dayOfWeek}
+                            </p>
+                            <p
+                              className="text-[10px]"
+                              style={{ color: adminColors.textMuted }}
+                            >
+                              {slot.startTime}–{slot.endTime}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </AdminTd>
 
                   <AdminTd>
@@ -799,7 +923,7 @@ export default function EnrollmentsClient({
                   <AdminTd>
                     <div className="flex items-center gap-1.5">
                       <span
-                        className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
                         style={{ background: payConf.color }}
                       />
                       <span
@@ -816,10 +940,345 @@ export default function EnrollmentsClient({
                       >
                         {new Date(enrollment.payment.paidAt).toLocaleDateString(
                           "en-GB",
-                          {
-                            day: "2-digit",
-                            month: "short",
-                          },
+                          { day: "2-digit", month: "short" },
+                        )}
+                      </p>
+                    )}
+                  </AdminTd>
+
+                  <AdminTd>
+                    <AdminBadge variant={statusConf.variant}>
+                      <span className="flex items-center gap-1">
+                        {statusConf.icon} {statusConf.label}
+                      </span>
+                    </AdminBadge>
+                  </AdminTd>
+
+                  <AdminTd className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      {isMultiChild ? (
+                        // Multi-child rows: actions operate on the parent plan
+                        <>
+                          {enrollment.multiMonthEnrollment?.payment?.status !==
+                            "PAID" && (
+                            <button
+                              onClick={() => {
+                                const mme = multiMonthEnrollments.find(
+                                  (m) =>
+                                    m.id ===
+                                    enrollment.multiMonthEnrollment!.id,
+                                );
+                                if (mme)
+                                  setModal({
+                                    type: "payment-multi",
+                                    data: mme,
+                                  });
+                              }}
+                              className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-green-400 hover:bg-green-500/8"
+                              title="Pay multi-month plan"
+                            >
+                              <CreditCard size={13} />
+                            </button>
+                          )}
+                          {enrollment.status !== "CANCELLED" && (
+                            <button
+                              onClick={() => {
+                                const mme = multiMonthEnrollments.find(
+                                  (m) =>
+                                    m.id ===
+                                    enrollment.multiMonthEnrollment!.id,
+                                );
+                                if (mme)
+                                  setModal({ type: "cancel-multi", data: mme });
+                              }}
+                              className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
+                              title="Cancel multi-month plan"
+                            >
+                              <XCircle size={13} />
+                            </button>
+                          )}
+                        </>
+                      ) : (
+                        // Single enrollment actions
+                        <>
+                          {payStatus !== "PAID" && (
+                            <button
+                              onClick={() =>
+                                setModal({
+                                  type: "payment-single",
+                                  data: enrollment,
+                                })
+                              }
+                              className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-green-400 hover:bg-green-500/8"
+                              title="Record payment"
+                            >
+                              <CreditCard size={13} />
+                            </button>
+                          )}
+                          {enrollment.status !== "CANCELLED" && (
+                            <button
+                              onClick={() =>
+                                setModal({
+                                  type: "cancel-single",
+                                  data: enrollment,
+                                })
+                              }
+                              className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
+                              title="Cancel enrollment"
+                            >
+                              <XCircle size={13} />
+                            </button>
+                          )}
+                          {payStatus !== "PAID" && (
+                            <button
+                              onClick={() =>
+                                setModal({
+                                  type: "delete-single",
+                                  data: enrollment,
+                                })
+                              }
+                              className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
+                              title="Delete enrollment"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </AdminTd>
+                </AdminTr>
+              );
+            })}
+          </AdminTbody>
+        </AdminTable>
+      )}
+    </AdminCard>
+  );
+
+  // ─────────────────────────────────────────────
+  // MULTI VIEW — multi-month enrollment plans
+  // ─────────────────────────────────────────────
+
+  const MultiView = () => {
+    const active = multiMonthEnrollments.filter(
+      (m) => m.status !== "CANCELLED",
+    );
+    const cancelled = multiMonthEnrollments.filter(
+      (m) => m.status === "CANCELLED",
+    );
+
+    if (multiMonthEnrollments.length === 0) {
+      return (
+        <AdminCard>
+          <AdminEmptyState
+            title="No multi-month plans"
+            description="Create a multi-month enrollment to see it here."
+            action={
+              <AdminButton
+                variant="primary"
+                onClick={() => setModal({ type: "add" })}
+              >
+                <Plus size={14} /> New Enrollment
+              </AdminButton>
+            }
+          />
+        </AdminCard>
+      );
+    }
+
+    return (
+      <AdminCard noPadding>
+        <AdminTable>
+          <AdminThead>
+            <AdminTh>Student</AdminTh>
+            <AdminTh>Sub-class</AdminTh>
+            <AdminTh>Period</AdminTh>
+            <AdminTh>Teacher</AdminTh>
+            <AdminTh>Schedule</AdminTh>
+            <AdminTh>Total</AdminTh>
+            <AdminTh>Payment</AdminTh>
+            <AdminTh>Status</AdminTh>
+            <AdminTh className="text-right">Actions</AdminTh>
+          </AdminThead>
+          <AdminTbody>
+            {multiMonthEnrollments.map((m) => {
+              const payStatus = m.payment?.status ?? "PENDING";
+              const payConf =
+                PAYMENT_CONFIG[payStatus] ?? PAYMENT_CONFIG.PENDING;
+              const statusConf =
+                STATUS_CONFIG[m.status] ?? STATUS_CONFIG.PENDING;
+              const confirmedMonths = m.monthlyEnrollments.filter(
+                (me) => me.status === "CONFIRMED",
+              ).length;
+              const cancelledMonths = m.monthlyEnrollments.filter(
+                (me) => me.status === "CANCELLED",
+              ).length;
+              // resolvedSlots are identical across all child months — read from first
+              const resolvedSlots =
+                m.monthlyEnrollments[0]?.resolvedSlots ?? [];
+
+              return (
+                <AdminTr key={m.id}>
+                  <AdminTd>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[10px] font-semibold"
+                        style={{
+                          background: "rgba(96,165,250,0.12)",
+                          color: "#60a5fa",
+                        }}
+                      >
+                        {m.student.firstName[0]}
+                        {m.student.lastName[0]}
+                      </div>
+                      <div>
+                        <p
+                          className="text-sm font-medium"
+                          style={{ color: adminColors.textPrimary }}
+                        >
+                          {m.student.firstName} {m.student.lastName}
+                        </p>
+                        <p
+                          className="text-xs"
+                          style={{ color: adminColors.textMuted }}
+                        >
+                          {m.student.user.phone ?? m.student.user.email ?? "—"}
+                        </p>
+                      </div>
+                    </div>
+                  </AdminTd>
+
+                  <AdminTd>
+                    <p
+                      className="text-sm"
+                      style={{ color: adminColors.textSecondary }}
+                    >
+                      {m.subClass.name}
+                    </p>
+                    <p
+                      className="text-xs"
+                      style={{ color: adminColors.textMuted }}
+                    >
+                      {m.subClass.class.name}
+                    </p>
+                  </AdminTd>
+
+                  <AdminTd>
+                    <p className="text-xs" style={{ color: "#60a5fa" }}>
+                      {MONTHS_SHORT[m.startMonth - 1]} {m.startYear}
+                      {" → "}
+                      {MONTHS_SHORT[m.endMonth - 1]} {m.endYear}
+                    </p>
+                    <p
+                      className="text-sm text-[10px]"
+                      style={{ color: adminColors.textPrimary }}
+                    >
+                      {m.totalMonths} months
+                    </p>
+                    <p
+                      className="text-[10px]"
+                      style={{ color: adminColors.textMuted }}
+                    >
+                      {confirmedMonths} confirmed
+                      {cancelledMonths > 0 && `, ${cancelledMonths} cancelled`}
+                    </p>
+                    {/* <CalendarDays size={11} style={{ color: "#60a5fa" }} /> */}
+                  </AdminTd>
+
+                  {/* Teacher column */}
+                  <AdminTd>
+                    {resolvedSlots.length === 0 ? (
+                      <span
+                        className="text-xs"
+                        style={{ color: adminColors.textMuted }}
+                      >
+                        —
+                      </span>
+                    ) : (
+                      <div className="space-y-1">
+                        {resolvedSlots.map((slot, i) => (
+                          <p
+                            key={i}
+                            className="text-xs font-medium"
+                            style={{ color: adminColors.textSecondary }}
+                          >
+                            {slot.teacher
+                              ? `${slot.teacher.firstName} ${slot.teacher.lastName}`
+                              : "—"}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </AdminTd>
+
+                  {/* Schedule column */}
+                  <AdminTd>
+                    {resolvedSlots.length === 0 ? (
+                      <span
+                        className="text-xs"
+                        style={{ color: adminColors.textMuted }}
+                      >
+                        —
+                      </span>
+                    ) : (
+                      <div className="space-y-1">
+                        {resolvedSlots.map((slot, i) => (
+                          <div key={i}>
+                            <p
+                              className="text-xs font-medium"
+                              style={{ color: adminColors.textSecondary }}
+                            >
+                              {DAY_SHORT[slot.dayOfWeek] ?? slot.dayOfWeek}
+                            </p>
+                            <p
+                              className="text-[10px]"
+                              style={{ color: adminColors.textMuted }}
+                            >
+                              {slot.startTime}–{slot.endTime}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </AdminTd>
+
+                  <AdminTd>
+                    <p
+                      className="text-sm font-medium"
+                      style={{ color: adminColors.textPrimary }}
+                    >
+                      {Number(m.totalAmount).toFixed(3)}
+                    </p>
+                    <p
+                      className="text-xs"
+                      style={{ color: adminColors.textMuted }}
+                    >
+                      OMR
+                    </p>
+                  </AdminTd>
+
+                  <AdminTd>
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
+                        style={{ background: payConf.color }}
+                      />
+                      <span
+                        className="text-xs"
+                        style={{ color: payConf.color }}
+                      >
+                        {payConf.label}
+                      </span>
+                    </div>
+                    {m.payment?.paidAt && (
+                      <p
+                        className="text-[10px] mt-0.5"
+                        style={{ color: adminColors.textMuted }}
+                      >
+                        {new Date(m.payment.paidAt).toLocaleDateString(
+                          "en-GB",
+                          { day: "2-digit", month: "short" },
                         )}
                       </p>
                     )}
@@ -838,21 +1297,21 @@ export default function EnrollmentsClient({
                       {payStatus !== "PAID" && (
                         <button
                           onClick={() =>
-                            setModal({ type: "payment", data: enrollment })
+                            setModal({ type: "payment-multi", data: m })
                           }
-                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-green-400 hover:bg-green-500/[0.08]"
+                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-green-400 hover:bg-green-500/8"
                           title="Record payment"
                         >
                           <CreditCard size={13} />
                         </button>
                       )}
-                      {enrollment.status !== "CANCELLED" && (
+                      {m.status !== "CANCELLED" && (
                         <button
                           onClick={() =>
-                            setModal({ type: "cancel", data: enrollment })
+                            setModal({ type: "cancel-multi", data: m })
                           }
-                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/[0.08]"
-                          title="Cancel enrollment"
+                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
+                          title="Cancel plan"
                         >
                           <XCircle size={13} />
                         </button>
@@ -860,10 +1319,10 @@ export default function EnrollmentsClient({
                       {payStatus !== "PAID" && (
                         <button
                           onClick={() =>
-                            setModal({ type: "delete", data: enrollment })
+                            setModal({ type: "delete-multi", data: m })
                           }
-                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/[0.08]"
-                          title="Delete enrollment"
+                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
+                          title="Delete plan"
                         >
                           <Trash2 size={13} />
                         </button>
@@ -875,9 +1334,9 @@ export default function EnrollmentsClient({
             })}
           </AdminTbody>
         </AdminTable>
-      )}
-    </AdminCard>
-  );
+      </AdminCard>
+    );
+  };
 
   // ─────────────────────────────────────────────
   // RENDER
@@ -901,8 +1360,8 @@ export default function EnrollmentsClient({
         }
       />
 
-      {/* ── Stats bar ── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {/* ── Stats ── */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         {[
           {
             label: "Total",
@@ -911,10 +1370,11 @@ export default function EnrollmentsClient({
           },
           { label: "Confirmed", value: stats.confirmed, color: "#34d399" },
           { label: "Pending", value: stats.pending, color: "#f59e0b" },
+          { label: "Multi-plans", value: stats.multiPlans, color: "#60a5fa" },
           {
             label: "Revenue",
             value: `${stats.revenue.toFixed(3)} OMR`,
-            color: "#60a5fa",
+            color: "#a78bfa",
           },
         ].map(({ label, value, color }) => (
           <div
@@ -945,7 +1405,25 @@ export default function EnrollmentsClient({
           className="flex items-center rounded-lg border overflow-hidden"
           style={{ borderColor: "rgba(255,255,255,0.08)" }}
         >
-          {(["month", "list"] as const).map((mode) => (
+          {(
+            [
+              {
+                mode: "month",
+                icon: <Users size={13} />,
+                label: "By Sub-class",
+              },
+              {
+                mode: "list",
+                icon: <List size={13} />,
+                label: "All Enrollments",
+              },
+              {
+                mode: "multi",
+                icon: <Layers size={13} />,
+                label: "Multi-month",
+              },
+            ] as const
+          ).map(({ mode, icon, label }) => (
             <button
               key={mode}
               onClick={() => setViewMode(mode)}
@@ -958,36 +1436,48 @@ export default function EnrollmentsClient({
                 color: viewMode === mode ? "#f59e0b" : adminColors.textMuted,
               }}
             >
-              {mode === "month" ? <Users size={13} /> : <List size={13} />}
-              {mode === "month" ? "By Sub-class" : "All Enrollments"}
+              {icon} {label}
+              {mode === "multi" && stats.multiPlans > 0 && (
+                <span
+                  className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold"
+                  style={{
+                    background: "rgba(96,165,250,0.15)",
+                    color: "#60a5fa",
+                  }}
+                >
+                  {stats.multiPlans}
+                </span>
+              )}
             </button>
           ))}
         </div>
 
-        {/* Month navigator */}
-        <div
-          className="flex items-center gap-1 rounded-lg border px-1"
-          style={{ borderColor: "rgba(255,255,255,0.08)" }}
-        >
-          <button
-            onClick={() => navigateMonth(-1)}
-            className="p-1.5 rounded-md transition-colors text-white/40 hover:text-white/80"
+        {/* Month navigator (hidden on multi view) */}
+        {viewMode !== "multi" && (
+          <div
+            className="flex items-center gap-1 rounded-lg border px-1"
+            style={{ borderColor: "rgba(255,255,255,0.08)" }}
           >
-            <ChevronLeft size={14} />
-          </button>
-          <span
-            className="text-sm px-2 font-medium"
-            style={{ color: adminColors.textSecondary }}
-          >
-            {MONTHS_SHORT[month - 1]} {year}
-          </span>
-          <button
-            onClick={() => navigateMonth(1)}
-            className="p-1.5 rounded-md transition-colors text-white/40 hover:text-white/80"
-          >
-            <ChevronRight size={14} />
-          </button>
-        </div>
+            <button
+              onClick={() => navigateMonth(-1)}
+              className="p-1.5 rounded-md transition-colors text-white/40 hover:text-white/80"
+            >
+              <ChevronLeft size={14} />
+            </button>
+            <span
+              className="text-sm px-2 font-medium"
+              style={{ color: adminColors.textSecondary }}
+            >
+              {MONTHS_SHORT[month - 1]} {year}
+            </span>
+            <button
+              onClick={() => navigateMonth(1)}
+              className="p-1.5 rounded-md transition-colors text-white/40 hover:text-white/80"
+            >
+              <ChevronRight size={14} />
+            </button>
+          </div>
+        )}
 
         {/* List-view filters */}
         {viewMode === "list" && (
@@ -998,7 +1488,7 @@ export default function EnrollmentsClient({
                 setFilterClass(e.target.value);
                 setFilterSubClass("");
               }}
-              className="px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none"
+              className="px-3 py-2 rounded-lg text-sm border bg-white/4 text-white/70 focus:outline-none"
               style={{ borderColor: "rgba(255,255,255,0.08)" }}
             >
               <option className="text-black" value="">
@@ -1014,7 +1504,7 @@ export default function EnrollmentsClient({
             <select
               value={filterSubClass}
               onChange={(e) => setFilterSubClass(e.target.value)}
-              className="px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none"
+              className="px-3 py-2 rounded-lg text-sm border bg-white/4 text-white/70 focus:outline-none"
               style={{ borderColor: "rgba(255,255,255,0.08)" }}
             >
               <option className="text-black" value="">
@@ -1030,7 +1520,7 @@ export default function EnrollmentsClient({
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none"
+              className="px-3 py-2 rounded-lg text-sm border bg-white/4 text-white/70 focus:outline-none"
               style={{ borderColor: "rgba(255,255,255,0.08)" }}
             >
               <option className="text-black" value="">
@@ -1051,12 +1541,16 @@ export default function EnrollmentsClient({
         >
           {viewMode === "list"
             ? `${filteredEnrollments.length} enrollments`
-            : `${stats.total} enrollments this month`}
+            : viewMode === "multi"
+              ? `${multiMonthEnrollments.length} plans`
+              : `${stats.total} enrollments this month`}
         </span>
       </div>
 
       {/* ── Main view ── */}
-      {viewMode === "month" ? <MonthView /> : <ListView />}
+      {viewMode === "month" && <MonthView />}
+      {viewMode === "list" && <ListView />}
+      {viewMode === "multi" && <MultiView />}
 
       {/* ── Modals ── */}
       {modal?.type === "add" && (
@@ -1068,8 +1562,9 @@ export default function EnrollmentsClient({
           defaultYear={year}
         />
       )}
-      {modal?.type === "payment" && (
+      {modal?.type === "payment-single" && (
         <PaymentModal
+          type="single"
           enrollment={modal.data}
           onClose={() => setModal(null)}
           onSuccess={() => {
@@ -1078,20 +1573,56 @@ export default function EnrollmentsClient({
           }}
         />
       )}
-      {modal?.type === "cancel" && (
+      {modal?.type === "payment-multi" && (
+        <PaymentModal
+          type="multi"
+          enrollment={modal.data}
+          onClose={() => setModal(null)}
+          onSuccess={() => {
+            toast("Payment recorded. All months confirmed.", "success");
+            handleSuccess();
+          }}
+        />
+      )}
+      {modal?.type === "cancel-single" && (
         <DeleteConfirmModal
           title="Cancel enrollment?"
           description={`Cancel ${modal.data.student.firstName} ${modal.data.student.lastName}'s enrollment in ${modal.data.subClass.name} for ${MONTHS[modal.data.month - 1]} ${modal.data.year}? This will not delete the payment record.`}
           confirmLabel="Yes, Cancel"
-          onConfirm={() => handleCancel(modal.data.id)}
+          onConfirm={() => {
+            handleCancelSingle(modal.data.id);
+          }}
           onClose={() => setModal(null)}
         />
       )}
-      {modal?.type === "delete" && (
+      {modal?.type === "cancel-multi" && (
+        <DeleteConfirmModal
+          title="Cancel multi-month plan?"
+          description={`Cancel ${modal.data.student.firstName} ${modal.data.student.lastName}'s ${modal.data.totalMonths}-month plan for ${modal.data.subClass.name}? Only future months will be cancelled — past and current months are unaffected.`}
+          confirmLabel="Yes, Cancel Future Months"
+          onConfirm={() => {
+            handleCancelMulti(modal.data.id);
+          }}
+          onClose={() => setModal(null)}
+        />
+      )}
+      {modal?.type === "delete-single" && (
         <DeleteConfirmModal
           title="Delete enrollment?"
           description={`Permanently delete ${modal.data.student.firstName} ${modal.data.student.lastName}'s enrollment in ${modal.data.subClass.name}? This cannot be undone.`}
-          onConfirm={() => handleDelete(modal.data.id)}
+          onConfirm={() => {
+            handleDeleteSingle(modal.data.id);
+          }}
+          onClose={() => setModal(null)}
+        />
+      )}
+      {modal?.type === "delete-multi" && (
+        <DeleteConfirmModal
+          title="Delete multi-month plan?"
+          description={`Permanently delete ${modal.data.student.firstName} ${modal.data.student.lastName}'s ${modal.data.totalMonths}-month plan and all its monthly enrollments? This cannot be undone.`}
+          onConfirm={() => {
+            handleDeleteMulti(modal.data.id);
+          }}
           onClose={() => setModal(null)}
         />
       )}
@@ -1101,7 +1632,6 @@ export default function EnrollmentsClient({
   );
 }
 
-// ── Small menu button ──
 function MenuBtn({
   icon,
   label,
@@ -1119,7 +1649,7 @@ function MenuBtn({
         e.stopPropagation();
         onClick();
       }}
-      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs transition-colors hover:bg-white/[0.04]"
+      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs transition-colors hover:bg-white/4"
       style={{ color }}
     >
       {icon} {label}

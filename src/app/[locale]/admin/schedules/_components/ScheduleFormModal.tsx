@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { X, Loader2, AlertTriangle } from "lucide-react";
+import { X, Loader2, AlertTriangle, RefreshCw } from "lucide-react";
 import {
   createSchedule,
   updateSchedule,
@@ -44,6 +44,8 @@ const STATUS_OPTIONS = [
 interface SubClassOption {
   id: string;
   name: string;
+  isReschedulable: boolean;
+  sessionType: string; // ← add this
   class: { id: string; name: string };
   teachers: { teacher: { id: string; firstName: string; lastName: string } }[];
 }
@@ -73,13 +75,13 @@ export default function ScheduleFormModal({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  // Track selected subclass to filter teachers to those assigned to it
   const [selectedSubClassId, setSelectedSubClassId] = useState<string>(
     editing?.subClassId ?? "",
   );
 
   const selectedSubClass = subClasses.find((s) => s.id === selectedSubClassId);
-  // Show teachers assigned to this subclass, fall back to all teachers
+  const isPrivate = ["PRIVATE"].includes(selectedSubClass?.sessionType ?? "");
+
   const availableTeachers = selectedSubClass?.teachers.length
     ? selectedSubClass.teachers.map((t) => t.teacher)
     : teachers;
@@ -104,6 +106,11 @@ export default function ScheduleFormModal({
     ? new Date(editing.endDate).toISOString().split("T")[0]
     : "";
 
+  // isReschedulable for the currently selected sub-class
+  const isReschedulable = editing
+    ? ((editing.subClass as any).isReschedulable ?? false)
+    : (selectedSubClass?.isReschedulable ?? false);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
@@ -111,11 +118,11 @@ export default function ScheduleFormModal({
         onClick={onClose}
       />
       <div
-        className="relative w-full max-w-lg rounded-2xl border border-white/[0.08] shadow-2xl z-10 max-h-[92vh] flex flex-col"
+        className="relative w-full max-w-lg rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[92vh] flex flex-col"
         style={{ background: "#1a1d27" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] shrink-0">
           <div>
             <h2
               className="text-sm font-semibold"
@@ -134,7 +141,7 @@ export default function ScheduleFormModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
           >
             <X size={15} />
           </button>
@@ -175,6 +182,59 @@ export default function ScheduleFormModal({
                     type="hidden"
                     name="subClassId"
                     value={editing.subClassId}
+                  />
+                </div>
+              )}
+
+              {/* isReschedulable read-only indicator */}
+              {(selectedSubClassId || editing) && (
+                <div
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg"
+                  style={{
+                    background: isReschedulable
+                      ? "rgba(52,211,153,0.06)"
+                      : "rgba(255,255,255,0.03)",
+                    border: `1px solid ${isReschedulable ? "rgba(52,211,153,0.2)" : "rgba(255,255,255,0.07)"}`,
+                  }}
+                >
+                  <div
+                    className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{
+                      background: isReschedulable
+                        ? "#34d399"
+                        : "rgba(255,255,255,0.2)",
+                    }}
+                  />
+                  <div>
+                    <p
+                      className="text-xs font-medium"
+                      style={{
+                        color: isReschedulable
+                          ? "#34d399"
+                          : adminColors.textMuted,
+                      }}
+                    >
+                      {isReschedulable
+                        ? "Rescheduling enabled"
+                        : "Rescheduling disabled"}
+                    </p>
+                    <p
+                      className="text-[10px]"
+                      style={{ color: adminColors.textMuted }}
+                    >
+                      {isReschedulable
+                        ? "Students can reschedule individual sessions (private class)"
+                        : "Fixed group class — students cannot reschedule"}
+                    </p>
+                  </div>
+                  <RefreshCw
+                    size={12}
+                    className="ml-auto flex-shrink-0"
+                    style={{
+                      color: isReschedulable
+                        ? "#34d399"
+                        : "rgba(255,255,255,0.15)",
+                    }}
                   />
                 </div>
               )}
@@ -287,9 +347,7 @@ export default function ScheduleFormModal({
                     support{" "}
                     <strong style={{ color: "#93c5fd" }}>twice-per-week</strong>{" "}
                     enrollment, create a second schedule for the same sub-class
-                    on a different day (e.g. Monday + Wednesday). Students will
-                    then be able to choose once or twice per week when
-                    enrolling.
+                    on a different day (e.g. Monday + Wednesday).
                   </p>
                 </div>
               )}
@@ -306,19 +364,28 @@ export default function ScheduleFormModal({
                   max="100"
                   defaultValue={String(editing?.maxCapacity ?? 10)}
                 />
-                <AdminSelect
-                  label="Visibility"
-                  name="isPublic"
-                  defaultValue={editing?.isPublic ? "true" : "false"}
-                >
-                  <option className="text-black" value="false">
-                    Private
-                  </option>
-                  <option className="text-black" value="true">
-                    Public
-                  </option>
-                </AdminSelect>
+                {(selectedSubClassId || editing) && (
+                  <div
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg"
+                    style={{
+                      background: isPrivate
+                        ? "rgba(167,139,250,0.06)"
+                        : "rgba(96,165,250,0.06)",
+                      border: `1px solid ${isPrivate ? "rgba(167,139,250,0.2)" : "rgba(96,165,250,0.2)"}`,
+                    }}
+                  >
+                    <p
+                      className="text-xs font-medium"
+                      style={{ color: isPrivate ? "#a78bfa" : "#60a5fa" }}
+                    >
+                      {isPrivate
+                        ? "Private class — capacity locked to 1"
+                        : "Public group class"}
+                    </p>
+                  </div>
+                )}
               </div>
+
               <AdminSelect
                 label="Recurring"
                 name="isRecurring"
@@ -331,6 +398,7 @@ export default function ScheduleFormModal({
                   No — one-off
                 </option>
               </AdminSelect>
+
               <AdminInput
                 label="Online Link (optional)"
                 name="onlineLink"
@@ -338,6 +406,7 @@ export default function ScheduleFormModal({
                 placeholder="https://meet.google.com/…"
                 defaultValue={editing?.onlineLink ?? ""}
               />
+
               {editing && (
                 <AdminSelect
                   label="Status"

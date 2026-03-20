@@ -1,10 +1,31 @@
+// src/components/payment/MonthlyPaymentClient.tsx
 "use client";
 
-import {
-  MonthlyPaymentData,
-  confirmMonthlyPayment,
-} from "@/lib/actions/confirm-payment";
+import { confirmMonthlyPayment } from "@/lib/actions/confirm-payment";
 import { PaymentShell } from "@/components/payment/PaymentShell";
+import { DayOfWeek, FrequencyType } from "@prisma/client";
+
+export type MonthlyPaymentProps = {
+  month: number;
+  year: number;
+  frequency: FrequencyType;
+  preferredDays: DayOfWeek[];
+  amount: number;
+  currency: string;
+  studentName: string;
+  studentEmail: string;
+  subClass: {
+    name: string;
+    className: string;
+    level: string | null;
+    durationMinutes: number;
+  };
+  teacher: {
+    firstName: string;
+    lastName: string;
+    photoUrl: string | null;
+  } | null;
+};
 
 const MONTH_NAMES = [
   "",
@@ -37,7 +58,7 @@ const FREQUENCY_LABELS: Record<string, string> = {
   TWICE_PER_WEEK: "Twice a Week",
 };
 
-export function MonthlyPaymentClient({ data }: { data: MonthlyPaymentData }) {
+export function MonthlyPaymentClient({ data }: { data: MonthlyPaymentProps }) {
   const badge = `Monthly · ${FREQUENCY_LABELS[data.frequency] ?? data.frequency}`;
   const monthLabel = `${MONTH_NAMES[data.month]} ${data.year}`;
   const daysLabel = data.preferredDays
@@ -67,10 +88,21 @@ export function MonthlyPaymentClient({ data }: { data: MonthlyPaymentData }) {
       studentName={data.studentName}
       studentEmail={data.studentEmail}
       lineItems={lineItems}
-      total={data.totalAmount}
+      total={data.amount.toString()}
       currency={data.currency}
-      alreadyPaid={data.status === "CONFIRMED"}
-      onConfirm={() => confirmMonthlyPayment(data.enrollmentId)}
+      alreadyPaid={false} // nothing is ever pre-confirmed now
+      onConfirm={() =>
+        confirmMonthlyPayment({
+          studentId: data.studentId,
+          subClassId: data.subClassId,
+          month: data.month,
+          year: data.year,
+          frequency: data.frequency,
+          preferredDays: data.preferredDays,
+          amount: data.amount,
+          currency: data.currency,
+        })
+      }
       successRedirect="/reservation?success=1"
     />
   );

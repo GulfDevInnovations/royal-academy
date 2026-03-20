@@ -7,7 +7,8 @@ import { AdminButton, adminColors } from "@/components/admin/ui";
 interface Props {
   title: string;
   description: string;
-  onConfirm: () => Promise<{ error?: string; success?: boolean }>;
+  confirmLabel?: string;
+  onConfirm: () => void | Promise<{ error?: string; success?: boolean }>;
   onClose: () => void;
 }
 
@@ -24,7 +25,7 @@ export default function DeleteConfirmModal({
     setError(null);
     startTransition(async () => {
       const result = await onConfirm();
-      if (result.error) {
+      if (result && result.error) {
         setError(result.error);
       } else {
         onClose();

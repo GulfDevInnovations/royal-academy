@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useLocale } from "next-intl";
 import { useState } from "react";
@@ -31,6 +32,7 @@ const navGroups = [
       { label: "Classes", href: "/admin/classes", icon: BookOpen },
       { label: "Teachers", href: "/admin/teachers", icon: GraduationCap },
       { label: "Students", href: "/admin/students", icon: Users },
+      { label: "Gallery", href: "/admin/gallery", icon: Sparkles },
     ],
   },
   {
@@ -63,33 +65,39 @@ export default function AdminSidebar() {
   return (
     <aside
       className={`
-        relative flex flex-col h-full border-r border-white/[0.06]
-        transition-all duration-300 ease-in-out flex-shrink-0
-        ${collapsed ? "w-[64px]" : "w-[220px]"}
+        relative flex flex-col h-full border-r border-white/6
+        transition-all duration-300 ease-in-out shrink-0
+        ${collapsed ? "w-16" : "w-55"}
       `}
       style={{ background: "#0f1117" }}
     >
-      {/* ── Logo ── */}
-      <div
-        className={`
-          flex items-center gap-3 border-b border-white/[0.06] flex-shrink-0
-          ${collapsed ? "px-4 py-[18px] justify-center" : "px-5 py-[18px]"}
-        `}
-      >
-        <div
-          className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center"
-          style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)" }}
-        >
-          <Music4 className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
-        </div>
+      <div>
+        {/* Logo */}
+        {collapsed && (
+          <div className="flex m-4">
+            <Link href={`/${locale}`}>
+              <Image
+                src="/images/Logo-gray-cropped.png"
+                alt="Royal Academy"
+                width={140}
+                height={52}
+                className="object-contain"
+              />
+            </Link>
+          </div>
+        )}
+
         {!collapsed && (
-          <div className="overflow-hidden">
-            <p className="text-white text-sm font-semibold tracking-tight leading-none">
-              Baytona
-            </p>
-            <p className="text-white/25 text-[10px] tracking-widest uppercase mt-0.5">
-              Studio
-            </p>
+          <div className="flex m-4">
+            <Link href={`/${locale}`}>
+              <Image
+                src="/images/Logo-White.png"
+                alt="Royal Academy"
+                width={140}
+                height={52}
+                className="object-contain"
+              />
+            </Link>
           </div>
         )}
       </div>
@@ -124,7 +132,7 @@ export default function AdminSidebar() {
                       ${
                         active
                           ? "text-amber-400"
-                          : "text-white/40 hover:text-white/75 hover:bg-white/[0.03]"
+                          : "text-white/40 hover:text-white/75 hover:bg-white/3"
                       }
                     `}
                   >

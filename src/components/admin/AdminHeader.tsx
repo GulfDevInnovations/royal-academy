@@ -17,7 +17,7 @@ export default function AdminHeader({
 
   return (
     <header
-      className="h-14 flex items-center justify-between px-6 flex-shrink-0 border-b border-white/[0.06]"
+      className="h-14 flex items-center justify-between px-6 shrink-0 border-b border-white/6"
       style={{ background: "#13161f" }}
     >
       {/* ── Search ── */}
@@ -31,9 +31,9 @@ export default function AdminHeader({
           placeholder="Search..."
           className="
             w-full pl-9 pr-4 py-1.5 text-sm rounded-lg
-            border border-white/[0.07] bg-white/[0.04]
+            border border-white/[0.07] bg-white/4
             text-white/70 placeholder-white/20
-            focus:outline-none focus:border-amber-500/40 focus:bg-white/[0.06]
+            focus:outline-none focus:border-amber-500/40 focus:bg-white/6
             transition-all duration-150
           "
         />

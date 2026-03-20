@@ -188,7 +188,6 @@ export async function getPaymentStats(month?: number, year?: number) {
 
   return {
     paid:     merge("PAID"),
-    pending:  merge("PENDING"),
     failed:   merge("FAILED"),
     refunded: merge("REFUNDED"),
   };

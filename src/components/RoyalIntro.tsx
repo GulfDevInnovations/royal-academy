@@ -78,22 +78,22 @@ function BubbleNode({
         position: "absolute",
         top: 0,
         left: 0,
-        width: baseSize,
-        height: baseSize,
-        borderRadius: "50%",
+        width: "auto",
+        height: "auto",
+        minWidth: 250,
+        padding: "16px 32px",
+        borderRadius: "9999px",
         willChange: "transform, opacity, filter",
         transform: "translate(-9999px, -9999px)",
-        transformOrigin: "top left",
+        transformOrigin: "center",
         background: `radial-gradient(circle at 38% 32%,
   rgba(196,168,130,0.15) 0%,
-  rgba(89,44,65,0.35) 55%,
+  rgba(89,44,65,0.35) 0%,
   rgba(89,44,65,0.55) 100%)`,
         backdropFilter: "blur(18px) saturate(1.6)",
         WebkitBackdropFilter: "blur(18px) saturate(1.6)",
         boxShadow: `
-          0 8px 40px rgba(0,0,0,0.4),
-          inset 0 0 0 1px rgba(196,168,130,0.25),
-          inset 0 2px 6px rgba(255,255,255,0.12),
+          2px 2px 24px rgba(0,0,0,0.2),
           inset 0 -2px 6px rgba(89,44,65,0.50) `,
         display: "flex",
         alignItems: "center",
@@ -102,21 +102,25 @@ function BubbleNode({
         userSelect: "none",
       }}
     >
-      <div
+      {/* <div
         style={{
           position: "absolute",
           inset: 0,
-          borderRadius: "50%",
+          width: "auto",
+          height: "auto",
+          minWidth: 160,
+          padding: "16px 32px",
+          borderRadius: "9999px",
           background: `conic-gradient(from 160deg, rgba(196,168,130,0.09), rgba(212,184,150,0.16), rgba(196,168,130,0.04), rgba(222,194,171,0.12), rgba(196,168,130,0.09))`,
           mixBlendMode: "screen",
           pointerEvents: "none",
         }}
-      />
+      /> */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          borderRadius: "50%",
+          borderRadius: "30%",
           background:
             "radial-gradient(circle at 62% 72%, rgba(89,44,65,0.45) 0%, transparent 60%)",
           pointerEvents: "none",
@@ -154,7 +158,7 @@ function BubbleNode({
             style={{
               width: 3,
               height: 3,
-              borderRadius: "50%",
+              borderRadius: "30%",
               background: "rgba(196,168,130,0.85)",
             }}
           />
@@ -273,8 +277,7 @@ export default function RoyalIntro({
       for (let i = 0; i < state.length; i++) {
         const p = state[i];
         const scale = Z_SCALE_MIN + (Z_SCALE_MAX - Z_SCALE_MIN) * p.z;
-        const r = (p.baseSize / 2) * scale;
-
+        const r = 90 * scale;
         // Mouse repulsion
         const dx = p.x - mouse.x;
         const dy = p.y - mouse.y;
@@ -290,7 +293,7 @@ export default function RoyalIntro({
         for (let j = i + 1; j < state.length; j++) {
           const q = state[j];
           const qScale = Z_SCALE_MIN + (Z_SCALE_MAX - Z_SCALE_MIN) * q.z;
-          const qr = (q.baseSize / 2) * qScale;
+          const qr = 90 * qScale;
           const minDist = r + qr + 50;
           const bx = p.x - q.x;
           const by = p.y - q.y;
@@ -396,7 +399,7 @@ export default function RoyalIntro({
   }, [active, onScrolled]);
 
   return (
-    <div ref={containerRef} className="w-full h-full relative overflow-hidden">
+    <div ref={containerRef} className="w-full h-full relative">
       {/* Room background */}
       <Image
         src="/images/initial-room2.png"
@@ -420,35 +423,44 @@ export default function RoyalIntro({
         }}
       />
 
-      {/* Bubbles */}
-      {BUBBLES.map((b, i) => (
-        <motion.div
-          key={b.id}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{
-            delay: 0.3 + i * 0.18,
-            duration: 1.4,
-            ease: "easeInOut",
-          }}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            zIndex: 2,
-            willChange: "opacity",
-          }}
-        >
-          <BubbleNode
-            title={b.title}
-            text={b.text}
-            baseSize={b.baseSize}
-            nodeRef={(el) => {
-              nodeRefs.current[i] = el;
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 2,
+          clipPath: "inset(0)",
+        }}
+      >
+        {/* Bubbles */}
+        {BUBBLES.map((b, i) => (
+          <motion.div
+            key={b.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{
+              delay: 0.3 + i * 0.18,
+              duration: 1.4,
+              ease: "easeInOut",
             }}
-          />
-        </motion.div>
-      ))}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              zIndex: 2,
+              willChange: "opacity",
+            }}
+          >
+            <BubbleNode
+              title={b.title}
+              text={b.text}
+              baseSize={b.baseSize}
+              nodeRef={(el) => {
+                nodeRefs.current[i] = el;
+              }}
+            />
+          </motion.div>
+        ))}
+      </div>
 
       {/* Scroll hint */}
       <AnimatePresence>
@@ -484,7 +496,11 @@ export default function RoyalIntro({
             </p>
             <motion.div
               animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
               style={{
                 width: 1,
                 height: 28,

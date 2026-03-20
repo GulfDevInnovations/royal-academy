@@ -5,6 +5,14 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+export type SubClassTeacherSchedule = {
+  id:        string;
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
+  endDate: string | null; // ISO string — null means schedule runs indefinitely
+};
+
 export type SubClassTeacherInfo = {
   id: string;
   firstName: string;
@@ -12,7 +20,12 @@ export type SubClassTeacherInfo = {
   photoUrl: string | null;
   bio: string | null;
   specialties: string[];
-  availableDays: string[]; // days THIS teacher teaches THIS subclass
+  availableDays: string[];       // days THIS teacher teaches THIS subclass
+  schedules: SubClassTeacherSchedule[]; // full slot info per day
+  // Max months a student can enroll starting from today, capped by the
+  // earliest endDate across this teacher's schedules for this subclass.
+  // null = no limit (schedules run indefinitely).
+  maxBookableMonths: number | null;
 };
 
 export type SubClassCard = {
@@ -45,9 +58,7 @@ export async function getSubClassCards(): Promise<SubClassCard[]> {
     include: {
       class: true,
       teachers: {
-        include: {
-          teacher: true,
-        },
+        include: { teacher: true },
       },
     },
     orderBy: [{ class: { sortOrder: "asc" } }, { name: "asc" }],
@@ -79,13 +90,15 @@ export async function getSubClassCards(): Promise<SubClassCard[]> {
       photoUrl: t.teacher.photoUrl,
       bio: t.teacher.bio,
       specialties: t.teacher.specialties,
-      availableDays: [], // not needed on cards page
+      availableDays: [],
+      schedules: [],
+      maxBookableMonths: null,
     })),
   }));
 }
 
 export async function getSubClassDetail(
-  id: string
+  id: string,
 ): Promise<SubClassDetail | null> {
   const s = await prisma.subClass.findUnique({
     where: { id, isActive: true },
@@ -95,13 +108,15 @@ export async function getSubClassDetail(
         include: {
           teacher: {
             include: {
-              // Get schedules for THIS subclass only
               classSchedules: {
-                where: {
-                  subClassId: id,
-                  status: "ACTIVE",
+                where: { subClassId: id, status: "ACTIVE" },
+                select: {
+                  id:        true,
+                  dayOfWeek: true,
+                  startTime: true,
+                  endTime: true,
+                  endDate: true,
                 },
-                select: { dayOfWeek: true },
               },
             },
           },
@@ -111,6 +126,10 @@ export async function getSubClassDetail(
   });
 
   if (!s) return null;
+
+  const now = new Date();
+  // Start of the current month, used to compute max bookable months
+  const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
   return {
     id: s.id,
@@ -131,26 +150,62 @@ export async function getSubClassDetail(
       name: s.class.name,
       iconUrl: s.class.iconUrl,
     },
-    teachers: s.teachers.map((t) => ({
-      id: t.teacher.id,
-      firstName: t.teacher.firstName,
-      lastName: t.teacher.lastName,
-      photoUrl: t.teacher.photoUrl,
-      bio: t.teacher.bio,
-      specialties: t.teacher.specialties,
-      // Days THIS teacher teaches THIS subclass
-      availableDays: [
-        ...new Set(
-          t.teacher.classSchedules.map((cs) => cs.dayOfWeek)
-        ),
-      ],
-    })),
+    teachers: s.teachers.map((t) => {
+      const teacherSchedules = t.teacher.classSchedules;
+
+      const schedules: SubClassTeacherSchedule[] = teacherSchedules.map(
+        (cs) => ({
+          id:        cs.id,
+          dayOfWeek: cs.dayOfWeek,
+          startTime: cs.startTime,
+          endTime: cs.endTime,
+          endDate: cs.endDate ? cs.endDate.toISOString() : null,
+        }),
+      );
+
+      // Compute maxBookableMonths: find the earliest endDate across all
+      // this teacher's schedules for this subclass. If any schedule has
+      // no endDate (null), it doesn't cap the range — only finite endDates
+      // cap it. If ALL schedules have no endDate, maxBookableMonths = null.
+      const finiteEndDates = teacherSchedules
+        .map((cs) => cs.endDate)
+        .filter((d): d is Date => d != null);
+
+      let maxBookableMonths: number | null = null;
+      if (finiteEndDates.length > 0) {
+        // Use the earliest end date as the cap
+        const earliestEnd = new Date(
+          Math.min(...finiteEndDates.map((d) => d.getTime())),
+        );
+        // How many full months from start of current month to earliestEnd?
+        const endYear = earliestEnd.getFullYear();
+        const endMonth = earliestEnd.getMonth(); // 0-based
+        const startYear = startOfCurrentMonth.getFullYear();
+        const startMonth = startOfCurrentMonth.getMonth(); // 0-based
+        const monthDiff =
+          (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
+        // Cap between 1 and 12
+        maxBookableMonths = Math.max(1, Math.min(12, monthDiff));
+      }
+
+      return {
+        id: t.teacher.id,
+        firstName: t.teacher.firstName,
+        lastName: t.teacher.lastName,
+        photoUrl: t.teacher.photoUrl,
+        bio: t.teacher.bio,
+        specialties: t.teacher.specialties,
+        availableDays: [...new Set(teacherSchedules.map((cs) => cs.dayOfWeek))],
+        schedules,
+        maxBookableMonths,
+      };
+    }),
   };
 }
 
 export async function checkTrialEligibility(
   studentId: string,
-  subClassId: string
+  subClassId: string,
 ): Promise<{ eligible: boolean; reason?: string }> {
   const existing = await prisma.trialBooking.findUnique({
     where: { studentId_subClassId: { studentId, subClassId } },

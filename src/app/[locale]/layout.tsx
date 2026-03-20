@@ -117,16 +117,12 @@ export default async function LocaleLayout({
       dir={isArabic ? "rtl" : "ltr"}
       className={`${goudy.variable} ${layla.variable}`}
     >
-      <body
-        className={`
-          antialiased min-h-screen
-          bg-royal-purple text-royal-cream
-          ${isArabic ? "font-layla" : "font-goudy"}
-        `}
-      >
-        <NextIntlClientProvider messages={messages}>
-          <ConditionalLayout>{children}</ConditionalLayout>
-        </NextIntlClientProvider>
+      <body>
+        <div className="min-h-screen bg-royal-purple text-royal-cream">
+          <NextIntlClientProvider messages={messages}>
+            <ConditionalLayout>{children}</ConditionalLayout>
+          </NextIntlClientProvider>
+        </div>
       </body>
     </html>
   );

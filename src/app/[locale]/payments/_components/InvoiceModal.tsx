@@ -100,14 +100,13 @@ export default function InvoiceModal({ payment, onClose }: Props) {
           {/* Status pill */}
           <div className="flex justify-end">
             <span
-              className={`px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${
+              className={`... ${
                 payment.status === "PAID"
                   ? "bg-emerald-100 text-emerald-700"
-                  : payment.status === "PENDING"
-                    ? "bg-amber-100 text-amber-700"
-                    : payment.status === "REFUNDED"
-                      ? "bg-blue-100 text-blue-700"
-                      : "bg-red-100 text-red-700"
+                  : payment.status === "REFUNDED" ||
+                      payment.status === "PARTIALLY_REFUNDED"
+                    ? "bg-blue-100 text-blue-700"
+                    : "bg-red-100 text-red-700" // FAILED
               }`}
             >
               {payment.status}

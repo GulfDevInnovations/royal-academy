@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import CloudinaryUpload from "@/components/admin/CloudinaryUpload";
 import {
   X,
   Loader2,
@@ -10,11 +9,13 @@ import {
   ChevronDown,
   ChevronRight,
   BookOpen,
+  Upload,
 } from "lucide-react";
 import {
   createTeacher,
   updateTeacher,
   assignSubClassesToTeacher,
+  uploadTeacherPhoto,
 } from "@/lib/actions/admin/teachers.actions";
 import type { SerializedTeacher, ClassWithSubsForAssignment } from "../page";
 import {
@@ -33,6 +34,11 @@ interface Props {
   allClasses: ClassWithSubsForAssignment[];
 }
 
+// Add this above the component (or in a shared utils file):
+function isError(result: unknown): result is { error: string } {
+  return typeof result === "object" && result !== null && "error" in result;
+}
+
 export default function TeacherFormModal({
   onClose,
   onSuccess,
@@ -42,13 +48,16 @@ export default function TeacherFormModal({
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(
+    editing?.photoUrl ?? null,
+  );
 
   // ── Specialties ──
   const [specialties, setSpecialties] = useState<string[]>(
     editing?.specialties ?? [],
   );
   const [specInput, setSpecInput] = useState("");
-  const [photoUrl, setPhotoUrl] = useState<string>(editing?.photoUrl ?? "");
 
   const [selectedSubIds, setSelectedSubIds] = useState<Set<string>>(
     new Set(editing?.subClasses.map((s) => s.id) ?? []),
@@ -85,27 +94,37 @@ export default function TeacherFormModal({
     formData.set("specialties", specialties.join(","));
 
     startTransition(async () => {
-      // 1. Create or update the teacher profile
+      if (photoFile) {
+        const uploadForm = new FormData();
+        uploadForm.append("file", photoFile);
+        uploadForm.append("folder", "teachers");
+        const uploaded = await uploadTeacherPhoto(uploadForm);
+        if (isError(uploaded)) {
+          setError(uploaded.error);
+          return;
+        }
+        formData.set("photoUrl", uploaded.url);
+      }
+
       const result = editing
         ? await updateTeacher(editing.id, formData)
         : await createTeacher(formData);
 
-      if (result.error) {
+      if (isError(result)) {
         setError(result.error);
         return;
       }
 
-      // 2. Assign sub-classes — for create we need the new teacher's id.
-      //    createTeacher returns { success, teacherId } so we can use it.
+      // TypeScript now knows result is the success branch here
       const teacherId =
-        editing?.id ?? (result as { teacherId?: string }).teacherId;
+        editing?.id ?? ("teacherId" in result ? result.teacherId : undefined);
 
-      if (teacherId && selectedSubIds.size >= 0) {
+      if (typeof teacherId === "string" && selectedSubIds.size > 0) {
         const assignResult = await assignSubClassesToTeacher(teacherId, [
           ...selectedSubIds,
         ]);
-        if (assignResult.error) {
-          setError((assignResult as { error: string }).error);
+        if (isError(assignResult)) {
+          setError(assignResult.error);
           return;
         }
       }
@@ -229,13 +248,60 @@ export default function TeacherFormModal({
                 defaultValue={editing?.bio ?? ""}
                 rows={3}
               />
-              <CloudinaryUpload
-                value={photoUrl}
-                onChange={(url) => setPhotoUrl(url)}
-                folder="teachers"
-              />
-              {/* Hidden input so FormData picks up the Cloudinary URL */}
-              <input type="hidden" name="photoUrl" value={photoUrl} />
+              <div>
+                <label
+                  className="block text-xs font-medium mb-1.5"
+                  style={{ color: adminColors.textSecondary }}
+                >
+                  Profile Photo
+                </label>
+
+                {/* Preview */}
+                {photoPreview && (
+                  <div className="mb-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={photoPreview}
+                      alt="Preview"
+                      className="w-16 h-16 rounded-full object-cover"
+                      style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+                    />
+                  </div>
+                )}
+
+                {/* File input */}
+                <label
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer text-xs transition-colors hover:bg-white/[0.03]"
+                  style={{
+                    borderColor: adminColors.border,
+                    color: adminColors.textSecondary,
+                  }}
+                >
+                  <Upload size={13} />
+                  {photoFile
+                    ? photoFile.name
+                    : photoPreview
+                      ? "Change photo"
+                      : "Choose photo"}
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="sr-only"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setPhotoFile(file);
+                      // Local preview
+                      const reader = new FileReader();
+                      reader.onload = (ev) =>
+                        setPhotoPreview(ev.target?.result as string);
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                </label>
+              </div>
+              {/* Keep the hidden input for the existing URL (edit mode) */}
+              <input type="hidden" name="photoUrl" value={photoPreview ?? ""} />
             </Section>
 
             {/* ── Specialties ── */}

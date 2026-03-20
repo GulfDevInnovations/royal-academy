@@ -5,19 +5,18 @@ import {
   X,
   RefreshCw,
   XCircle,
-  CheckCircle2,
   Clock,
   Loader2,
   AlertTriangle,
+  CalendarDays,
 } from "lucide-react";
 import {
   cancelSession,
   regenerateSessions,
 } from "@/lib/actions/admin/Schedules.actions";
-import { AdminButton, AdminBadge, adminColors } from "@/components/admin/ui";
+import { AdminButton, adminColors } from "@/components/admin/ui";
 import type { SerializedSchedule } from "../page";
 
-// Sessions come from a separate fetch — we pass them in
 export interface SessionRow {
   id: string;
   sessionDate: string; // ISO
@@ -31,6 +30,9 @@ export interface SessionRow {
 interface Props {
   schedule: SerializedSchedule;
   sessions: SessionRow[];
+  /** When opened from a monthly calendar cell, the human-readable date label
+   *  e.g. "Wed, 14 Jan" — used to highlight and scroll to that specific date */
+  dateLabel?: string;
   onClose: () => void;
   onRefresh: () => void;
 }
@@ -45,6 +47,7 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
 export default function SessionsDrawer({
   schedule,
   sessions,
+  dateLabel,
   onClose,
   onRefresh,
 }: Props) {
@@ -56,8 +59,32 @@ export default function SessionsDrawer({
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const upcoming = sessions.filter((s) => new Date(s.sessionDate) >= today);
-  const past = sessions.filter((s) => new Date(s.sessionDate) < today);
+
+  // If we have a dateLabel filter, try to match sessions to just that date
+  const focusDateStr = dateLabel
+    ? sessions.find((s) => {
+        const d = new Date(s.sessionDate);
+        const label = d.toLocaleDateString("en-GB", {
+          weekday: "short",
+          day: "2-digit",
+          month: "short",
+        });
+        return label === dateLabel;
+      })?.sessionDate
+    : undefined;
+
+  // In month-cell mode: show the focused date's session first, then all others
+  const sortedSessions = focusDateStr
+    ? [
+        ...sessions.filter((s) => s.sessionDate === focusDateStr),
+        ...sessions.filter((s) => s.sessionDate !== focusDateStr),
+      ]
+    : sessions;
+
+  const upcoming = sortedSessions.filter(
+    (s) => new Date(s.sessionDate) >= today,
+  );
+  const past = sortedSessions.filter((s) => new Date(s.sessionDate) < today);
 
   const handleCancel = (sessionId: string) => {
     setError(null);
@@ -120,6 +147,18 @@ export default function SessionsDrawer({
                 schedule.dayOfWeek.slice(1).toLowerCase()}{" "}
               {schedule.startTime}–{schedule.endTime}
             </p>
+            {/* Date context badge — shown when opened from a monthly calendar cell */}
+            {dateLabel && (
+              <div className="flex items-center gap-1.5 mt-1.5">
+                <CalendarDays size={11} style={{ color: "#f59e0b" }} />
+                <span
+                  className="text-[10px] font-medium"
+                  style={{ color: "#f59e0b" }}
+                >
+                  Opened from {dateLabel}
+                </span>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -212,6 +251,7 @@ export default function SessionsDrawer({
                   key={s.id}
                   session={s}
                   formatDate={formatDate}
+                  highlighted={!!focusDateStr && s.sessionDate === focusDateStr}
                   cancellingId={cancellingId}
                   cancelReason={cancelReason}
                   setCancellingId={setCancellingId}
@@ -237,7 +277,8 @@ export default function SessionsDrawer({
                   key={s.id}
                   session={s}
                   formatDate={formatDate}
-                  cancellingId={null} // can't cancel past sessions
+                  highlighted={!!focusDateStr && s.sessionDate === focusDateStr}
+                  cancellingId={null}
                   cancelReason=""
                   setCancellingId={() => {}}
                   setCancelReason={() => {}}
@@ -269,11 +310,14 @@ export default function SessionsDrawer({
   );
 }
 
-// ── Session card sub-component ──
+// ─────────────────────────────────────────────
+// Session card
+// ─────────────────────────────────────────────
 
 interface CardProps {
   session: SessionRow;
   formatDate: (iso: string) => string;
+  highlighted: boolean;
   cancellingId: string | null;
   cancelReason: string;
   setCancellingId: (id: string | null) => void;
@@ -286,6 +330,7 @@ interface CardProps {
 function SessionCard({
   session,
   formatDate,
+  highlighted,
   cancellingId,
   cancelReason,
   setCancellingId,
@@ -301,26 +346,42 @@ function SessionCard({
     <div
       className="rounded-xl border p-3 space-y-2 transition-colors"
       style={{
-        borderColor: isCancelling
-          ? "rgba(248,113,113,0.3)"
-          : "rgba(255,255,255,0.06)",
-        background: "rgba(255,255,255,0.02)",
+        borderColor: highlighted
+          ? "rgba(245,158,11,0.35)"
+          : isCancelling
+            ? "rgba(248,113,113,0.3)"
+            : "rgba(255,255,255,0.06)",
+        background: highlighted
+          ? "rgba(245,158,11,0.05)"
+          : "rgba(255,255,255,0.02)",
       }}
     >
       <div className="flex items-center gap-3">
-        {/* Status dot */}
         <div
           className="w-1.5 h-1.5 rounded-full flex-shrink-0"
           style={{ background: colors.text }}
         />
 
         <div className="flex-1 min-w-0">
-          <p
-            className="text-sm font-medium truncate"
-            style={{ color: adminColors.textPrimary }}
-          >
-            {formatDate(session.sessionDate)}
-          </p>
+          <div className="flex items-center gap-2">
+            <p
+              className="text-sm font-medium truncate"
+              style={{ color: adminColors.textPrimary }}
+            >
+              {formatDate(session.sessionDate)}
+            </p>
+            {highlighted && (
+              <span
+                className="text-[9px] px-1.5 py-0.5 rounded-full font-medium flex-shrink-0"
+                style={{
+                  background: "rgba(245,158,11,0.15)",
+                  color: "#f59e0b",
+                }}
+              >
+                selected
+              </span>
+            )}
+          </div>
           <p className="text-xs" style={{ color: adminColors.textMuted }}>
             {session.startTime}–{session.endTime}
           </p>
@@ -350,7 +411,7 @@ function SessionCard({
         </p>
       )}
 
-      {/* Cancel confirm form */}
+      {/* Cancel confirm inline */}
       {isCancelling && (
         <div className="pt-1 space-y-2 border-t border-white/[0.06]">
           <input

@@ -9,7 +9,6 @@ import {
   markAllNotificationsRead,
 } from "@/lib/actions/notifications.client.actions";
 import { useRouter } from "next/navigation";
-import { useNavbarState } from "@/components/NavbarStateContext";
 
 interface AppNotification {
   id: string;
@@ -51,19 +50,8 @@ export default function NotificationBell({ userId, isArabic }: Props) {
   const [isPending, startTransition] = useTransition();
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const { navSolid } = useNavbarState();
 
   const unread = notifications.filter((n) => !n.readAt).length;
-
-  const solidBg: React.CSSProperties = navSolid
-    ? {
-        backgroundColor: "var(--royal-purple)",
-        backdropFilter: "none",
-        WebkitBackdropFilter: "none",
-        border: "1px solid rgba(196,168,130,0.18)",
-        boxShadow: "0 4px 24px rgba(0,0,0,0.35)",
-      }
-    : {};
 
   const fetchNotifications = async () => {
     setLoading(true);
@@ -166,8 +154,7 @@ export default function NotificationBell({ userId, isArabic }: Props) {
         whileTap={{ scale: 0.96 }}
         whileHover={{ scale: 1.03 }}
         transition={{ duration: 0.2 }}
-        className={`shimmer relative flex items-center justify-center w-18 h-14 rounded-full transition-all duration-300 cursor-pointer ${open ? "liquid-glass-gold" : "liquid-glass"}`}
-        style={solidBg}
+        className={`shimmer backdrop-blur-xs relative flex items-center justify-center w-18 h-14 rounded-full transition-all duration-300 cursor-pointer ${open ? "liquid-glass-gold" : "liquid-glass"}`}
         aria-label="Notifications"
       >
         <svg
@@ -209,10 +196,9 @@ export default function NotificationBell({ userId, isArabic }: Props) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute top-20 left-1/2 -translate-x-1/2 w-80 rounded-3xl overflow-hidden liquid-glass shadow-2xl shadow-black/60 z-50"
-            style={{ minWidth: "320px" }}
+            className="fixed z-50 top-28 left-8 w-72 rounded-3xl overflow-hidden liquid-glass backdrop-blur-xs shadow-2xl shadow-black/60"
           >
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-royal-gold/50 to-transparent" />
+            <div className="h-px w-full bg-linear-to-r from-transparent via-royal-gold/50 to-transparent" />
             <div className="flex items-center justify-between px-6 pt-5 pb-3">
               <p className="text-royal-cream text-xl tracking-wide">
                 {isArabic ? "الإشعارات" : "Notifications"}
@@ -229,7 +215,7 @@ export default function NotificationBell({ userId, isArabic }: Props) {
             </div>
 
             <div
-              className="max-h-[420px] overflow-y-auto px-3 pb-4 space-y-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+              className="max-h-105 overflow-y-auto px-3 pb-4 space-y-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
               onWheel={(e) => e.stopPropagation()}
               onTouchMove={(e) => e.stopPropagation()}
             >

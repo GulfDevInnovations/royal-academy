@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-
+import { uploadMedia } from "@/lib/media/service";
+import { requireUser } from "@/lib/auth";
 // ─────────────────────────────────────────────
 // READ
 // ─────────────────────────────────────────────
@@ -68,7 +69,7 @@ export async function getSubClassesForAssignment() {
 export async function assignSubClassesToTeacher(
   teacherId: string,
   subClassIds: string[]
-) {
+): Promise<{ error: string } | { success: true }> {
   // Delete junction rows for subclasses no longer selected
   await prisma.subClassTeacher.deleteMany({
     where: {
@@ -93,7 +94,9 @@ export async function assignSubClassesToTeacher(
 // CREATE
 // ─────────────────────────────────────────────
 
-export async function createTeacher(formData: FormData) {
+export async function createTeacher(
+  formData: FormData
+): Promise<{ error: string } | { success: true; teacherId: string }> {
   const firstName   = (formData.get("firstName")   as string).trim();
   const lastName    = (formData.get("lastName")    as string).trim();
   const email       = (formData.get("email")       as string | null)?.trim() || null;
@@ -144,7 +147,10 @@ export async function createTeacher(formData: FormData) {
 // UPDATE
 // ─────────────────────────────────────────────
 
-export async function updateTeacher(id: string, formData: FormData) {
+export async function updateTeacher(
+  id: string,
+  formData: FormData
+): Promise<{ error: string } | { success: true }> {
   const firstName   = (formData.get("firstName")   as string).trim();
   const lastName    = (formData.get("lastName")    as string).trim();
   const bio         = (formData.get("bio")         as string | null) || null;
@@ -178,6 +184,24 @@ export async function updateTeacher(id: string, formData: FormData) {
   return { success: true };
 }
 
+
+export async function uploadTeacherPhoto(
+  formData: FormData
+): Promise<{ error: string } | { url: string }> {
+  try {
+    await requireUser();
+    const file = formData.get("file") as File;
+    if (!file || file.size === 0) return { error: "No file provided" };
+    const result = await uploadMedia({
+      file,
+      folder: "teachers",
+    });
+    return { url: result.url };
+  } catch (e) {
+    console.error(e);
+    return { error: "Photo upload failed" };
+  }
+}
 // ─────────────────────────────────────────────
 // DELETE
 // Junction rows are removed automatically via onDelete: Cascade

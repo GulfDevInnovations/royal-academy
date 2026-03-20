@@ -1,3 +1,4 @@
+// src/app/[locale]/payment/_components/PaymentPageClient.tsx
 "use client";
 
 import { useState } from "react";
@@ -7,10 +8,7 @@ import { format, parseISO } from "date-fns";
 import {
   Calendar,
   Clock,
-  MapPin,
-  Wifi,
   User,
-  Award,
   CheckCircle2,
   ShieldCheck,
   ChevronLeft,
@@ -20,8 +18,10 @@ import { confirmPayment } from "@/lib/actions/payment";
 import { SuccessToast } from "./SuccessToast";
 
 type PaymentData = {
-  bookingId: string;
-  status: string;
+  studentId: string;
+  sessionId: string;
+  amount: number;
+  currency: string;
   studentName: string;
   studentEmail: string;
   session: {
@@ -40,12 +40,6 @@ type PaymentData = {
     lastName: string;
     photoUrl: string | null;
   };
-  payment: {
-    id: string | null;
-    amount: string;
-    currency: string;
-    status: string;
-  };
 };
 
 const CLASS_ACCENT: Record<string, string> = {
@@ -62,22 +56,24 @@ const CLASS_ACCENT: Record<string, string> = {
 export function PaymentPageClient({ data }: { data: PaymentData }) {
   const router = useRouter();
   const [isPaying, setIsPaying] = useState(false);
-  const [paid, setPaid] = useState(data.payment.status === "PAID");
+  const [paid, setPaid] = useState(false); // nothing is pre-paid now
 
   const accent = CLASS_ACCENT[data.subClass.className] ?? CLASS_ACCENT.default;
-
   const sessionDate = parseISO(data.session.date);
+  const amountDisplay = data.amount.toFixed(3);
 
   const handleConfirm = async () => {
     setIsPaying(true);
     try {
-      const result = await confirmPayment(data.bookingId, data.payment.id);
+      const result = await confirmPayment({
+        studentId: data.studentId,
+        sessionId: data.sessionId,
+        amount: data.amount,
+        currency: data.currency,
+      });
       if (result.success) {
         setPaid(true);
-        // Wait briefly so user sees the success state, then redirect
-        setTimeout(() => {
-          router.push("/reservation?success=1");
-        }, 1800);
+        setTimeout(() => router.push("/reservation?success=1"), 1800);
       }
     } catch (err) {
       console.error(err);
@@ -145,10 +141,10 @@ export function PaymentPageClient({ data }: { data: PaymentData }) {
               </div>
               <div className="text-right shrink-0">
                 <div className="text-2xl font-bold text-royal-gold font-goudy">
-                  {data.payment.amount}
+                  {amountDisplay}
                 </div>
                 <div className="text-xs text-royal-cream/40">
-                  {data.payment.currency}
+                  {data.currency}
                 </div>
               </div>
             </div>
@@ -173,7 +169,6 @@ export function PaymentPageClient({ data }: { data: PaymentData }) {
             </div>
           </div>
 
-          {/* Divider */}
           <div className="h-px bg-white/5 mx-6 sm:mx-8" />
 
           {/* Student info */}
@@ -205,7 +200,6 @@ export function PaymentPageClient({ data }: { data: PaymentData }) {
             </div>
           </div>
 
-          {/* Divider */}
           <div className="h-px bg-white/5 mx-6 sm:mx-8" />
 
           {/* Price breakdown */}
@@ -219,28 +213,27 @@ export function PaymentPageClient({ data }: { data: PaymentData }) {
                   {data.subClass.name}
                 </span>
                 <span className="text-royal-cream">
-                  {data.payment.amount} {data.payment.currency}
+                  {amountDisplay} {data.currency}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-royal-cream/40">Tax</span>
                 <span className="text-royal-cream/40">
-                  0.000 {data.payment.currency}
+                  0.000 {data.currency}
                 </span>
               </div>
             </div>
             <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
               <span className="font-bold text-royal-cream">Total</span>
               <span className="text-xl font-bold text-royal-gold font-goudy">
-                {data.payment.amount}{" "}
+                {amountDisplay}{" "}
                 <span className="text-sm font-normal text-royal-cream/50">
-                  {data.payment.currency}
+                  {data.currency}
                 </span>
               </span>
             </div>
           </div>
 
-          {/* Divider */}
           <div className="h-px bg-white/5 mx-6 sm:mx-8" />
 
           {/* CTA */}
@@ -266,12 +259,7 @@ export function PaymentPageClient({ data }: { data: PaymentData }) {
                 <button
                   onClick={handleConfirm}
                   disabled={isPaying}
-                  className="
-                    w-full py-4 rounded-xl font-bold text-royal-dark
-                    text-base tracking-wide transition-all duration-300
-                    hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]
-                    disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100
-                  "
+                  className="w-full py-4 rounded-xl font-bold text-royal-dark text-base tracking-wide transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
                   style={{
                     background: `linear-gradient(135deg, ${accent}, ${accent}cc)`,
                     boxShadow: `0 8px 32px ${accent}44`,
@@ -283,11 +271,10 @@ export function PaymentPageClient({ data }: { data: PaymentData }) {
                       Processing…
                     </span>
                   ) : (
-                    `Confirm & Pay ${data.payment.amount} ${data.payment.currency}`
+                    `Confirm & Pay ${amountDisplay} ${data.currency}`
                   )}
                 </button>
 
-                {/* Trust note */}
                 <div className="flex items-center justify-center gap-2 mt-4 text-royal-cream/30 text-xs">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>
