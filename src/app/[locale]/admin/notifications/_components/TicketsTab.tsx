@@ -13,7 +13,7 @@ import {
   XCircle,
   Zap,
 } from "lucide-react";
-import { replyToTicket } from "@/lib/actions/notifications.client.actions";
+import { replyToTicket } from "@/lib/actions/notifications/notifications.client.actions";
 import {
   updateTicketStatus,
   updateTicketPriority,

@@ -4,6 +4,7 @@
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { notifySessionRescheduled } from "@/lib/actions/notifications/student-events";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -230,7 +231,13 @@ export async function performReschedule(
 
       return newBooking.id;
     });
-
+await notifySessionRescheduled({
+  studentId:    studentProfile.id,
+  subClassId:   oldSession.schedule.subClassId, 
+  oldSessionId: oldSession.id,
+  newSessionId,
+  wasLost:      false,
+});
     revalidatePath("/my-classes");
     return { success: true, newBookingId, wasLost: false };
   } catch (err: any) {

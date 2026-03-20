@@ -3,6 +3,11 @@
 
 import { prisma } from "@/lib/prisma";
 import { DayOfWeek, FrequencyType } from "@prisma/client";
+import {
+  notifyMonthlyEnrollmentConfirmed,
+  notifyMultiMonthEnrollmentConfirmed,
+  notifyTrialBookingConfirmed,
+} from "@/lib/actions/notifications/student-events";
 
 export type ConfirmResult =
   | { success: true }
@@ -62,7 +67,15 @@ export async function confirmMonthlyPayment(params: {
       });
     });
 
-    return { success: true };
+      await notifyMonthlyEnrollmentConfirmed({
+    studentId:  params.studentId,
+    subClassId: params.subClassId,
+    month:      params.month,
+    year:       params.year,
+  });
+
+  return { success: true };
+
   } catch (err) {
     console.error("confirmMonthlyPayment error:", err);
     return { success: false, error: "Payment confirmation failed. Please try again." };
@@ -159,7 +172,16 @@ export async function confirmMultiMonthPayment(params: {
       });
     });
 
-    return { success: true };
+      await notifyMultiMonthEnrollmentConfirmed({
+    studentId:   params.studentId,
+    subClassId:  params.subClassId,
+    startMonth:  params.startMonth,
+    startYear:   params.startYear,
+    totalMonths: params.totalMonths,
+  });
+
+  return { success: true };
+
   } catch (err) {
     console.error("confirmMultiMonthPayment error:", err);
     return { success: false, error: "Payment confirmation failed. Please try again." };
@@ -204,6 +226,14 @@ export async function confirmTrialPayment(params: {
         },
       });
     });
+
+
+  // ← ADD THIS
+  await notifyTrialBookingConfirmed({
+    studentId:  params.studentId,
+    subClassId: params.subClassId,
+    sessionId:  params.sessionId,
+  });
 
     return { success: true };
   } catch (err) {

@@ -1,7 +1,5 @@
-// src/app/[locale]/payment/multi-month/_components/MultiMonthPaymentClient.tsx
 "use client";
 
-import { confirmMultiMonthPayment } from "@/lib/actions/confirm-payment";
 import { PaymentShell } from "@/components/payment/PaymentShell";
 import { DayOfWeek, FrequencyType } from "@prisma/client";
 
@@ -30,8 +28,6 @@ export type MultiMonthPaymentProps = {
     photoUrl: string | null;
   } | null;
 };
-
-// ─── Constants ───────────────────────────────────────────────────
 
 const MONTH_NAMES = [
   "",
@@ -65,16 +61,6 @@ const MONTH_SHORT = [
   "Dec",
 ];
 
-const DAY_LABELS: Record<string, string> = {
-  MONDAY: "Monday",
-  TUESDAY: "Tuesday",
-  WEDNESDAY: "Wednesday",
-  THURSDAY: "Thursday",
-  FRIDAY: "Friday",
-  SATURDAY: "Saturday",
-  SUNDAY: "Sunday",
-};
-
 const DAY_SHORT: Record<string, string> = {
   MONDAY: "Mon",
   TUESDAY: "Tue",
@@ -89,8 +75,6 @@ const FREQUENCY_LABELS: Record<string, string> = {
   ONCE_PER_WEEK: "Once a Week",
   TWICE_PER_WEEK: "Twice a Week",
 };
-
-// ─── Component ───────────────────────────────────────────────────
 
 export function MultiMonthPaymentClient({
   data,
@@ -140,23 +124,8 @@ export function MultiMonthPaymentClient({
       lineItems={lineItems}
       total={data.totalAmount.toString()}
       currency={data.currency}
-      alreadyPaid={false}
-      onConfirm={() =>
-        confirmMultiMonthPayment({
-          studentId: data.studentId,
-          subClassId: data.subClassId,
-          startMonth: data.startMonth,
-          startYear: data.startYear,
-          endMonth: data.endMonth,
-          endYear: data.endYear,
-          totalMonths: data.totalMonths,
-          frequency: data.frequency,
-          preferredDays: data.preferredDays,
-          monthlyPrice: data.monthlyPrice,
-          totalAmount: data.totalAmount,
-          currency: data.currency,
-        })
-      }
+      alreadyPaid={true}
+      onConfirm={async () => ({ success: true })}
       successRedirect="/reservation?success=1"
     />
   );

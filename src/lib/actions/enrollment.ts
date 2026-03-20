@@ -1,8 +1,13 @@
 // src/lib/actions/enrollment.ts
 "use server";
 
-import { prisma } from "@/lib/prisma";  // ← fix singleton
+import { prisma } from "@/lib/prisma";
 import { DayOfWeek } from "@prisma/client";
+import {
+  notifyMonthlyEnrollmentConfirmed,
+  notifyMultiMonthEnrollmentConfirmed,
+  notifyTrialBookingConfirmed,
+} from "@/lib/actions/notifications/student-events"; // ← ADD
 
 export type EnrollmentResult =
   | { success: true; redirectTo: string }
@@ -79,13 +84,16 @@ export async function createMonthlyEnrollment({
           enrollmentId: e.id,
           amount,
           currency: subClass.currency,
-          status: "PAID",       // ← was missing method/paidAt
-          method: "CASH",       // placeholder until Thawani
+          status: "PAID",
+          method: "CASH",
           paidAt: new Date(),
         },
       });
       return e;
     });
+
+    // ── Notify student (outside transaction — non-critical) ──────────────
+    await notifyMonthlyEnrollmentConfirmed({ studentId, subClassId, month, year });
 
     return { success: true, redirectTo: `/payment/monthly?enrollmentId=${enrollment.id}` };
   } catch (err: any) {
@@ -200,13 +208,22 @@ export async function createMultiMonthStudentEnrollment({
           multiMonthEnrollmentId: newParent.id,
           amount: totalAmount,
           currency: subClass.currency,
-          status: "PAID",      // ← correct
-          method: "CASH",      // placeholder until Thawani
+          status: "PAID",
+          method: "CASH",
           paidAt: new Date(),
         },
       });
 
       return newParent;
+    });
+
+    // ── Notify student (outside transaction — non-critical) ──────────────
+    await notifyMultiMonthEnrollmentConfirmed({
+      studentId,
+      subClassId,
+      startMonth,
+      startYear,
+      totalMonths,
     });
 
     return { success: true, redirectTo: `/payment/multi-month?enrollmentId=${parent.id}` };
@@ -305,12 +322,19 @@ export async function createTrialEnrollment({
           trialBookingId: t.id,
           amount: subClass.trialPrice,
           currency: subClass.currency,
-          status: "PAID",    // ← was "CONFIRMED" which doesn't exist
-          method: "CASH",    // placeholder until Thawani
+          status: "PAID",
+          method: "CASH",
           paidAt: new Date(),
         },
       });
       return t;
+    });
+
+    // ── Notify student (outside transaction — non-critical) ──────────────
+    await notifyTrialBookingConfirmed({
+      studentId,
+      subClassId,
+      sessionId: trial.sessionId,
     });
 
     return { success: true, redirectTo: `/payment/trial?trialBookingId=${trial.id}` };
