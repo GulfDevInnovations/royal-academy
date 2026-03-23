@@ -4,24 +4,40 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { signUp } from "@/lib/actions/auth.actions";
 import { useLocale } from "next-intl";
+import { updatePassword } from "@/lib/actions/auth.actions";
 
-export default function SignUpPage() {
+export default function UpdatePasswordPage() {
+  const locale = useLocale();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const locale = useLocale();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
     const formData = new FormData(e.currentTarget);
-    const result = await signUp(formData);
+    const password = (formData.get("password") as string) ?? "";
+    const confirm = (formData.get("confirmPassword") as string) ?? "";
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      setLoading(false);
+      return;
+    }
+
+    if (password !== confirm) {
+      setError("Passwords do not match.");
+      setLoading(false);
+      return;
+    }
+
+    const result = await updatePassword(formData);
     if (result?.error) {
       setError(result.error);
       setLoading(false);
+      return;
     }
   }
 
@@ -30,14 +46,13 @@ export default function SignUpPage() {
       className="min-h-screen flex items-center justify-center px-4 py-20"
       style={{ backgroundColor: "#227b81" }}
     >
-      {/* Background pattern tint */}
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
           backgroundImage: "url('/images/pattern.svg')",
           backgroundRepeat: "repeat",
-          backgroundSize: "1600px auto",
-          opacity: 0.01,
+          backgroundSize: "280px auto",
+          opacity: 0.04,
           filter: "sepia(1) saturate(0.5) brightness(2)",
         }}
       />
@@ -46,9 +61,8 @@ export default function SignUpPage() {
         initial={{ opacity: 0, y: 32 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-md relative z-10"
+        className="w-full max-w-sm relative z-10"
       >
-        {/* Logo */}
         <div className="flex justify-center mb-8">
           <Link href={`/${locale}`}>
             <Image
@@ -61,7 +75,6 @@ export default function SignUpPage() {
           </Link>
         </div>
 
-        {/* Card */}
         <div
           className="rounded-3xl overflow-hidden"
           style={{
@@ -79,7 +92,6 @@ export default function SignUpPage() {
             `,
           }}
         >
-          {/* Gold top line */}
           <div
             className="h-px w-full"
             style={{
@@ -93,66 +105,32 @@ export default function SignUpPage() {
               className="text-3xl font-light tracking-widest text-center mb-1"
               style={{ color: "#e4d0b5" }}
             >
-              Join Us
+              New Password
             </h1>
             <p
               className="text-center text-xs tracking-[0.3em] uppercase mb-8"
               style={{ color: "rgba(228,208,181,0.5)" }}
             >
-              Create your account
+              Choose a strong password
             </p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <input type="hidden" name="locale" value={locale} />
-              <p
-                className="text-xs tracking-wide"
-                style={{ color: "rgba(228,208,181,0.75)" }}
-              >
-                {locale === "ar" ? "الاسم الكامل للطالب" : "Student Full Name"}{" "}
-                <span style={{ color: "#f87171" }}>*</span>
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                <AuthInput
-                  name="firstName"
-                  type="text"
-                  placeholder="First Name"
-                  required
-                />
-                <AuthInput
-                  name="lastName"
-                  type="text"
-                  placeholder="Last Name"
-                  required
-                />
-              </div>
 
               <AuthInput
-                name="email"
-                type="email"
-                placeholder="Email Address"
+                name="password"
+                type="password"
+                placeholder="New Password"
                 required
               />
 
-              <AuthPhoneInput locale={locale} />
+              <AuthInput
+                name="confirmPassword"
+                type="password"
+                placeholder="Confirm New Password"
+                required
+              />
 
-              <div className="relative">
-                <AuthInput
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-xs tracking-widest uppercase"
-                  style={{ color: "rgba(228,208,181,0.45)" }}
-                >
-                  {showPassword ? "Hide" : "Show"}
-                </button>
-              </div>
-
-              {/* Error */}
               <AnimatePresence>
                 {error && (
                   <motion.p
@@ -171,13 +149,12 @@ export default function SignUpPage() {
                 )}
               </AnimatePresence>
 
-              {/* Submit */}
               <motion.button
                 type="submit"
                 disabled={loading}
-                whileHover={{ scale: 1.02, filter: "brightness(1.1)" }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="mt-2 w-full py-4 rounded-2xl text-sm tracking-[0.25em] uppercase font-medium transition-all duration-300 shimmer"
+                className="mt-2 w-full py-4 rounded-2xl text-sm tracking-[0.25em] uppercase font-medium shimmer transition-all duration-300"
                 style={{
                   background:
                     "linear-gradient(135deg, rgba(228,208,181,0.18) 0%, rgba(228,208,181,0.08) 50%, rgba(228,208,181,0.15) 100%)",
@@ -194,27 +171,24 @@ export default function SignUpPage() {
                   opacity: loading ? 0.7 : 1,
                 }}
               >
-                {loading ? "Creating Account..." : "Create Account"}
+                {loading ? "Updating..." : "Update Password"}
               </motion.button>
             </form>
 
-            {/* Sign in link */}
             <p
               className="text-center text-xs mt-6 tracking-wide"
               style={{ color: "rgba(228,208,181,0.45)" }}
             >
-              Already have an account?{" "}
               <Link
                 href={`/${locale}/login`}
                 className="transition-colors duration-200 hover:opacity-80"
                 style={{ color: "#e4d0b5" }}
               >
-                Sign In
+                Back to Sign In
               </Link>
             </p>
           </div>
 
-          {/* Bottom line */}
           <div
             className="h-px w-full"
             style={{
@@ -228,7 +202,6 @@ export default function SignUpPage() {
   );
 }
 
-// ── Reusable Input ────────────────────────────────────────────────
 function AuthInput({
   name,
   type,
@@ -275,62 +248,5 @@ function AuthInput({
         `;
       }}
     />
-  );
-}
-
-function AuthPhoneInput({ locale }: { locale: string }) {
-  return (
-    <div
-      className="w-full px-5 py-3.5 rounded-2xl text-sm outline-none transition-all duration-300 placeholder:tracking-wide flex items-center gap-2"
-      style={{
-        background:
-          "linear-gradient(135deg, rgba(228,208,181,0.09) 0%, rgba(228,208,181,0.04) 100%)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-        border: "1px solid rgba(228,208,181,0.15)",
-        color: "#e4d0b5",
-        boxShadow: `
-          inset 0 1px 1px rgba(228,208,181,0.12),
-          inset 0 -1px 1px rgba(0,0,0,0.10)
-        `,
-        direction: "ltr",
-      }}
-    >
-      <span
-        className="text-sm select-none"
-        style={{ color: "rgba(228,208,181,0.75)", direction: "ltr" }}
-      >
-        +968
-      </span>
-      <input
-        name="phone"
-        type="tel"
-        inputMode="numeric"
-        pattern="[0-9]{8}"
-        maxLength={8}
-        placeholder={locale === "ar" ? "رقم الهاتف (8 أرقام)" : "Phone Number (8 digits)"}
-        className="w-full bg-transparent outline-none placeholder:tracking-wide"
-        style={{ color: "#e4d0b5", direction: "ltr", textAlign: "left" }}
-        onFocus={(e) => {
-          const wrapper = e.currentTarget.parentElement as HTMLDivElement | null;
-          if (!wrapper) return;
-          wrapper.style.border = "1px solid rgba(228,208,181,0.40)";
-          wrapper.style.boxShadow = `
-            inset 0 1px 1px rgba(228,208,181,0.18),
-            inset 0 -1px 1px rgba(0,0,0,0.10),
-            0 0 0 3px rgba(228,208,181,0.08)
-          `;
-        }}
-        onBlur={(e) => {
-          const wrapper = e.currentTarget.parentElement as HTMLDivElement | null;
-          if (!wrapper) return;
-          wrapper.style.border = "1px solid rgba(228,208,181,0.15)";
-          wrapper.style.boxShadow = `
-            inset 0 1px 1px rgba(228,208,181,0.12),
-            inset 0 -1px 1px rgba(0,0,0,0.10)
-          `;
-        }}
-      />
-    </div>
   );
 }

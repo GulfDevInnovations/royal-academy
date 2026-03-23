@@ -3,12 +3,24 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 
+type CookieToSet = {
+  name: string;
+  value: string;
+  options: Parameters<Awaited<ReturnType<typeof cookies>>["set"]>[2];
+};
+
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
+  const type = searchParams.get("type");
+  const next = searchParams.get("next");
+
+  const localeFromNext = next?.startsWith("/ar") ? "ar" : "en";
+  const safeNext =
+    next && next.startsWith("/") && !next.startsWith("//") ? next : `/${localeFromNext}/login`;
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/en/login?error=missing_code`);
+    return NextResponse.redirect(`${origin}/${localeFromNext}/login?error=missing_code`);
   }
 
   const cookieStore = await cookies();
@@ -18,7 +30,7 @@ export async function GET(request: NextRequest) {
     {
       cookies: {
         getAll: () => cookieStore.getAll(),
-        setAll: (cookiesToSet) => {
+        setAll: (cookiesToSet: CookieToSet[]) => {
           cookiesToSet.forEach(({ name, value, options }) =>
             cookieStore.set(name, value, options)
           );
@@ -31,7 +43,12 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error || !data.user) {
-    return NextResponse.redirect(`${origin}/en/login?error=confirmation_failed`);
+    return NextResponse.redirect(`${origin}/${localeFromNext}/login?error=confirmation_failed`);
+  }
+
+  // Password recovery flow: exchange code → set session cookies → redirect to update password.
+  if (type === "recovery" || safeNext.includes("/update-password")) {
+    return NextResponse.redirect(`${origin}${safeNext}`);
   }
 
   // Update Prisma — mark as verified
@@ -48,6 +65,6 @@ export async function GET(request: NextRequest) {
   await supabase.auth.signOut();
 
   return NextResponse.redirect(
-    `${origin}/en/login?verified=true`
+    `${origin}/${localeFromNext}/login?verified=true`
   );
 }
