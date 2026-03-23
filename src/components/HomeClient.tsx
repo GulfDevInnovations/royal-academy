@@ -2,35 +2,17 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavbarState } from "@/components/NavbarStateContext";
-import RoyalIntro from "@/components/RoyalIntro";
-import RoyalHeroSection from "@/components/RoyalHeroSection";
-import TeachersSection from "@/components/TeachersSection";
+// import RoyalIntro from "@/components/RoyalIntro";
+// import RoyalHeroSection from "@/components/RoyalHeroSection";
+import RoyalCombined from "./RoyalCombinedIntroHero";
+// import TeachersSection from "@/components/TeachersSection";
 import AboutSection from "@/components/AboutSection";
 import GallerySection from "@/components/GallerySection";
 import type { PublicGalleryItem } from "@/lib/actions/gallery.public.actions";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useHomeNav } from "@/context/HomeNavigationContext";
 
-export type BubblePhysics = {
-  x: number;
-  y: number;
-  z: number;
-  vx: number;
-  vy: number;
-  vz: number;
-  baseSize: number;
-};
-
-const BUBBLE_DEFS = [
-  { baseSize: 148 },
-  { baseSize: 132 },
-  { baseSize: 122 },
-  { baseSize: 138 },
-  { baseSize: 126 },
-  { baseSize: 142 },
-];
-
-const FLOOR_COUNT = 5; // 0=intro, 1=hero, 2=teachers, 3=about, 4=gallery
+const FLOOR_COUNT = 3; // 0=intro, 1=about, 2=gallery
 
 interface Props {
   locale: string;
@@ -46,18 +28,6 @@ export default function HomeClient({ locale, galleryItems }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const { requestedFloor, clearRequest } = useHomeNav();
-
-  const bubblePhysics = useRef<BubblePhysics[]>(
-    BUBBLE_DEFS.map((b) => ({
-      x: 0,
-      y: 0,
-      z: 0.5,
-      vx: 0,
-      vy: 0,
-      vz: 0,
-      baseSize: b.baseSize,
-    })),
-  );
 
   const slideTo = useCallback(
     (targetFloor: number) => {
@@ -86,9 +56,9 @@ export default function HomeClient({ locale, galleryItems }: Props) {
   );
 
   // Global wheel + key — only for floors 0-3
-  // Floor 4 (gallery) owns its own wheel/key listeners
+  // Floor 3 (gallery) owns its own wheel/key listeners
   useEffect(() => {
-    if (floor === 4) return;
+    if (floor === 2) return;
     const onWheel = (e: WheelEvent) => {
       if (e.deltaY > 30) slideTo(floor + 1);
       else if (e.deltaY < -30) slideTo(floor - 1);
@@ -150,11 +120,7 @@ export default function HomeClient({ locale, galleryItems }: Props) {
             height: "100vh",
           }}
         >
-          <RoyalIntro
-            onScrolled={() => slideTo(1)}
-            active={floor === 0}
-            bubblePhysics={bubblePhysics}
-          />
+          <RoyalCombined onScrolled={() => slideTo(1)} active={floor === 0} />
         </div>
 
         {/* Floor 1 — Hero */}
@@ -167,10 +133,13 @@ export default function HomeClient({ locale, galleryItems }: Props) {
             height: "100vh",
           }}
         >
-          <RoyalHeroSection />
+          <AboutSection
+            active={floor === 1}
+            onScrollUp={() => slideTo(0)}
+            onScrollDown={() => slideTo(2)}
+          />
         </div>
 
-        {/* Floor 2 — Teachers */}
         <div
           style={{
             position: "absolute",
@@ -180,44 +149,10 @@ export default function HomeClient({ locale, galleryItems }: Props) {
             height: "100vh",
           }}
         >
-          <TeachersSection
-            locale={locale}
-            isArabic={locale === "ar"}
-            onScrollUp={() => slideTo(1)}
-            onScrollDown={() => slideTo(3)}
-          />
-        </div>
-
-        {/* Floor 3 — About */}
-        <div
-          style={{
-            position: "absolute",
-            top: "300vh",
-            left: 0,
-            right: 0,
-            height: "100vh",
-          }}
-        >
-          <AboutSection
-            active={floor === 3}
-            onScrollUp={() => slideTo(2)}
-            onScrollDown={() => slideTo(4)}
-          />
-        </div>
-
-        <div
-          style={{
-            position: "absolute",
-            top: "400vh",
-            left: 0,
-            right: 0,
-            height: "100vh",
-          }}
-        >
           <GallerySection
             items={galleryItems}
-            active={floor === 4}
-            onScrollUp={() => slideTo(3)}
+            active={floor === 2}
+            onScrollUp={() => slideTo(1)}
             onScrollDown={() => {}}
           />
         </div>

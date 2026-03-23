@@ -54,7 +54,8 @@ export default function Navbar() {
   const avatarSrc = userImageUrl || "/images/user.png";
   const isExternalAvatar = avatarSrc.startsWith("http");
   const searchParamsKey = searchParams.toString();
-  const isAdmin = (user?.app_metadata as { role?: string } | undefined)?.role === "ADMIN";
+  const isAdmin =
+    (user?.app_metadata as { role?: string } | undefined)?.role === "ADMIN";
   const adminHref = `/${locale}/admin`;
   const greetingText = isArabic
     ? `مرحباً عزيزنا ${userDisplayName}!`
@@ -189,8 +190,8 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/", label: t("home") },
-    { href: "/teachers", label: t("teachers") },
-    { href: "/classes", label: t("classes") },
+    // { href: "/teachers", label: t("teachers") },
+    // { href: "/classes", label: t("classes") },
     { href: "/reservation", label: t("reservation") },
     { href: "/about", label: t("about") },
     { href: "/aesthetics", label: t("aesthetics") },
@@ -477,14 +478,12 @@ export default function Navbar() {
             )}
           </motion.div>
 
-        
-
           {/* Notification Bell — only when logged in */}
           {user && prismaUserId && (
             <NotificationBell userId={prismaUserId} isArabic={isArabic} />
           )}
         </div>
-        
+
         {/* Right Side Pills */}
         <div
           className={`flex items-center gap-2 md:gap-3 ${isArabic ? "flex-row-reverse" : "flex-row"}`}

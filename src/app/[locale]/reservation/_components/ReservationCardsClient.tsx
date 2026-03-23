@@ -110,7 +110,10 @@ export function ReservationCardsClient({
   };
 
   return (
-    <main className="min-h-screen pt-28 pb-24">
+    <main
+      className="min-h-screen pt-28 pb-24"
+      style={{ background: "#13161f" }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: -16 }}
