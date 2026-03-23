@@ -401,15 +401,6 @@ export default function RoyalIntro({
   return (
     <div ref={containerRef} className="w-full h-full relative">
       {/* Room background */}
-      <Image
-        src="/images/initial-room2.png"
-        alt="Royal Academy Room"
-        fill
-        unoptimized
-        className="object-cover"
-        priority
-        style={{ zIndex: 0 }}
-      />
 
       {/* Subtle vignette */}
       <div

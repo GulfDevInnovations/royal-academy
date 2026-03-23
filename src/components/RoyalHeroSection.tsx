@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import Image from "next/image";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Section {
@@ -10,475 +11,328 @@ interface Section {
   image: string;
 }
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
 const SECTIONS: Section[] = [
   {
     id: "ballet",
     label: "Ballet",
     subtitle: "Grace in every movement",
-    image: "/images/ballet-hero.jpg",
+    image: "/images/HeroSection/balletGold.png",
   },
   {
     id: "dance & wellness",
     label: "Dance & Wellness",
     subtitle: "Rhythm of the soul",
-    image: "/images/dance-hero.jpg",
+    image: "/images/HeroSection/dance&wellnessGold.png",
   },
   {
     id: "music",
     label: "Music",
     subtitle: "The language of kings",
-    image: "/images/music-hero.jpg",
+    image: "/images/HeroSection/musicGold.png",
   },
   {
     id: "art",
     label: "Art",
     subtitle: "Vision beyond the canvas",
-    image: "/images/art-hero.jpg",
+    image: "/images/HeroSection/artGold.png",
   },
 ];
 
-// ─── Vertex Shader ─────────────────────────────────────────────────────────────
-const VERT = `
-  attribute vec2 a_position;
-  varying vec2 v_uv;
-  void main() {
-    v_uv = a_position * 0.5 + 0.5;
-    gl_Position = vec4(a_position, 0.0, 1.0);
-  }
-`;
+// ─── Symbol State Machine ─────────────────────────────────────────────────────
+type SymbolState = "hidden" | "rising" | "spinning" | "falling";
 
-// ─── Fragment Shader (liquid/ripple transition) ────────────────────────────────
-const FRAG = `
-  precision highp float;
-  uniform sampler2D u_from;
-  uniform sampler2D u_to;
-  uniform float u_progress;
-  uniform float u_time;
-  uniform vec2 u_resolution;
-  varying vec2 v_uv;
+// ─── Symbol Card ──────────────────────────────────────────────────────────────
+function SymbolCard({
+  section,
+  isActive,
+  isMobile = false,
+}: {
+  section: Section;
+  isActive: boolean;
+  isMobile?: boolean;
+}) {
+  // Always start hidden — the effect below handles initial active state too
+  const [symState, setSymState] = useState<SymbolState>("hidden");
+  // Always init to false so the effect correctly detects the first isActive=true
+  const prevActiveRef = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Gold shimmer noise
-  float hash(vec2 p) {
-    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-  }
+  useEffect(() => {
+    const wasActive = prevActiveRef.current;
+    prevActiveRef.current = isActive;
+    if (isActive === wasActive) return;
+    if (timerRef.current) clearTimeout(timerRef.current);
 
-  float noise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    f = f * f * (3.0 - 2.0 * f);
-    float a = hash(i);
-    float b = hash(i + vec2(1.0, 0.0));
-    float c = hash(i + vec2(0.0, 1.0));
-    float d = hash(i + vec2(1.0, 1.0));
-    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-  }
-
-  // Fbm for richer distortion
-  float fbm(vec2 p) {
-    float v = 0.0;
-    float amp = 0.5;
-    for (int i = 0; i < 5; i++) {
-      v += amp * noise(p);
-      p *= 2.1;
-      amp *= 0.5;
+    if (isActive && !wasActive) {
+      // Start spin immediately, rise at the same time
+      setSymState("rising");
+      timerRef.current = setTimeout(() => setSymState("spinning"), 700);
     }
-    return v;
-  }
-
-  // Cover-fit UV for aspect ratio
-  vec2 coverUV(vec2 uv, vec2 texRes, vec2 screenRes) {
-    float screenAspect = screenRes.x / screenRes.y;
-    float texAspect = texRes.x / texRes.y;
-    vec2 scale;
-    if (screenAspect > texAspect) {
-      scale = vec2(1.0, texAspect / screenAspect);
-    } else {
-      scale = vec2(screenAspect / texAspect, 1.0);
+    if (!isActive && wasActive) {
+      // Keep spinning while falling
+      setSymState("falling");
+      timerRef.current = setTimeout(() => setSymState("hidden"), 500);
     }
-    return (uv - 0.5) / scale + 0.5;
-  }
 
-  void main() {
-    float p = u_progress;
-    float t = u_time;
-
-    // Animated displacement — royal ripple / liquid gold
-    vec2 distUV = v_uv * 3.5 + vec2(t * 0.04, t * 0.03);
-    float disp = fbm(distUV) * 2.0 - 1.0;
-
-    // Wave propagation: moves from left to right across screen
-    float wave = smoothstep(0.0, 1.0, p * 1.6 - v_uv.x * 0.6);
-    float waveBack = smoothstep(0.0, 1.0, (1.0 - p) * 1.6 - (1.0 - v_uv.x) * 0.6);
-
-    // Distortion strength peaks at transition midpoint
-    float strength = sin(p * 3.14159) * 0.07;
-    vec2 dispVec = vec2(disp * strength, disp * strength * 0.5);
-
-    vec2 uvFrom = v_uv + dispVec * (1.0 - wave);
-    vec2 uvTo   = v_uv - dispVec * waveBack;
-
-    // Clamp
-    uvFrom = clamp(uvFrom, 0.0, 1.0);
-    uvTo   = clamp(uvTo, 0.0, 1.0);
-
-    vec4 texFrom = texture2D(u_from, uvFrom);
-    vec4 texTo   = texture2D(u_to, uvTo);
-
-    // Gold shimmer overlay at transition edge
-    float edge = smoothstep(0.0, 0.15, wave) * smoothstep(1.0, 0.85, wave);
-    float shimmer = fbm(v_uv * 8.0 + vec2(t * 0.3, 0.0)) * 0.6 + 0.4;
-    vec3 goldColor = vec3(0.77, 0.67, 0.51) * shimmer; // royal gold
-
-    vec4 color = mix(texFrom, texTo, wave);
-    color.rgb = mix(color.rgb, goldColor, edge * 0.35);
-
-    // Subtle dark vignette for depth
-    float vignette = 1.0 - smoothstep(0.3, 1.0, length(v_uv - 0.5) * 1.4);
-    color.rgb *= mix(0.75, 1.0, vignette);
-
-    gl_FragColor = color;
-  }
-`;
-
-// ─── WebGL Renderer Hook ──────────────────────────────────────────────────────
-function useWebGLTransition(
-  canvasRef: React.RefObject<HTMLCanvasElement | null>,
-  fromIndex: number,
-  toIndex: number,
-  progress: number,
-  time: number,
-) {
-  const glRef = useRef<WebGLRenderingContext | null>(null);
-  const programRef = useRef<WebGLProgram | null>(null);
-  const texturesRef = useRef<(WebGLTexture | null)[]>([]);
-  const loadedRef = useRef<boolean[]>([]);
-
-  // Init WebGL
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const gl = canvas.getContext("webgl", { alpha: false });
-    if (!gl) return;
-    glRef.current = gl;
-
-    // Compile shaders
-    const vs = gl.createShader(gl.VERTEX_SHADER)!;
-    gl.shaderSource(vs, VERT);
-    gl.compileShader(vs);
-
-    const fs = gl.createShader(gl.FRAGMENT_SHADER)!;
-    gl.shaderSource(fs, FRAG);
-    gl.compileShader(fs);
-
-    const prog = gl.createProgram()!;
-    gl.attachShader(prog, vs);
-    gl.attachShader(prog, fs);
-    gl.linkProgram(prog);
-    programRef.current = prog;
-
-    // Full-screen quad
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
-      gl.STATIC_DRAW,
-    );
-    const pos = gl.getAttribLocation(prog, "a_position");
-    gl.enableVertexAttribArray(pos);
-    gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
-
-    // Load all textures
-    texturesRef.current = new Array(SECTIONS.length).fill(null);
-    loadedRef.current = new Array(SECTIONS.length).fill(false);
-
-    SECTIONS.forEach((section, i) => {
-      const tex = gl.createTexture();
-      texturesRef.current[i] = tex;
-      const img = new window.Image();
-      img.crossOrigin = "anonymous";
-      img.onload = () => {
-        gl.bindTexture(gl.TEXTURE_2D, tex);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); // ← add this line
-        gl.texImage2D(
-          gl.TEXTURE_2D,
-          0,
-          gl.RGBA,
-          gl.RGBA,
-          gl.UNSIGNED_BYTE,
-          img,
-        );
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        loadedRef.current[i] = true;
-      };
-      img.src = section.image;
-    });
-  }, [canvasRef]);
-
-  // Render frame
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const gl = glRef.current;
-    const prog = programRef.current;
-    if (!canvas || !gl || !prog) return;
-    if (!loadedRef.current[fromIndex] && !loadedRef.current[toIndex]) return;
-
-    gl.useProgram(prog);
-    gl.viewport(0, 0, canvas.width, canvas.height);
-
-    // Bind textures
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texturesRef.current[fromIndex]);
-    gl.uniform1i(gl.getUniformLocation(prog, "u_from"), 0);
-
-    gl.activeTexture(gl.TEXTURE1);
-    gl.bindTexture(gl.TEXTURE_2D, texturesRef.current[toIndex]);
-    gl.uniform1i(gl.getUniformLocation(prog, "u_to"), 1);
-
-    gl.uniform1f(gl.getUniformLocation(prog, "u_progress"), progress);
-    gl.uniform1f(gl.getUniformLocation(prog, "u_time"), time);
-    gl.uniform2f(
-      gl.getUniformLocation(prog, "u_resolution"),
-      canvas.width,
-      canvas.height,
-    );
-
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  });
-}
-
-// ─── Main Component ────────────────────────────────────────────────────────────
-export default function RoyalHeroSection() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [fromIndex, setFromIndex] = useState(0);
-  const [toIndex, setToIndex] = useState(0);
-  const [progress, setProgress] = useState(1);
-  const [time, setTime] = useState(0);
-  const animRef = useRef<number>(0);
-  const startTimeRef = useRef<number>(performance.now());
-  const transitionRef = useRef<{
-    active: boolean;
-    start: number;
-    duration: number;
-    from: number;
-    to: number;
-  }>({ active: false, start: 0, duration: 900, from: 0, to: 0 });
-
-  // Resize canvas
-  useEffect(() => {
-    const resize = () => {
-      const canvas = canvasRef.current;
-      const container = containerRef.current;
-      if (!canvas || !container) return;
-      canvas.width = container.clientWidth;
-      canvas.height = container.clientHeight;
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
-    resize();
-    window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
-  }, []);
+  }, [isActive]);
 
-  // Animation loop
-  useEffect(() => {
-    const loop = (now: number) => {
-      const elapsed = now - startTimeRef.current;
-      setTime(elapsed / 1000);
+  const isVisible =
+    symState === "rising" || symState === "spinning" || symState === "falling";
 
-      const tr = transitionRef.current;
-      if (tr.active) {
-        const t = Math.min((now - tr.start) / tr.duration, 1);
-        // Ease in-out cubic
-        const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-        setProgress(eased);
-        if (t >= 1) {
-          tr.active = false;
-          setFromIndex(tr.to);
-          setToIndex(tr.to);
-          setProgress(1);
-        }
-      }
+  const outerTransform =
+    symState === "hidden" || symState === "falling"
+      ? "translateY(70px)"
+      : "translateY(0px)";
 
-      animRef.current = requestAnimationFrame(loop);
-    };
-    animRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(animRef.current);
-  }, []);
+  const outerTransition =
+    symState === "rising"
+      ? "opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.7s cubic-bezier(0.22,1,0.36,1)"
+      : symState === "falling"
+        ? "opacity 0.45s ease, transform 0.5s cubic-bezier(0.55,0,1,0.8)"
+        : "none";
 
-  const handleHover = useCallback(
-    (index: number) => {
-      if (index === activeIndex) return;
-      const now = performance.now();
-      transitionRef.current = {
-        active: true,
-        start: now,
-        duration: 900,
-        from: activeIndex,
-        to: index,
-      };
-      setFromIndex(activeIndex);
-      setToIndex(index);
-      setProgress(0);
-      setActiveIndex(index);
-    },
-    [activeIndex],
-  );
-
-  useWebGLTransition(canvasRef, fromIndex, toIndex, progress, time);
+  const w = isMobile ? 70 : 150;
+  const h = isMobile ? 117 : 250;
+  const minH = isMobile ? 125 : 220;
 
   return (
-    <section
-      ref={containerRef}
-      className="relative w-full h-screen overflow-hidden"
-      style={{ background: "var(--royal-purple)" }}
+    <div
+      style={{
+        perspective: "900px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-end",
+        minHeight: minH,
+        marginBottom: isMobile ? "0.6rem" : "1.2rem",
+        opacity: isVisible ? 1 : 0,
+        transform: outerTransform,
+        transition: outerTransition,
+        pointerEvents: "none",
+      }}
     >
-      {/* WebGL Canvas */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full"
-        style={{ display: "block" }}
-      />
-
-      {/* Dark overlay for legibility */}
       <div
-        className="absolute inset-0"
         style={{
-          background: `radial-gradient(circle at 38% 32%,
-  rgba(196,168,130,0.15) 0%,
-  rgba(89,44,65,0.35) 55%,
-  rgba(89,44,65,0.55) 100%)`,
+          width: w,
+          height: h,
+          position: "relative",
+          animation:
+            symState !== "hidden"
+              ? "continuousSpin 2s linear infinite"
+              : "none",
+          filter:
+            "drop-shadow(0 0 22px rgba(196,168,130,0.65)) drop-shadow(0 0 8px rgba(196,168,130,0.4))",
         }}
-      />
+      >
+        <Image
+          src={section.image}
+          alt={section.label}
+          fill
+          unoptimized
+          style={{ objectFit: "contain" }}
+        />
+      </div>
+    </div>
+  );
+}
 
-      {/* Decorative top gold rule */}
+// ─── Shared Overlays ──────────────────────────────────────────────────────────
+function Overlays() {
+  return (
+    <>
       <div
-        className="absolute top-0 left-0 right-0 h-px"
         style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 1,
           background:
-            "linear-gradient(to right, transparent, rgba(196,168,130,0.6), transparent)",
+            "radial-gradient(ellipse at 50% 40%, transparent 25%, rgba(18,12,8,0.45) 75%, rgba(12,8,5,0.7) 100%)",
+          pointerEvents: "none",
         }}
       />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 2,
+          background:
+            "linear-gradient(to top, rgba(30,18,10,0.75) 0%, rgba(20,12,7,0.25) 45%, transparent 70%)",
+          pointerEvents: "none",
+        }}
+      />
+    </>
+  );
+}
 
-      {/* 4-Column hover areas */}
-      <div className="absolute inset-0 flex z-10">
-        {SECTIONS.map((section, i) => {
-          const isActive = i === activeIndex;
-          return (
-            <div
-              key={section.id}
-              className="relative flex-1 flex flex-col justify-end cursor-pointer group"
-              style={{ transition: "flex 0.6s cubic-bezier(0.4,0,0.2,1)" }}
-              onMouseEnter={() => handleHover(i)}
-            >
-              {/* Vertical separator line */}
-              {i > 0 && (
-                <div
-                  className="absolute left-0 top-12 bottom-12 w-px"
-                  style={{
-                    background:
-                      "linear-gradient(to bottom, transparent, rgba(196,168,130,0.25), transparent)",
-                  }}
-                />
-              )}
-
-              {/* Text content at bottom */}
+// ─── Desktop Layout ───────────────────────────────────────────────────────────
+// The panel sits inside a perspective container so it appears to recede like
+// a stage floor — narrower than full-width, floating above the room floor.
+function DesktopLayout({
+  activeIndex,
+  onHover,
+}: {
+  activeIndex: number;
+  onHover: (i: number) => void;
+}) {
+  return (
+    <>
+      {/* Perspective container — creates the 3-D stage floor illusion */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "88%", // not full-width — room walls visible on sides
+          zIndex: 10,
+          // Perspective applied here so rotateX on the panel reads correctly
+          perspective: "1200px",
+          perspectiveOrigin: "50% 100%",
+        }}
+      >
+        {/* The panel itself tilts slightly back — receding into the room */}
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            transformOrigin: "bottom center",
+            transform: "rotateX(4deg)", // subtle tilt — enough to feel spatial
+            // Soft side edges to blend into the room naturally
+            // maskImage:
+            //   "linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%)",
+            // WebkitMaskImage:
+            //   "linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%)",
+          }}
+        >
+          {SECTIONS.map((section, i) => {
+            const isActive = i === activeIndex;
+            return (
               <div
-                className="relative px-7 pb-12 flex flex-col gap-1.5"
-                style={{ transition: "opacity 0.4s ease" }}
+                key={section.id}
+                style={{
+                  flex: 1,
+                  position: "relative",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-end",
+                  cursor: "pointer",
+                  transition: "flex 0.6s cubic-bezier(0.4,0,0.2,1)",
+                }}
+                onMouseEnter={() => onHover(i)}
               >
-                {/* Section number */}
+                {/* Separator */}
+                {i > 0 && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: 1,
+                      background:
+                        "linear-gradient(to bottom, transparent, rgba(196,168,130,0.22), transparent)",
+                    }}
+                  />
+                )}
+
+                {/* Column hover glow */}
                 {/* <div
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
-                    fontSize: "0.65rem",
-                    letterSpacing: "0.3em",
-                    color: isActive
-                      ? "rgba(196,168,130,0.9)"
-                      : "rgba(196,168,130,0.4)",
-                    transition: "color 0.5s ease",
-                    textTransform: "uppercase",
+                    position: "absolute",
+                    inset: 0,
+                    background: isActive
+                      ? "linear-gradient(to top, rgba(196,158,100,0.1) 0%, rgba(160,120,70,0.04) 50%, transparent 80%)"
+                      : "transparent",
+                    transition: "background 0.6s ease",
+                    pointerEvents: "none",
                   }}
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </div> */}
+                /> */}
 
-                {/* Section label */}
+                {/* Content */}
                 <div
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
-                    fontSize: isActive ? "4rem" : "1.35rem",
-                    fontWeight: 400,
-                    lineHeight: 1.1,
-                    color: isActive
-                      ? "rgba(222,194,171,1)"
-                      : "rgba(222,194,171,0.55)",
-                    transition:
-                      "font-size 0.5s cubic-bezier(0.4,0,0.2,1), color 0.5s ease",
-                    letterSpacing: "0.03em",
+                    padding: "0 28px 90px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 6,
                   }}
                 >
-                  {section.label}
+                  <SymbolCard section={section} isActive={isActive} />
+
+                  <div
+                    style={{
+                      fontFamily: "Georgia, 'Times New Roman', serif",
+                      fontSize: isActive ? "1.3rem" : "1.8rem",
+                      fontWeight: 400,
+                      lineHeight: 1.1,
+                      color: isActive
+                        ? "rgba(222,194,158,1)"
+                        : "rgba(200,175,140,0.5)",
+                      transition:
+                        "font-size 0.5s cubic-bezier(0.4,0,0.2,1), color 0.5s ease",
+                      letterSpacing: "0.03em",
+                    }}
+                  >
+                    {section.label}
+                  </div>
+
+                  <div
+                    style={{
+                      fontFamily: "Georgia, 'Times New Roman', serif",
+                      fontStyle: "italic",
+                      fontSize: "0.78rem",
+                      color: "rgba(196,168,120,0.8)",
+                      letterSpacing: "0.05em",
+                      opacity: isActive ? 1 : 0,
+                      transform: isActive ? "translateY(0)" : "translateY(6px)",
+                      transition:
+                        "opacity 0.5s ease 0.15s, transform 0.5s ease 0.15s",
+                    }}
+                  >
+                    {section.subtitle}
+                  </div>
+
+                  <div
+                    style={{
+                      height: 1,
+                      marginTop: 4,
+                      background:
+                        "linear-gradient(to right, rgba(196,168,120,0.7), transparent)",
+                      width: isActive ? "100%" : "0%",
+                      transition: "width 0.6s cubic-bezier(0.4,0,0.2,1)",
+                    }}
+                  />
                 </div>
-
-                {/* Subtitle — only visible on active */}
-                <div
-                  style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
-                    fontStyle: "italic",
-                    fontSize: "0.78rem",
-                    color: "rgba(196,168,130,0.8)",
-                    letterSpacing: "0.05em",
-                    opacity: isActive ? 1 : 0,
-                    transform: isActive ? "translateY(0)" : "translateY(6px)",
-                    transition:
-                      "opacity 0.5s ease 0.15s, transform 0.5s ease 0.15s",
-                  }}
-                >
-                  {section.subtitle}
-                </div>
-
-                {/* Gold underline */}
-                <div
-                  style={{
-                    height: 1,
-                    marginTop: 6,
-                    background:
-                      "linear-gradient(to right, rgba(196,168,130,0.7), transparent)",
-                    width: isActive ? "100%" : "0%",
-                    transition: "width 0.6s cubic-bezier(0.4,0,0.2,1)",
-                  }}
-                />
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-
-      {/* Bottom gold rule */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-px"
-        style={{
-          background:
-            "linear-gradient(to right, transparent, rgba(196,168,130,0.5), transparent)",
-        }}
-      />
 
       {/* Scroll hint */}
       <div
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 pointer-events-none"
-        style={{ opacity: 0.5 }}
+        style={{
+          position: "absolute",
+          bottom: 24,
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 20,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 8,
+          opacity: 0.45,
+          pointerEvents: "none",
+        }}
       >
         <div
           style={{
             fontFamily: "Georgia, 'Times New Roman', serif",
             fontSize: "0.6rem",
             letterSpacing: "0.3em",
-            color: "rgba(196,168,130,0.8)",
+            color: "rgba(196,168,120,0.8)",
             textTransform: "uppercase",
           }}
         >
@@ -489,16 +343,284 @@ export default function RoyalHeroSection() {
             width: 1,
             height: 24,
             background:
-              "linear-gradient(to bottom, rgba(196,168,130,0.7), transparent)",
+              "linear-gradient(to bottom, rgba(196,168,120,0.7), transparent)",
             animation: "scrollPulse 2s ease-in-out infinite",
           }}
         />
       </div>
+    </>
+  );
+}
+
+// ─── Mobile Layout ────────────────────────────────────────────────────────────
+function MobileLayout({
+  activeIndex,
+  onTap,
+}: {
+  activeIndex: number;
+  onTap: (i: number) => void;
+}) {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: 10,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-end",
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+      }}
+    >
+      {/* Gold top rule */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 1,
+          background:
+            "linear-gradient(to right, transparent, rgba(196,168,130,0.6), transparent)",
+        }}
+      />
+
+      <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+        {SECTIONS.map((section, i) => {
+          const isActive = i === activeIndex;
+
+          return (
+            <div
+              key={section.id}
+              onClick={() => onTap(i)}
+              style={{
+                position: "relative",
+                cursor: "pointer",
+                overflow: "hidden",
+                borderTop: "1px solid rgba(196,168,130,0.12)",
+                // Height-based expand: active row gets enough room for symbol+text
+                maxHeight: isActive ? "340px" : "56px",
+                transition: "max-height 0.55s cubic-bezier(0.4,0,0.2,1)",
+              }}
+            >
+              {/* Active warm glow */}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: isActive
+                    ? "linear-gradient(to right, rgba(196,158,100,0.08), rgba(160,120,70,0.03))"
+                    : "transparent",
+                  transition: "background 0.5s ease",
+                  pointerEvents: "none",
+                }}
+              />
+
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  padding: "0 28px",
+                }}
+              >
+                {/* Symbol — always mounted, isActive drives its own state machine */}
+                <SymbolCard section={section} isActive={isActive} isMobile />
+
+                {/* Row header */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    height: 56,
+                    flexShrink: 0,
+                  }}
+                >
+                  <div
+                    style={{ display: "flex", alignItems: "baseline", gap: 12 }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "Georgia, 'Times New Roman', serif",
+                        fontSize: "0.6rem",
+                        letterSpacing: "0.25em",
+                        color: isActive
+                          ? "rgba(196,168,120,0.7)"
+                          : "rgba(196,168,120,0.3)",
+                        transition: "color 0.4s ease",
+                        userSelect: "none",
+                      }}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "Georgia, 'Times New Roman', serif",
+                        fontSize: isActive ? "1.8rem" : "1.05rem",
+                        fontWeight: 400,
+                        lineHeight: 1.1,
+                        color: isActive
+                          ? "rgba(222,194,158,1)"
+                          : "rgba(200,175,140,0.45)",
+                        transition:
+                          "font-size 0.45s cubic-bezier(0.4,0,0.2,1), color 0.4s ease",
+                        letterSpacing: "0.03em",
+                        userSelect: "none",
+                      }}
+                    >
+                      {section.label}
+                    </span>
+                  </div>
+
+                  <span
+                    style={{
+                      fontSize: "0.7rem",
+                      color: isActive
+                        ? "rgba(196,168,120,0.8)"
+                        : "rgba(196,168,120,0.25)",
+                      transform: isActive ? "rotate(180deg)" : "rotate(0deg)",
+                      transition: "transform 0.4s ease, color 0.4s ease",
+                      userSelect: "none",
+                      display: "inline-block",
+                    }}
+                  >
+                    ↑
+                  </span>
+                </div>
+
+                {/* Subtitle */}
+                <div
+                  style={{
+                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontStyle: "italic",
+                    fontSize: "0.72rem",
+                    color: "rgba(196,168,120,0.75)",
+                    letterSpacing: "0.05em",
+                    opacity: isActive ? 1 : 0,
+                    transform: isActive ? "translateY(0)" : "translateY(4px)",
+                    transition:
+                      "opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s",
+                    marginBottom: 10,
+                  }}
+                >
+                  {section.subtitle}
+                </div>
+
+                {/* Gold underline */}
+                <div
+                  style={{
+                    height: 1,
+                    marginBottom: 12,
+                    background:
+                      "linear-gradient(to right, rgba(196,168,120,0.6), transparent)",
+                    width: isActive ? "100%" : "0%",
+                    transition: "width 0.5s cubic-bezier(0.4,0,0.2,1)",
+                  }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Scroll hint */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 6,
+          paddingTop: 10,
+          paddingBottom: 18,
+          opacity: 0.4,
+          pointerEvents: "none",
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontSize: "0.55rem",
+            letterSpacing: "0.3em",
+            color: "rgba(196,168,120,0.8)",
+            textTransform: "uppercase",
+          }}
+        >
+          Scroll
+        </div>
+        <div
+          style={{
+            width: 1,
+            height: 20,
+            background:
+              "linear-gradient(to bottom, rgba(196,168,120,0.7), transparent)",
+            animation: "scrollPulse 2s ease-in-out infinite",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Component ────────────────────────────────────────────────────────────
+export default function RoyalHeroSection() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  const handleActivate = useCallback((index: number) => {
+    setActiveIndex(index);
+  }, []);
+
+  return (
+    <section
+      ref={containerRef}
+      className="relative w-full h-screen overflow-hidden"
+    >
+      <Image
+        src="/images/initial-room2.png"
+        alt="Hero Room"
+        fill
+        unoptimized
+        className="object-cover"
+        priority
+        style={{ zIndex: 0 }}
+      />
+
+      <Overlays />
+
+      <div
+        className="absolute bottom-0 left-0 right-0 h-px"
+        style={{
+          zIndex: 10,
+          background:
+            "linear-gradient(to right, transparent, rgba(196,168,120,0.5), transparent)",
+        }}
+      />
+
+      {isMobile ? (
+        <MobileLayout activeIndex={activeIndex} onTap={handleActivate} />
+      ) : (
+        <DesktopLayout activeIndex={activeIndex} onHover={handleActivate} />
+      )}
 
       <style>{`
         @keyframes scrollPulse {
           0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
-          50% { opacity: 0.9; transform: scaleY(1); }
+          50%       { opacity: 0.9; transform: scaleY(1); }
+        }
+        @keyframes continuousSpin {
+          from { transform: rotateY(0deg); }
+          to   { transform: rotateY(360deg); }
         }
       `}</style>
     </section>
