@@ -43,3 +43,62 @@ npx prisma studio # visual browser for your data
 <!-- after changing the schema.prisma for making changes in database do: -->
 
 npx prisma migrate dev --name set-verified-default-true
+
+---
+
+## Local Database Setup (macOS)
+
+This project uses **PostgreSQL locally** + **Prisma** as the ORM.
+
+### How it works (high level)
+
+- `prisma/schema.prisma` defines models (tables), relations, and enums.
+- `.env` provides `DATABASE_URL` which tells Prisma **where your local Postgres is** and **which credentials to use**.
+- `npx prisma migrate dev` / `npx prisma migrate reset` apply migrations from `prisma/migrations/*` to your local DB.
+- `npx prisma generate` generates the Prisma client into `node_modules/@prisma/client`.
+- `npx prisma db seed` runs `prisma/seed.ts` to insert initial data.
+
+### 1) Install & start Postgres (pick ONE)
+
+**Option A: Postgres.app**
+- Install Postgres.app and make sure it’s running.
+
+**Option B: Homebrew**
+- `brew install postgresql@16`
+- `brew services start postgresql@16`
+
+**Option C: Docker**
+- Run a local Postgres container and expose port `5432`.
+
+### 2) Create the database + user
+
+Use `psql` (or pgAdmin) and create a database + user that matches your `.env`.
+
+Example (adjust username/password as you like):
+
+- Create user:
+	- `psql -d postgres -c "CREATE USER postgres WITH PASSWORD 'radikal4';"`
+- Create database:
+	- `psql -d postgres -c "CREATE DATABASE royal_academy OWNER postgres;"`
+
+If the `postgres` role already exists, just set its password:
+- `psql -d postgres -c "ALTER USER postgres WITH PASSWORD 'radikal4';"`
+
+### 3) Set `DATABASE_URL`
+
+In `.env`:
+- `DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/royal_academy"`
+
+### 4) Apply migrations + seed
+
+- `npx prisma migrate reset`
+	- This recreates the schema, runs all migrations, then runs the seed.
+
+### 5) Run the app
+
+- `npm run dev`
+
+### Troubleshooting
+
+- If you see `P1000 Authentication failed`, your local Postgres username/password doesn’t match `DATABASE_URL`.
+- If Prisma Client seems missing models after schema changes, run: `npx prisma generate`.

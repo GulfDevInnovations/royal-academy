@@ -3,6 +3,14 @@ import { createServerClient } from "@supabase/ssr";
 import createIntlMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 
+type CookieToSet = {
+  name: string;
+  value: string;
+  // Next.js' cookie options type is not exported cleanly; use explicit any to
+  // avoid implicit-any errors while keeping middleware simple.
+  options: any;
+};
+
 const intlMiddleware = createIntlMiddleware(routing);
 
 export async function middleware(request: NextRequest) {
@@ -26,7 +34,7 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: CookieToSet[]) {
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           );
@@ -47,6 +55,8 @@ export async function middleware(request: NextRequest) {
     pathname.includes("/login") ||
     pathname.includes("/signup") ||
     pathname.includes("/verify-email") ||
+    pathname.includes("/forgot-password") ||
+    pathname.includes("/update-password") ||
     pathname.includes("/admin");
   const isProtected =
     pathname.includes("/profile") ||

@@ -6,6 +6,7 @@ import { routing } from "@/i18n/routing";
 import localFont from "next/font/local";
 import "../globals.css";
 import ConditionalLayout from "@/components/ConditionalLayout";
+import Footer from "@/components/Footer";
 
 const goudy = localFont({
   src: [
@@ -118,9 +119,12 @@ export default async function LocaleLayout({
       className={`${goudy.variable} ${layla.variable}`}
     >
       <body>
-        <div className="min-h-screen bg-royal-purple text-royal-cream">
+        <div className="min-h-screen bg-royal-purple text-royal-cream flex flex-col">
           <NextIntlClientProvider messages={messages}>
-            <ConditionalLayout>{children}</ConditionalLayout>
+            <ConditionalLayout>
+              <main className="flex-1">{children}</main>
+            </ConditionalLayout>
+            <Footer locale={locale} />
           </NextIntlClientProvider>
         </div>
       </body>

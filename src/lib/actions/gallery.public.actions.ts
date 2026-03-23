@@ -18,35 +18,40 @@ export type PublicGalleryItem = {
 };
 
 export async function getPublishedGalleryItems(): Promise<PublicGalleryItem[]> {
-  const items = await prisma.galleryItem.findMany({
-    where: { visibility: "PUBLISHED" },
-    orderBy: [{ isFeatured: "desc" }, { sortOrder: "asc" }, { createdAt: "desc" }],
-    select: {
-      id: true,
-      mediaType: true,
-      url: true,
-      thumbnailUrl: true,
-      altText: true,
-      title: true,
-      description: true,
-      isFeatured: true,
-      sortOrder: true,
-      takenAt: true,
-      category: { select: { name: true, slug: true } },
-      persons: {
-        select: {
-          person: { select: { displayName: true, role: true } },
+  try {
+    const items = await prisma.galleryItem.findMany({
+      where: { visibility: "PUBLISHED" },
+      orderBy: [{ isFeatured: "desc" }, { sortOrder: "asc" }, { createdAt: "desc" }],
+      select: {
+        id: true,
+        mediaType: true,
+        url: true,
+        thumbnailUrl: true,
+        altText: true,
+        title: true,
+        description: true,
+        isFeatured: true,
+        sortOrder: true,
+        takenAt: true,
+        category: { select: { name: true, slug: true } },
+        persons: {
+          select: {
+            person: { select: { displayName: true, role: true } },
+          },
         },
       },
-    },
-  });
+    });
 
-  return items.map((item) => ({
-    ...item,
-    takenAt: item.takenAt?.toISOString() ?? null,
-    persons: item.persons.map((p) => ({
-      displayName: p.person.displayName,
-      role: p.person.role,
-    })),
-  }));
+    return items.map((item) => ({
+      ...item,
+      takenAt: item.takenAt?.toISOString() ?? null,
+      persons: item.persons.map((p) => ({
+        displayName: p.person.displayName,
+        role: p.person.role,
+      })),
+    }));
+  } catch (error) {
+    console.error("getPublishedGalleryItems failed", error);
+    return [];
+  }
 }
