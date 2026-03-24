@@ -317,7 +317,7 @@ export default function TeacherFormModal({
                       addSpecialty();
                     }
                   }}
-                  placeholder="e.g. Piano, Ballet, Drums…"
+                  placeholder="e.g. Violin, Ballet, Drums…"
                   className="flex-1 px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/80 placeholder-white/20 focus:outline-none focus:border-amber-500/50 transition-all"
                   style={{ borderColor: adminColors.border }}
                 />

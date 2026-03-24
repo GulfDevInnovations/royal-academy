@@ -84,6 +84,15 @@ async function main() {
       role: "TEACHER",
       isActive: true,
       isVerified: true,
+      teacherProfile: {
+        create: {
+          firstName: 'Ahmed',
+          lastName: 'Al Rashdi',
+          bio: 'Music instructor focused on theory, composition, and foundational musicianship.',
+          specialties: ['Music Theory', 'Composition', 'Musicianship'],
+          isAvailable: true,
+        }
+      }
     },
   });
 
@@ -357,13 +366,10 @@ async function main() {
     },
   });
 
-  const classDance = await prisma.class.upsert({
-    where: { id: "class-dance" },
-    update: {},
-    create: {
-      id: "class-dance",
-      name: "Dance & Wellness",
-      description: "Contemporary, ballet, hip-hop, and wellness movement classes.",
+  const musicClass = await prisma.class.create({
+    data: {
+      name: 'Music',
+      description: 'Learn music through theory, composition, and performance.',
       isActive: true,
       sortOrder: 2,
     },
@@ -483,64 +489,14 @@ async function main() {
     },
   });
 
-  const subBallet = await prisma.subClass.upsert({
-    where: { id: "sub-ballet" },
-    update: {},
-    create: {
-      id: "sub-ballet",
-      classId: classDance.id,
-      name: "Ballet",
-      description: "Classical ballet technique for children and teens. RAD syllabus.",
-      capacity: 12,
-      durationMinutes: 60,
-      price: 22,
-      currency: "OMR",
-      level: "All Levels",
-      ageGroup: "Kids & Teens",
-      isActive: true,
-      sessionType: "PUBLIC",
-      oncePriceMonthly: 22,
-      twicePriceMonthly: 38,
-      trialPrice: 10,
-      isTrialAvailable: true,
-      isReschedulable: false,  // ← group/public class
-    },
-  });
-
-  const subPrivateDance = await prisma.subClass.upsert({
-    where: { id: "sub-private-dance" },
-    update: {},
-    create: {
-      id: "sub-private-dance",
-      classId: classDance.id,
-      name: "Private Dance",
-      description: "One-on-one private dance coaching. Any style, any level.",
-      capacity: 1,
-      durationMinutes: 60,
-      price: 40,
-      currency: "OMR",
-      level: "All Levels",
-      ageGroup: "All Ages",
-      isActive: true,
-      sessionType: "PRIVATE",
-      oncePriceMonthly: 40,
-      twicePriceMonthly: 70,
-      trialPrice: 10,
-      isTrialAvailable: true,
-      isReschedulable: true,   // ← private lesson
-    },
-  });
-
-  // ART — public
-  const subArtStudio = await prisma.subClass.upsert({
-    where: { id: "sub-art-studio" },
-    update: {},
-    create: {
-      id: "sub-art-studio",
-      classId: classArt.id,
-      name: "Art Studio",
-      description: "Mixed-media visual arts for all ages. Painting, drawing, and sculpture.",
-      capacity: 12,
+  // Painting subclasses
+  const oilPainting = await prisma.subClass.create({
+    data: {
+      classId:         paintingClass.id,
+      teacherId:       teacher3User.teacherProfile!.id,
+      name:            'Oil Painting',
+      description:     'Learn oil painting techniques from scratch.',
+      capacity:        10,
       durationMinutes: 90,
       price: 20,
       currency: "OMR",
@@ -755,27 +711,55 @@ async function main() {
     }
   }
 
-  console.log(`  ✓ Class sessions created (${Object.keys(sessionMap).length} total)`);
+  const oilSchedule = await prisma.classSchedule.create({
+    data: {
+      subClassId:      oilPainting.id,
+      teacherId:       teacher3.id,
+      dayOfWeek:       DayOfWeek.WEDNESDAY,
+      startTime:       '14:00',
+      endTime:         '15:30',
+      startDate:       scheduleStartDate,
+      endDate:         scheduleEndDate,
+      maxCapacity:     10,
+      currentEnrolled: 0,
+      isRecurring:     true,
+      status:          ClassStatus.ACTIVE,
+    }
+  })
 
-  // ── 10. MONTHLY ENROLLMENTS ───────────────────────────────────────────────
-  //
-  // Ahmed → Piano, January 2026, once/week (single-month booking)
-  // Khalid → Piano, Jan+Feb+Mar 2026, twice/week (multi-month booking)
-  // Fatima → Hip-Hop, January 2026, once/week (single-month booking)
-  // Maryam → Ballet, January 2026, once/week
+  console.log('✅ Class schedules created')
 
-  // Ahmed single-month
-  const enrollAhmedPianoJan = await prisma.monthlyEnrollment.upsert({
-    where: {
-      studentId_subClassId_month_year: {
-        studentId: student1.id,
-        subClassId: subPiano.id,
-        month: 1,
-        year: 2026,
-      },
-    },
-    update: {},
-    create: {
+  // ─────────────────────────────────────────────
+  // CLASS SESSIONS (generate a few per schedule)
+  // ─────────────────────────────────────────────
+  const balletSession1 = await prisma.classSession.create({
+    data: {
+      scheduleId:  balletSchedule.id,
+      sessionDate: new Date('2025-03-03'),
+      startTime:   '10:00',
+      endTime:     '11:00',
+      status:      ClassStatus.ACTIVE,
+    }
+  })
+
+  const balletSession2 = await prisma.classSession.create({
+    data: {
+      scheduleId:  balletSchedule.id,
+      sessionDate: new Date('2025-03-10'),
+      startTime:   '10:00',
+      endTime:     '11:00',
+      status:      ClassStatus.ACTIVE,
+    }
+  })
+
+  console.log('✅ Class sessions created')
+
+  // ─────────────────────────────────────────────
+  // BOOKINGS
+  // ─────────────────────────────────────────────
+  const student1 = student1User.studentProfile!
+  const booking1 = await prisma.booking.create({
+    data: {
       studentId: student1.id,
       subClassId: subPiano.id,
       month: 1,
@@ -788,55 +772,7 @@ async function main() {
     },
   });
 
-  await prisma.monthlyPayment.upsert({
-    where: { enrollmentId: enrollAhmedPianoJan.id },
-    update: {},
-    create: {
-      enrollmentId: enrollAhmedPianoJan.id,
-      amount: 35,
-      currency: "OMR",
-      status: "PAID",
-      method: "CREDIT_CARD",
-      paidAt: new Date("2025-12-28"),
-    },
-  });
-
-  // Fatima single-month Hip-Hop Jan
-  const enrollFatimaHipHopJan = await prisma.monthlyEnrollment.upsert({
-    where: {
-      studentId_subClassId_month_year: {
-        studentId: student2.id,
-        subClassId: subHipHop.id,
-        month: 1,
-        year: 2026,
-      },
-    },
-    update: {},
-    create: {
-      studentId: student2.id,
-      subClassId: subHipHop.id,
-      month: 1,
-      year: 2026,
-      frequency: "ONCE_PER_WEEK",
-      preferredDays: ["TUESDAY"],
-      status: "CONFIRMED",
-      totalAmount: 18,
-      currency: "OMR",
-    },
-  });
-
-  await prisma.monthlyPayment.upsert({
-    where: { enrollmentId: enrollFatimaHipHopJan.id },
-    update: {},
-    create: {
-      enrollmentId: enrollFatimaHipHopJan.id,
-      amount: 18,
-      currency: "OMR",
-      status: "PAID",
-      method: "DEBIT_CARD",
-      paidAt: new Date("2025-12-29"),
-    },
-  });
+  console.log('✅ Bookings created')
 
   // Maryam Ballet Jan
   const enrollMaryamBalletJan = await prisma.monthlyEnrollment.upsert({
@@ -862,335 +798,19 @@ async function main() {
     },
   });
 
-  await prisma.monthlyPayment.upsert({
-    where: { enrollmentId: enrollMaryamBalletJan.id },
-    update: {},
-    create: {
-      enrollmentId: enrollMaryamBalletJan.id,
-      amount: 22,
-      currency: "OMR",
-      status: "PAID",
-      method: "BANK_TRANSFER",
-      paidAt: new Date("2025-12-30"),
-    },
-  });
+  await prisma.payment.create({
+    data: {
+      bookingId:  booking1.id,
+      invoiceId:  invoice1.id,
+      amount:     15.00,
+      currency:   'OMR',
+      status:     'PAID',
+      method:     'CREDIT_CARD',
+      paidAt:     new Date(),
+    }
+  })
 
-  console.log("  ✓ Single-month enrollments created");
-
-  // ── 11. MULTI-MONTH ENROLLMENT (Khalid → Piano × 3 months) ───────────────
-
-  const multiEnrollKhalidPiano = await prisma.multiMonthEnrollment.upsert({
-    where: { id: "multi-khalid-piano-jan-mar" },
-    update: {},
-    create: {
-      id: "multi-khalid-piano-jan-mar",
-      studentId: student3.id,
-      subClassId: subPiano.id,
-      frequency: "TWICE_PER_WEEK",
-      preferredDays: ["WEDNESDAY"],
-      startMonth: 1,
-      startYear: 2026,
-      endMonth: 3,
-      endYear: 2026,
-      totalMonths: 3,
-      totalAmount: 180, // 60 OMR × 3 months (twice/week price)
-      currency: "OMR",
-      status: "CONFIRMED",
-    },
-  });
-
-  await prisma.multiMonthPayment.upsert({
-    where: { multiMonthEnrollmentId: multiEnrollKhalidPiano.id },
-    update: {},
-    create: {
-      multiMonthEnrollmentId: multiEnrollKhalidPiano.id,
-      amount: 180,
-      currency: "OMR",
-      status: "PAID",
-      method: "CREDIT_CARD",
-      paidAt: new Date("2025-12-27"),
-    },
-  });
-
-  // Create the three child MonthlyEnrollment rows linked to the parent
-  const khalidMonths = [
-    { month: 1, year: 2026 },
-    { month: 2, year: 2026 },
-    { month: 3, year: 2026 },
-  ];
-
-  for (const { month, year } of khalidMonths) {
-    await prisma.monthlyEnrollment.upsert({
-      where: {
-        studentId_subClassId_month_year: {
-          studentId: student3.id,
-          subClassId: subPiano.id,
-          month,
-          year,
-        },
-      },
-      update: {},
-      create: {
-        studentId: student3.id,
-        subClassId: subPiano.id,
-        month,
-        year,
-        frequency: "TWICE_PER_WEEK",
-        preferredDays: ["WEDNESDAY"],
-        status: "CONFIRMED",
-        totalAmount: 60,
-        currency: "OMR",
-        multiMonthEnrollmentId: multiEnrollKhalidPiano.id,
-      },
-    });
-  }
-
-  console.log("  ✓ Multi-month enrollment created (Khalid, Piano, Jan–Mar)");
-
-  // ── 12. BOOKINGS for January sessions ────────────────────────────────────
-  //
-  // We create Booking rows for every January session for each enrolled student.
-  // Piano Wednesday sessions in January 2026: 7, 14, 21, 28
-
-  const pianoWedJanDates = sessionsInMonth(2026, 1, 3); // 3 = Wednesday
-
-  // Ahmed's Piano bookings (Jan, enrolled)
-  const ahmedPianoBookings: { id: string; sessionId: string }[] = [];
-  for (const date of pianoWedJanDates) {
-    const sessionKey = `${schedulePiano.id}-${date.toISOString().slice(0, 10)}`;
-    const sessionId = sessionMap[sessionKey];
-    if (!sessionId) continue;
-    const bookingId = `booking-ahmed-piano-${date.toISOString().slice(0, 10)}`;
-    await prisma.booking.upsert({
-      where: { id: bookingId },
-      update: {},
-      create: {
-        id: bookingId,
-        studentId: student1.id,
-        sessionId,
-        status: "CONFIRMED",
-        canCancel: true,
-      },
-    });
-    ahmedPianoBookings.push({ id: bookingId, sessionId });
-  }
-
-  // Khalid's Piano bookings (Jan, multi-month)
-  for (const date of pianoWedJanDates) {
-    const sessionKey = `${schedulePiano.id}-${date.toISOString().slice(0, 10)}`;
-    const sessionId = sessionMap[sessionKey];
-    if (!sessionId) continue;
-    const bookingId = `booking-khalid-piano-${date.toISOString().slice(0, 10)}`;
-    await prisma.booking.upsert({
-      where: { id: bookingId },
-      update: {},
-      create: {
-        id: bookingId,
-        studentId: student3.id,
-        sessionId,
-        status: "CONFIRMED",
-        canCancel: true,
-      },
-    });
-  }
-
-  // Hip-Hop Tuesday sessions in Jan 2026
-  const hipHopTueDates = sessionsInMonth(2026, 1, 2);
-  for (const date of hipHopTueDates) {
-    const sessionKey = `${scheduleHipHop.id}-${date.toISOString().slice(0, 10)}`;
-    const sessionId = sessionMap[sessionKey];
-    if (!sessionId) continue;
-    const bookingId = `booking-fatima-hiphop-${date.toISOString().slice(0, 10)}`;
-    await prisma.booking.upsert({
-      where: { id: bookingId },
-      update: {},
-      create: {
-        id: bookingId,
-        studentId: student2.id,
-        sessionId,
-        status: "CONFIRMED",
-        canCancel: false, // group class — no cancel
-      },
-    });
-  }
-
-  // Ballet Thursday sessions in Jan 2026
-  const balletThuDates = sessionsInMonth(2026, 1, 4);
-  for (const date of balletThuDates) {
-    const sessionKey = `${scheduleBallet.id}-${date.toISOString().slice(0, 10)}`;
-    const sessionId = sessionMap[sessionKey];
-    if (!sessionId) continue;
-    const bookingId = `booking-maryam-ballet-${date.toISOString().slice(0, 10)}`;
-    await prisma.booking.upsert({
-      where: { id: bookingId },
-      update: {},
-      create: {
-        id: bookingId,
-        studentId: student4.id,
-        sessionId,
-        status: "CONFIRMED",
-        canCancel: false,
-      },
-    });
-  }
-
-  console.log("  ✓ January bookings created");
-
-  // ── 13. RESCHEDULE SCENARIO ───────────────────────────────────────────────
-  //
-  // Ahmed reschedules his 2nd Piano session (Jan 14) to Jan 21.
-  // Jan 14 booking → RESCHEDULED
-  // Jan 21 booking → new booking (status CONFIRMED)
-  // RescheduleLog row created.
-  //
-  // Note: this is illustrative. In a real scenario Jan 21 would already have a
-  // booking, so the server would handle the capacity check first. Here we mark
-  // the Jan 14 booking as RESCHEDULED and log it.
-
-  const jan14Key = `${schedulePiano.id}-2026-01-14`;
-  const jan21Key = `${schedulePiano.id}-2026-01-21`;
-  const oldBookingId = `booking-ahmed-piano-2026-01-14`;
-  const newReschedBookingId = `booking-ahmed-piano-resched-2026-01-21`;
-
-  if (sessionMap[jan14Key] && sessionMap[jan21Key]) {
-    // Mark old booking as rescheduled
-    await prisma.booking.update({
-      where: { id: oldBookingId },
-      data: {
-        status: "RESCHEDULED",
-        rescheduledFrom: oldBookingId,
-        canCancel: false,
-      },
-    });
-
-    // Create new booking for the rescheduled slot
-    const reschedNewBooking = await prisma.booking.upsert({
-      where: { id: newReschedBookingId },
-      update: {},
-      create: {
-        id: newReschedBookingId,
-        studentId: student1.id,
-        sessionId: sessionMap[jan21Key],
-        status: "CONFIRMED",
-        rescheduledFrom: oldBookingId,
-        canCancel: true,
-      },
-    });
-
-    // Write the audit log row
-    await prisma.rescheduleLog.upsert({
-      where: { id: "resched-ahmed-jan14-to-jan21" },
-      update: {},
-      create: {
-        id: "resched-ahmed-jan14-to-jan21",
-        studentId: student1.id,
-        oldBookingId,
-        newBookingId: reschedNewBooking.id,
-        oldSessionId: sessionMap[jan14Key],
-        newSessionId: sessionMap[jan21Key],
-        wasLost: false,
-      },
-    });
-  }
-
-  console.log("  ✓ Reschedule scenario created");
-
-  // ── 14. TRIAL BOOKING ─────────────────────────────────────────────────────
-  //
-  // Fatima books a trial for Ballet (first Thursday in Jan)
-
-  const balletTrialDate = balletThuDates[0];
-  const balletTrialSessionKey = `${scheduleBallet.id}-${balletTrialDate.toISOString().slice(0, 10)}`;
-  const balletTrialSessionId = sessionMap[balletTrialSessionKey];
-
-  if (balletTrialSessionId) {
-    const trialBooking = await prisma.trialBooking.upsert({
-      where: {
-        studentId_subClassId: {
-          studentId: student2.id,
-          subClassId: subBallet.id,
-        },
-      },
-      update: {},
-      create: {
-        studentId: student2.id,
-        subClassId: subBallet.id,
-        sessionId: balletTrialSessionId,
-        status: "CONFIRMED",
-      },
-    });
-
-    await prisma.payment.upsert({
-      where: { id: `payment-trial-fatima-ballet` },
-      update: {},
-      create: {
-        id: `payment-trial-fatima-ballet`,
-        trialBookingId: trialBooking.id,
-        amount: 10,
-        currency: "OMR",
-        status: "PAID",
-        method: "CREDIT_CARD",
-        paidAt: new Date("2025-12-31"),
-      },
-    });
-  }
-
-  console.log("  ✓ Trial booking created");
-
-  // ── 15. WORKSHOP ──────────────────────────────────────────────────────────
-
-  const workshop1 = await prisma.workshop.upsert({
-    where: { id: "workshop-hip-hop-special" },
-    update: {},
-    create: {
-      id: "workshop-hip-hop-special",
-      title: "Hip-Hop Intensive Workshop",
-      description:
-        "A full-day hip-hop workshop covering choreography, freestyle, and battle techniques. Open to all levels.",
-      teacherId: teacher2.id,
-      eventDate: new Date("2026-02-14"),
-      startTime: "10:00",
-      endTime: "17:00",
-      capacity: 20,
-      price: 25,
-      currency: "OMR",
-      isActive: true,
-    },
-  });
-
-  // Ahmed books the workshop
-  const workshopBooking = await prisma.workshopBooking.upsert({
-    where: {
-      workshopId_studentId: {
-        workshopId: workshop1.id,
-        studentId: student1.id,
-      },
-    },
-    update: {},
-    create: {
-      workshopId: workshop1.id,
-      studentId: student1.id,
-      status: "CONFIRMED",
-    },
-  });
-
-  await prisma.payment.upsert({
-    where: { id: "payment-workshop-ahmed" },
-    update: {},
-    create: {
-      id: "payment-workshop-ahmed",
-      workshopBookingId: workshopBooking.id,
-      amount: 25,
-      currency: "OMR",
-      status: "PAID",
-      method: "CREDIT_CARD",
-      paidAt: new Date("2026-01-15"),
-    },
-  });
-
-  console.log("  ✓ Workshop and booking created");
-
-  // ── 16. NOTIFICATIONS ─────────────────────────────────────────────────────
+  console.log('✅ Invoices and payments created')
 
   await prisma.notification.createMany({
     skipDuplicates: true,
@@ -1299,16 +919,8 @@ async function main() {
         newValues: { status: "RESCHEDULED", sessionId: sessionMap[jan21Key] },
         ipAddress: "10.0.0.1",
       },
-      {
-        userId: adminUser.id,
-        action: "SCHEDULE_CREATED",
-        entity: "ClassSchedule",
-        entityId: schedulePiano.id,
-        newValues: { subClassId: subPiano.id, teacherId: teacher1.id, dayOfWeek: "WEDNESDAY" },
-        ipAddress: "10.0.0.2",
-      },
-    ],
-  });
+    ]
+  })
 
   console.log("  ✓ Audit logs created");
 
@@ -1330,5 +942,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
-  });
+    await prisma.$disconnect()
+  })
