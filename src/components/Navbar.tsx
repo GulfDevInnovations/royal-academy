@@ -631,7 +631,7 @@ export default function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-40 bg-black/70 backdrop-blur-[2px]"
             onClick={() => {
               setMenuOpen(false);
               setUserMenuOpen(false);
@@ -646,7 +646,7 @@ export default function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-70 px-4 py-8 md:py-10"
+            className="fixed inset-0 z-70 px-4 py-8 md:py-10 bg-black/75 backdrop-blur-[2px]"
             onClick={() => setContactModalOpen(false)}
           >
             <motion.div
@@ -655,7 +655,7 @@ export default function Navbar() {
               exit={{ opacity: 0, y: 20, scale: 0.98 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
               onClick={(event) => event.stopPropagation()}
-              className="mx-auto flex backdrop-blur-sm max-h-[90vh] w-full max-w-3xl flex-col rounded-3xl border border-white/25 shadow-[0_35px_90px_rgba(0,0,0,0.45)] overflow-hidden"
+              className="mx-auto flex backdrop-blur-sm bg-black/70 max-h-[90vh] w-full max-w-3xl flex-col rounded-3xl border border-white/25 shadow-[0_35px_90px_rgba(0,0,0,0.55)] overflow-hidden"
             >
               <div className="flex items-start justify-between gap-4 border-b border-white/15 px-6 py-5">
                 <div>
