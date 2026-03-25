@@ -116,7 +116,7 @@ export default function SubClassFormModal({
                   <AdminInput
                     label="Name *"
                     name="name"
-                    placeholder="e.g. Piano for Kids, Ballet Beginner"
+                    placeholder="e.g. Violin for Kids, Ballet Beginner"
                     defaultValue={editing?.name ?? ""}
                     required
                   />

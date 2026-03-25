@@ -43,7 +43,6 @@ type PaymentData = {
 };
 
 const CLASS_ACCENT: Record<string, string> = {
-  Piano: "#C9A84C",
   Dance: "#A855F7",
   Ballet: "#EC4899",
   Violin: "#3B82F6",
