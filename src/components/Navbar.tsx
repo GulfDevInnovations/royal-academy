@@ -43,6 +43,7 @@ export default function Navbar() {
   // Prisma userId resolved from Supabase session
   const [prismaUserId, setPrismaUserId] = useState<string | null>(null);
   const { navigateToFloor } = useHomeNav();
+  const [notificationOpen, setNotificationOpen] = useState(false);
 
   const locale = useLocale();
   const router = useRouter();
@@ -88,12 +89,12 @@ export default function Navbar() {
 
   // ── 1. Body scroll lock ───────────────────────────────────────────────────────
   useEffect(() => {
-    if (menuOpen || userMenuOpen || contactModalOpen) {
+    if (menuOpen || userMenuOpen || contactModalOpen || notificationOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
-  }, [menuOpen, userMenuOpen, contactModalOpen]);
+  }, [menuOpen, userMenuOpen, contactModalOpen, notificationOpen]);
 
   // ── 2. Escape key closes contact modal ───────────────────────────────────────
   useEffect(() => {
@@ -387,6 +388,14 @@ export default function Navbar() {
     `,
   };
 
+  const handleNotificationToggle = (isOpen: boolean) => {
+    if (isOpen) {
+      setMenuOpen(false);
+      setUserMenuOpen(false);
+    }
+    setNotificationOpen(isOpen);
+  };
+
   return (
     <>
       {/* Top Bar */}
@@ -458,11 +467,12 @@ export default function Navbar() {
                 onClick={() => {
                   setUserMenuOpen(!userMenuOpen);
                   setMenuOpen(false);
+                  setNotificationOpen(false);
                 }}
                 whileTap={{ scale: 0.96 }}
                 whileHover={{ scale: 1.03 }}
                 transition={{ duration: 0.2 }}
-                className={`shimmer backdrop-blur-xs flex items-center justify-center gap-3 px-1.5 md:px-2 py-1 rounded-full transition-all duration-300 cursor-pointer ${userMenuOpen ? "liquid-glass-gold" : "liquid-glass"}`}
+                className={`flex items-center shimmer backdrop-blur-xs justify-center gap-3 px-1.5 md:px-2 py-1 rounded-full transition-all duration-300 cursor-pointer ${userMenuOpen ? "liquid-glass-gold" : "liquid-glass"}`}
               >
                 <span className="relative h-10 w-10 md:h-12 md:w-12 overflow-hidden rounded-full bg-white/10">
                   <Image
@@ -480,7 +490,12 @@ export default function Navbar() {
 
           {/* Notification Bell — only when logged in */}
           {user && prismaUserId && (
-            <NotificationBell userId={prismaUserId} isArabic={isArabic} />
+            <NotificationBell
+              userId={prismaUserId}
+              isArabic={isArabic}
+              open={notificationOpen}
+              onToggle={handleNotificationToggle}
+            />
           )}
         </div>
 
@@ -488,7 +503,7 @@ export default function Navbar() {
         <div
           className={`flex items-center gap-2 md:gap-3 ${isArabic ? "flex-row-reverse" : "flex-row"}`}
         >
-          {/* Contact Us */}
+          {/* reservation */}
           <motion.div
             whileTap={{ scale: 0.96 }}
             whileHover={{ scale: 1.03 }}
@@ -497,15 +512,11 @@ export default function Navbar() {
           >
             <button
               type="button"
-              onClick={() => {
-                setContactModalOpen(true);
-                setMenuOpen(false);
-                setUserMenuOpen(false);
-              }}
-              className="liquid-glass-gold backdrop-blur-xs shimmer flex items-center justify-center gap-3 px-6 lg:px-8 py-3 lg:py-4 rounded-full transition-all duration-300 cursor-pointer"
+              onClick={() => router.push("/reservation")}
+              className="liquid-glass-gold backdrop-blur-xs shimmer shimmer-auto flex items-center justify-center gap-3 px-6 lg:px-8 py-3 lg:py-4 rounded-full transition-all duration-300 cursor-pointer"
             >
-              <span className="text-royal-gold text-sm tracking-widest uppercase font-medium whitespace-nowrap">
-                {isArabic ? "تواصل معنا" : "Contact Us"}
+              <span className="text-royal-gold text-sm tracking-widest uppercase whitespace-nowrap">
+                {isArabic ? "ابدأ رحلتك" : "Start your journey"}
               </span>
             </button>
           </motion.div>
@@ -541,7 +552,7 @@ export default function Navbar() {
             onClick={switchLanguage}
             className="liquid-glass backdrop-blur-xs shimmer flex items-center justify-center gap-3 px-4 sm:px-6 md:px-8 py-2.5 md:py-3 rounded-full transition-all duration-300 cursor-pointer"
           >
-            <span className="text-royal-cream text-base sm:text-xl tracking-widest uppercase whitespace-nowrap">
+            <span className="text-royal-cream text-base sm:text-l tracking-widest uppercase whitespace-nowrap">
               {isArabic ? "EN" : "عربي"}
             </span>
           </motion.button>
@@ -551,6 +562,7 @@ export default function Navbar() {
             onClick={() => {
               setMenuOpen(!menuOpen);
               setUserMenuOpen(false);
+              setNotificationOpen(false);
             }}
             whileTap={{ scale: 0.96 }}
             whileHover={{ scale: 1.03 }}
@@ -626,15 +638,16 @@ export default function Navbar() {
 
       {/* Invisible backdrop */}
       <AnimatePresence>
-        {(menuOpen || userMenuOpen) && (
+        {(menuOpen || userMenuOpen || notificationOpen) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black/70 backdrop-blur-[2px]"
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px]"
             onClick={() => {
               setMenuOpen(false);
               setUserMenuOpen(false);
+              setNotificationOpen(false);
             }}
           />
         )}
@@ -775,10 +788,10 @@ export default function Navbar() {
             animate="visible"
             exit="exit"
             className={`
-              fixed z-50 top-24 sm:top-28 w-[calc(100vw-2rem)] max-w-sm sm:w-96
-              ${isArabic ? "left-4 sm:left-8" : "right-4 sm:right-8"}
-              rounded-3xl liquid-glass backdrop-blur-xs shadow-2xl shadow-black/60
-            `}
+  fixed z-50 top-24 sm:top-28
+  ${isArabic ? "left-4 sm:left-8 w-[calc(100vw-2rem)] max-w-sm sm:w-96" : "right-4 sm:right-8 w-[calc(100vw-2rem)] max-w-sm sm:w-96"}
+  rounded-3xl liquid-glass backdrop-blur-xs shadow-2xl shadow-black/60
+`}
             style={{
               clipPath: "inset(0 round 1.5rem)", // matches rounded-3xl = 24px
             }}
@@ -814,7 +827,9 @@ export default function Navbar() {
                         className="absolute inset-0 -mx-4 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none"
                         style={glassHoverStyle}
                       />
-                      <span className="relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 translate-x-0 group-hover:-translate-x-2 transition-all duration-300 ease-out">
+                      <span
+                        className={`relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out ${isArabic ? "translate-x-0 group-hover:translate-x-2" : "translate-x-0 group-hover:-translate-x-2"}`}
+                      >
                         <FontAwesomeIcon
                           icon={isArabic ? faCaretRight : faCaretLeft}
                         />
@@ -906,9 +921,14 @@ export default function Navbar() {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="fixed z-50 top-24 sm:top-28 left-4 sm:left-8 w-[calc(100vw-2rem)] max-w-xs sm:w-72 rounded-3xl liquid-glass shadow-2xl shadow-black/60"
+            className={`absolute z-50 top-24 sm:top-28 rounded-3xl liquid-glass shadow-2xl shadow-black/60
+    ${
+      isArabic
+        ? "right-4 sm:right-8 w-[calc(100vw-2rem)] max-w-sm sm:w-80"
+        : "left-4 sm:left-8 w-[calc(100vw-2rem)] max-w-xs sm:w-72"
+    }`}
             style={{
-              clipPath: "inset(0 round 1.5rem)", // matches rounded-3xl = 24px
+              clipPath: "inset(0 round 1.5rem)",
             }}
           >
             <div className="h-px w-full bg-linear-to-r from-transparent via-royal-gold/50 to-transparent" />

@@ -2,7 +2,13 @@
 
 import type { RefObject } from "react";
 import { useEffect, useRef } from "react";
-import { motion, useMotionValue, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import Footer from "@/components/Footer";
 
 /**
@@ -46,7 +52,8 @@ export default function AboutParallax({
       const containerRect = scroller.getBoundingClientRect();
       const targetRect = target.getBoundingClientRect();
 
-      const targetTopInScroll = targetRect.top - containerRect.top + scroller.scrollTop;
+      const targetTopInScroll =
+        targetRect.top - containerRect.top + scroller.scrollTop;
       const start = targetTopInScroll;
       const end = targetTopInScroll + target.offsetHeight;
       const denom = Math.max(1, end - start);
@@ -70,25 +77,71 @@ export default function AboutParallax({
     };
   }, [manualProgress, scrollContainerRef]);
 
-  const progress = scrollContainerRef?.current ? manualProgress : scrollYProgress;
+  const progress = scrollContainerRef?.current
+    ? manualProgress
+    : scrollYProgress;
 
   // Layer movement: background moves least, foreground moves most.
-  const bgY = useTransform(progress, [0, 1], reduceMotion ? [0, 0] : [30, -100]);
-  const leftHillY = useTransform(progress, [0, 1], reduceMotion ? [0, 0] : [0, -250]);
-  const rightHillY = useTransform(progress, [0, 1], reduceMotion ? [0, 0] : [0, -300]);
-  const textY = useTransform(progress, [0, 1], reduceMotion ? [0, 0] : [0, -485]);
+  const bgY = useTransform(
+    progress,
+    [0, 1],
+    reduceMotion ? [0, 0] : [30, -100],
+  );
+  const leftHillY = useTransform(
+    progress,
+    [0, 1],
+    reduceMotion ? [0, 0] : [0, -200],
+  );
+  const rightHillY = useTransform(
+    progress,
+    [0, 1],
+    reduceMotion ? [0, 0] : [0, -250],
+  );
+  const textY = useTransform(
+    progress,
+    [0, 1],
+    reduceMotion ? [0, 0] : [0, -270],
+  );
 
-  const leftHillX = useTransform(progress, [0, 1], reduceMotion ? [0, 0] : [0, 0]);
-  const rightHillX = useTransform(progress, [0, 1], reduceMotion ? [0, 0] : [0, 0]);
+  const leftHillX = useTransform(
+    progress,
+    [0, 1],
+    reduceMotion ? [0, 0] : [0, 0],
+  );
+  const rightHillX = useTransform(
+    progress,
+    [0, 1],
+    reduceMotion ? [0, 0] : [0, 0],
+  );
   const textX = useTransform(progress, [0, 1], reduceMotion ? [0, 0] : [0, 0]);
-  const bgScale = useTransform(progress, [0, 1], reduceMotion ? [1, 1] : [1.06, 1.12]);
+  const bgScale = useTransform(
+    progress,
+    [0, 1],
+    reduceMotion ? [1, 1] : [1.06, 1.12],
+  );
 
-  const titleY = useTransform(progress, [0, 1], reduceMotion ? [0, 0] : [0, -180]);
+  const titleY = useTransform(
+    progress,
+    [0, 1],
+    reduceMotion ? [0, 0] : [0, -180],
+  );
   const titleOpacity = useTransform(progress, [0, 0.65, 1], [1, 0.35, 0]);
 
-  const vignetteOpacity = useTransform(progress, [0, 0.55, 0.82, 0], [0.25, 0.35, 0.78, 0.92]);
-  const darkenOpacity = useTransform(progress, [0, 0.6, 0.9, 1], [0, 0.05, 0.35, 0.55]);
-  const bottomBlendOpacity = useTransform(progress, [0, 0, 0, 0, 0], [0, 0, 0.25, 0.85, 1]);
+  const vignetteOpacity = useTransform(
+    progress,
+    [0, 0.55, 0.82, 0],
+    [0.25, 0.35, 0.78, 0.92],
+  );
+  const darkenOpacity = useTransform(
+    progress,
+    [0, 0.6, 0.9, 1],
+    [0, 0.05, 0.35, 0.55],
+  );
+  const bottomBlendOpacity = useTransform(
+    progress,
+    [0, 0, 0, 0, 0],
+    [0, 0, 0.25, 0.85, 1],
+  );
 
   return (
     <section className="w-full">
@@ -111,7 +164,7 @@ export default function AboutParallax({
           <motion.div
             aria-hidden
             style={{ opacity: bottomBlendOpacity }}
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-32 md:h-44 backdrop-blur-xl"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-40 md:h-30 backdrop-blur-xl"
           >
             <div className="absolute inset-0 bg-linear-to-b from-transparent via-black/35 to-[#121212]" />
           </motion.div>
@@ -140,13 +193,29 @@ export default function AboutParallax({
             className="pointer-events-none absolute inset-0 z-2 h-[110vh] w-full select-none object-cover"
           />
 
-          <motion.img
-            src="/images/parallax/text-part-cropped.png"
-            alt=""
-            draggable={false}
-            style={{ y: textY, x: textX }}
-            className="pointer-events-none absolute inset-0 z-3 h-[110vh] w-full select-none object-cover"
-          />
+          <motion.div
+            style={{ y: textY }}
+            className="pointer-events-none absolute inset-0 z-[3]"
+          >
+            <picture>
+              <source
+                media="(max-width: 767px)"
+                srcSet="/images/parallax/text-mobile-cropped4.png"
+              />
+              <img
+                src="/images/parallax/text-part-cropped.png"
+                alt=""
+                draggable={false}
+                className={[
+                  "pointer-events-none h-full w-full select-none",
+                  // Mobile: contain so nothing gets cropped
+                  "object-contain object-center",
+                  // Desktop: cover like original
+                  "md:object-cover md:object-center",
+                ].join(" ")}
+              />
+            </picture>
+          </motion.div>
 
           <motion.div
             style={{ y: titleY, opacity: titleOpacity }}
@@ -155,7 +224,9 @@ export default function AboutParallax({
             <h2 className="text-4xl sm:text-6xl md:text-7xl font-semibold tracking-wide text-white drop-shadow-[0_20px_20px_rgba(0,0,0,0.25)]">
               Explore Royal
             </h2>
-            <p className="mt-4 text-sm sm:text-base tracking-widest text-white/80">SCROLL TO DISCOVER</p>
+            <p className="mt-4 text-sm sm:text-base tracking-widest text-white/80">
+              SCROLL TO DISCOVER
+            </p>
           </motion.div>
         </div>
       </section>

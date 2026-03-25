@@ -2,16 +2,12 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 
 // ─── Placeholder media ────────────────────────────────────────────────────────
 const MEDIA: { type: "image" | "video"; src: string }[] = [
   { type: "image", src: "/images/about-1.jpg" },
-  // { type: "video", src: "/videos/about-1.mp4" },
   { type: "image", src: "/images/about-2.jpg" },
   { type: "image", src: "/images/about-3.jpg" },
-
-  // { type: "video", src: "/videos/about-2.mp4" },
 ];
 
 // ─── Philosophy content ───────────────────────────────────────────────────────
@@ -36,60 +32,16 @@ const PHILOSOPHY = [
   },
 ];
 
-// ─── RA Monogram SVG (inline, gold gradient version) ─────────────────────────
-function RAMonogram({ size = 32 }: { size?: number }) {
-  const id = `ra-grad-${size}`;
-  return (
-    <svg
-      width={size}
-      height={size * 0.75}
-      viewBox="0 0 100 75"
-      style={{ display: "block" }}
-    >
-      <defs>
-        <linearGradient id={id} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#8a5a6a" />
-          <stop offset="45%" stopColor="#b08090" />
-          <stop offset="100%" stopColor="#c4a882" />
-        </linearGradient>
-      </defs>
-      {/* R — calligraphic, loosely traced from logo */}
-      <path
-        d="M 8,8 C 8,8 10,6 18,6 C 30,6 36,12 34,20 C 32,27 25,30 18,30
-           L 28,50 L 22,50 L 14,31 L 12,31 L 12,50 L 7,50 Z
-           M 12,10 L 12,27 L 20,27 C 26,27 30,24 30,19 C 30,13 26,10 18,10 Z"
-        fill={`url(#${id})`}
-        opacity="0.9"
-      />
-      {/* R tail flourish */}
-      <path
-        d="M 22,50 C 28,58 20,68 12,65 C 6,63 4,58 8,54"
-        fill="none"
-        stroke={`url(#${id})`}
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        opacity="0.7"
-      />
-      {/* A — tall with crossbar */}
-      <path
-        d="M 55,6 L 75,6 C 90,6 96,12 94,22 C 92,30 85,34 76,34
-           L 88,50 L 82,50 L 71,34 L 60,34 L 60,50 L 55,50 Z
-           M 60,10 L 60,30 L 74,30 C 81,30 89,27 89,21
-           C 89,14 83,10 74,10 Z"
-        fill={`url(#${id})`}
-        opacity="0.9"
-      />
-      {/* A diagonal stroke bottom */}
-      <path
-        d="M 68,50 C 74,60 82,68 90,70"
-        fill="none"
-        stroke={`url(#${id})`}
-        strokeWidth="3"
-        strokeLinecap="round"
-        opacity="0.75"
-      />
-    </svg>
-  );
+// ─── useIsMobile hook ─────────────────────────────────────────────────────────
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < breakpoint);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [breakpoint]);
+  return isMobile;
 }
 
 // ─── Baroque SVG Frame ────────────────────────────────────────────────────────
@@ -180,7 +132,6 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
           transform={`translate(${cx},${cy}) scale(${sx},${sy})`}
           filter="url(#bgoldGlow)"
         >
-          {/* L-bracket */}
           <path
             d={`M 3,${cs * 0.75} L 3,14 Q 3,3 14,3 L ${cs * 0.75},3`}
             fill="none"
@@ -195,8 +146,6 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
             strokeWidth="0.7"
             strokeLinecap="round"
           />
-
-          {/* Corner rosette — replaced by RA silhouette hint */}
           <circle
             cx="3"
             cy="3"
@@ -206,8 +155,6 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
             strokeWidth="1"
           />
           <circle cx="3" cy="3" r="2" fill="rgba(196,168,130,0.5)" />
-
-          {/* Scroll along top edge */}
           <path
             d={`M ${cs * 0.14},3 C ${cs * 0.2},-1 ${cs * 0.3},-4 ${cs * 0.38},3 C ${cs * 0.46},9 ${cs * 0.54},1 ${cs * 0.65},3`}
             fill="none"
@@ -215,13 +162,10 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
             strokeWidth="1.1"
             strokeLinecap="round"
           />
-          {/* Diamond along top */}
           <path
             d={`M ${cs * 0.14},3 L ${cs * 0.18},-1 L ${cs * 0.22},3 L ${cs * 0.18},7 Z`}
             fill="rgba(196,168,130,0.45)"
           />
-
-          {/* Scroll along left edge */}
           <path
             d={`M 3,${cs * 0.14} C -1,${cs * 0.2} -4,${cs * 0.3} 3,${cs * 0.38} C 9,${cs * 0.46} 1,${cs * 0.54} 3,${cs * 0.65}`}
             fill="none"
@@ -229,13 +173,10 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
             strokeWidth="1.1"
             strokeLinecap="round"
           />
-          {/* Diamond along left */}
           <path
             d={`M 3,${cs * 0.14} L -1,${cs * 0.18} L 3,${cs * 0.22} L 7,${cs * 0.18} Z`}
             fill="rgba(196,168,130,0.45)"
           />
-
-          {/* Filigree petals at corner */}
           {[0, 60, 120, 180, 240, 300].map((angle, pi) => (
             <ellipse
               key={pi}
@@ -250,9 +191,8 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         </g>
       ))}
 
-      {/* ── Top center — RA medallion ── */}
+      {/* ── Top center medallion ── */}
       <g transform={`translate(${sw / 2}, 0)`} filter="url(#bsoftGlow)">
-        {/* Medallion background circle */}
         <circle
           cx="0"
           cy="0"
@@ -269,20 +209,17 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
           stroke="rgba(196,168,130,0.25)"
           strokeWidth="0.6"
         />
-        {/* Radiating spokes */}
         {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((a, i) => (
-          <g key={i}>
-            <line
-              x1={Math.cos((a * Math.PI) / 180) * 23}
-              y1={Math.sin((a * Math.PI) / 180) * 23}
-              x2={Math.cos((a * Math.PI) / 180) * 28}
-              y2={Math.sin((a * Math.PI) / 180) * 28}
-              stroke="rgba(196,168,130,0.4)"
-              strokeWidth="0.8"
-            />
-          </g>
+          <line
+            key={i}
+            x1={Math.cos((a * Math.PI) / 180) * 23}
+            y1={Math.sin((a * Math.PI) / 180) * 23}
+            x2={Math.cos((a * Math.PI) / 180) * 28}
+            y2={Math.sin((a * Math.PI) / 180) * 28}
+            stroke="rgba(196,168,130,0.4)"
+            strokeWidth="0.8"
+          />
         ))}
-        {/* RA text in medallion */}
         <text
           x="0"
           y="5"
@@ -296,7 +233,6 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         >
           RA
         </text>
-        {/* Side scrolls */}
         <path
           d="M -36,0 C -28,-6 -24,6 -28,0"
           fill="none"
@@ -311,7 +247,6 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
           strokeWidth="1"
           strokeLinecap="round"
         />
-        {/* Dashed lines to corners */}
         <line
           x1="-46"
           y1="0"
@@ -332,7 +267,7 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         />
       </g>
 
-      {/* ── Bottom center — RA medallion ── */}
+      {/* ── Bottom center medallion ── */}
       <g transform={`translate(${sw / 2}, ${sh})`} filter="url(#bsoftGlow)">
         <circle
           cx="0"
@@ -351,16 +286,15 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
           strokeWidth="0.6"
         />
         {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((a, i) => (
-          <g key={i}>
-            <line
-              x1={Math.cos((a * Math.PI) / 180) * 23}
-              y1={Math.sin((a * Math.PI) / 180) * 23}
-              x2={Math.cos((a * Math.PI) / 180) * 28}
-              y2={Math.sin((a * Math.PI) / 180) * 28}
-              stroke="rgba(196,168,130,0.4)"
-              strokeWidth="0.8"
-            />
-          </g>
+          <line
+            key={i}
+            x1={Math.cos((a * Math.PI) / 180) * 23}
+            y1={Math.sin((a * Math.PI) / 180) * 23}
+            x2={Math.cos((a * Math.PI) / 180) * 28}
+            y2={Math.sin((a * Math.PI) / 180) * 28}
+            stroke="rgba(196,168,130,0.4)"
+            strokeWidth="0.8"
+          />
         ))}
         <text
           x="0"
@@ -409,7 +343,7 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         />
       </g>
 
-      {/* ── Left center — RA medallion ── */}
+      {/* ── Left center medallion ── */}
       <g transform={`translate(0, ${sh / 2})`} filter="url(#bsoftGlow)">
         <circle
           cx="0"
@@ -428,16 +362,15 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
           strokeWidth="0.6"
         />
         {[0, 45, 90, 135, 180, 225, 270, 315].map((a, i) => (
-          <g key={i}>
-            <line
-              x1={Math.cos((a * Math.PI) / 180) * 21}
-              y1={Math.sin((a * Math.PI) / 180) * 21}
-              x2={Math.cos((a * Math.PI) / 180) * 26}
-              y2={Math.sin((a * Math.PI) / 180) * 26}
-              stroke="rgba(196,168,130,0.4)"
-              strokeWidth="0.8"
-            />
-          </g>
+          <line
+            key={i}
+            x1={Math.cos((a * Math.PI) / 180) * 21}
+            y1={Math.sin((a * Math.PI) / 180) * 21}
+            x2={Math.cos((a * Math.PI) / 180) * 26}
+            y2={Math.sin((a * Math.PI) / 180) * 26}
+            stroke="rgba(196,168,130,0.4)"
+            strokeWidth="0.8"
+          />
         ))}
         <text
           x="0"
@@ -452,7 +385,6 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         >
           RA
         </text>
-        {/* Top/bottom scrolls */}
         <path
           d="M 0,-34 C -6,-26 6,-22 0,-26"
           fill="none"
@@ -487,7 +419,7 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         />
       </g>
 
-      {/* ── Right center — RA medallion ── */}
+      {/* ── Right center medallion ── */}
       <g transform={`translate(${sw}, ${sh / 2})`} filter="url(#bsoftGlow)">
         <circle
           cx="0"
@@ -563,7 +495,7 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         />
       </g>
 
-      {/* ── Animated gold shimmer sweep ── */}
+      {/* ── Animated shimmer ── */}
       <rect
         x="1"
         y="1"
@@ -585,7 +517,13 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
 }
 
 // ─── Media player ─────────────────────────────────────────────────────────────
-function RoyalMediaPlayer({ active }: { active: boolean }) {
+function RoyalMediaPlayer({
+  active,
+  isMobile,
+}: {
+  active: boolean;
+  isMobile: boolean;
+}) {
   const [current, setCurrent] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [frameSize, setFrameSize] = useState({ width: 500, height: 360 });
@@ -597,7 +535,6 @@ function RoyalMediaPlayer({ active }: { active: boolean }) {
 
   const item = MEDIA[current];
 
-  // Measure for frame
   useEffect(() => {
     if (!containerRef.current) return;
     const ro = new ResizeObserver((entries) => {
@@ -608,7 +545,6 @@ function RoyalMediaPlayer({ active }: { active: boolean }) {
     return () => ro.disconnect();
   }, []);
 
-  // Auto-play on section activation
   useEffect(() => {
     if (active) setPlaying(true);
     else {
@@ -617,10 +553,8 @@ function RoyalMediaPlayer({ active }: { active: boolean }) {
     }
   }, [active]);
 
-  // Video play/pause control
   useEffect(() => {
     if (item.type !== "video") return;
-    // Small delay lets AnimatePresence finish mounting the video element
     const t = setTimeout(() => {
       const v = videoRef.current;
       if (!v) return;
@@ -634,7 +568,6 @@ function RoyalMediaPlayer({ active }: { active: boolean }) {
     setCurrent((p) => (p + 1) % MEDIA.length);
   }, []);
 
-  // Auto-advance images
   useEffect(() => {
     if (!playing || item.type === "video") {
       if (timerRef.current) clearTimeout(timerRef.current);
@@ -647,7 +580,6 @@ function RoyalMediaPlayer({ active }: { active: boolean }) {
   }, [playing, current, item.type, goNext]);
 
   return (
-    // Constrained width so navbar pills don't overlap frame
     <div
       style={{
         width: "100%",
@@ -662,10 +594,12 @@ function RoyalMediaPlayer({ active }: { active: boolean }) {
         ref={containerRef}
         style={{
           position: "relative",
-          width: "calc(60% - 100px)",
+          // Mobile: nearly full width with small side margins for the frame medallions
+          // Desktop: original constrained width
+          width: isMobile ? "calc(100% - 56px)" : "calc(60% - 100px)",
           height: "100%",
           padding: 0,
-          marginTop: "180px",
+          marginTop: isMobile ? "180px" : "180px",
         }}
       >
         {/* Baroque frame */}
@@ -681,7 +615,8 @@ function RoyalMediaPlayer({ active }: { active: boolean }) {
             <BaroqueFrame width={frameSize.width} height={frameSize.height} />
           </div>
         )}
-        {/* Media area inset from frame border */}
+
+        {/* Media area */}
         <div
           style={{
             position: "absolute",
@@ -745,19 +680,19 @@ function RoyalMediaPlayer({ active }: { active: boolean }) {
           />
         </div>
 
-        {/* Play / Pause — centered below frame, sitting on the bottom border */}
+        {/* Play / Pause */}
         <button
           onClick={() => setPlaying((p) => !p)}
           style={{
             position: "absolute",
-            bottom: 30,
+            bottom: isMobile ? 20 : 30,
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 20,
-            width: 36,
-            height: 36,
+            width: isMobile ? 32 : 36,
+            height: isMobile ? 32 : 36,
             borderRadius: "50%",
-            background: "var(--royal-purple)",
+            background: "var(--royal-dark)",
             border: "1px solid rgba(196,168,130,0.55)",
             display: "flex",
             alignItems: "center",
@@ -767,12 +702,6 @@ function RoyalMediaPlayer({ active }: { active: boolean }) {
             boxShadow: "0 0 14px rgba(196,168,130,0.2)",
             transition: "all 0.2s ease",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.background = "var(--royal-purple)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.background = "var(--royal-dark)")
-          }
         >
           {playing ? (
             <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor">
@@ -791,7 +720,13 @@ function RoyalMediaPlayer({ active }: { active: boolean }) {
 }
 
 // ─── Philosophy panel ─────────────────────────────────────────────────────────
-function PhilosophyPanel({ active }: { active: boolean }) {
+function PhilosophyPanel({
+  active,
+  isMobile,
+}: {
+  active: boolean;
+  isMobile: boolean;
+}) {
   const [activeTab, setActiveTab] = useState(0);
 
   return (
@@ -802,14 +737,13 @@ function PhilosophyPanel({ active }: { active: boolean }) {
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        // Match the horizontal inset of the media player above
-        padding: "20px 80px 20px 80px",
+        padding: isMobile ? "16px 24px 16px 24px" : "20px 80px 20px 80px",
         position: "relative",
-        marginTop: "80px",
+        marginTop: isMobile ? "100px" : "80px",
         zIndex: 2,
       }}
     >
-      {/* Header row — all inline, no wrapping */}
+      {/* Header row */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: active ? 1 : 0, y: active ? 0 : -8 }}
@@ -818,8 +752,8 @@ function PhilosophyPanel({ active }: { active: boolean }) {
           display: "flex",
           alignItems: "baseline",
           gap: 20,
-          marginBottom: 16,
-          whiteSpace: "nowrap",
+          marginBottom: isMobile ? 10 : 16,
+          whiteSpace: isMobile ? "normal" : "nowrap",
           zIndex: 2,
         }}
       >
@@ -838,24 +772,13 @@ function PhilosophyPanel({ active }: { active: boolean }) {
               background: "rgba(196,168,130,0.5)",
             }}
           />
-          {/* <span
-            style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
-              fontSize: "0.55rem",
-              letterSpacing: "0.35em",
-              textTransform: "uppercase",
-              color: "rgba(196,168,130,0.55)",
-            }}
-          >
-            Royal Academy · Est. MMXXIV
-          </span> */}
         </div>
         <h2
           style={{
             fontFamily: "Georgia, 'Times New Roman', serif",
-            fontSize: "clamp(1.1rem, 1.6vw, 1.6rem)",
+            fontSize: isMobile ? "1.1rem" : "clamp(1.1rem, 1.6vw, 1.6rem)",
             fontWeight: 400,
-            lineHeight: 1,
+            lineHeight: 1.2,
             color: "rgba(222,194,171,0.95)",
             letterSpacing: "-0.01em",
             margin: 0,
@@ -874,9 +797,12 @@ function PhilosophyPanel({ active }: { active: boolean }) {
         style={{
           display: "flex",
           gap: 0,
-          marginBottom: 16,
+          marginBottom: isMobile ? 10 : 16,
           borderBottom: "1px solid rgba(196,168,130,0.1)",
           whiteSpace: "nowrap",
+          overflowX: isMobile ? "auto" : "visible",
+          // Hide scrollbar on mobile but allow scroll
+          scrollbarWidth: "none",
           zIndex: 2,
         }}
       >
@@ -886,8 +812,8 @@ function PhilosophyPanel({ active }: { active: boolean }) {
             onClick={() => setActiveTab(i)}
             style={{
               fontFamily: "Georgia, 'Times New Roman', serif",
-              fontSize: "0.80rem",
-              letterSpacing: "0.22em",
+              fontSize: isMobile ? "0.65rem" : "0.80rem",
+              letterSpacing: isMobile ? "0.12em" : "0.22em",
               textTransform: "uppercase",
               color:
                 activeTab === i
@@ -899,10 +825,11 @@ function PhilosophyPanel({ active }: { active: boolean }) {
                 activeTab === i
                   ? "1px solid rgba(196,168,130,0.65)"
                   : "1px solid transparent",
-              padding: "6px 18px 8px",
+              padding: isMobile ? "5px 10px 7px" : "6px 18px 8px",
               cursor: "pointer",
               marginBottom: -1,
               transition: "all 0.3s ease",
+              flexShrink: 0,
             }}
           >
             {p.label}
@@ -910,7 +837,7 @@ function PhilosophyPanel({ active }: { active: boolean }) {
         ))}
       </motion.div>
 
-      {/* Tab content — single line layout, no wrapping */}
+      {/* Tab content */}
       <AnimatePresence mode="wait">
         <motion.div
           key={activeTab}
@@ -923,14 +850,15 @@ function PhilosophyPanel({ active }: { active: boolean }) {
           <div
             style={{
               fontFamily: "Georgia, 'Times New Roman', serif",
-              fontSize: "1.5rem",
+              fontSize: isMobile ? "1rem" : "1.5rem",
               fontWeight: 400,
               color: "rgba(222,194,171,0.75)",
               letterSpacing: "0.04em",
-              marginBottom: 10,
-              whiteSpace: "nowrap",
+              marginBottom: isMobile ? 8 : 10,
+              // On mobile allow wrapping; on desktop keep nowrap with ellipsis
+              whiteSpace: isMobile ? "normal" : "nowrap",
               overflow: "hidden",
-              textOverflow: "ellipsis",
+              textOverflow: isMobile ? "unset" : "ellipsis",
             }}
           >
             — {PHILOSOPHY[activeTab].heading}
@@ -938,10 +866,9 @@ function PhilosophyPanel({ active }: { active: boolean }) {
           <div
             style={{
               fontFamily: "Georgia, 'Times New Roman', serif",
-              fontSize: "1rem",
-              lineHeight: 1.75,
+              fontSize: isMobile ? "0.82rem" : "1rem",
+              lineHeight: isMobile ? 1.65 : 1.75,
               color: "rgba(222,194,171,0.45)",
-              // Allow wrapping only for body text since it's long
               maxWidth: "100%",
             }}
           >
@@ -970,9 +897,9 @@ function PhilosophyPanel({ active }: { active: boolean }) {
         style={{
           position: "absolute",
           bottom: 0,
-          right: 60,
+          right: isMobile ? 16 : 60,
           fontFamily: "Georgia, serif",
-          fontSize: "6rem",
+          fontSize: isMobile ? "4rem" : "6rem",
           color: "rgba(196,168,130,0.035)",
           lineHeight: 1,
           pointerEvents: "none",
@@ -994,6 +921,8 @@ export default function AboutSection({
   onScrollUp?: () => void;
   onScrollDown?: () => void;
 }) {
+  const isMobile = useIsMobile(768);
+
   return (
     <div
       style={{
@@ -1032,60 +961,36 @@ export default function AboutSection({
         }}
       />
 
-      {/* Section label */}
-      {/* <div
-        style={{
-          position: "absolute",
-          top: 18,
-          left: 24,
-          zIndex: 20,
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-        }}
-      >
+      {/* ── Scrolling background pattern — mobile vs desktop ── */}
+      {isMobile ? (
         <div
-          style={{ width: 1, height: 26, background: "rgba(196,168,130,0.3)" }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "url('/images/pattern.png')",
+            backgroundRepeat: "repeat",
+            backgroundSize: "300px",
+            animation: "patternScroll 32s linear infinite",
+            opacity: 1,
+            pointerEvents: "none",
+            zIndex: 0,
+          }}
         />
-        <div>
-          <div
-            style={{
-              fontFamily: "Georgia, serif",
-              fontSize: "0.5rem",
-              letterSpacing: "0.35em",
-              textTransform: "uppercase",
-              color: "rgba(196,168,130,0.4)",
-            }}
-          >
-            Royal Academy
-          </div>
-          <div
-            style={{
-              fontFamily: "Georgia, serif",
-              fontSize: "0.82rem",
-              letterSpacing: "0.12em",
-              color: "rgba(222,194,171,0.7)",
-            }}
-          >
-            About
-          </div>
-        </div>
-      </div> */}
-
-      {/* Scrolling background pattern */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: "url('/images/pattern.png')",
-          backgroundRepeat: "repeat",
-          backgroundSize: "auto",
-          animation: "patternScroll 32s linear infinite",
-          opacity: 1,
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      />
+      ) : (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "url('/images/pattern.png')",
+            backgroundRepeat: "repeat",
+            backgroundSize: "auto",
+            animation: "patternScroll 32s linear infinite",
+            opacity: 1,
+            pointerEvents: "none",
+            zIndex: 0,
+          }}
+        />
+      )}
 
       {/* Fixed overlay pattern */}
       <div
@@ -1102,20 +1007,21 @@ export default function AboutSection({
         }}
       />
 
-      {/* ── Top 58% — media frame ── */}
-      <div style={{ flex: "0 0 58%", position: "relative", paddingTop: 16 }}>
-        <RoyalMediaPlayer active={active} />
-      </div>
-
-      {/* ── Bottom 42% — philosophy ── */}
+      {/* ── Top portion — media frame ── */}
+      {/* Mobile: 50% height, Desktop: 58% height */}
       <div
         style={{
-          flex: 1,
+          flex: isMobile ? "0 0 50%" : "0 0 58%",
           position: "relative",
-          zIndex: 2,
+          paddingTop: 16,
         }}
       >
-        <PhilosophyPanel active={active} />
+        <RoyalMediaPlayer active={active} isMobile={isMobile} />
+      </div>
+
+      {/* ── Bottom portion — philosophy ── */}
+      <div style={{ flex: 1, position: "relative", zIndex: 2 }}>
+        <PhilosophyPanel active={active} isMobile={isMobile} />
       </div>
 
       {/* Bottom rule */}

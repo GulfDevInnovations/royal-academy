@@ -10,9 +10,19 @@ const PRINCIPLE_STRIPS: Array<{
   special?: boolean;
 }> = [
   { key: "about-1", src: "/images/about-1.jpg", label: "Excellence" },
-  { key: "about-2", src: "/images/about-2.jpg", label: "Integrity", special: true },
+  {
+    key: "about-2",
+    src: "/images/about-2.jpg",
+    label: "Integrity",
+    special: true,
+  },
   { key: "about-3", src: "/images/about-3.jpg", label: "Community" },
-  { key: "art-hero", src: "/images/art-hero.jpg", label: "Heritage", special: true },
+  {
+    key: "art-hero",
+    src: "/images/art-hero.jpg",
+    label: "Heritage",
+    special: true,
+  },
 ];
 
 export default function About() {
@@ -27,7 +37,9 @@ export default function About() {
             transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
             className="mx-auto mb-10 text-center"
           >
-            <h2 className="text-2xl md:text-4xl tracking-wide text-royal-cream">Core Principles</h2>
+            <h2 className="text-2xl md:text-4xl tracking-wide text-royal-cream">
+              Core Principles
+            </h2>
             <p className="mt-20 text-sm md:text-base tracking-widest text-royal-cream/65 w-block flex justify-around">
               <span className="text-3xl tracking-[10px]">Excellence</span>
               <span>.</span>
@@ -80,8 +92,9 @@ export default function About() {
             transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
             className="mx-auto mt-10 md:mt-14 max-w-5xl text-center text-sm md:text-xl leading-relaxed text-royal-cream/90"
           >
-            Royal Academy is built on four enduring principles: excellence in craft, integrity in teaching,
-            community in belonging, and heritage in honoring the traditions we pass on to the next generation.
+            Royal Academy is built on four enduring principles: excellence in
+            craft, integrity in teaching, community in belonging, and heritage
+            in honoring the traditions we pass on to the next generation.
           </motion.p>
         </div>
       </section>

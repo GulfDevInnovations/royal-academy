@@ -34,9 +34,21 @@ export default async function ContactPage({
       };
 
   const phoneItems = [
-    { label: content.englishInquiries, value: "+968 9327 6767", href: "tel:+96893276767" },
-    { label: content.arabicInquiries, value: "+968 9886 2343", href: "tel:+96898862343" },
-    { label: content.landline, value: "+968 2449 7033", href: "tel:+96824497033" },
+    {
+      label: content.englishInquiries,
+      value: "+968 9327 6767",
+      href: "tel:+96893276767",
+    },
+    {
+      label: content.arabicInquiries,
+      value: "+968 9886 2343",
+      href: "tel:+96898862343",
+    },
+    {
+      label: content.landline,
+      value: "+968 2449 7033",
+      href: "tel:+96824497033",
+    },
   ];
 
   const email = "Admin@royalacademymct.com";

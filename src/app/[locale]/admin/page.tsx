@@ -39,7 +39,7 @@ export default function AdminDashboardPage() {
       />
       {/* Page heading */}
       <div>
-        <h1 className="text-xl font-semibold text-white/90 tracking-tight">
+        <h1 className="text-xl font-goudy font-semibold text-white/90 tracking-tight">
           Dashboard
         </h1>
         <p className="text-sm text-white/30 mt-0.5">
