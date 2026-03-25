@@ -89,7 +89,10 @@ export default function AvatarUploadField({
         </div>
 
         <div className="flex-1">
-          <p className="text-xs mb-3" style={{ color: "rgba(228,208,181,0.65)" }}>
+          <p
+            className="text-xs mb-3"
+            style={{ color: "rgba(228,208,181,0.65)" }}
+          >
             {helperText}
           </p>
           <input

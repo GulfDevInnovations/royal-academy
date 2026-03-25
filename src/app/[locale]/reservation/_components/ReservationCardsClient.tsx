@@ -112,7 +112,7 @@ export function ReservationCardsClient({
   return (
     <main
       className="min-h-screen pt-28 pb-24"
-      style={{ background: "#13161f" }}
+      style={{ background: "#834550" }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div

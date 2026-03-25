@@ -2,24 +2,23 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavbarState } from "@/components/NavbarStateContext";
-// import RoyalIntro from "@/components/RoyalIntro";
-// import RoyalHeroSection from "@/components/RoyalHeroSection";
 import RoyalCombined from "./RoyalCombinedIntroHero";
-// import TeachersSection from "@/components/TeachersSection";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useHomeNav } from "@/context/HomeNavigationContext";
-import About from "./About";
 import AboutSection from "@/components/AboutSection";
 import AboutParallax from "@/components/AboutParallax";
 
-const FLOOR_COUNT = 4; // 0=intro, 1=AboutSection, 2=About(content), 3=parallax
+// Floor layout:
+//   0 → Intro       (0vh)
+//   1 → AboutSection (100vh)
+//   2 → Parallax    (200vh)  ← last floor
+const FLOOR_COUNT = 3;
 
 export default function HomeClient() {
   const { setNavSolid } = useNavbarState();
   const [floor, setFloor] = useState(0);
   const isAnimating = useRef(false);
   const elevatorRef = useRef<HTMLDivElement>(null);
-  const aboutContentScrollRef = useRef<HTMLDivElement>(null);
   const parallaxScrollRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -52,94 +51,61 @@ export default function HomeClient() {
     [floor, setNavSolid],
   );
 
-  // Global wheel + key
+  // ── Wheel + keyboard navigation ──────────────────────────────────────────
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
-      // About content (floor 2) is a scrollable container. Only slide floors
-      // when the user hits the top/bottom edge.
+      // Floor 2 = Parallax (last floor).
+      // Scroll up from its top edge → go to floor 1.
+      // Scroll down past its bottom edge → stay (it's the last floor).
       if (floor === 2) {
-        const el = aboutContentScrollRef.current;
-        if (!el) return;
-        const isScrollable = el.scrollHeight > el.clientHeight + 8;
-        const atTop = el.scrollTop <= 4;
-        const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 4;
-
-        if (!isScrollable) {
-          if (e.deltaY > 30) slideTo(3);
-          else if (e.deltaY < -30) slideTo(1);
-          return;
-        }
-
-        if (e.deltaY > 30 && atBottom) slideTo(3);
-        else if (e.deltaY < -30 && atTop) slideTo(1);
-
-        // Otherwise: allow native scrolling inside About content.
-        return;
-      }
-
-      // Parallax (floor 3) is a scrollable container. Slide back up only when at top.
-      if (floor === 3) {
         const el = parallaxScrollRef.current;
         if (!el) return;
         const atTop = el.scrollTop <= 4;
         const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 4;
 
-        if (e.deltaY < -30 && atTop) slideTo(2);
-        else if (e.deltaY > 30 && atBottom) {
-          // Stay on the last floor.
+        if (e.deltaY < -30 && atTop) {
+          slideTo(1);
+        } else if (e.deltaY > 30 && atBottom) {
+          // Last floor — do nothing.
         }
+        // Otherwise let the parallax container scroll natively.
         return;
       }
 
+      // All other floors: simple up/down slide.
       if (e.deltaY > 30) slideTo(floor + 1);
       else if (e.deltaY < -30) slideTo(floor - 1);
     };
+
     const onKey = (e: KeyboardEvent) => {
+      // Floor 2 = Parallax.
       if (floor === 2) {
-        const el = aboutContentScrollRef.current;
-        if (!el) return;
-        const isScrollable = el.scrollHeight > el.clientHeight + 8;
-        const atTop = el.scrollTop <= 4;
-        const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 4;
-
-        if (["ArrowDown", "PageDown"].includes(e.key)) {
-          if (!isScrollable || atBottom) slideTo(3);
-          else el.scrollBy({ top: 220, behavior: "smooth" });
-        }
-        if (["ArrowUp", "PageUp"].includes(e.key)) {
-          if (!isScrollable || atTop) slideTo(1);
-          else el.scrollBy({ top: -220, behavior: "smooth" });
-        }
-        if (e.key === " ") {
-          if (!isScrollable || atBottom) slideTo(3);
-          else el.scrollBy({ top: 320, behavior: "smooth" });
-        }
-        return;
-      }
-
-      if (floor === 3) {
         const el = parallaxScrollRef.current;
         if (!el) return;
         const atTop = el.scrollTop <= 4;
         const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 4;
 
         if (["ArrowUp", "PageUp"].includes(e.key)) {
-          if (atTop) slideTo(2);
+          if (atTop) slideTo(1);
           else el.scrollBy({ top: -220, behavior: "smooth" });
         }
         if (["ArrowDown", "PageDown", " "].includes(e.key)) {
-          if (atBottom) {
-            // Stay on last floor.
-          } else {
-            el.scrollBy({ top: e.key === " " ? 320 : 220, behavior: "smooth" });
+          if (!atBottom) {
+            el.scrollBy({
+              top: e.key === " " ? 320 : 220,
+              behavior: "smooth",
+            });
           }
+          // atBottom on last floor → do nothing.
         }
         return;
       }
 
+      // All other floors.
       if (["ArrowDown", " ", "PageDown"].includes(e.key)) slideTo(floor + 1);
       if (["ArrowUp", "PageUp"].includes(e.key)) slideTo(floor - 1);
     };
+
     window.addEventListener("wheel", onWheel);
     window.addEventListener("keydown", onKey);
     return () => {
@@ -148,14 +114,14 @@ export default function HomeClient() {
     };
   }, [floor, slideTo]);
 
-  // Handle navbar context requests (user already on home page)
+  // ── Navbar context requests ───────────────────────────────────────────────
   useEffect(() => {
     if (requestedFloor === null) return;
     slideTo(requestedFloor);
     clearRequest();
   }, [requestedFloor, slideTo, clearRequest]);
 
-  // Handle ?floor= query param (user navigated from another page)
+  // ── ?floor= query param (navigating from another page) ───────────────────
   useEffect(() => {
     const floorParam = searchParams.get("floor");
     if (!floorParam) return;
@@ -169,6 +135,15 @@ export default function HomeClient() {
 
     return () => clearTimeout(timer);
   }, [pathname, router, searchParams, slideTo]);
+
+  // ── Reset parallax scroll position when leaving floor 2 ──────────────────
+  useEffect(() => {
+    if (floor !== 2) {
+      const el = parallaxScrollRef.current;
+      if (el) el.scrollTop = 0;
+    }
+  }, [floor]);
+
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
       <div
@@ -213,37 +188,11 @@ export default function HomeClient() {
           />
         </div>
 
-        {/* Floor 2 — About content */}
+        {/* Floor 2 — Parallax (last) */}
         <div
           style={{
             position: "absolute",
             top: "200vh",
-            left: 0,
-            right: 0,
-            height: "100vh",
-          }}
-        >
-          <div
-            ref={aboutContentScrollRef}
-            style={{
-              height: "100%",
-              width: "100%",
-              overflowY: "auto",
-              overflowX: "hidden",
-              WebkitOverflowScrolling: "touch",
-              overscrollBehavior: "contain",
-              scrollbarWidth: "none",
-            }}
-          >
-            <About />
-          </div>
-        </div>
-
-        {/* Floor 3 — Parallax (last) */}
-        <div
-          style={{
-            position: "absolute",
-            top: "300vh",
             left: 0,
             right: 0,
             height: "100vh",
@@ -261,7 +210,10 @@ export default function HomeClient() {
               scrollbarWidth: "none",
             }}
           >
-            <AboutParallax scrollContainerRef={parallaxScrollRef} locale={pathname.split("/")[1] || "en"} />
+            <AboutParallax
+              scrollContainerRef={parallaxScrollRef}
+              locale={pathname.split("/")[1] || "en"}
+            />
           </div>
         </div>
       </div>

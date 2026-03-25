@@ -6,17 +6,21 @@ export default function Footer({ locale }: { locale: string }) {
   const isArabic = locale === "ar";
   const year = new Date().getFullYear();
 
-  const headingClass = "text-sm md:text-base font-semibold tracking-wide text-royal-cream";
-  const itemClass = "text-sm md:text-base text-royal-cream/75 hover:text-royal-cream transition-colors";
+  const headingClass =
+    "text-sm md:text-base font-semibold tracking-wide text-royal-cream";
+  const itemClass =
+    "text-sm md:text-base text-royal-cream/75 hover:text-royal-cream transition-colors";
 
   return (
     <footer className="mt-auto border-t border-white/10">
       {/* Main footer content */}
-      <div className="px-4 sm:px-6 md:px-8 py-10 md:py-5">
-        <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-2">
+      <div className="px-4 sm:px-6 md:px-8 py-2 md:py-5">
+        <div className="mx-auto grid max-w-7xl gap-2 md:grid-cols-2">
           {/* Brand / note */}
           <div className={isArabic ? "text-right" : "text-left"}>
-            <div className={headingClass}>{isArabic ? "الأكاديمية الملكية" : "Royal Academy"}</div>
+            <div className={headingClass}>
+              {isArabic ? "الأكاديمية الملكية" : "Royal Academy"}
+            </div>
             <p className="mt-0 text-sm md:text-base leading-relaxed text-royal-cream/70">
               {isArabic
                 ? "مساحة للإبداع والانضباط — حيث يلتقي التراث بالتميّز."
@@ -73,25 +77,43 @@ export default function Footer({ locale }: { locale: string }) {
       </div>
 
       {/* Bottom legal bar (must stay at the very bottom) */}
-      <div className="bg-black px-4 sm:px-6 md:px-8 py-4">
+      <div className="bg-black px-4 sm:px-6 md:px-8 py-1">
         <div
           className={
             "mx-auto flex max-w-7xl flex-col gap-2 text-xs md:text-sm text-royal sm:flex-row sm:items-center sm:justify-between " +
             (isArabic ? "sm:flex-row-reverse" : "")
           }
         >
-          <div className={"flex items-center gap-2 whitespace-nowrap " + (isArabic ? "flex-row-reverse" : "")}>
+          <div
+            className={
+              "flex items-center gap-2 whitespace-nowrap " +
+              (isArabic ? "flex-row-reverse" : "")
+            }
+          >
             <span>© {year} Royal Academy</span>
             <span className="opacity-40">•</span>
-            <span>{isArabic ? "تم التطوير بواسطة" : "Developed by"} Royal Academy</span>
+            <span>
+              {isArabic ? "تم التطوير بواسطة" : "Developed by"} Royal Academy
+            </span>
           </div>
 
-          <div className={"flex items-center gap-3 whitespace-nowrap " + (isArabic ? "flex-row-reverse" : "")}>
-            <Link href={`/${locale}/privacy`} className="hover:text-royal-cream transition-colors">
+          <div
+            className={
+              "flex items-center gap-3 whitespace-nowrap " +
+              (isArabic ? "flex-row-reverse" : "")
+            }
+          >
+            <Link
+              href={`/${locale}/privacy`}
+              className="hover:text-royal-cream transition-colors"
+            >
               {isArabic ? "الخصوصية" : "Privacy"}
             </Link>
             <span className="opacity-40">•</span>
-            <Link href={`/${locale}/terms`} className="hover:text-royal-cream transition-colors">
+            <Link
+              href={`/${locale}/terms`}
+              className="hover:text-royal-cream transition-colors"
+            >
               {isArabic ? "شروط الاستخدام" : "Terms of Use"}
             </Link>
           </div>

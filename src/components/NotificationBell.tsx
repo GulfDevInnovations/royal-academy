@@ -9,6 +9,7 @@ import {
   markAllNotificationsRead,
 } from "@/lib/actions/notifications/notifications.client.actions";
 import { useRouter } from "next/navigation";
+import { Variants } from "framer-motion";
 
 interface AppNotification {
   id: string;
@@ -23,6 +24,8 @@ interface AppNotification {
 interface Props {
   userId: string;
   isArabic: boolean;
+  open: boolean;
+  onToggle: (isOpen: boolean) => void;
 }
 
 function timeAgo(date: Date | string, isArabic: boolean): string {
@@ -43,8 +46,12 @@ function timeAgo(date: Date | string, isArabic: boolean): string {
     : `${Math.floor(diff / 86400)}d ago`;
 }
 
-export default function NotificationBell({ userId, isArabic }: Props) {
-  const [open, setOpen] = useState(false);
+export default function NotificationBell({
+  userId,
+  isArabic,
+  open,
+  onToggle,
+}: Props) {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -78,7 +85,7 @@ export default function NotificationBell({ userId, isArabic }: Props) {
         containerRef.current &&
         !containerRef.current.contains(e.target as Node)
       ) {
-        setOpen(false);
+        onToggle(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -109,36 +116,40 @@ export default function NotificationBell({ userId, isArabic }: Props) {
   };
 
   const dropdownVariants = {
-    hidden: { clipPath: "circle(0% at 50% 0%)", opacity: 0, scale: 0.94 },
+    hidden: {
+      clipPath: "inset(0% 0% 100% 0%)",
+      opacity: 0,
+      scale: 0.97,
+    },
     visible: {
-      clipPath: "circle(150% at 50% 0%)",
+      clipPath: "inset(0% 0% 0% 0%)",
       opacity: 1,
       scale: 1,
       transition: {
-        clipPath: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
-        opacity: { duration: 0.2 },
-        scale: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+        duration: 0.3,
+        ease: [0.4, 0, 0.2, 1],
       },
     },
     exit: {
-      clipPath: "circle(0% at 50% 0%)",
+      clipPath: "inset(0% 0% 100% 0%)",
       opacity: 0,
-      scale: 0.95,
+      scale: 0.97,
       transition: {
-        clipPath: { duration: 0.35, ease: [0.55, 0, 0.8, 0.2] },
-        opacity: { duration: 0.25 },
+        duration: 0.2,
       },
     },
-  };
+  } satisfies import("framer-motion").Variants;
 
   const itemVariants = {
     hidden: { opacity: 0, y: 8 },
-    visible: {
+    visible: (i: number) => ({
       opacity: 1,
       y: 0,
-      transition: { duration: 0.3, ease: "easeOut" },
-    },
-    exit: { opacity: 0, y: 4, transition: { duration: 0.15 } },
+      transition: {
+        delay: i * 0.05,
+        duration: 0.2,
+      },
+    }),
   };
 
   const glassHoverStyle = {
@@ -156,11 +167,11 @@ export default function NotificationBell({ userId, isArabic }: Props) {
     <div ref={containerRef} className="relative">
       {/* Bell button */}
       <motion.button
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => onToggle(!open)}
         whileTap={{ scale: 0.96 }}
         whileHover={{ scale: 1.03 }}
         transition={{ duration: 0.2 }}
-        className={`shimmer backdrop-blur-xs relative flex items-center justify-center w-18 h-14 rounded-full transition-all duration-300 cursor-pointer ${open ? "liquid-glass-gold" : "liquid-glass"}`}
+        className={`shimmer backdrop-blur-xs relative flex items-center justify-center w-18 h-14 rounded-full transition-all duration-300 cursor-pointer ${open ? "liquid-glass-gold" : "liquid-glass"} ${isArabic ? "left-0" : "right-0"}`}
         aria-label="Notifications"
       >
         <svg
@@ -202,7 +213,7 @@ export default function NotificationBell({ userId, isArabic }: Props) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="fixed z-50 top-28 left-8 w-72 rounded-3xl overflow-hidden liquid-glass backdrop-blur-xs shadow-2xl shadow-black/60"
+            className={`absolute z-50 top-18 w-72 rounded-3xl overflow-hidden liquid-glass backdrop-blur-xs shadow-2xl shadow-black/60 ${isArabic ? "right-0" : "left-0"}`}
           >
             <div className="h-px w-full bg-linear-to-r from-transparent via-royal-gold/50 to-transparent" />
             <div className="flex items-center justify-between px-6 pt-5 pb-3">

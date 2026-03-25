@@ -308,7 +308,9 @@ export default async function ProfileSettingPage({
   const firstName = draft?.firstName ?? dbUser?.studentProfile?.firstName ?? "";
   const lastName = draft?.lastName ?? dbUser?.studentProfile?.lastName ?? "";
   const email = draft?.email ?? dbUser?.email ?? user.email ?? "";
-  const phone = toLocalOmPhone(draft?.phone ?? dbUser?.phone ?? user.phone ?? "");
+  const phone = toLocalOmPhone(
+    draft?.phone ?? dbUser?.phone ?? user.phone ?? "",
+  );
 
   const dbDateOfBirth = dbUser?.studentProfile?.dateOfBirth
     ? dbUser.studentProfile.dateOfBirth.toISOString().slice(0, 10)
@@ -322,12 +324,11 @@ export default async function ProfileSettingPage({
     draft?.emergencyContactName ??
     dbUser?.studentProfile?.emergencyContactName ??
     "";
-  const emergencyPhone =
-    toLocalOmPhone(
-      draft?.emergencyContactPhone ??
-        dbUser?.studentProfile?.emergencyContactPhone ??
-        "",
-    );
+  const emergencyPhone = toLocalOmPhone(
+    draft?.emergencyContactPhone ??
+      dbUser?.studentProfile?.emergencyContactPhone ??
+      "",
+  );
   const emergencyRelationship =
     draft?.emergencyRelationship ??
     dbUser?.studentProfile?.emergencyRelationship ??
@@ -565,20 +566,19 @@ export default async function ProfileSettingPage({
   return (
     <main
       className="min-h-screen px-4 py-14 md:py-16"
-      style={{ backgroundColor: "transparent" }}
+      style={{ background: "#13161f" }}
     >
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
-          backgroundImage: "url('/images/pattern.svg')",
+          backgroundImage: "url('/images/pattern.png')",
           backgroundRepeat: "repeat",
           backgroundSize: "1200px auto",
-          opacity: 0.08,
-          filter: "sepia(1) saturate(0.6) brightness(2)",
+          opacity: 0.02,
         }}
       />
 
-      <section className="relative z-10 mx-auto w-full max-w-5xl rounded-3xl p-6 md:p-8 liquid-glass">
+      <section className="relative z-10 mx-auto w-full max-w-5xl rounded-3xl p-6 md:p-8">
         <h1
           className="text-3xl font-light tracking-widest mb-2"
           style={{ color: "#e4d0b5" }}
@@ -589,7 +589,7 @@ export default async function ProfileSettingPage({
           {content.subtitle}
         </p>
 
-        <div className="mb-6 rounded-xl px-4 py-3 liquid-glass">
+        <div className="mb-6 rounded-xl px-4 py-3 ">
           <div className="flex items-center justify-between">
             <p className="text-sm" style={{ color: "#e4d0b5" }}>
               {isArabic ? "تقدم الحقول المطلوبة" : "Required Fields Progress"}
@@ -610,7 +610,10 @@ export default async function ProfileSettingPage({
               }}
             />
           </div>
-          <p className="mt-2 text-xs" style={{ color: "rgba(228,208,181,0.75)" }}>
+          <p
+            className="mt-2 text-xs"
+            style={{ color: "rgba(228,208,181,0.75)" }}
+          >
             {requiredMissingCount === 0
               ? isArabic
                 ? "تم إكمال جميع الحقول المطلوبة."
@@ -889,7 +892,10 @@ export default async function ProfileSettingPage({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <label htmlFor="preferredTrackDisplay" className="block">
                 <span className="text-sm">{content.track}</span>
-                <p className="mt-1 text-xs" style={{ color: "rgba(228,208,181,0.65)" }}>
+                <p
+                  className="mt-1 text-xs"
+                  style={{ color: "rgba(228,208,181,0.65)" }}
+                >
                   {content.trackHelp}
                 </p>
                 <GlassSelectField
@@ -905,7 +911,10 @@ export default async function ProfileSettingPage({
               </label>
               <label htmlFor="experienceDisplay" className="block">
                 <span className="text-sm">{content.level}</span>
-                <p className="mt-1 text-xs" style={{ color: "rgba(228,208,181,0.65)" }}>
+                <p
+                  className="mt-1 text-xs"
+                  style={{ color: "rgba(228,208,181,0.65)" }}
+                >
                   {content.experienceHelp}
                 </p>
                 <GlassSelectField

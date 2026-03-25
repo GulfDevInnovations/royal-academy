@@ -124,7 +124,7 @@ export default async function LocaleLayout({
             <ConditionalLayout>
               <main className="flex-1">{children}</main>
             </ConditionalLayout>
-            <Footer locale={locale} />
+            {/* <Footer locale={locale} /> */}
           </NextIntlClientProvider>
         </div>
       </body>

@@ -526,9 +526,9 @@ model MonthlyPayment {
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
 
-  multiMonthEnrollment MultiMonthEnrollment @relation(fields: [multiMonthEnrollmentId], references: [id], onDelete: Cascade)
+  enrollment MonthlyEnrollment @relation(fields: [enrollmentId], references: [id])
 
-  @@map("multi_month_payments")
+  @@map("monthly_payments")
 }
 
 // ─────────────────────────────────────────────
