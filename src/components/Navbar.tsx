@@ -459,7 +459,7 @@ export default function Navbar() {
                 className="liquid-glass-gold backdrop-blur-xs shimmer flex items-center justify-center gap-3 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full transition-all duration-300 cursor-pointer"
               >
                 <span className="text-royal-gold text-xs sm:text-sm tracking-widest uppercase font-medium whitespace-nowrap">
-                  {t("startJourney")}
+                  {isArabic ? "انضم إلينا" : "Join Us"}
                 </span>
               </Link>
             ) : (
@@ -512,11 +512,11 @@ export default function Navbar() {
           >
             <button
               type="button"
-              onClick={() => router.push("/reservation")}
+              onClick={() => router.push(`/${locale}/reservation`)}
               className="liquid-glass-gold backdrop-blur-xs shimmer shimmer-auto flex items-center justify-center gap-3 px-6 lg:px-8 py-3 lg:py-4 rounded-full transition-all duration-300 cursor-pointer"
             >
               <span className="text-royal-gold text-sm tracking-widest uppercase whitespace-nowrap">
-                {isArabic ? "ابدأ رحلتك" : "Start your journey"}
+                {t("reservation")}
               </span>
             </button>
           </motion.div>

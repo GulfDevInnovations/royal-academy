@@ -102,18 +102,18 @@ function PianoKeyButton({
           ? `z-20 h-[58%] rounded-t-[0.4rem] border border-[#2a1a15]/80 ${
               active
                 ? "bg-[linear-gradient(180deg,#4c3830_0%,#24140f_72%,#120907_100%)] shadow-[0_18px_34px_rgba(0,0,0,0.55),0_0_18px_rgba(239,199,135,0.24)]"
-                : "bg-[linear-gradient(180deg,#3a2922_0%,#1b100d_70%,#0b0504_100%)] shadow-[0_18px_32px_rgba(0,0,0,0.5)] hover:-translate-y-[1px]"
+                : "bg-[linear-gradient(180deg,#3a2922_0%,#1b100d_70%,#0b0504_100%)] shadow-[0_18px_32px_rgba(0,0,0,0.5)] hover:-translate-y-px"
             }`
           : `z-10 h-full border border-[#d9c29b]/40 ${
               active
                 ? "bg-[linear-gradient(180deg,#fdf5e4_0%,#ecd7b3_52%,#ddc093_100%)] shadow-[0_22px_38px_rgba(0,0,0,0.24),0_0_20px_rgba(240,214,170,0.22)]"
-                : "bg-[linear-gradient(180deg,#fffef7_0%,#f6ead4_40%,#ead5ad_100%)] shadow-[0_18px_34px_rgba(0,0,0,0.16)] hover:-translate-y-[1px]"
+                : "bg-[linear-gradient(180deg,#fffef7_0%,#f6ead4_40%,#ead5ad_100%)] shadow-[0_18px_34px_rgba(0,0,0,0.16)] hover:-translate-y-px"
             }`
       }`}
       style={positionStyle}
     >
       <span
-        className={`absolute inset-x-[12%] bottom-[8%] rounded-full px-1.5 py-[2px] text-center text-[0.52rem] font-semibold tracking-[0.12em] ${
+        className={`absolute inset-x-[12%] bottom-[8%] rounded-full px-1.5 py-0.5 text-center text-[0.52rem] font-semibold tracking-[0.12em] ${
           note.isSharp
             ? "border border-[#8ecfff]/24 bg-[#6ac8ff]/10 text-[#9fdfff]"
             : "border border-[#afdcff]/22 bg-[#8dd3ff]/10 text-[#6fbff2]"
@@ -353,26 +353,26 @@ export default function PianoPage() {
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(122,73,38,0.3)_0%,rgba(34,22,17,0.9)_44%,rgba(9,8,10,1)_100%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(133,87,49,0.05)_0%,transparent_36%,rgba(91,58,36,0.04)_100%)]" />
-      <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(168,118,73,0.55)_1px,transparent_1px),linear-gradient(90deg,rgba(168,118,73,0.55)_1px,transparent_1px)] [background-size:36px_36px]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(168,118,73,0.55)_1px,transparent_1px),linear-gradient(90deg,rgba(168,118,73,0.55)_1px,transparent_1px)] bg-size-[36px_36px] opacity-[0.08]" />
 
       <section
-        className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-start px-4 pb-10 pt-[110px] sm:px-6 sm:pb-12 sm:pt-[110px] lg:px-10 lg:pb-14 lg:pt-[110px]"
+        className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-start px-4 pb-10 pt-27.5 sm:px-6 sm:pb-12 sm:pt-27.5 lg:px-10 lg:pb-14 lg:pt-27.5"
         style={{ direction: "ltr" }}
       >
         <div className="flex w-full flex-col gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-12">
-          <div className="w-full max-w-[27rem]">
+          <div className="w-full max-w-108">
             <div className="relative overflow-hidden rounded-[1.65rem] border border-[#2b2118]/66 bg-[linear-gradient(180deg,#5b3a24_0%,#2a170f_22%,#130a08_100%)] px-2.5 pb-2.5 pt-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_22px_52px_rgba(0,0,0,0.44)] sm:px-3">
-              <div className="mb-2.5 flex items-center justify-between gap-3 rounded-[1rem] border border-white/6 bg-black/14 px-3 py-2 text-[0.58rem] uppercase tracking-[0.18em] text-white/55">
+              <div className="mb-2.5 flex items-center justify-between gap-3 rounded-2xl border border-white/6 bg-black/14 px-3 py-2 text-[0.58rem] uppercase tracking-[0.18em] text-white/55">
                 <span>{content.rangeLabel}</span>
                 <span className="text-[#f0dec0]">{content.rangeValue}</span>
               </div>
 
               <div
-                className="relative h-[11.75rem] rounded-[1.3rem] border border-black/20 bg-[linear-gradient(180deg,rgba(17,10,8,0.92)_0%,rgba(36,23,17,0.95)_100%)] px-[2.2%] pb-[2.4%] pt-[1.6%] shadow-[inset_0_14px_24px_rgba(255,255,255,0.03)] sm:h-[13.5rem]"
+                className="relative h-47 rounded-[1.3rem] border border-black/20 bg-[linear-gradient(180deg,rgba(17,10,8,0.92)_0%,rgba(36,23,17,0.95)_100%)] px-[2.2%] pb-[2.4%] pt-[1.6%] shadow-[inset_0_14px_24px_rgba(255,255,255,0.03)] sm:h-54"
                 style={{ transform: "perspective(1400px) rotateX(180deg)", transformStyle: "preserve-3d" }}
               >
-                <div className="absolute inset-x-[2.2%] top-[4.6%] h-[5px] rounded-full bg-[linear-gradient(90deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.02)_18%,rgba(255,255,255,0.02)_82%,rgba(255,255,255,0.12)_100%)]" />
-                <div className="absolute inset-x-[2.2%] bottom-[2.4%] h-[4px] rounded-full bg-black/18" />
+                <div className="absolute inset-x-[2.2%] top-[4.6%] h-1.25 rounded-full bg-[linear-gradient(90deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.02)_18%,rgba(255,255,255,0.02)_82%,rgba(255,255,255,0.12)_100%)]" />
+                <div className="absolute inset-x-[2.2%] bottom-[2.4%] h-1 rounded-full bg-black/18" />
 
                 {PIANO_KEYS.map((note) => (
                   <PianoKeyButton
@@ -389,11 +389,10 @@ export default function PianoPage() {
           </div>
 
           <article
-            dir="ltr"
-            className="ml-auto w-full max-w-[21.5rem] self-start rounded-[1.7rem] border border-[#d9c29b]/14 bg-[linear-gradient(180deg,rgba(95,62,37,0.26)_0%,rgba(33,22,17,0.34)_100%)] px-4 py-3 text-[#f1e1c4]/88 shadow-[0_28px_64px_rgba(0,0,0,0.24)] backdrop-blur-xl -translate-y-[313px] sm:max-w-[22.5rem] sm:px-5 sm:py-4"
+            dir={isArabic ? "rtl" : "ltr"}
+            className="w-full self-start rounded-[1.7rem] border border-[#d9c29b]/14 bg-[linear-gradient(180deg,rgba(95,62,37,0.26)_0%,rgba(33,22,17,0.34)_100%)] px-4 py-3 text-[#f1e1c4]/88 shadow-[0_28px_64px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:px-5 sm:py-4 lg:ml-auto lg:max-w-90"
           >
             <p
-              dir={isArabic ? "rtl" : "ltr"}
               className={`text-[0.85rem] leading-6 ${isArabic ? "font-layla text-right" : ""}`}
             >
               {content.paragraph}
