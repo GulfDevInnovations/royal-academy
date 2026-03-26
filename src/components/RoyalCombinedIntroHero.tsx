@@ -180,11 +180,12 @@ function RevealButton({ onReveal }: { onReveal: () => void }) {
       <div
         style={{
           fontFamily: "Georgia, 'Times New Roman', serif",
-          fontSize: "0.80rem",
+          fontSize: "1.2rem",
           letterSpacing: "0.38em",
           textTransform: "uppercase",
           color: "rgba(222,194,158,0.9)",
           userSelect: "none",
+          filter: hovered ? "brightness(1.2)" : "brightness(1)",
           transition:
             "color 0.4s ease, transform 0.45s cubic-bezier(0.4,0,0.2,1)",
           animation: "exploreOurClassesPulse 2.4s infinite",
@@ -1098,7 +1099,7 @@ export default function RoyalCombined({
       {/* Mobile background */}
       {isMobile && (
         <Image
-          src="/images/initial-mobile.png"
+          src="/images/initial-mobile2.png"
           alt="Royal Academy Room"
           fill
           unoptimized

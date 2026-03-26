@@ -1,6 +1,5 @@
 //@ts-ignore
 
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -98,10 +97,10 @@ enum DayOfWeek {
 }
 
 enum SessionType {
-  PUBLIC       // Art, Dance, Ballet, Music Awakening — fixed monthly schedule
-  TRIAL        // One-time 10 OMR taster
-  WORKSHOP     // One-off event
-  PRIVATE      // Private classes (future)
+  PUBLIC // Art, Dance, Ballet, Music Awakening — fixed monthly schedule
+  TRIAL // One-time 10 OMR taster
+  WORKSHOP // One-off event
+  PRIVATE // Private classes (future)
 }
 
 enum BookingType {
@@ -176,20 +175,20 @@ model User {
 }
 
 model StudentProfile {
-  id                    String             @id @default(cuid())
-  userId                String             @unique
-  firstName             String
-  lastName              String
-  dateOfBirth           DateTime?
-  gender                Gender?
-  address               String?
-  city                  String?
-  country               String?
-  emergencyContact      String?
-  emergencyContactName  String?
-  emergencyContactPhone String?
-  emergencyRelationship String?
-  hasMedicalCondition   Boolean            @default(false)
+  id                      String             @id @default(cuid())
+  userId                  String             @unique
+  firstName               String
+  lastName                String
+  dateOfBirth             DateTime?
+  gender                  Gender?
+  address                 String?
+  city                    String?
+  country                 String?
+  emergencyContact        String?
+  emergencyContactName    String?
+  emergencyContactPhone   String?
+  emergencyRelationship   String?
+  hasMedicalCondition     Boolean            @default(false)
   medicalConditionDetails String?
   agreePolicy             Boolean            @default(false)
   preferredTrack          ProfileTrack?
@@ -198,11 +197,11 @@ model StudentProfile {
   createdAt               DateTime           @default(now())
   updatedAt               DateTime           @updatedAt
 
-  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bookings           Booking[]
-  monthlyEnrollments MonthlyEnrollment[]
-  trialBookings      TrialBooking[]
-  workshopBookings   WorkshopBooking[]
+  user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookings              Booking[]
+  monthlyEnrollments    MonthlyEnrollment[]
+  trialBookings         TrialBooking[]
+  workshopBookings      WorkshopBooking[]
   rescheduleLogs        RescheduleLog[]
   // ── NEW ──
   multiMonthEnrollments MultiMonthEnrollment[]
@@ -313,7 +312,7 @@ model Class {
 model SubClass {
   id                String      @id @default(cuid())
   classId           String
-  name              String
+  name              String // e.g. "Violin", "Ballet for Kids", "Ballet"
   description       String?
   coverUrl          String?
   capacity          Int         @default(10)
@@ -336,13 +335,13 @@ model SubClass {
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
 
-  class                  Class                  @relation(fields: [classId], references: [id])
-  classSchedules         ClassSchedule[]
-  trialBookings          TrialBooking[]
-  teachers               SubClassTeacher[]
-  monthlyEnrollments     MonthlyEnrollment[]
+  class                 Class                  @relation(fields: [classId], references: [id])
+  classSchedules        ClassSchedule[]
+  trialBookings         TrialBooking[]
+  teachers              SubClassTeacher[]
+  monthlyEnrollments    MonthlyEnrollment[]
   // ── NEW ──
-  multiMonthEnrollments  MultiMonthEnrollment[]
+  multiMonthEnrollments MultiMonthEnrollment[]
 
   @@map("sub_classes")
 }
@@ -408,12 +407,12 @@ model ClassSession {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
-  schedule              ClassSchedule   @relation(fields: [scheduleId], references: [id])
-  bookings              Booking[]
-  trialBookings         TrialBooking[]
+  schedule            ClassSchedule   @relation(fields: [scheduleId], references: [id])
+  bookings            Booking[]
+  trialBookings       TrialBooking[]
   // ── NEW ──
-  rescheduledFromLogs   RescheduleLog[] @relation("OldSession")
-  rescheduledToLogs     RescheduleLog[] @relation("NewSession")
+  rescheduledFromLogs RescheduleLog[] @relation("OldSession")
+  rescheduledToLogs   RescheduleLog[] @relation("NewSession")
 
   @@index([sessionDatetime])
   @@map("class_sessions")
@@ -439,10 +438,10 @@ model Booking {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
-  student       StudentProfile @relation(fields: [studentId], references: [id])
-  session       ClassSession   @relation(fields: [sessionId], references: [id])
-  payment       Payment?
-  notifications Notification[]
+  student             StudentProfile  @relation(fields: [studentId], references: [id])
+  session             ClassSession    @relation(fields: [sessionId], references: [id])
+  payment             Payment?
+  notifications       Notification[]
   // ── NEW ──
   rescheduledFromLogs RescheduleLog[] @relation("OldBooking")
   rescheduledToLogs   RescheduleLog[] @relation("NewBooking")
@@ -459,23 +458,23 @@ model Booking {
 // (wasLost = false, newBookingId is set) and the "session lost"
 // path (wasLost = true, newBookingId is null).
 model RescheduleLog {
-  id            String    @id @default(cuid())
-  studentId     String
-  oldBookingId  String                     // the booking being replaced
-  newBookingId  String?                    // null when no free slot found
-  oldSessionId  String
-  newSessionId  String?                    // null when no free slot found
-  requestedAt   DateTime  @default(now())
-  wasLost       Boolean   @default(false)  // true = session lost, no slot available
-  lostReason    String?                    // e.g. "No available sessions this month"
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id           String   @id @default(cuid())
+  studentId    String
+  oldBookingId String // the booking being replaced
+  newBookingId String? // null when no free slot found
+  oldSessionId String
+  newSessionId String? // null when no free slot found
+  requestedAt  DateTime @default(now())
+  wasLost      Boolean  @default(false) // true = session lost, no slot available
+  lostReason   String? // e.g. "No available sessions this month"
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  student     StudentProfile @relation(fields: [studentId],    references: [id])
-  oldBooking  Booking        @relation("OldBooking",           fields: [oldBookingId],  references: [id])
-  newBooking  Booking?       @relation("NewBooking",           fields: [newBookingId],  references: [id])
-  oldSession  ClassSession   @relation("OldSession",           fields: [oldSessionId],  references: [id])
-  newSession  ClassSession?  @relation("NewSession",           fields: [newSessionId],  references: [id])
+  student    StudentProfile @relation(fields: [studentId], references: [id])
+  oldBooking Booking        @relation("OldBooking", fields: [oldBookingId], references: [id])
+  newBooking Booking?       @relation("NewBooking", fields: [newBookingId], references: [id])
+  oldSession ClassSession   @relation("OldSession", fields: [oldSessionId], references: [id])
+  newSession ClassSession?  @relation("NewSession", fields: [newSessionId], references: [id])
 
   @@index([studentId])
   @@index([oldBookingId])
@@ -487,48 +486,48 @@ model RescheduleLog {
 // ─────────────────────────────────────────────
 
 model MonthlyEnrollment {
-  id                    String        @id @default(cuid())
-  studentId             String
-  subClassId            String
-  month                 Int
-  year                  Int
-  frequency             FrequencyType
-  preferredDays         DayOfWeek[]
-  scheduleIds           String[]      @default([]) // exact ClassSchedule IDs enrolled
-  status                BookingStatus @default(CONFIRMED)
-  totalAmount           Decimal       @db.Decimal(10, 2)
-  currency              String        @default("OMR")
-  bookedAt              DateTime      @default(now())
+  id                     String        @id @default(cuid())
+  studentId              String
+  subClassId             String
+  month                  Int
+  year                   Int
+  frequency              FrequencyType
+  preferredDays          DayOfWeek[]
+  scheduleIds            String[]      @default([]) // exact ClassSchedule IDs enrolled
+  status                 BookingStatus @default(CONFIRMED)
+  totalAmount            Decimal       @db.Decimal(10, 2)
+  currency               String        @default("OMR")
+  bookedAt               DateTime      @default(now())
   // Null when booked month-by-month; set when part of a multi-month commitment.
   multiMonthEnrollmentId String?
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
 
-  student               StudentProfile        @relation(fields: [studentId],              references: [id])
-  subClass              SubClass              @relation(fields: [subClassId],             references: [id])
-  payment               MonthlyPayment?
+  student              StudentProfile        @relation(fields: [studentId], references: [id])
+  subClass             SubClass              @relation(fields: [subClassId], references: [id])
+  payment              MonthlyPayment?
   // ── NEW ──
-  multiMonthEnrollment  MultiMonthEnrollment? @relation(fields: [multiMonthEnrollmentId], references: [id], onDelete: Cascade)
+  multiMonthEnrollment MultiMonthEnrollment? @relation(fields: [multiMonthEnrollmentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, subClassId, month, year])
   @@map("monthly_enrollments")
 }
 
 model MonthlyPayment {
-  id                    String        @id @default(cuid())
-  enrollmentId          String        @unique
-  amount                Decimal       @db.Decimal(10, 2)
-  currency              String        @default("OMR")
-  status                PaymentStatus @default(PAID)
+  id                    String         @id @default(cuid())
+  enrollmentId          String         @unique
+  amount                Decimal        @db.Decimal(10, 2)
+  currency              String         @default("OMR")
+  status                PaymentStatus  @default(PAID)
   method                PaymentMethod?
-  stripePaymentIntentId String?       @unique
+  stripePaymentIntentId String?        @unique
   paidAt                DateTime?
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
 
-  multiMonthEnrollment MultiMonthEnrollment @relation(fields: [multiMonthEnrollmentId], references: [id], onDelete: Cascade)
+  enrollment MonthlyEnrollment @relation(fields: [enrollmentId], references: [id])
 
-  @@map("multi_month_payments")
+  @@map("monthly_payments")
 }
 
 // ─────────────────────────────────────────────
@@ -553,7 +552,7 @@ model MultiMonthEnrollment {
   startYear     Int
   endMonth      Int
   endYear       Int
-  totalMonths   Int           // convenience count, e.g. 3
+  totalMonths   Int // convenience count, e.g. 3
   totalAmount   Decimal       @db.Decimal(10, 2)
   currency      String        @default("OMR")
   status        BookingStatus @default(CONFIRMED)
@@ -561,9 +560,9 @@ model MultiMonthEnrollment {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  student            StudentProfile       @relation(fields: [studentId],  references: [id])
-  subClass           SubClass             @relation(fields: [subClassId], references: [id])
-  monthlyEnrollments MonthlyEnrollment[]  // the individual month rows
+  student            StudentProfile      @relation(fields: [studentId], references: [id])
+  subClass           SubClass            @relation(fields: [subClassId], references: [id])
+  monthlyEnrollments MonthlyEnrollment[] // the individual month rows
   payment            MultiMonthPayment?
 
   @@index([studentId])
@@ -573,16 +572,16 @@ model MultiMonthEnrollment {
 // Single payment record for the entire multi-month commitment.
 // MonthlyPayment is NOT used here — each month does not get its own payment.
 model MultiMonthPayment {
-  id                    String        @id @default(cuid())
-  multiMonthEnrollmentId String       @unique
-  amount                Decimal       @db.Decimal(10, 2)
-  currency              String        @default("OMR")
-  status                PaymentStatus @default(PAID)
-  method                PaymentMethod?
-  stripePaymentIntentId String?       @unique
-  paidAt                DateTime?
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
+  id                     String         @id @default(cuid())
+  multiMonthEnrollmentId String         @unique
+  amount                 Decimal        @db.Decimal(10, 2)
+  currency               String         @default("OMR")
+  status                 PaymentStatus  @default(PAID)
+  method                 PaymentMethod?
+  stripePaymentIntentId  String?        @unique
+  paidAt                 DateTime?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
 
   multiMonthEnrollment MultiMonthEnrollment @relation(fields: [multiMonthEnrollmentId], references: [id], onDelete: Cascade)
 
@@ -660,32 +659,32 @@ model WorkshopBooking {
 // ─────────────────────────────────────────────
 
 model Payment {
-  id                    String        @id @default(cuid())
-  bookingId             String?       @unique
-  trialBookingId        String?       @unique
-  workshopBookingId     String?       @unique
+  id                    String         @id @default(cuid())
+  bookingId             String?        @unique
+  trialBookingId        String?        @unique
+  workshopBookingId     String?        @unique
   invoiceId             String?
-  amount                Decimal       @db.Decimal(10, 2)
-  currency              String        @default("OMR")
-  status                PaymentStatus @default(PAID)
+  amount                Decimal        @db.Decimal(10, 2)
+  currency              String         @default("OMR")
+  status                PaymentStatus  @default(PAID)
   method                PaymentMethod?
-  stripePaymentIntentId String?       @unique
-  stripeSessionId       String?       @unique
+  stripePaymentIntentId String?        @unique
+  stripeSessionId       String?        @unique
   stripeChargeId        String?
   paidAt                DateTime?
   failedAt              DateTime?
   failureReason         String?
-  refundedAmount        Decimal?      @db.Decimal(10, 2)
+  refundedAmount        Decimal?       @db.Decimal(10, 2)
   refundedAt            DateTime?
   refundReason          String?
   metadata              Json?
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
 
-  booking         Booking?         @relation(fields: [bookingId],         references: [id])
-  trialBooking    TrialBooking?    @relation(fields: [trialBookingId],    references: [id])
+  booking         Booking?         @relation(fields: [bookingId], references: [id])
+  trialBooking    TrialBooking?    @relation(fields: [trialBookingId], references: [id])
   workshopBooking WorkshopBooking? @relation(fields: [workshopBookingId], references: [id])
-  invoice         Invoice?         @relation(fields: [invoiceId],         references: [id])
+  invoice         Invoice?         @relation(fields: [invoiceId], references: [id])
 
   @@map("payments")
 }
@@ -737,7 +736,7 @@ model Notification {
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
 
-  user    User     @relation(fields: [userId],    references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   booking Booking? @relation(fields: [bookingId], references: [id])
 
   @@map("notifications")
@@ -770,7 +769,7 @@ model SubClassTeacher {
   teacherId  String
   subClassId String
 
-  teacher  TeacherProfile @relation(fields: [teacherId],  references: [id], onDelete: Cascade)
+  teacher  TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   subClass SubClass       @relation(fields: [subClassId], references: [id], onDelete: Cascade)
 
   @@id([teacherId, subClassId])
@@ -825,23 +824,23 @@ model GalleryCategory {
 }
 
 model GalleryItem {
-  id           String            @id @default(cuid())
-  categoryId   String?
-  mediaType    GalleryMediaType
-  title        String?
-  description  String?
-  url          String            // Supabase Storage public URL
-  thumbnailUrl String?           // video poster frame
-  altText      String?
-  visibility   GalleryVisibility @default(DRAFT)
-  isFeatured   Boolean           @default(false)
-  sortOrder    Int               @default(0)
-  takenAt      DateTime?
-  storageKey          String?   // stable key for main file deletion
-  thumbnailStorageKey String?   // stable key for thumbnail deletion
-  uploadedBy   String?           // userId of uploader (soft ref, no FK)
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  id                  String            @id @default(cuid())
+  categoryId          String?
+  mediaType           GalleryMediaType
+  title               String?
+  description         String?
+  url                 String // Supabase Storage public URL
+  thumbnailUrl        String? // video poster frame
+  altText             String?
+  visibility          GalleryVisibility @default(DRAFT)
+  isFeatured          Boolean           @default(false)
+  sortOrder           Int               @default(0)
+  takenAt             DateTime?
+  storageKey          String? // stable key for main file deletion
+  thumbnailStorageKey String? // stable key for thumbnail deletion
+  uploadedBy          String? // userId of uploader (soft ref, no FK)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
 
   category GalleryCategory?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   persons  GalleryItemPerson[]
@@ -870,7 +869,7 @@ model GalleryItemPerson {
   galleryItemId   String
   galleryPersonId String
 
-  item   GalleryItem   @relation(fields: [galleryItemId],   references: [id], onDelete: Cascade)
+  item   GalleryItem   @relation(fields: [galleryItemId], references: [id], onDelete: Cascade)
   person GalleryPerson @relation(fields: [galleryPersonId], references: [id], onDelete: Cascade)
 
   @@id([galleryItemId, galleryPersonId])

@@ -23,9 +23,9 @@ const CLASS_ACCENT: Record<string, string> = {
 export type PaymentLineItem = { label: string; value: string };
 
 export type PaymentShellProps = {
-  className: string;
-  subClassName: string;
-  badge: string;
+  className: string; // e.g. "Music"
+  subClassName: string; // e.g. "Violin — Beginner"
+  badge: string; // e.g. "Monthly · Twice a Week" or "Trial Session"
   teacher: {
     firstName: string;
     lastName: string;

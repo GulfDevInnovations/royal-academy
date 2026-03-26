@@ -24,15 +24,59 @@
   --color-royal-gold-light: var(--royal-gold-light);
   --color-royal-cream: var(--royal-cream);
   --color-royal-white: var(--royal-white);
-  --font-goudy: var(--font-goudy);
-  --font-layla: var(--font-layla);
   --color-auth-teal: var(--auth-teal);
   --color-auth-sand: var(--auth-sand);
+
+  /*  font  */
+  --font-family-goudy: var(--font-goudy), serif;
+  --font-family-layla: var(--font-layla), sans-serif;
 }
 
+/* Automatic font switching based on locale */
 body {
-  background-color: var(--royal-purple);
-  color: var(--royal-cream);
+  font-family: var(--font-goudy), serif;
+}
+
+/* globals.css */
+
+[dir="rtl"] {
+  font-family: var(--font-layla), sans-serif;
+}
+
+/* Scale up all Tailwind text sizes for Arabic */
+/* globals.css */
+
+[dir="rtl"] .text-xs {
+  transform: scale(1.4);
+  display: inline-block;
+}
+[dir="rtl"] .text-sm {
+  transform: scale(1.4);
+  display: inline-block;
+}
+[dir="rtl"] .text-base {
+  transform: scale(1.4);
+  display: inline-block;
+}
+[dir="rtl"] .text-lg {
+  transform: scale(1.4);
+  display: inline-block;
+}
+[dir="rtl"] .text-xl {
+  transform: scale(1.4);
+  display: inline-block;
+}
+[dir="rtl"] .text-2xl {
+  transform: scale(1.4);
+  display: inline-block;
+}
+[dir="rtl"] .text-3xl {
+  transform: scale(1.4);
+  display: inline-block;
+}
+[dir="rtl"] .text-4xl {
+  transform: scale(1.4);
+  display: inline-block;
 }
 
 html {
@@ -133,6 +177,111 @@ html {
   left: 150%;
 }
 
+.shimmer-auto {
+  position: relative;
+  overflow: hidden;
+}
+/* Hover shimmer — uses ::after */
+.shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 100%
+  );
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+.shimmer:hover::after {
+  left: 150%;
+}
+
+/* Auto shimmer — uses ::before */
+.shimmer-auto::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  animation: shimmer-auto-sweep 5s ease infinite;
+}
+
+.shimmer-auto::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  pointer-events: none;
+  animation: shimmer-auto-sweep 5s ease infinite;
+}
+
+@keyframes shimmer-auto-sweep {
+  /* → forward pass */
+  0% {
+    left: -100%;
+    background: linear-gradient(
+      120deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.15) 50%,
+      transparent 100%
+    );
+  }
+  12% {
+    left: 150%;
+    background: linear-gradient(
+      120deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.15) 50%,
+      transparent 100%
+    );
+  }
+  /* ← reverse pass */
+  13% {
+    left: 150%;
+    background: linear-gradient(
+      -120deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.15) 50%,
+      transparent 100%
+    );
+  }
+  25% {
+    left: -100%;
+    background: linear-gradient(
+      -120deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.15) 50%,
+      transparent 100%
+    );
+  }
+  /* hold off-screen until next cycle */
+  100% {
+    left: -100%;
+    background: linear-gradient(
+      -120deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.15) 50%,
+      transparent 100%
+    );
+  }
+}
+
 .liquid-glass-sand {
   background: linear-gradient(
     135deg,
@@ -151,11 +300,76 @@ html {
     inset -1px 0 1px rgba(0, 0, 0, 0.08);
 }
 
-@keyframes patternScroll {
-  from {
-    background-position: 0 100%;
+.ballet-violin-sparkle {
+  background: radial-gradient(
+    circle,
+    rgba(250, 252, 255, 0.98) 0%,
+    rgba(238, 244, 252, 0.92) 45%,
+    rgba(210, 222, 242, 0.24) 78%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 18px rgba(245, 249, 255, 0.72),
+    0 0 34px rgba(210, 222, 242, 0.4);
+  mix-blend-mode: screen;
+  opacity: 0.34;
+  transform: scale(0.7);
+  animation: ballet-violin-sparkle 4.8s ease-in-out infinite;
+}
+
+.ballet-ground-sparkle {
+  opacity: 0.46;
+  filter: drop-shadow(0 0 8px rgba(245, 249, 255, 0.48));
+}
+
+.ballet-ground-sparkle-haze {
+  background: transparent;
+  pointer-events: none;
+}
+
+.ballet-violin-sparkle-cross {
+  position: absolute;
+  inset: 50%;
+  width: 240%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(247, 250, 255, 0.95) 50%,
+    transparent 100%
+  );
+  transform: translate(-50%, -50%);
+}
+
+.ballet-violin-sparkle-cross::after {
+  content: "";
+  position: absolute;
+  inset: 50%;
+  width: 1.5px;
+  height: 240%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(247, 250, 255, 0.95) 50%,
+    transparent 100%
+  );
+  transform: translate(-50%, -50%);
+}
+
+@keyframes ballet-violin-sparkle {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: scale(0.65) translateY(0);
   }
-  to {
-    background-position: 0 0;
+
+  35% {
+    opacity: 1;
+    transform: scale(1.18) translateY(-2px);
+  }
+
+  55% {
+    opacity: 0.44;
+    transform: scale(0.86) translateY(0);
   }
 }
