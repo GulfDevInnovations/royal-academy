@@ -1,18 +1,20 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useNavbarState } from "@/components/NavbarStateContext";
-import RoyalCombined from "./RoyalCombinedIntroHero";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useHomeNav } from "@/context/HomeNavigationContext";
-import AboutSection from "@/components/AboutSection";
+import { useCallback, useEffect, useRef, useState } from "react";
 import AboutParallax from "@/components/AboutParallax";
+import AboutSection from "@/components/AboutSection";
+import HomeTrioShowcaseFloor from "@/components/HomeTrioShowcaseFloor";
+import { useNavbarState } from "@/components/NavbarStateContext";
+import { useHomeNav } from "@/context/HomeNavigationContext";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import RoyalCombined from "./RoyalCombinedIntroHero";
 
 // Floor layout:
-//   0 → Intro       (0vh)
-//   1 → AboutSection (100vh)
-//   2 → Parallax    (200vh)  ← last floor
-const FLOOR_COUNT = 3;
+//   0 → Intro
+//   1 → About
+//   2 → Parallax (scrollable)
+//   3 → Offers / News / Upcomings
+const FLOOR_COUNT = 4;
 
 export default function HomeClient() {
   const { setNavSolid } = useNavbarState();
@@ -20,10 +22,13 @@ export default function HomeClient() {
   const isAnimating = useRef(false);
   const elevatorRef = useRef<HTMLDivElement>(null);
   const parallaxScrollRef = useRef<HTMLDivElement>(null);
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const { requestedFloor, clearRequest } = useHomeNav();
+
+  const locale = pathname.split("/")[1] || "en";
 
   const slideTo = useCallback(
     (targetFloor: number) => {
@@ -44,7 +49,7 @@ export default function HomeClient() {
       setNavSolid(targetFloor >= 1);
       setFloor(targetFloor);
 
-      setTimeout(() => {
+      window.setTimeout(() => {
         isAnimating.current = false;
       }, 900);
     },
@@ -52,11 +57,12 @@ export default function HomeClient() {
   );
 
   // ── Wheel + keyboard navigation ──────────────────────────────────────────
+  // Floor 2 is a scrollable parallax container. We only intercept navigation
+  // at the edges; otherwise we let it scroll natively.
   useEffect(() => {
+    const wheelOptions: AddEventListenerOptions = { passive: false };
+
     const onWheel = (e: WheelEvent) => {
-      // Floor 2 = Parallax (last floor).
-      // Scroll up from its top edge → go to floor 1.
-      // Scroll down past its bottom edge → stay (it's the last floor).
       if (floor === 2) {
         const el = parallaxScrollRef.current;
         if (!el) return;
@@ -64,21 +70,28 @@ export default function HomeClient() {
         const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 4;
 
         if (e.deltaY < -30 && atTop) {
+          e.preventDefault();
           slideTo(1);
         } else if (e.deltaY > 30 && atBottom) {
-          // Last floor — do nothing.
+          e.preventDefault();
+          slideTo(3);
         }
-        // Otherwise let the parallax container scroll natively.
         return;
       }
 
-      // All other floors: simple up/down slide.
+      e.preventDefault();
       if (e.deltaY > 30) slideTo(floor + 1);
       else if (e.deltaY < -30) slideTo(floor - 1);
     };
 
     const onKey = (e: KeyboardEvent) => {
-      // Floor 2 = Parallax.
+      const target = e.target as HTMLElement | null;
+      const isTypingTarget =
+        target?.tagName === "INPUT" ||
+        target?.tagName === "TEXTAREA" ||
+        (target?.getAttribute("contenteditable") ?? "false") === "true";
+      if (isTypingTarget) return;
+
       if (floor === 2) {
         const el = parallaxScrollRef.current;
         if (!el) return;
@@ -86,30 +99,37 @@ export default function HomeClient() {
         const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 4;
 
         if (["ArrowUp", "PageUp"].includes(e.key)) {
+          e.preventDefault();
           if (atTop) slideTo(1);
           else el.scrollBy({ top: -220, behavior: "smooth" });
         }
         if (["ArrowDown", "PageDown", " "].includes(e.key)) {
-          if (!atBottom) {
+          e.preventDefault();
+          if (atBottom) slideTo(3);
+          else {
             el.scrollBy({
               top: e.key === " " ? 320 : 220,
               behavior: "smooth",
             });
           }
-          // atBottom on last floor → do nothing.
         }
         return;
       }
 
-      // All other floors.
-      if (["ArrowDown", " ", "PageDown"].includes(e.key)) slideTo(floor + 1);
-      if (["ArrowUp", "PageUp"].includes(e.key)) slideTo(floor - 1);
+      if (["ArrowDown", " ", "PageDown"].includes(e.key)) {
+        e.preventDefault();
+        slideTo(floor + 1);
+      }
+      if (["ArrowUp", "PageUp"].includes(e.key)) {
+        e.preventDefault();
+        slideTo(floor - 1);
+      }
     };
 
-    window.addEventListener("wheel", onWheel);
+    window.addEventListener("wheel", onWheel, wheelOptions);
     window.addEventListener("keydown", onKey);
     return () => {
-      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("wheel", onWheel, wheelOptions);
       window.removeEventListener("keydown", onKey);
     };
   }, [floor, slideTo]);
@@ -128,12 +148,12 @@ export default function HomeClient() {
     const targetFloor = parseInt(floorParam, 10);
     if (isNaN(targetFloor)) return;
 
-    const timer = setTimeout(() => {
+    const timer = window.setTimeout(() => {
       slideTo(targetFloor);
       router.replace(pathname, { scroll: false });
     }, 100);
 
-    return () => clearTimeout(timer);
+    return () => window.clearTimeout(timer);
   }, [pathname, router, searchParams, slideTo]);
 
   // ── Reset parallax scroll position when leaving floor 2 ──────────────────
@@ -171,7 +191,7 @@ export default function HomeClient() {
           <RoyalCombined onScrolled={() => slideTo(1)} active={floor === 0} />
         </div>
 
-        {/* Floor 1 — AboutSection */}
+        {/* Floor 1 — About */}
         <div
           style={{
             position: "absolute",
@@ -188,7 +208,7 @@ export default function HomeClient() {
           />
         </div>
 
-        {/* Floor 2 — Parallax (last) */}
+        {/* Floor 2 — Parallax */}
         <div
           style={{
             position: "absolute",
@@ -210,11 +230,25 @@ export default function HomeClient() {
               scrollbarWidth: "none",
             }}
           >
-            <AboutParallax
-              scrollContainerRef={parallaxScrollRef}
-              locale={pathname.split("/")[1] || "en"}
-            />
+            <AboutParallax scrollContainerRef={parallaxScrollRef} locale={locale} />
           </div>
+        </div>
+
+        {/* Floor 3 — Offers / News / Upcomings */}
+        <div
+          style={{
+            position: "absolute",
+            top: "300vh",
+            left: 0,
+            right: 0,
+            height: "100vh",
+          }}
+        >
+          <HomeTrioShowcaseFloor
+            active={floor === 3}
+            onScrollUp={() => slideTo(2)}
+            onScrollDown={() => {}}
+          />
         </div>
       </div>
     </div>
