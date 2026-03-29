@@ -40,5 +40,6 @@ export const NAV_FLOOR_MAP: Record<string, number> = {
   "/": 0,
   // "/teachers": 2,
   // "/classes": 1, // adjust to whichever floor "classes" lives on
+  "/aesthetics": 2,
   "/about": 1,
 };
