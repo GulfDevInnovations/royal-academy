@@ -4,6 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import {
+  musicCtaTextClass,
+  musicHelperTextClass,
+  musicTypography,
+} from "@/lib/musicTypography";
 
 type TheoryItem = {
   key: string;
@@ -76,7 +81,7 @@ export default function TheoryPage() {
   const params = useParams<{ locale: string }>();
   const locale = params?.locale ?? "en";
   const isArabic = locale === "ar";
-  const reservationHref = `/${locale}/reservation/sub-theory`;
+  const reservationHref = `/${locale}/reservation`;
   const loopItems = [...THEORY_ITEMS, ...THEORY_ITEMS];
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [loopProgress, setLoopProgress] = useState(0);
@@ -258,7 +263,9 @@ export default function TheoryPage() {
             className="mb-3 mt-[10px] flex flex-wrap items-center justify-between gap-3 sm:mb-4"
             dir="ltr"
           >
-            <h1 className="font-goudy text-[0.9rem] text-royal-cream/92 sm:text-[1.12rem] lg:text-[1.38rem]">
+            <h1
+              className={`${musicTypography.titleCompact} text-royal-cream/92`}
+            >
               Musical Literacy
             </h1>
 
@@ -326,7 +333,7 @@ export default function TheoryPage() {
                   </div>
                   <p
                     dir="ltr"
-                    className="w-full px-1 text-center text-[0.58rem] font-semibold uppercase leading-tight tracking-[0.04em] text-royal-cream sm:text-[0.95rem] sm:tracking-[0.08em]"
+                    className="w-full px-1 text-center text-[0.7rem] font-semibold uppercase leading-tight tracking-[0.06em] text-royal-cream sm:text-[0.95rem] sm:tracking-[0.08em]"
                     style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif' }}
                   >
                     {item.label}
@@ -379,16 +386,18 @@ export default function TheoryPage() {
             }`}
           >
             <p
-              className={`text-[10px] text-royal-gold/65 ${
-                isArabic ? "self-end text-right leading-5" : "w-full text-right uppercase tracking-[0.22em]"
+              className={`${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
+                isArabic ? "self-end text-right" : "w-full text-right"
               }`}
             >
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
             </p>
             <Link
               href={reservationHref}
-              className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 text-[10px] font-medium text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
-                isArabic ? "self-end text-right leading-5" : "self-end uppercase tracking-[0.2em]"
+              className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 ${musicCtaTextClass(
+                isArabic,
+              )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
+                isArabic ? "self-end text-right" : "self-end"
               }`}
             >
               {content.reserveCta}

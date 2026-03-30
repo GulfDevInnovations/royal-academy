@@ -18,7 +18,7 @@ export default function LayoutToggle({ version, onChange }: Props) {
     <div
       style={{
         position: "fixed",
-        top: 18,
+        top: 0,
         left: "50%",
         transform: "translateX(-50%)",
         zIndex: 9999,

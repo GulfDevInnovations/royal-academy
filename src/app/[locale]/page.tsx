@@ -5,10 +5,8 @@ import HomeWrapper from "@/components/layout-toggle/HomeWrapper"; // adjust path
 export default async function Home({
   params,
 }: {
-  params: Promise<{ locale: string }>;
+  params: { locale: string };
 }) {
-  await params;
-
   const where = {
     status: "ACTIVE" as const,
     isActive: true,
@@ -20,7 +18,15 @@ export default async function Home({
     prisma.offer.findMany({ where, orderBy: { sortOrder: "asc" } }),
   ]);
 
-  const serializeBase = (i: any) => ({
+  type WithBaseDates = {
+    createdAt: Date;
+    updatedAt: Date;
+    eventDate?: Date | null;
+    publishAt?: Date | null;
+    expireAt?: Date | null;
+  };
+
+  const serializeBase = <T extends WithBaseDates>(i: T) => ({
     ...i,
     eventDate: i.eventDate?.toISOString() ?? null,
     publishAt: i.publishAt?.toISOString() ?? null,

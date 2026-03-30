@@ -49,6 +49,38 @@ export function ReservationCardsClient({
   const [teacherId, setTeacherId] = useState<string | null>(null);
   const [teacherName, setTeacherName] = useState<string | null>(null);
 
+  // Optional deep-linking from the home hero:
+  //   /reservation?dept=music&q=Guitar
+  // Initializes local UI state then removes these params from the URL.
+  useEffect(() => {
+    const dept = searchParams.get("dept");
+    const q = searchParams.get("q");
+    if (!dept && !q) return;
+
+    if (dept) {
+      const mapped =
+        dept === "music"
+          ? "Music"
+          : dept === "dance"
+            ? "Dance & Wellness"
+            : dept === "ballet"
+              ? "Ballet"
+              : dept === "art"
+                ? "Art"
+                : "All";
+      setActiveFilter(mapped);
+    }
+
+    if (q) setSearch(q);
+
+    // Clean URL (keep other params like ?teacher=)
+    const url = new URL(window.location.href);
+    url.searchParams.delete("dept");
+    url.searchParams.delete("q");
+    window.history.replaceState({}, "", url.toString());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Read ?teacher=id on mount and whenever searchParams changes
   useEffect(() => {
     const paramId = searchParams.get("teacher");
@@ -123,9 +155,9 @@ export function ReservationCardsClient({
         >
           {/* Ornamental line */}
           <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="h-px w-16 bg-gradient-to-r from-transparent to-royal-gold/60" />
+            <div className="h-px w-16 bg-linear-to-r from-transparent to-royal-gold/60" />
             <div className="w-1.5 h-1.5 rotate-45 bg-royal-gold" />
-            <div className="h-px w-16 bg-gradient-to-l from-transparent to-royal-gold/60" />
+            <div className="h-px w-16 bg-linear-to-l from-transparent to-royal-gold/60" />
           </div>
 
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-royal-gold mb-3">
@@ -140,11 +172,11 @@ export function ReservationCardsClient({
           </p>
 
           <div className="flex items-center justify-center gap-4 mt-6">
-            <div className="h-px w-8 bg-gradient-to-r from-transparent to-royal-gold/40" />
+            <div className="h-px w-8 bg-linear-to-r from-transparent to-royal-gold/40" />
             <div className="w-1 h-1 rotate-45 bg-royal-gold/40" />
             <div className="h-px w-24 bg-royal-gold/40" />
             <div className="w-1 h-1 rotate-45 bg-royal-gold/40" />
-            <div className="h-px w-8 bg-gradient-to-l from-transparent to-royal-gold/40" />
+            <div className="h-px w-8 bg-linear-to-l from-transparent to-royal-gold/40" />
           </div>
         </motion.div>
 
@@ -194,10 +226,10 @@ export function ReservationCardsClient({
               onChange={(e) => setSearch(e.target.value)}
               className="
                 w-full pl-11 pr-4 py-3.5 rounded-xl
-                bg-white/[0.04] border border-royal-cream/10
+                bg-white/4 border border-royal-cream/10
                 text-royal-cream placeholder-royal-cream/30
                 text-sm focus:outline-none focus:border-royal-gold/50
-                focus:bg-white/[0.06] transition-all duration-200
+                focus:bg-white/6 transition-all duration-200
                 font-goudy tracking-wide
               "
             />
@@ -205,18 +237,18 @@ export function ReservationCardsClient({
 
           {/* Filter pills */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-            <SlidersHorizontal className="w-4 h-4 text-royal-cream/30 flex-shrink-0" />
+            <SlidersHorizontal className="w-4 h-4 text-royal-cream/30 shrink-0" />
             {FILTERS.map((f) => (
               <button
                 key={f}
                 onClick={() => setActiveFilter(f)}
                 className={`
-                  flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold
+                  shrink-0 px-4 py-2 rounded-full text-xs font-semibold
                   uppercase tracking-widest transition-all duration-200
                   ${
                     activeFilter === f
                       ? "bg-royal-gold text-royal-dark shadow-lg shadow-royal-gold/20"
-                      : "bg-white/[0.04] border border-royal-cream/10 text-royal-cream/50 hover:border-royal-gold/30 hover:text-royal-cream/80"
+                      : "bg-white/4 border border-royal-cream/10 text-royal-cream/50 hover:border-royal-gold/30 hover:text-royal-cream/80"
                   }
                 `}
               >
@@ -273,7 +305,7 @@ export function ReservationCardsClient({
                       <h2 className="text-2xl font-bold text-royal-cream font-goudy whitespace-nowrap">
                         {className}
                       </h2>
-                      <div className="h-px flex-1 bg-gradient-to-r from-royal-gold/30 to-transparent" />
+                      <div className="h-px flex-1 bg-linear-to-r from-royal-gold/30 to-transparent" />
                     </motion.div>
                   )}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
@@ -305,7 +337,7 @@ export function ReservationCardsClient({
                     <h2 className="text-2xl font-bold text-royal-cream font-goudy whitespace-nowrap">
                       Private Classes
                     </h2>
-                    <div className="h-px flex-1 bg-gradient-to-r from-royal-gold/30 to-transparent" />
+                    <div className="h-px flex-1 bg-linear-to-r from-royal-gold/30 to-transparent" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     <PrivateClassCard />

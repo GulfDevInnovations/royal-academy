@@ -20,15 +20,17 @@ type Subclass = {
 type Section = {
   id: MainClassId;
   label: string;
+  arLabel: string;
   icon: string;
   image: string;
   subclasses: Subclass[];
 };
 
 const SECTIONS_V2: Section[] = [
-    {
+  {
     id: "music",
     label: "Music",
+    arLabel: "الموسيقى",
     icon: "/images/HeroSection/musicGold.png",
     image: "/images/music-hero.jpg",
     subclasses: [
@@ -115,6 +117,7 @@ const SECTIONS_V2: Section[] = [
   {
     id: "ballet",
     label: "Ballet",
+    arLabel: "الباليه",
     icon: "/images/HeroSection/balletGold.png",
     image: "/images/ballet-hero.jpg",
     subclasses: [
@@ -141,6 +144,7 @@ const SECTIONS_V2: Section[] = [
   {
     id: "dance",
     label: "Dance & Wellness",
+    arLabel: "الرقص والعافية",
     icon: "/images/HeroSection/dance&wellnessGold.png",
     image: "/images/dance-hero.jpg",
     subclasses: [
@@ -185,6 +189,7 @@ const SECTIONS_V2: Section[] = [
   {
     id: "art",
     label: "Art",
+    arLabel: "الفنون",
     icon: "/images/HeroSection/artGold.png",
     image: "/images/art-hero.jpg",
     subclasses: [
@@ -228,11 +233,27 @@ const SECTIONS_V2: Section[] = [
   },
 ];
 
-function resolveSubclassHref(locale: string, sectionId: MainClassId, subclassSlug: string) {
-  if (sectionId === "dance") return `/${locale}/classes/dance/${subclassSlug}`;
-  if (sectionId === "ballet") return `/${locale}/classes/ballet/${subclassSlug}`;
-  if (sectionId === "music") return `/${locale}/classes/music/${subclassSlug}`;
-  return `/${locale}/classes/art`;
+function resolveSubclassPageHref(
+  locale: string,
+  sectionId: MainClassId,
+  subclassSlug: string,
+) {
+  if (sectionId === "art") return `/${locale}/classes/art`;
+  return `/${locale}/classes/${sectionId}/${subclassSlug}`;
+}
+
+function getSectionEnglishLabel(section: Section) {
+  // UI shorthand for the department chips.
+  if (section.id === "dance") return "Dance";
+  return section.label;
+}
+
+function getSectionPrimaryLabel(locale: string, section: Section) {
+  return locale === "ar" ? section.arLabel : getSectionEnglishLabel(section);
+}
+
+function getSectionSecondaryLabel(locale: string, section: Section) {
+  return locale === "ar" ? getSectionEnglishLabel(section) : section.arLabel;
 }
 
 interface SymbolCardProps {
@@ -430,9 +451,15 @@ interface DesktopDepartmentsProps {
   activeIndex: number;
   onHover: (i: number) => void;
   revealed: boolean;
+  locale: string;
 }
 
-function DesktopDepartmentsV2({ activeIndex, onHover, revealed }: DesktopDepartmentsProps) {
+function DesktopDepartmentsV2({
+  activeIndex,
+  onHover,
+  revealed,
+  locale,
+}: DesktopDepartmentsProps) {
   return (
     <div
       style={{
@@ -475,6 +502,9 @@ function DesktopDepartmentsV2({ activeIndex, onHover, revealed }: DesktopDepartm
       >
         {SECTIONS_V2.map((section, i) => {
           const isActive = i === activeIndex;
+          const primary = getSectionPrimaryLabel(locale, section);
+          const secondary = getSectionSecondaryLabel(locale, section);
+          const primaryIsArabic = locale === "ar";
           return (
             <div
               key={section.id}
@@ -510,9 +540,39 @@ function DesktopDepartmentsV2({ activeIndex, onHover, revealed }: DesktopDepartm
                       "font-size 0.5s cubic-bezier(0.4,0,0.2,1), color 0.5s ease",
                     letterSpacing: "0.03em",
                   }}
-                                onMouseEnter={() => onHover(i)}
+                  onMouseEnter={() => onHover(i)}
                 >
-                  {section.label}
+                  <div style={{ textAlign: "center" }}>
+                    <div
+                      style={
+                        primaryIsArabic
+                          ? {
+                              fontFamily: "var(--font-layla), sans-serif",
+                              fontStyle: "normal",
+                              letterSpacing: 0,
+                            }
+                          : undefined
+                      }
+                    >
+                      {primary}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: 6,
+                        fontSize: isActive ? "1.05rem" : "1.15rem",
+                        opacity: 0.9,
+                        ...(primaryIsArabic
+                          ? undefined
+                          : {
+                              fontFamily: "var(--font-layla), sans-serif",
+                              fontStyle: "normal",
+                              letterSpacing: 0,
+                            }),
+                      }}
+                    >
+                      {secondary}
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -563,6 +623,9 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
   }, []);
 
   const activeSection = SECTIONS_V2[activeIndex];
+  const sectionPrimaryIsArabic = locale === "ar";
+  const activeSectionPrimary = getSectionPrimaryLabel(locale, activeSection);
+  const activeSectionSecondary = getSectionSecondaryLabel(locale, activeSection);
 
   const hoveredSubclass = useMemo(() => {
     if (!hoveredSubclassId) return null;
@@ -723,7 +786,7 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                 >
                   <Image
                     src={displayImage}
-                    alt={hoveredSubclass?.label ?? activeSection.label}
+                    alt={hoveredSubclass?.label ?? activeSectionPrimary}
                     fill
                     unoptimized
                     style={{ objectFit: "cover", objectPosition: "50% 50%" }}
@@ -768,7 +831,41 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                     userSelect: "none",
                   }}
                 >
-                  {hoveredSubclass?.label ?? activeSection.label}
+                  {hoveredSubclass ? (
+                    hoveredSubclass.label
+                  ) : (
+                    <div style={{ textAlign: "center" }}>
+                      <div
+                        style={
+                          sectionPrimaryIsArabic
+                            ? {
+                                fontFamily: "var(--font-layla), sans-serif",
+                                fontStyle: "normal",
+                                letterSpacing: 0,
+                              }
+                            : undefined
+                        }
+                      >
+                        {activeSectionPrimary}
+                      </div>
+                      <div
+                        style={{
+                          marginTop: 4,
+                          fontSize: "0.95rem",
+                          opacity: 0.92,
+                          ...(sectionPrimaryIsArabic
+                            ? undefined
+                            : {
+                                fontFamily: "var(--font-layla), sans-serif",
+                                fontStyle: "normal",
+                                letterSpacing: 0,
+                              }),
+                        }}
+                      >
+                        {activeSectionSecondary}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -807,7 +904,38 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                       color: "rgba(196,168,120,0.75)",
                     }}
                   >
-                    {activeSection.label}
+                    <div>
+                      <div
+                        style={
+                          sectionPrimaryIsArabic
+                            ? {
+                                fontFamily: "var(--font-layla), sans-serif",
+                                textTransform: "none",
+                                letterSpacing: "0.04em",
+                              }
+                            : undefined
+                        }
+                      >
+                        {activeSectionPrimary}
+                      </div>
+                      <div
+                        style={{
+                          marginTop: 4,
+                          fontSize: 10,
+                          letterSpacing: "0.06em",
+                          opacity: 0.9,
+                          ...(sectionPrimaryIsArabic
+                            ? undefined
+                            : {
+                                fontFamily: "var(--font-layla), sans-serif",
+                                textTransform: "none",
+                                letterSpacing: "0.04em",
+                              }),
+                        }}
+                      >
+                        {activeSectionSecondary}
+                      </div>
+                    </div>
                   </div>
                   <div
                     style={{
@@ -835,6 +963,7 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                   WebkitOverflowScrolling: "touch",
                   paddingRight: 6,
                   scrollbarWidth: "thin",
+                  scrollbarColor: "#e4d0b5 transparent",
                 }}
               >
                 <AnimatePresence mode="wait" initial={false}>
@@ -870,7 +999,7 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                           className="relative"
                         >
                           <Link
-                            href={resolveSubclassHref(
+                            href={resolveSubclassPageHref(
                               locale,
                               activeSection.id,
                               sub.slug,
@@ -937,7 +1066,7 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
               >
                 <Image
                   src={displayImage}
-                  alt={hoveredSubclass?.label ?? activeSection.label}
+                  alt={hoveredSubclass?.label ?? activeSectionPrimary}
                   fill
                   unoptimized
                   style={{ objectFit: "cover", objectPosition: "50% 50%" }}
@@ -982,7 +1111,41 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                   userSelect: "none",
                 }}
               >
-                {hoveredSubclass?.label ?? activeSection.label}
+                {hoveredSubclass ? (
+                  hoveredSubclass.label
+                ) : (
+                  <div style={{ textAlign: "center" }}>
+                    <div
+                      style={
+                        sectionPrimaryIsArabic
+                          ? {
+                              fontFamily: "var(--font-layla), sans-serif",
+                              fontStyle: "normal",
+                              letterSpacing: 0,
+                            }
+                          : undefined
+                      }
+                    >
+                      {activeSectionPrimary}
+                    </div>
+                    <div
+                      style={{
+                        marginTop: 4,
+                        fontSize: "0.95rem",
+                        opacity: 0.92,
+                        ...(sectionPrimaryIsArabic
+                          ? undefined
+                          : {
+                              fontFamily: "var(--font-layla), sans-serif",
+                              fontStyle: "normal",
+                              letterSpacing: 0,
+                            }),
+                      }}
+                    >
+                      {activeSectionSecondary}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -1007,6 +1170,8 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
             >
               {SECTIONS_V2.map((section, i) => {
                 const isActive = i === activeIndex;
+                const primary = getSectionPrimaryLabel(locale, section);
+                const secondary = getSectionSecondaryLabel(locale, section);
                 return (
                   <button
                     key={section.id}
@@ -1044,7 +1209,37 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                           lineHeight: 1.1,
                         }}
                       >
-                        {section.id === "dance" ? "Dance" : section.label}
+                        <div style={{ textAlign: "center" }}>
+                          <div
+                            style={
+                              sectionPrimaryIsArabic
+                                ? {
+                                    fontFamily: "var(--font-layla), sans-serif",
+                                    fontStyle: "normal",
+                                    letterSpacing: 0,
+                                  }
+                                : undefined
+                            }
+                          >
+                            {primary}
+                          </div>
+                          <div
+                            style={{
+                              marginTop: 3,
+                              fontSize: 10,
+                              opacity: 0.9,
+                              ...(sectionPrimaryIsArabic
+                                ? undefined
+                                : {
+                                    fontFamily: "var(--font-layla), sans-serif",
+                                    fontStyle: "normal",
+                                    letterSpacing: 0,
+                                  }),
+                            }}
+                          >
+                            {secondary}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </button>
@@ -1061,14 +1256,20 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                 overflowY: "auto",
                 overscrollBehavior: "contain",
                 WebkitOverflowScrolling: "touch",
-                paddingRight: 2,
+                paddingRight: 8,
+                                  scrollbarWidth: "thin",
+                  scrollbarColor: "#e4d0b5 transparent",
               }}
             >
               <div className="flex flex-col gap-5">
                 {activeSection.subclasses.map((sub) => (
                   <Link
                     key={sub.id}
-                    href={resolveSubclassHref(locale, activeSection.id, sub.slug)}
+                    href={resolveSubclassPageHref(
+                      locale,
+                      activeSection.id,
+                      sub.slug,
+                    )}
                     onPointerEnter={() => setHoveredSubclassId(sub.id)}
                     onPointerLeave={() => setHoveredSubclassId(null)}
                     className="block rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm"
@@ -1079,7 +1280,36 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                     }}
                   >
                     <div className="text-[11px] font-semibold uppercase tracking-[0.26em] text-royal-gold/70">
-                      {activeSection.label}
+                      <div
+                        style={
+                          sectionPrimaryIsArabic
+                            ? {
+                                fontFamily: "var(--font-layla), sans-serif",
+                                textTransform: "none",
+                                letterSpacing: "0.04em",
+                              }
+                            : undefined
+                        }
+                      >
+                        {activeSectionPrimary}
+                      </div>
+                      <div
+                        style={{
+                          marginTop: 4,
+                          fontSize: 10,
+                          letterSpacing: "0.06em",
+                          opacity: 0.9,
+                          ...(sectionPrimaryIsArabic
+                            ? undefined
+                            : {
+                                fontFamily: "var(--font-layla), sans-serif",
+                                textTransform: "none",
+                                letterSpacing: "0.04em",
+                              }),
+                        }}
+                      >
+                        {activeSectionSecondary}
+                      </div>
                     </div>
                     <div className="mt-2 font-goudy text-xl leading-tight text-royal-cream/95">
                       {sub.label}
@@ -1097,6 +1327,7 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
           activeIndex={activeIndex}
           onHover={handleActivate}
           revealed={departmentsRevealed}
+          locale={locale}
         />
       )}
 

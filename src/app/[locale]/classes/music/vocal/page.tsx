@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  musicCtaTextClass,
+  musicHelperTextClass,
+  musicTypography,
+} from "@/lib/musicTypography";
 
 const INHALE_MS = 4000;
 const HOLD_MS = 7000;
@@ -50,7 +55,7 @@ export default function VocalPage() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [pointerProgress, setPointerProgress] = useState(0);
   const [completedCycles, setCompletedCycles] = useState(0);
-  const reservationHref = `/${locale}/reservation/sub-vocal`;
+  const reservationHref = `/${locale}/reservation`;
 
   const content = isArabic
     ? {
@@ -324,7 +329,7 @@ export default function VocalPage() {
 
           <div className="mx-auto max-w-3xl text-center">
             <h1
-              className={`font-goudy text-[1.6rem] text-royal-cream sm:text-[1.36rem] ${
+              className={`${musicTypography.title} text-royal-cream ${
                 isArabic ? "" : "uppercase"
               }`}
             >
@@ -337,8 +342,8 @@ export default function VocalPage() {
               <span
                 className={`rounded-full border border-royal-gold/20 bg-white/5 px-4 py-1.5 text-royal-cream sm:text-xs ${
                   isArabic
-                    ? "text-[0.84rem] leading-5"
-                    : "text-[0.68rem] uppercase tracking-[0.24em]"
+                    ? musicTypography.arabicMicro
+                    : `${musicTypography.helperCaps} leading-5`
                 }`}
               >
                 {phaseLabel}
@@ -349,8 +354,8 @@ export default function VocalPage() {
                 onClick={handleToggle}
                 className={`liquid-glass-gold shimmer inline-flex min-w-24 items-center justify-center rounded-full px-4 py-2 font-goudy text-royal-cream transition-transform duration-300 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-royal-gold/70 ${
                   isArabic
-                    ? "text-[0.84rem] leading-5"
-                    : "text-[0.68rem] uppercase tracking-[0.2em]"
+                    ? musicTypography.arabicMicro
+                    : `${musicTypography.ctaCaps} font-goudy`
                 }`}
               >
                 {isRunning ? content.stop : content.start}
@@ -360,8 +365,8 @@ export default function VocalPage() {
             <p
               className={`text-royal-cream/72 sm:text-xs ${
                 isArabic
-                  ? "text-[0.84rem] leading-5"
-                  : "text-[0.68rem] uppercase tracking-[0.22em]"
+                  ? musicTypography.arabicMicro
+                  : `${musicTypography.helperCaps} leading-5`
               }`}
             >
               {displayedCycle} {content.outOf} {TOTAL_CYCLES}
@@ -453,16 +458,18 @@ export default function VocalPage() {
               }`}
             >
               <p
-                className={`w-full text-[10px] text-royal-gold/65 ${
-                  isArabic ? "text-right leading-5" : "uppercase tracking-[0.22em]"
+                className={`w-full ${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
+                  isArabic ? "text-right" : ""
                 }`}
               >
                 <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
               </p>
               <Link
                 href={reservationHref}
-                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 text-[10px] font-medium text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
-                  isArabic ? "self-end text-right leading-5" : "uppercase tracking-[0.2em]"
+                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 ${musicCtaTextClass(
+                  isArabic,
+                )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
+                  isArabic ? "self-end text-right" : ""
                 }`}
               >
                 {content.reserveCta}

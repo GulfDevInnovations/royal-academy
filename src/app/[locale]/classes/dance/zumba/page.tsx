@@ -5,6 +5,7 @@ export default function ZumbaPage({ params }: { params: { locale: string } }) {
     <DanceWellnessSubclassPage
       locale={params.locale}
       title={{ en: "Zumba" }}
+      reservationQuery={{ q: "Zumba" }}
       description={{
         en: "A joyful cardio-dance workout with upbeat playlists — perfect for improving endurance while having fun.",
       }}

@@ -133,6 +133,7 @@ function GlassCard({
   onMouseLeave?: () => void;
 }) {
   const heroMedia = item.media[0];
+  const isArabic = locale === "ar";
 
   return (
     <button
@@ -190,7 +191,12 @@ function GlassCard({
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/60">
             {formatDate(locale, item.date)}
           </p>
-          <h3 className="mt-2 line-clamp-2 font-goudy text-3xl leading-tight text-white/95">
+          <h3
+            className={
+              "mt-2 line-clamp-2 font-goudy leading-tight text-white/95 " +
+              (isArabic ? "text-2xl sm:text-3xl" : "text-3xl")
+            }
+          >
             {pickText(locale, item.title)}
           </h3>
         </div>
@@ -336,7 +342,12 @@ function ShowcaseModal({
                   <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">
                     {formatDate(locale, item.date)}
                   </p>
-                  <h3 className="mt-3 font-goudy text-3xl leading-tight text-white/95">
+                  <h3
+                    className={
+                      "mt-3 font-goudy leading-tight text-white/95 " +
+                      (locale === "ar" ? "text-2xl sm:text-3xl" : "text-3xl")
+                    }
+                  >
                     {pickText(locale, item.title)}
                   </h3>
                 </div>
@@ -645,6 +656,32 @@ export default function HomeTrioShowcaseFloor({
     exit: { y: -44, opacity: 0 },
   };
 
+  const desktopGridVariants = {
+    hidden: {},
+    show: {
+      transition: {
+        staggerChildren: 0.16,
+        delayChildren: 0.18,
+      },
+    },
+  };
+
+  const desktopColumnVariants = {
+    hidden: { y: 46, opacity: 0, scale: 0.985, filter: "blur(6px)" },
+    show: {
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      filter: "blur(0px)",
+      transition: {
+        type: "spring" as const,
+        stiffness: 120,
+        damping: 18,
+        mass: 0.9,
+      },
+    },
+  };
+
   const mobileSelected =
     mobileKey === "offers"
       ? {
@@ -855,7 +892,12 @@ export default function HomeTrioShowcaseFloor({
         </div>
 
         {/* Desktop: three columns */}
-        <div className="hidden flex-1 grid-cols-1 gap-5 lg:grid lg:grid-cols-3 lg:gap-6">
+        <motion.div
+          className="hidden flex-1 grid-cols-1 gap-5 lg:grid lg:grid-cols-3 lg:gap-6"
+          variants={desktopGridVariants}
+          initial="hidden"
+          animate={active ? "show" : "hidden"}
+        >
           {columnOrder.map((col) => {
             const rotation =
               col.key === "offers"
@@ -874,9 +916,10 @@ export default function HomeTrioShowcaseFloor({
             const current = items[rotation.index];
 
             return (
-              <div
+              <motion.div
                 key={col.key}
                 className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-black/10 p-5 backdrop-blur-xl sm:p-6 lg:p-10"
+                variants={desktopColumnVariants}
               >
                 {/* Engraved logo watermark behind the sliding card */}
                 <div className="pointer-events-none absolute inset-0">
@@ -972,10 +1015,10 @@ export default function HomeTrioShowcaseFloor({
                   categoryLabel={pickText(locale, col.label)}
                   locale={locale}
                 />
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
 
         {/* <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2">
           <div className="pointer-events-auto flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-2 py-2 backdrop-blur-xl">

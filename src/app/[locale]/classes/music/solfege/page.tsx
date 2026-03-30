@@ -5,6 +5,11 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Pause, Play } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  musicCtaTextClass,
+  musicHelperTextClass,
+  musicTypography,
+} from "@/lib/musicTypography";
 
 const SOLFEGE_BOX_STYLE = {
   width: "max(100vw, calc(100vh * 1.5))",
@@ -81,6 +86,8 @@ export default function SolfegePage() {
   const [sliderValue, setSliderValue] = useState(0);
   const [waveformBars, setWaveformBars] = useState<number[]>(WAVEFORM_IDLE_BARS);
   const isArabic = params?.locale === "ar";
+  const locale = params?.locale ?? "en";
+  const reservationHref = `/${locale}/reservation`;
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -380,7 +387,9 @@ export default function SolfegePage() {
               aria-label="Audio progress"
             />
             <AudioWaveform bars={waveformBars} />
-            <div className="mt-2 flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-royal-cream/75">
+            <div
+              className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
+            >
               <span>{formatTime(currentTime)}</span>
               <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
               <span>{formatTime(duration)}</span>
@@ -402,7 +411,7 @@ export default function SolfegePage() {
             boxShadow: "0 18px 42px rgba(0,0,0,0.30)",
           }}
         >
-          <p className="text-[12px] leading-6 text-royal-cream/90 sm:text-[13px]">
+          <p className={`${musicTypography.body} text-royal-cream/90`}>
             <span
               style={{
                 background: "rgba(43,25,18,0.48)",
@@ -417,7 +426,11 @@ export default function SolfegePage() {
           </p>
 
           <div className="mt-4 flex flex-col items-start gap-3">
-            <p className="text-[10px] uppercase tracking-[0.22em] text-royal-gold/65">
+            <p
+              className={`${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
+                isArabic ? "text-right" : ""
+              }`}
+            >
               <span
                 style={{
                   background: "rgba(43,25,18,0.48)",
@@ -431,8 +444,12 @@ export default function SolfegePage() {
               </span>
             </p>
             <Link
-              href="/reservation/sub-solfege"
-              className="liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#2b1912] transition-transform duration-300 hover:scale-[1.03]"
+              href={reservationHref}
+              className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+                isArabic,
+              )} text-[#2b1912] transition-transform duration-300 hover:scale-[1.03] ${
+                isArabic ? "text-right" : ""
+              }`}
             >
               {content.reserveCta}
             </Link>
@@ -457,7 +474,7 @@ export default function SolfegePage() {
             <div className="absolute inset-[31%] rounded-full border border-white/5" />
             <div className="absolute inset-[35%] rounded-full border border-white/5" />
             <div className="absolute left-1/2 top-1/2 flex h-[32%] w-[32%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#e7d5b4]/75 bg-[radial-gradient(circle_at_center,rgba(255,250,240,0.98)_0%,rgba(231,213,180,0.95)_72%,rgba(167,132,96,0.92)_100%)] px-3 text-center shadow-[inset_0_0_0_1px_rgba(82,56,30,0.12)]">
-              <span className="text-[8px] font-medium uppercase leading-[1.15] tracking-[0.08em] text-[#4a2d19] sm:text-[9px]">
+              <span className="text-[9px] font-medium uppercase leading-[1.15] tracking-[0.08em] text-[#4a2d19] sm:text-[10px]">
                 {content.centerText}
               </span>
             </div>
@@ -509,7 +526,9 @@ export default function SolfegePage() {
               aria-label="Audio progress"
             />
             <AudioWaveform bars={waveformBars} />
-            <div className="mt-2 flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-royal-cream/75">
+            <div
+              className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
+            >
               <span>{formatTime(currentTime)}</span>
               <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
               <span>{formatTime(duration)}</span>
@@ -529,7 +548,7 @@ export default function SolfegePage() {
               boxShadow: "0 18px 42px rgba(0,0,0,0.30)",
             }}
           >
-            <p className="text-[12px] leading-6 text-royal-cream/90 sm:text-[13px]">
+            <p className={`${musicTypography.body} text-royal-cream/90`}>
               <span
                 style={{
                   background: "rgba(43,25,18,0.48)",
@@ -544,7 +563,11 @@ export default function SolfegePage() {
             </p>
 
             <div className="mt-4 flex flex-col items-start gap-3">
-              <p className="text-[10px] uppercase tracking-[0.22em] text-royal-gold/65">
+              <p
+                className={`${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
+                  isArabic ? "text-right" : ""
+                }`}
+              >
                 <span
                   style={{
                     background: "rgba(43,25,18,0.48)",
@@ -558,8 +581,12 @@ export default function SolfegePage() {
                 </span>
               </p>
               <Link
-                href="/reservation"
-                className="liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#2b1912] transition-transform duration-300 hover:scale-[1.03]"
+                href={reservationHref}
+                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+                  isArabic,
+                )} text-[#2b1912] transition-transform duration-300 hover:scale-[1.03] ${
+                  isArabic ? "text-right" : ""
+                }`}
               >
                 {content.reserveCta}
               </Link>
