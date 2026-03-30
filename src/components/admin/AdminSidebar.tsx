@@ -15,16 +15,25 @@ import {
   ClipboardList,
   CreditCard,
   Bell,
-  MapPin,
   PanelLeftClose,
   PanelLeftOpen,
-  Music4,
+  CalendarClock,
+  Newspaper,
+  Tag,
 } from "lucide-react";
 
 const navGroups = [
   {
     label: "Overview",
     items: [{ label: "Dashboard", href: "/admin", icon: LayoutDashboard }],
+  },
+  {
+    label: "contents",
+    items: [
+      { label: "news", href: "/admin/news", icon: Newspaper },
+      { label: "upcomings", href: "/admin/upcoming", icon: CalendarClock },
+      { label: "Offers", href: "/admin/offers", icon: Tag },
+    ],
   },
   {
     label: "Studio",
@@ -77,7 +86,7 @@ export default function AdminSidebar() {
           <div className="flex m-4">
             <Link href={`/${locale}`}>
               <Image
-                src="/images/Logo-gray-cropped.png"
+                src="/images/logo/Logo-gray-cropped.png"
                 alt="Royal Academy"
                 width={140}
                 height={52}
@@ -91,7 +100,7 @@ export default function AdminSidebar() {
           <div className="flex m-4">
             <Link href={`/${locale}`}>
               <Image
-                src="/images/Logo-White.png"
+                src="/images/logo/Logo-White.png"
                 alt="Royal Academy"
                 width={140}
                 height={52}
@@ -154,7 +163,7 @@ export default function AdminSidebar() {
                     <Icon
                       size={16}
                       strokeWidth={active ? 2.5 : 2}
-                      className={`flex-shrink-0 transition-colors duration-150 ${
+                      className={`shrink-0 transition-colors duration-150 ${
                         active
                           ? "text-amber-400"
                           : "text-white/30 group-hover:text-white/55"
@@ -190,12 +199,12 @@ export default function AdminSidebar() {
       </nav>
 
       {/* ── Collapse toggle ── */}
-      <div className="flex-shrink-0 px-2 py-3 border-t border-white/[0.06]">
+      <div className="shrink-0 px-2 py-3 border-t border-white/6">
         <button
           onClick={() => setCollapsed(!collapsed)}
           className={`
             w-full flex items-center rounded-lg py-2
-            text-white/25 hover:text-white/55 hover:bg-white/[0.04]
+            text-white/25 hover:text-white/55 hover:bg-white/4
             transition-all duration-150 text-xs font-medium
             ${collapsed ? "justify-center px-0" : "gap-2.5 px-3"}
           `}

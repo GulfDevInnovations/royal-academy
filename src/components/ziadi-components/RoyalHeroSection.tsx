@@ -353,7 +353,7 @@ function DesktopLayout({
 }
 
 // ─── Mobile Layout ────────────────────────────────────────────────────────────
-function MobileLayout({
+export function MobileLayout({
   activeIndex,
   onTap,
 }: {
@@ -587,7 +587,7 @@ export default function RoyalHeroSection() {
       className="relative w-full h-screen overflow-hidden"
     >
       <Image
-        src="/images/initial-room2.png"
+        src="/images/rooms/initial-room2.png"
         alt="Hero Room"
         fill
         unoptimized

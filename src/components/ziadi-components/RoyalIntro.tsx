@@ -198,18 +198,32 @@ function RevealButton({ onReveal }: { onReveal: () => void }) {
 }
 
 // ─── HoverHint (Desktop) ──────────────────────────────────────────────────────
-function HoverHint({ onHoverIndex }: { onHoverIndex: (i: number) => void }) {
-  const [visible, setVisible] = useState(true);
+function HoverHint({
+  onHoverIndex,
+  onDone,
+}: {
+  onHoverIndex: (i: number) => void;
+  onDone: () => void;
+}) {
+  const [visible, setVisible] = useState(false); // ✅ start false, check storage first
   const [fading, setFading] = useState(false);
   const [x, setX] = useState(12.5);
-
   const cols = [12.5, 37.5, 62.5, 87.5];
   const PAUSE = 900;
   const TRAVEL = 600;
 
   useEffect(() => {
-    let cancelled = false;
+    const seen = localStorage.getItem("hoverHintSeen");
+    if (seen) {
+      onDone(); // ✅ already seen, skip and reset parent immediately
+      return;
+    }
+    setVisible(true); // ✅ first time, show it
+  }, []);
 
+  useEffect(() => {
+    if (!visible) return;
+    let cancelled = false;
     const animate = async () => {
       for (let i = 0; i < cols.length; i++) {
         if (cancelled) return;
@@ -226,14 +240,17 @@ function HoverHint({ onHoverIndex }: { onHoverIndex: (i: number) => void }) {
       if (cancelled) return;
       setFading(true);
       await new Promise((r) => setTimeout(r, 800));
-      if (!cancelled) setVisible(false);
+      if (!cancelled) {
+        setVisible(false);
+        localStorage.setItem("hoverHintSeen", "true"); // ✅ mark as seen
+        onDone();
+      }
     };
-
     animate();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [visible]);
 
   if (!visible) return null;
 
@@ -267,18 +284,32 @@ function HoverHint({ onHoverIndex }: { onHoverIndex: (i: number) => void }) {
 }
 
 // ─── TapHint (Mobile) ─────────────────────────────────────────────────────────
-function TapHint({ onTapIndex }: { onTapIndex: (i: number) => void }) {
-  const [visible, setVisible] = useState(true);
+function TapHint({
+  onTapIndex,
+  onDone,
+}: {
+  onTapIndex: (i: number) => void;
+  onDone: () => void;
+}) {
+  const [visible, setVisible] = useState(false); // ✅ start false
   const [fading, setFading] = useState(false);
   const [clicked, setClicked] = useState(false);
   const [rowIndex, setRowIndex] = useState(0);
-
   const PAUSE = 1000;
   const TRAVEL = 550;
 
   useEffect(() => {
-    let cancelled = false;
+    const seen = localStorage.getItem("tapHintSeen");
+    if (seen) {
+      onDone(); // ✅ already seen, skip
+      return;
+    }
+    setVisible(true); // ✅ first time, show it
+  }, []);
 
+  useEffect(() => {
+    if (!visible) return;
+    let cancelled = false;
     const animate = async () => {
       for (let i = 0; i < SECTIONS.length; i++) {
         if (cancelled) return;
@@ -299,14 +330,17 @@ function TapHint({ onTapIndex }: { onTapIndex: (i: number) => void }) {
       if (cancelled) return;
       setFading(true);
       await new Promise((r) => setTimeout(r, 800));
-      if (!cancelled) setVisible(false);
+      if (!cancelled) {
+        setVisible(false);
+        localStorage.setItem("tapHintSeen", "true"); // ✅ mark as seen
+        onDone();
+      }
     };
-
     animate();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [visible]);
 
   if (!visible) return null;
 
@@ -1027,16 +1061,13 @@ function StageOverlay({ activeIndex, revealed }: StageOverlayProps) {
 }
 
 // ─── Props ────────────────────────────────────────────────────────────────────
-interface RoyalCombinedProps {
+interface RoyalIntroProps {
   active: boolean;
   onScrolled: () => void;
 }
 
 // ─── Root component ───────────────────────────────────────────────────────────
-export default function RoyalCombined({
-  active,
-  onScrolled,
-}: RoyalCombinedProps) {
+export default function RoyalIntro({ active, onScrolled }: RoyalIntroProps) {
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [departmentsRevealed, setDepartmentsRevealed] =
@@ -1087,7 +1118,7 @@ export default function RoyalCombined({
       {/* Desktop background */}
       {!isMobile && (
         <Image
-          src="/images/initial-room4.png"
+          src="/images/rooms/initial-room4.png"
           alt="Royal Academy Room"
           fill
           unoptimized
@@ -1174,7 +1205,12 @@ export default function RoyalCombined({
       {/* ── Desktop: hover hint + departments (shown after reveal) ── */}
       {!isMobile && (
         <>
-          {departmentsRevealed && <HoverHint onHoverIndex={handleActivate} />}
+          {departmentsRevealed && (
+            <HoverHint
+              onHoverIndex={(i) => setActiveIndex(i)}
+              onDone={() => setActiveIndex(-1)} // ✅ clears highlight after hint ends
+            />
+          )}
           <DesktopDepartments
             activeIndex={activeIndex}
             onHover={handleActivate}
@@ -1186,7 +1222,10 @@ export default function RoyalCombined({
       {/* ── Mobile: always-on departments + tap hint ── */}
       {isMobile && (
         <>
-          <TapHint onTapIndex={handleActivate} />
+          <TapHint
+            onTapIndex={(i) => setActiveIndex(i)}
+            onDone={() => setActiveIndex(-1)} // ✅ clears highlight after hint ends
+          />
           <MobileDepartments activeIndex={activeIndex} onTap={handleActivate} />
         </>
       )}

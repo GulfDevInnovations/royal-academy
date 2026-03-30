@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -19,6 +19,7 @@ import {
   faCreditCard,
   faPowerOff,
   faXmark,
+  faPhone,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   faLinkedinIn,
@@ -30,6 +31,7 @@ import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import NotificationBell from "./NotificationBell";
 import { useNavbarState } from "@/components/NavbarStateContext";
 import { useHomeNav, NAV_FLOOR_MAP } from "@/context/HomeNavigationContext";
+import { usePreloader } from "@/context/PreloaderContext";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -40,10 +42,15 @@ export default function Navbar() {
   const [userImageUrl, setUserImageUrl] = useState<string | null>(null);
   const [userDisplayName, setUserDisplayName] = useState<string>("User");
   const [authLoading, setAuthLoading] = useState(true);
-  // Prisma userId resolved from Supabase session
   const [prismaUserId, setPrismaUserId] = useState<string | null>(null);
   const { navigateToFloor } = useHomeNav();
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const { isDone } = usePreloader();
+
+  // Social panel state
+  const [socialOpen, setSocialOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const socialRef = useRef<HTMLDivElement>(null);
 
   const locale = useLocale();
   const router = useRouter();
@@ -70,24 +77,45 @@ export default function Navbar() {
           ? "text-base md:text-xl"
           : "text-xl md:text-3xl";
 
+  // ── Detect mobile ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  // ── Close social panel on outside tap (mobile) ────────────────────────────
+  useEffect(() => {
+    if (!socialOpen || !isMobile) return;
+    const onOutside = (e: TouchEvent | MouseEvent) => {
+      if (socialRef.current && !socialRef.current.contains(e.target as Node)) {
+        setSocialOpen(false);
+      }
+    };
+    document.addEventListener("touchstart", onOutside);
+    document.addEventListener("mousedown", onOutside);
+    return () => {
+      document.removeEventListener("touchstart", onOutside);
+      document.removeEventListener("mousedown", onOutside);
+    };
+  }, [socialOpen, isMobile]);
+
   const handleNavClick = (e: React.MouseEvent, href: string) => {
     const floor = NAV_FLOOR_MAP[href];
-    if (floor === undefined) return; // e.g. /reservation — let it navigate normally
-
+    if (floor === undefined) return;
     e.preventDefault();
-
-    const isHomePath = /^\/[a-z]{2}(\/)?$/.test(pathname); // matches /en or /ar or /en/
-
+    const isHomePath = /^\/[a-z]{2}(\/)?$/.test(pathname);
     if (isHomePath) {
       navigateToFloor(floor);
     } else {
       router.push(`/${locale}?floor=${floor}`);
     }
-
-    setMenuOpen(false); // close mobile menu if open
+    setMenuOpen(false);
   };
 
-  // ── 1. Body scroll lock ───────────────────────────────────────────────────────
+  // ── 1. Body scroll lock ────────────────────────────────────────────────────
   useEffect(() => {
     if (menuOpen || userMenuOpen || contactModalOpen || notificationOpen) {
       document.body.style.overflow = "hidden";
@@ -96,7 +124,7 @@ export default function Navbar() {
     }
   }, [menuOpen, userMenuOpen, contactModalOpen, notificationOpen]);
 
-  // ── 2. Escape key closes contact modal ───────────────────────────────────────
+  // ── 2. Escape key closes contact modal ────────────────────────────────────
   useEffect(() => {
     if (!contactModalOpen) return;
     const onEscape = (e: KeyboardEvent) => {
@@ -106,7 +134,7 @@ export default function Navbar() {
     return () => window.removeEventListener("keydown", onEscape);
   }, [contactModalOpen]);
 
-  // ── 3. Auth + avatar — single effect, runs on pathname/searchParams changes ──
+  // ── 3. Auth + avatar ───────────────────────────────────────────────────────
   useEffect(() => {
     const supabase = createClient();
     let mounted = true;
@@ -136,30 +164,26 @@ export default function Navbar() {
       }
     };
 
-    // Initial load
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!mounted) return;
       setUser(user ?? null);
       setPrismaUserId(user?.id ?? null);
-      if (user) {
-        void loadUserAvatar();
-      } else {
+      if (user) void loadUserAvatar();
+      else {
         setUserImageUrl(null);
         setUserDisplayName(isArabic ? "المستخدم" : "User");
       }
       setAuthLoading(false);
     });
 
-    // Subsequent auth state changes (login, logout, token refresh)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!mounted) return;
       setUser(session?.user ?? null);
       setPrismaUserId(session?.user?.id ?? null);
-      if (session?.user) {
-        void loadUserAvatar();
-      } else {
+      if (session?.user) void loadUserAvatar();
+      else {
         setUserImageUrl(null);
         setUserDisplayName(isArabic ? "المستخدم" : "User");
       }
@@ -191,9 +215,7 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/", label: t("home") },
-    // { href: "/teachers", label: t("teachers") },
-    // { href: "/classes", label: t("classes") },
-    { href: "/reservation", label: t("reservation") },
+    { href: "/reservation", label: t("Enrollment") },
     { href: "/about", label: t("about") },
     { href: "/aesthetics", label: t("aesthetics") },
   ];
@@ -290,10 +312,23 @@ export default function Navbar() {
     },
   ];
 
+  // Social icons — phone first (call), then platforms
+  const socialIcons: Array<{
+    label: string;
+    href: string;
+    icon: IconDefinition;
+  }> = [
+    {
+      label: isArabic ? "اتصل بنا" : "Call Us",
+      href: "tel:+96893276767",
+      icon: faPhone,
+    },
+    ...contactPlatforms,
+  ];
+
   const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
   const EASE_IN: [number, number, number, number] = [0.55, 0, 0.8, 0.2];
 
-  // Seal from top-right for main menu
   const sealVariants: Variants = {
     hidden: { clipPath: "circle(0% at 100% 0%)", opacity: 0, scale: 0.92 },
     visible: {
@@ -396,18 +431,24 @@ export default function Navbar() {
     setNotificationOpen(isOpen);
   };
 
+  // ── Workshop href ──────────────────────────────────────────────────────────
+  const workshopHref = `/${locale}/reservation`;
+  const workshopLabel = isArabic ? "ورشة عمل" : "Workshops";
+
   return (
     <>
-      {/* Top Bar */}
+      {/* ── Top Bar ─────────────────────────────────────────────────────────── */}
       <motion.header
-        initial={{ y: -80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.7, ease: "easeOut" }}
+        initial={{ y: -12, opacity: 0 }}
+        animate={{ y: isDone ? 0 : -12, opacity: isDone ? 1 : 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
         className="fixed top-3 md:top-4 left-0 right-0 z-50 px-4 sm:px-6 md:px-8 py-3 md:py-5 flex items-center justify-between"
       >
-        {/* Left side — Logo + User pill + Bell */}
-        <div className="flex items-center gap-2 md:gap-3 min-w-0">
-          {/* Logo — hidden until navSolid, then fades in */}
+        {/* ── Left side: Logo + User pill + Workshop (EN) + Bell ── */}
+        <div
+          className={`flex items-center gap-2 md:gap-3 min-w-0 ${isArabic ? "flex-row" : "flex-row"}`}
+        >
+          {/* Logo */}
           <AnimatePresence>
             {navSolid && (
               <motion.div
@@ -427,11 +468,11 @@ export default function Navbar() {
                     transition={{ duration: 0.2 }}
                   >
                     <Image
-                      src="/images/Logo-gray-cropped.png"
+                      src="/images/logo/Logo-gray-cropped.png"
                       alt="Royal Academy"
                       width={80}
                       height={80}
-                      className="object-contain w-14 h-14 md:w-20 md:h-20"
+                      className="object-contain w-12 h-12 md:w-20 md:h-20"
                       priority
                     />
                   </motion.div>
@@ -440,7 +481,7 @@ export default function Navbar() {
             )}
           </AnimatePresence>
 
-          {/* User pill / Start Journey — always visible, shifts right when logo appears */}
+          {/* User pill */}
           <motion.div
             animate={{ x: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -474,7 +515,7 @@ export default function Navbar() {
                 transition={{ duration: 0.2 }}
                 className={`flex items-center shimmer backdrop-blur-xs justify-center gap-3 px-1.5 md:px-2 py-1 rounded-full transition-all duration-300 cursor-pointer ${userMenuOpen ? "liquid-glass-gold" : "liquid-glass"}`}
               >
-                <span className="relative h-10 w-10 md:h-12 md:w-12 overflow-hidden rounded-full bg-white/10">
+                <span className="relative h-9 w-9 md:h-12 md:w-12 overflow-hidden rounded-full bg-white/10">
                   <Image
                     src={avatarSrc}
                     alt="User"
@@ -499,11 +540,34 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Right Side Pills */}
+        {/* ── Right side: Enrollment + Admin + Language + Menu ── */}
         <div
-          className={`flex items-center gap-2 md:gap-3 ${isArabic ? "flex-row-reverse" : "flex-row"}`}
+          className={`flex items-center gap-2 md:gap-3 ${isArabic ? "flex-row" : "flex-row"}`}
         >
-          {/* reservation */}
+          {/* Workshop button — EN: left of bell | AR: right of bell (handled by flex-row-reverse) */}
+          {/* Desktop + tablet only — hidden on mobile (shown in menu instead) */}
+          <motion.div
+            whileTap={{ scale: 0.96 }}
+            whileHover={{ scale: 1.03 }}
+            transition={{ duration: 0.2 }}
+            className="hidden sm:block"
+          >
+            <Link
+              href={workshopHref}
+              onClick={() => {
+                setMenuOpen(false);
+                setUserMenuOpen(false);
+              }}
+              className="liquid-glass-green backdrop-blur-xs shimmer flex items-center justify-center px-4 md:px-6 py-2 md:py-2.5 rounded-full transition-all duration-300 cursor-pointer"
+            >
+              <span
+                className={`text-royal-green text-xs md:text-sm tracking-widest uppercase font-medium whitespace-nowrap ${isArabic ? "scale-125 inline-block" : ""}`}
+              >
+                {workshopLabel}
+              </span>
+            </Link>
+          </motion.div>
+          {/* Enrollment — desktop only */}
           <motion.div
             whileTap={{ scale: 0.96 }}
             whileHover={{ scale: 1.03 }}
@@ -513,15 +577,17 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => router.push(`/${locale}/reservation`)}
-              className="liquid-glass-gold backdrop-blur-xs shimmer shimmer-auto flex items-center justify-center gap-3 px-6 lg:px-8 py-3 lg:py-4 rounded-full transition-all duration-300 cursor-pointer"
+              className="liquid-glass-gold backdrop-blur-xs shimmer flex items-center justify-center gap-3 px-6 lg:px-8 py-3 lg:py-4 rounded-full transition-all duration-300 cursor-pointer"
             >
-              <span className="text-royal-gold text-sm tracking-widest uppercase whitespace-nowrap">
-                {t("reservation")}
+              <span
+                className={`text-royal-gold text-sm tracking-widest uppercase whitespace-nowrap inline-block ${isArabic ? "scale-150" : ""}`}
+              >
+                {t("Enrollment")}
               </span>
             </button>
           </motion.div>
 
-          {/* Admin Panel — only for ADMIN users (tablet/desktop) */}
+          {/* Admin — desktop only */}
           {user && isAdmin && (
             <motion.div
               whileTap={{ scale: 0.96 }}
@@ -544,20 +610,22 @@ export default function Navbar() {
             </motion.div>
           )}
 
-          {/* Language Switcher */}
+          {/* Language switcher */}
           <motion.button
             whileTap={{ scale: 0.96 }}
             whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.2 }}
             onClick={switchLanguage}
-            className="liquid-glass backdrop-blur-xs shimmer flex items-center justify-center gap-3 px-4 sm:px-6 md:px-8 py-2.5 md:py-3 rounded-full transition-all duration-300 cursor-pointer"
+            className="liquid-glass backdrop-blur-xs shimmer flex items-center justify-center gap-3 px-4 sm:px-5 md:px-8 py-2 md:py-3 rounded-full transition-all duration-300 cursor-pointer"
           >
-            <span className="text-royal-cream text-base sm:text-l tracking-widest uppercase whitespace-nowrap">
+            <span
+              className={`text-royal-cream text-sm sm:text-base tracking-widest uppercase whitespace-nowrap inline-block ${isArabic ? "" : "scale-150"}`}
+            >
               {isArabic ? "EN" : "عربي"}
             </span>
           </motion.button>
 
-          {/* Menu Button */}
+          {/* Menu button — shows text on md+, hamburger-only on mobile */}
           <motion.button
             onClick={() => {
               setMenuOpen(!menuOpen);
@@ -576,12 +644,9 @@ export default function Navbar() {
                   ? "القائمة"
                   : "Menu"
             }
-            className={`
-              shimmer backdrop-blur-xs flex items-center justify-center gap-3 px-4 sm:px-6 md:px-8 py-3 md:py-4 rounded-full
-              transition-all duration-300 cursor-pointer
-              ${menuOpen ? "liquid-glass-gold" : "liquid-glass"}
-            `}
+            className={`shimmer backdrop-blur-xs flex items-center justify-center gap-2 md:gap-3 px-3 sm:px-4 md:px-8 py-2.5 md:py-4 rounded-full transition-all duration-300 cursor-pointer ${menuOpen ? "liquid-glass-gold" : "liquid-glass"}`}
           >
+            {/* Hamburger / X icon — always visible */}
             <div className="flex flex-col gap-1.5">
               <motion.span
                 animate={
@@ -614,6 +679,8 @@ export default function Navbar() {
                 style={{ width: 20 }}
               />
             </div>
+
+            {/* Text label — hidden on mobile */}
             <AnimatePresence mode="wait">
               <motion.span
                 key={menuOpen ? "close" : "menu"}
@@ -621,7 +688,7 @@ export default function Navbar() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -5 }}
                 transition={{ duration: 0.2 }}
-                className="hidden sm:inline text-royal-cream text-sm tracking-widest uppercase whitespace-nowrap"
+                className={`md:inline text-royal-cream text-sm tracking-widest uppercase whitespace-nowrap inline-block ${isArabic ? "scale-150" : ""}`}
               >
                 {menuOpen
                   ? isArabic
@@ -636,7 +703,115 @@ export default function Navbar() {
         </div>
       </motion.header>
 
-      {/* Invisible backdrop */}
+      {/* ── DESKTOP SOCIAL PANEL — fixed right edge, vertically centered ─────── */}
+      {/* Hidden on mobile — mobile uses the floating button below */}
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: isDone ? 1 : 0, x: isDone ? 0 : 20 }}
+        transition={{ duration: 0.7, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="hidden md:flex fixed right-0 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-2 pr-3"
+      >
+        {socialIcons.map((item, i) => (
+          <motion.a
+            key={item.label}
+            href={item.href}
+            target={item.href.startsWith("tel") ? "_self" : "_blank"}
+            rel="noopener noreferrer"
+            aria-label={item.label}
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{
+              duration: 0.45,
+              delay: 0.5 + i * 0.07,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            whileHover={{ scale: 1.12, x: -3 }}
+            whileTap={{ scale: 0.94 }}
+            className="liquid-glass backdrop-blur-xs shimmer flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 cursor-pointer group"
+            title={item.label}
+          >
+            <FontAwesomeIcon
+              icon={item.icon}
+              className="text-royal-gold/70 group-hover:text-royal-gold transition-colors duration-200 text-sm"
+            />
+          </motion.a>
+        ))}
+      </motion.div>
+
+      {/* ── MOBILE FLOATING SOCIAL BUTTON — bottom-right, iPhone dock style ──── */}
+      {/* Only on mobile */}
+      <div
+        ref={socialRef}
+        className="md:hidden fixed bottom-6 right-5 z-50 flex flex-col-reverse items-center gap-3"
+      >
+        {/* Fanned icons — animate upward when open */}
+        <AnimatePresence>
+          {socialOpen &&
+            socialIcons.map((item, i) => (
+              <motion.a
+                key={item.label}
+                href={item.href}
+                target={item.href.startsWith("tel") ? "_self" : "_blank"}
+                rel="noopener noreferrer"
+                aria-label={item.label}
+                initial={{ opacity: 0, y: 20, scale: 0.7 }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                  transition: {
+                    duration: 0.38,
+                    delay: i * 0.055,
+                    ease: [0.22, 1, 0.36, 1],
+                  },
+                }}
+                exit={{
+                  opacity: 0,
+                  y: 16,
+                  scale: 0.75,
+                  transition: {
+                    duration: 0.22,
+                    delay: (socialIcons.length - 1 - i) * 0.04,
+                    ease: [0.55, 0, 0.8, 0.2],
+                  },
+                }}
+                whileTap={{ scale: 0.9 }}
+                className="liquid-glass-gold backdrop-blur-xs shimmer flex items-center justify-center w-12 h-12 rounded-full cursor-pointer shadow-lg shadow-black/30"
+              >
+                <FontAwesomeIcon
+                  icon={item.icon}
+                  className="text-royal-gold text-base"
+                />
+              </motion.a>
+            ))}
+        </AnimatePresence>
+
+        {/* Main FAB button */}
+        <motion.button
+          onClick={() => setSocialOpen((v) => !v)}
+          whileTap={{ scale: 0.92 }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          aria-label={socialOpen ? "Close social links" : "Open social links"}
+          className={`flex items-center justify-center w-14 h-14 rounded-full shadow-xl shadow-black/40 cursor-pointer transition-all duration-300 ${socialOpen ? "liquid-glass-gold" : "liquid-glass"}`}
+        >
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={socialOpen ? "close" : "phone"}
+              initial={{ opacity: 0, scale: 0.6 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.6 }}
+              transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <FontAwesomeIcon
+                icon={socialOpen ? faXmark : faPhone}
+                className={`text-lg transition-colors duration-200 ${socialOpen ? "text-royal-gold" : "text-royal-cream/80"}`}
+              />
+            </motion.span>
+          </AnimatePresence>
+        </motion.button>
+      </div>
+
+      {/* ── Invisible backdrop ───────────────────────────────────────────────── */}
       <AnimatePresence>
         {(menuOpen || userMenuOpen || notificationOpen) && (
           <motion.div
@@ -653,6 +828,7 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
+      {/* ── Contact Modal ────────────────────────────────────────────────────── */}
       <AnimatePresence>
         {contactModalOpen && (
           <motion.div
@@ -779,7 +955,7 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-      {/* Main Nav Menu Box — seal from top-right */}
+      {/* ── Main Nav Menu ────────────────────────────────────────────────────── */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -787,14 +963,8 @@ export default function Navbar() {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className={`
-  fixed z-50 top-24 sm:top-28
-  ${isArabic ? "left-4 sm:left-8 w-[calc(100vw-2rem)] max-w-sm sm:w-96" : "right-4 sm:right-8 w-[calc(100vw-2rem)] max-w-sm sm:w-96"}
-  rounded-3xl liquid-glass backdrop-blur-xs shadow-2xl shadow-black/60
-`}
-            style={{
-              clipPath: "inset(0 round 1.5rem)", // matches rounded-3xl = 24px
-            }}
+            className={`fixed z-50 top-24 sm:top-28 ${isArabic ? "left-4 sm:left-8 w-[calc(100vw-2rem)] max-w-sm sm:w-96" : "right-4 sm:right-8 w-[calc(100vw-2rem)] max-w-sm sm:w-96"} rounded-3xl liquid-glass backdrop-blur-xs shadow-2xl shadow-black/60`}
+            style={{ clipPath: "inset(0 round 1.5rem)" }}
           >
             <div className="h-px w-full bg-linear-to-r from-transparent via-royal-gold/50 to-transparent" />
             <div className="px-6 py-8 sm:px-10 sm:py-10">
@@ -817,11 +987,7 @@ export default function Navbar() {
                         handleNavClick(e, link.href);
                         setMenuOpen(false);
                       }}
-                      className={`
-        group relative flex items-center gap-1 py-5 w-full
-        border-b border-white/5 last:border-0
-        ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}
-      `}
+                      className={`group relative flex items-center gap-1 py-5 w-full border-b border-white/5 last:border-0 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
                     >
                       <span
                         className="absolute inset-0 -mx-4 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none"
@@ -843,7 +1009,36 @@ export default function Navbar() {
                   </motion.div>
                 ))}
 
-                {/* Extra actions (mobile-first): Contact + Admin */}
+                {/* Workshop — mobile only (hidden on sm+ since it's in the left cluster there) */}
+                <motion.div
+                  variants={itemVariants}
+                  className="w-full sm:hidden"
+                >
+                  <Link
+                    href={workshopHref}
+                    onClick={() => setMenuOpen(false)}
+                    className={`group relative flex items-center gap-1 py-5 w-full border-b border-white/5 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
+                  >
+                    <span
+                      className="absolute inset-0 -mx-4 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none"
+                      style={glassHoverStyle}
+                    />
+                    <span
+                      className={`relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out ${isArabic ? "translate-x-0 group-hover:translate-x-2" : "translate-x-0 group-hover:-translate-x-2"}`}
+                    >
+                      <FontAwesomeIcon
+                        icon={isArabic ? faCaretRight : faCaretLeft}
+                      />
+                    </span>
+                    <span
+                      className={`relative z-10 text-royal-gold text-3xl font-light tracking-wide -translate-x-1 transition-all duration-300 ease-out group-hover:text-royal-gold ${isArabic ? "group-hover:translate-x-5" : "group-hover:-translate-x-5"}`}
+                    >
+                      {workshopLabel}
+                    </span>
+                  </Link>
+                </motion.div>
+
+                {/* Contact Us */}
                 <motion.div variants={itemVariants} className="w-full">
                   <button
                     type="button"
@@ -852,11 +1047,7 @@ export default function Navbar() {
                       setMenuOpen(false);
                       setUserMenuOpen(false);
                     }}
-                    className={`
-                      group relative flex items-center gap-1 py-5 w-full
-                      border-b border-white/5 last:border-0
-                      ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}
-                    `}
+                    className={`group relative flex items-center gap-1 py-5 w-full border-b border-white/5 last:border-0 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
                   >
                     <span
                       className="absolute inset-0 -mx-4 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none"
@@ -875,19 +1066,19 @@ export default function Navbar() {
                   </button>
                 </motion.div>
 
+                {/* Admin — mobile only (already in right cluster on desktop) */}
                 {user && isAdmin && (
-                  <motion.div variants={itemVariants} className="w-full">
+                  <motion.div
+                    variants={itemVariants}
+                    className="w-full md:hidden"
+                  >
                     <Link
                       href={adminHref}
                       onClick={() => {
                         setMenuOpen(false);
                         setUserMenuOpen(false);
                       }}
-                      className={`
-                        group relative flex items-center gap-1 py-5 w-full
-                        border-b border-white/5 last:border-0
-                        ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}
-                      `}
+                      className={`group relative flex items-center gap-1 py-5 w-full border-b border-white/5 last:border-0 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
                     >
                       <span
                         className="absolute inset-0 -mx-4 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none"
@@ -913,7 +1104,7 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-      {/* User Menu Box */}
+      {/* ── User Menu ────────────────────────────────────────────────────────── */}
       <AnimatePresence>
         {userMenuOpen && user && (
           <motion.div
@@ -921,19 +1112,10 @@ export default function Navbar() {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className={`absolute z-50 top-24 sm:top-28 rounded-3xl liquid-glass shadow-2xl shadow-black/60
-    ${
-      isArabic
-        ? "right-4 sm:right-8 w-[calc(100vw-2rem)] max-w-sm sm:w-80"
-        : "left-4 sm:left-8 w-[calc(100vw-2rem)] max-w-xs sm:w-72"
-    }`}
-            style={{
-              clipPath: "inset(0 round 1.5rem)",
-            }}
+            className={`absolute z-50 top-24 sm:top-28 rounded-3xl liquid-glass shadow-2xl shadow-black/60 ${isArabic ? "right-4 sm:right-8 w-[calc(100vw-2rem)] max-w-sm sm:w-80" : "left-4 sm:left-8 w-[calc(100vw-2rem)] max-w-xs sm:w-72"}`}
+            style={{ clipPath: "inset(0 round 1.5rem)" }}
           >
             <div className="h-px w-full bg-linear-to-r from-transparent via-royal-gold/50 to-transparent" />
-
-            {/* User avatar header */}
             <div className="px-8 pt-8 pb-4 flex items-center gap-4 border-b border-white/5">
               <div className="relative w-12 h-12 shrink-0 rounded-full liquid-glass backdrop-blur-xs overflow-hidden">
                 <Image
@@ -947,7 +1129,7 @@ export default function Navbar() {
               </div>
               <div>
                 <p
-                  className={`max-w-48 wrap-break-word leading-tight text-royal-cream tracking-wide ${greetingSizeClass}`}
+                  className={`max-w-48 wrap-break-word leading-tight text-royal-cream tracking-wide ${greetingSizeClass} ${isArabic ? "px-6" : "px-0"}`}
                 >
                   {greetingText}
                 </p>
@@ -973,10 +1155,14 @@ export default function Navbar() {
                         className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-300 ease-out pointer-events-none"
                         style={glassHoverStyle}
                       />
-                      <span className="relative z-10 w-8 h-8 rounded-xl liquid-glass flex items-center justify-center text-royal-gold/70 group-hover:text-royal-gold transition-colors duration-300 text-sm">
+                      <span
+                        className={`relative z-10 rounded-xl liquid-glass flex items-center justify-center text-royal-gold/70 group-hover:text-royal-gold transition-colors duration-300 text-sm ${isArabic ? "p-1" : "p-3"}`}
+                      >
                         <FontAwesomeIcon icon={link.icon} />
                       </span>
-                      <span className="relative z-10 text-royal-cream group-hover:text-royal-cream text-2xl tracking-wide transition-all duration-300 group-hover:translate-x-1">
+                      <span
+                        className={`relative z-10 text-royal-cream group-hover:text-royal-cream text-2xl tracking-wide transition-all duration-300 group-hover:translate-x-1 ${isArabic ? "px-5" : "px-0"}`}
+                      >
                         {link.label}
                       </span>
                     </Link>
@@ -993,10 +1179,14 @@ export default function Navbar() {
                         className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-300 ease-out pointer-events-none"
                         style={glassHoverStyle}
                       />
-                      <span className="relative z-10 w-8 h-8 rounded-xl liquid-glass flex items-center justify-center text-royal-gold/70 group-hover:text-royal-gold transition-colors duration-300 text-sm">
+                      <span
+                        className={`relative z-10 rounded-xl liquid-glass flex items-center justify-center text-royal-gold/70 group-hover:text-royal-gold transition-colors duration-300 text-sm ${isArabic ? "p-1" : "p-3"}`}
+                      >
                         <FontAwesomeIcon icon={faPowerOff} />
                       </span>
-                      <span className="relative z-10 text-royal-cream group-hover:text-royal-cream text-2xl tracking-wide transition-all duration-300 group-hover:translate-x-1">
+                      <span
+                        className={`relative z-10 text-royal-cream group-hover:text-royal-cream text-2xl tracking-wide transition-all duration-300 group-hover:translate-x-1 ${isArabic ? "px-5" : "px-0"}`}
+                      >
                         {isArabic ? "تسجيل الخروج" : "Sign Out"}
                       </span>
                     </button>
@@ -1004,7 +1194,6 @@ export default function Navbar() {
                 </motion.div>
               </motion.nav>
             </div>
-
             <div className="h-px w-full bg-linear-to-r from-transparent via-royal-gold/50 to-transparent" />
           </motion.div>
         )}

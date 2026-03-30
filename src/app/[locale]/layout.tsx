@@ -7,6 +7,7 @@ import localFont from "next/font/local";
 import "../globals.css";
 import ConditionalLayout from "@/components/ConditionalLayout";
 import Footer from "@/components/Footer";
+import { PreloaderProvider } from "@/context/PreloaderContext";
 
 const goudy = localFont({
   src: [
@@ -119,14 +120,15 @@ export default async function LocaleLayout({
       className={`${goudy.variable} ${layla.variable}`}
     >
       <body>
-        <div className="min-h-screen bg-royal-purple text-royal-cream flex flex-col">
-          <NextIntlClientProvider messages={messages}>
-            <ConditionalLayout>
-              <main className="flex-1">{children}</main>
-            </ConditionalLayout>
-            {/* <Footer locale={locale} /> */}
-          </NextIntlClientProvider>
-        </div>
+        <PreloaderProvider>
+          <div className="min-h-screen bg-black text-royal-cream flex flex-col">
+            <NextIntlClientProvider messages={messages}>
+              <ConditionalLayout>
+                <main className="flex-1">{children}</main>
+              </ConditionalLayout>
+            </NextIntlClientProvider>
+          </div>
+        </PreloaderProvider>
       </body>
     </html>
   );

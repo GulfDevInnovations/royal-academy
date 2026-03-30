@@ -141,6 +141,19 @@ enum GalleryVisibility {
   ARCHIVED
 }
 
+enum ContentStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  ARCHIVED
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_TRIAL
+}
+
 // ─────────────────────────────────────────────
 // USER & PROFILES
 // ─────────────────────────────────────────────
@@ -874,4 +887,102 @@ model GalleryItemPerson {
 
   @@id([galleryItemId, galleryPersonId])
   @@map("gallery_item_persons")
+}
+
+
+// ─────────────────────────────────────────────
+// UPCOMING
+// ─────────────────────────────────────────────
+
+model Upcoming {
+  id           String        @id @default(cuid())
+  title        String
+  subtitle     String?
+  description  String?
+  mediaUrls    String[]      @default([])
+  videoUrls    String[]      @default([])
+  thumbnailUrl String?
+  linkUrl      String?
+  linkLabel    String?
+  isExternal   Boolean       @default(false)
+  eventDate    DateTime?
+  publishAt    DateTime?
+  expireAt     DateTime?
+  status       ContentStatus @default(DRAFT)
+  isActive     Boolean       @default(false)
+  sortOrder    Int           @default(0)
+  badgeLabel   String?
+  createdBy    String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([status, isActive, sortOrder])
+  @@index([publishAt, expireAt])
+  @@map("upcomings")
+}
+
+// ─────────────────────────────────────────────
+// NEWS
+// ─────────────────────────────────────────────
+
+model News {
+  id           String        @id @default(cuid())
+  title        String
+  subtitle     String?
+  description  String?
+  mediaUrls    String[]      @default([])
+  videoUrls    String[]      @default([])
+  thumbnailUrl String?
+  linkUrl      String?
+  linkLabel    String?
+  isExternal   Boolean       @default(false)
+  slug         String        @unique
+  publishAt    DateTime?
+  expireAt     DateTime?
+  status       ContentStatus @default(DRAFT)
+  isActive     Boolean       @default(false)
+  sortOrder    Int           @default(0)
+  badgeLabel   String?
+  createdBy    String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([status, isActive, sortOrder])
+  @@index([publishAt, expireAt])
+  @@map("news")
+}
+
+// ─────────────────────────────────────────────
+// OFFERS
+// ─────────────────────────────────────────────
+
+model Offer {
+  id             String        @id @default(cuid())
+  title          String
+  subtitle       String?
+  description    String?
+  mediaUrls      String[]      @default([])
+  videoUrls      String[]      @default([])
+  thumbnailUrl   String?
+  linkUrl        String?
+  linkLabel      String?
+  isExternal     Boolean       @default(false)
+  discountType   DiscountType?
+  discountValue  Decimal?      @db.Decimal(10, 2)
+  promoCode      String?       @unique
+  classIds       String[]      @default([])   // ← add this
+  subClassIds    String[]      @default([])
+  publishAt      DateTime?
+  expireAt       DateTime?
+  status         ContentStatus @default(DRAFT)
+  isActive       Boolean       @default(false)
+  sortOrder      Int           @default(0)
+  badgeLabel     String?
+  createdBy      String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([status, isActive, sortOrder])
+  @@index([publishAt, expireAt])
+  @@map("offers")
 }
