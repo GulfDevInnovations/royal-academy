@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import AboutSection from "@/components/AboutSection";
-import HomeTrioShowcaseFloor from "@/components/HomeTrioShowcaseFloor";
+import AboutSection from "@/components/home/v2/AboutSectionV2";
+import HomeTrioShowcaseFloor from "@/components/home/v2/HomeTrioShowcaseFloorV2";
 import { useNavbarState } from "@/components/NavbarStateContext";
 import { useHomeNav } from "@/context/HomeNavigationContext";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import RoyalCombinedIntroHeroV2 from "./RoyalCombinedIntroHeroV2";
+import RoyalCombinedIntroHeroV2 from "@/components/home/v2/RoyalCombinedIntroHeroV2Section";
 
 // Floor layout:
 //   0 → Offers / News / Upcomings
@@ -14,7 +14,7 @@ import RoyalCombinedIntroHeroV2 from "./RoyalCombinedIntroHeroV2";
 //   2 → About
 const FLOOR_COUNT = 3;
 
-export default function HomeClient() {
+export default function HomeClientV2() {
   const { setNavSolid } = useNavbarState();
   const [floor, setFloor] = useState(0);
   const isAnimating = useRef(false);
@@ -155,10 +155,7 @@ export default function HomeClient() {
             height: "100vh",
           }}
         >
-          <RoyalCombinedIntroHeroV2
-            onScrolled={() => slideTo(2)}
-            active={floor === 1}
-          />
+          <RoyalCombinedIntroHeroV2 onScrolled={() => slideTo(2)} active={floor === 1} />
         </div>
 
         {/* Floor 2 — About */}
@@ -171,11 +168,7 @@ export default function HomeClient() {
             height: "100vh",
           }}
         >
-          <AboutSection
-            active={floor === 2}
-            onScrollUp={() => slideTo(1)}
-            onScrollDown={() => {}}
-          />
+          <AboutSection active={floor === 2} onScrollUp={() => slideTo(1)} onScrollDown={() => {}} />
         </div>
       </div>
     </div>

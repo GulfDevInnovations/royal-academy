@@ -1,4 +1,4 @@
-import HomeClient from "@/components/HomeClient";
+import HomeClientV2 from "@/components/home/v2/HomeClientV2";
 
 export default async function Home({
   params,
@@ -7,5 +7,5 @@ export default async function Home({
 }) {
   await params;
 
-  return <HomeClient />;
+  return <HomeClientV2 />;
 }

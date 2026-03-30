@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLocale } from "next-intl";
 import Link from "next/link";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, Layers } from "lucide-react";
 
 const ROTATE_MS = 7500;
 const ENTER_EXIT_S = 0.95;
@@ -164,6 +164,15 @@ function GlassCard({
           />
         ) : null}
 
+        {item.media.length > 1 ? (
+          <div className="absolute right-4 top-4 z-20 rounded-full border border-white/12 bg-black/30 p-2 text-white/85 backdrop-blur-md">
+            <Layers className="h-4 w-4" aria-hidden="true" />
+            <span className="sr-only">
+              {locale === "ar" ? "وسائط متعددة" : "Multiple media"}
+            </span>
+          </div>
+        ) : null}
+
         {/* Readability gradient */}
         <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/25 to-transparent" />
 
@@ -175,16 +184,7 @@ function GlassCard({
 
       {/* Overlay content (glass + gradient feel) */}
       <div className="relative z-10 flex h-full flex-col justify-between p-4 sm:p-5">
-        <div className="flex items-start justify-between gap-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/75">
-            {title}
-          </p>
-          {item.media.length > 1 ? (
-            <div className="rounded-full border border-white/12 bg-black/25 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">
-              {locale === "ar" ? "متعدد" : "Multi"}
-            </div>
-          ) : null}
-        </div>
+        <div />
 
         <div className="rounded-3xl border border-white/12 liquid-glass px-4 py-4 shadow-[0_18px_40px_rgba(0,0,0,0.38)]">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/60">
@@ -398,6 +398,7 @@ export default function HomeTrioShowcaseFloor({
   onScrollDown,
 }: Props) {
   const locale = useLocale();
+  const [mobileKey, setMobileKey] = useState<ColumnKey>("offers");
 
   const marqueeMessages =
     locale === "ar"
@@ -615,6 +616,15 @@ export default function HomeTrioShowcaseFloor({
     exit: { y: -44, opacity: 0 },
   };
 
+  const mobileSelected =
+    mobileKey === "offers"
+      ? { key: "offers" as const, items: offers, rotation: offersRotation, label: { en: "Offers", ar: "العروض" } }
+      : mobileKey === "news"
+        ? { key: "news" as const, items: news, rotation: newsRotation, label: { en: "News", ar: "الأخبار" } }
+        : { key: "upcomings" as const, items: upcomings, rotation: upcomingsRotation, label: { en: "Upcomings", ar: "القادم" } };
+
+  const mobileCurrent = mobileSelected.items[mobileSelected.rotation.index];
+
   return (
     <section
       className="relative h-screen w-screen overflow-hidden bg-royal-purple text-royal-cream"
@@ -626,8 +636,8 @@ export default function HomeTrioShowcaseFloor({
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,235,180,0.05)_0%,transparent_40%,rgba(255,235,180,0.03)_100%)]" />
       </div>
 
-      <div className="relative mx-auto flex h-full w-full max-w-8xl flex-col px-4 py-35 sm:px-6 lg:px-10">
-        <div className="relative z-20 mb-6 w-full">
+      <div className="relative mx-auto flex h-full w-full max-w-8xl flex-col px-4 pt-25 sm:px-6 sm:p5-20 lg:px-10 lg:pt-30 lg:pb-10">
+        <div className="relative z-20 mb-3 w-full sm:mb-5 lg:mb-6">
           <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/15 px-4 py-2 backdrop-blur-xl">
             <div dir="ltr" className="relative overflow-hidden">
               <motion.div
@@ -645,7 +655,7 @@ export default function HomeTrioShowcaseFloor({
                     key={`marquee-message-${index}`}
                     className="flex shrink-0 items-center whitespace-nowrap"
                   >
-                    <span className="text-[25px] font-semibold uppercase tracking-[0.32em] text-royal-cream/80">
+                    <span className="text-[16px] font-semibold uppercase tracking-[0.26em] text-royal-cream/80 sm:text-[20px] sm:tracking-[0.3em] lg:text-[25px] lg:tracking-[0.32em]">
                       {message}
                     </span>
                     <span aria-hidden className="inline-block w-screen" />
@@ -656,7 +666,142 @@ export default function HomeTrioShowcaseFloor({
           </div>
         </div>
 
-        <div className="grid flex-1 grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
+        {/* Mobile / tablet: one large card with tabs (bigger media) */}
+        <div className="flex flex-1 min-h-0 flex-col lg:hidden">
+          <div className="mb-3 flex items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/10 p-2 backdrop-blur-xl">
+            {(
+              [
+                { key: "offers" as const, label: { en: "Offers", ar: "العروض" } },
+                { key: "news" as const, label: { en: "News", ar: "الأخبار" } },
+                { key: "upcomings" as const, label: { en: "Upcomings", ar: "القادم" } },
+              ]
+            ).map((tab) => {
+              const activeTab = mobileKey === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setMobileKey(tab.key)}
+                  aria-pressed={activeTab}
+                  className={
+                    "flex-1 rounded-full border px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] transition-colors " +
+                    (activeTab
+                      ? "border-white/18 bg-black/30 text-white/90"
+                      : "border-white/10 bg-black/10 text-white/65 hover:bg-black/20")
+                  }
+                >
+                  {pickText(locale, tab.label)}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="relative flex flex-1 min-h-0 flex-col overflow-hidden rounded-3xl border border-white/8 bg-black/10 p-4 backdrop-blur-xl">
+            {/* Engraved logo watermark */}
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,235,180,0.07)_0%,transparent_58%)]" />
+              <div className="absolute inset-0 opacity-5">
+                <Image
+                  src="/images/Logo-gray-cropped.png"
+                  alt="Royal Academy"
+                  fill
+                  sizes="100vw"
+                  className="object-contain grayscale mix-blend-overlay"
+                  priority={false}
+                />
+              </div>
+              <div className="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-12px_24px_rgba(0,0,0,0.25)]" />
+            </div>
+
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-royal-gold/70">
+                {pickText(locale, mobileSelected.label)}
+              </p>
+            </div>
+
+            <div className="relative z-10 flex-1 min-h-0">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={mobileCurrent.id}
+                  variants={variants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={{
+                    duration: ENTER_EXIT_S,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                  className="absolute inset-0"
+                >
+                  <GlassCard
+                    item={mobileCurrent}
+                    title={pickText(locale, mobileSelected.label)}
+                    locale={locale}
+                    onClick={() =>
+                      setModal({ key: mobileSelected.key, index: mobileSelected.rotation.index })
+                    }
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            <div className="relative z-10 mt-3 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">
+              <button
+                type="button"
+                onClick={() =>
+                  mobileSelected.rotation.setIndex((prev) =>
+                    clampIndex(prev - 1, mobileSelected.items.length),
+                  )
+                }
+                className="rounded-full border border-white/10 bg-black/15 px-3 py-2 transition-colors hover:bg-black/25"
+              >
+                <ArrowUp className="hover:cursor-pointer" />
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  mobileSelected.rotation.setIndex((prev) =>
+                    clampIndex(prev + 1, mobileSelected.items.length),
+                  )
+                }
+                className="rounded-full border border-white/10 bg-black/15 px-3 py-2 transition-colors hover:bg-black/25"
+              >
+                <ArrowDown className="hover:cursor-pointer" />
+              </button>
+            </div>
+          </div>
+
+          <ShowcaseModal
+            open={modal !== null}
+            onClose={() => setModal(null)}
+            items={
+              modal?.key === "offers"
+                ? offers
+                : modal?.key === "news"
+                  ? news
+                  : upcomings
+            }
+            index={modal?.index ?? 0}
+            setIndex={(nextIndex) => {
+              if (!modal) return;
+              const itemsForKey =
+                modal.key === "offers" ? offers : modal.key === "news" ? news : upcomings;
+              const next = clampIndex(nextIndex, itemsForKey.length);
+              setModal({ key: modal.key, index: next });
+            }}
+            categoryLabel={
+              modal?.key === "offers"
+                ? pickText(locale, { en: "Offers", ar: "العروض" })
+                : modal?.key === "news"
+                  ? pickText(locale, { en: "News", ar: "الأخبار" })
+                  : pickText(locale, { en: "Upcomings", ar: "القادم" })
+            }
+            locale={locale}
+          />
+        </div>
+
+        {/* Desktop: three columns */}
+        <div className="hidden flex-1 grid-cols-1 gap-5 lg:grid lg:grid-cols-3 lg:gap-6">
           {columnOrder.map((col) => {
             const rotation =
               col.key === "offers"
@@ -673,7 +818,7 @@ export default function HomeTrioShowcaseFloor({
             return (
               <div
                 key={col.key}
-                className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-black/10 p-10 backdrop-blur-xl sm:p-5"
+                className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-black/10 p-5 backdrop-blur-xl sm:p-6 lg:p-10"
               >
                 {/* Engraved logo watermark behind the sliding card */}
                 <div className="pointer-events-none absolute inset-0">
@@ -691,7 +836,7 @@ export default function HomeTrioShowcaseFloor({
                   <div className="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_0_-12px_24px_rgba(0,0,0,0.25)]" />
                 </div>
 
-                <div className="mb-4 flex items-center justify-between">
+                <div className="mb-2 flex items-center justify-between sm:mb-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.28em] text-royal-gold/70">
                     {pickText(locale, col.label)}
                   </p>
@@ -727,15 +872,14 @@ export default function HomeTrioShowcaseFloor({
                   </AnimatePresence>
                 </div>
 
-                <div className="relative z-10 mt-4 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45">
+                <div className="relative z-10 mt-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45 sm:mt-4">
                   <button
                     type="button"
                     onClick={() =>
                       rotation.setIndex((prev) => clampIndex(prev - 1, items.length))
                     }
-                    className="rounded-full border border-white/10 bg-black/15 px-3 py-2 transition-colors hover:bg-black/25"
+                    className="rounded-full border border-white/10 bg-black/15 px-2 py-1.5 transition-colors hover:bg-black/25 sm:px-3 sm:py-2"
                   >
-                    {/* {locale === "ar" ? "أعلى" : "Up"} */}
                     <ArrowUp className="hover:cursor-pointer"/> 
                   </button>
                   <button
@@ -743,9 +887,8 @@ export default function HomeTrioShowcaseFloor({
                     onClick={() =>
                       rotation.setIndex((prev) => clampIndex(prev + 1, items.length))
                     }
-                    className="rounded-full border border-white/10 bg-black/15 px-3 py-2 transition-colors hover:bg-black/25"
+                    className="rounded-full border border-white/10 bg-black/15 px-2 py-1.5 transition-colors hover:bg-black/25 sm:px-3 sm:py-2"
                   >
-                    {/* {locale === "ar" ? "أسفل" : "Down"} */}
                     <ArrowDown className="hover:cursor-pointer"/>
                   </button>
                 </div>
@@ -767,7 +910,7 @@ export default function HomeTrioShowcaseFloor({
           })}
         </div>
 
-        <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2">
+        {/* <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2">
           <div className="pointer-events-auto flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-2 py-2 backdrop-blur-xl">
             <button
               type="button"
@@ -784,7 +927,7 @@ export default function HomeTrioShowcaseFloor({
               {locale === "ar" ? "القسم التالي" : "Next Section"}
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );
