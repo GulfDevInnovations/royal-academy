@@ -1005,25 +1005,40 @@ export default function AboutSection({
             backgroundRepeat: "repeat",
             backgroundSize: "auto",
             animation: "patternScroll 32s linear infinite",
-            opacity: 0.55,
+            opacity: 1,
             pointerEvents: "none",
             zIndex: 0,
           }}
         />
       ) : (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: "url('/images/pattern.png')",
-            backgroundRepeat: "repeat",
-            backgroundSize: "auto",
-            animation: "patternScroll 32s linear infinite",
-            opacity: 0.65,
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
-        />
+        <>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: "url('/images/pattern.png')",
+              backgroundRepeat: "repeat",
+              backgroundSize: "auto",
+              animation: "patternScroll 32s linear infinite",
+              opacity: 1,
+              pointerEvents: "none",
+              zIndex: 0,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: "url('/images/pattern.png')",
+              backgroundRepeat: "repeat",
+              backgroundSize: "auto",
+              animation: "patternScroll 32s linear infinite",
+              opacity: 1,
+              pointerEvents: "none",
+              zIndex: 0,
+            }}
+          />
+        </>
       )}
 
       {/* Fixed overlay pattern */}
@@ -1035,7 +1050,7 @@ export default function AboutSection({
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          opacity: 0.75,
+          opacity: 1,
           pointerEvents: "none",
           zIndex: 1,
         }}

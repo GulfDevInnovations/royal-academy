@@ -217,7 +217,7 @@ export default function Navbar() {
     { href: "/", label: t("home") },
     { href: "/reservation", label: t("Enrollment") },
     { href: "/about", label: t("about") },
-    { href: "/aesthetics", label: t("aesthetics") },
+    { href: "/gallery", label: t("gallery") },
   ];
 
   const userLinks = [

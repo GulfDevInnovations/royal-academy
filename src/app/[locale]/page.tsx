@@ -1,8 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import HomeClient from "@/components/royal-intro/HomeClient";
-
 export const dynamic = "force-dynamic";
-import HomeClientV2 from "@/components/home/v2/HomeClientV2";
+import HomeWrapper from "@/components/layout-toggle/HomeWrapper"; // adjust path if needed
 
 export default async function Home({
   params,
@@ -11,13 +9,9 @@ export default async function Home({
 }) {
   await params;
 
-  const now = new Date();
-
   const where = {
     status: "ACTIVE" as const,
     isActive: true,
-    // publishAt: { lte: now },
-    // OR: [{ expireAt: null }, { expireAt: { gte: now } }],
   };
 
   const [upcoming, news, offers] = await Promise.all([
@@ -36,7 +30,7 @@ export default async function Home({
   });
 
   return (
-    <HomeClient
+    <HomeWrapper
       worldData={{
         upcoming: upcoming.map(serializeBase),
         news: news.map(serializeBase),
@@ -49,5 +43,4 @@ export default async function Home({
       backgroundImageUrl="/images/rooms/initial-room4.png"
     />
   );
-  return <HomeClientV2 />;
 }

@@ -1,7 +1,7 @@
 import GalleryPageClient from "@/components/GalleryPageClient";
 import { getPublishedGalleryItems } from "@/lib/actions/gallery.public.actions";
 
-export default async function AestheticsPage() {
+export default async function GalleryPage() {
   const items = await getPublishedGalleryItems();
 
   return (
