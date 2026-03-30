@@ -33,10 +33,20 @@ import { useNavbarState } from "@/components/NavbarStateContext";
 import { useHomeNav, NAV_FLOOR_MAP } from "@/context/HomeNavigationContext";
 import { usePreloader } from "@/context/PreloaderContext";
 
+type ClassMenuNode = {
+  id: string;
+  label: string;
+  arLabel: string;
+  href?: string;
+  children?: ClassMenuNode[];
+};
+
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [classesMenuPath, setClassesMenuPath] = useState<string[]>([]);
+  const [isDesktopMenu, setIsDesktopMenu] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const { navSolid } = useNavbarState();
   const [userImageUrl, setUserImageUrl] = useState<string | null>(null);
@@ -58,6 +68,8 @@ export default function Navbar() {
   const searchParams = useSearchParams();
   const t = useTranslations("nav");
   const isArabic = locale === "ar";
+  const isHomeRoute = /^\/[a-z]{2}(\/)?$/.test(pathname);
+  const showNavbarChrome = isDone || !isHomeRoute;
   const loginHref = `/${locale}/login?redirectTo=${encodeURIComponent(pathname)}`;
   const avatarSrc = userImageUrl || "/images/user.png";
   const isExternalAvatar = avatarSrc.startsWith("http");
@@ -124,7 +136,25 @@ export default function Navbar() {
     }
   }, [menuOpen, userMenuOpen, contactModalOpen, notificationOpen]);
 
-  // ── 2. Escape key closes contact modal ────────────────────────────────────
+  useEffect(() => {
+    if (!menuOpen) {
+      setClassesMenuPath([]);
+    }
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    const syncMenuMode = (event?: MediaQueryListEvent) => {
+      setIsDesktopMenu(event ? event.matches : mediaQuery.matches);
+    };
+
+    syncMenuMode();
+    mediaQuery.addEventListener("change", syncMenuMode);
+
+    return () => mediaQuery.removeEventListener("change", syncMenuMode);
+  }, []);
+
+  // ── 2. Escape key closes contact modal ───────────────────────────────────────
   useEffect(() => {
     if (!contactModalOpen) return;
     const onEscape = (e: KeyboardEvent) => {
@@ -215,9 +245,355 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/", label: t("home") },
-    { href: "/reservation", label: t("Enrollment") },
+    // { href: "/teachers", label: t("teachers") },
+    { href: "/classes", label: t("classes"), type: "classes" as const },
+    { href: "/reservation", label: t("reservation") },
     { href: "/about", label: t("about") },
     { href: "/gallery", label: t("gallery") },
+  ];
+
+  const classesMenu: ClassMenuNode[] = [
+    {
+      id: "art",
+      label: "Art",
+      arLabel: "الفن",
+      href: `/${locale}/classes/art`,
+      children: [
+        {
+          id: "drawing",
+          label: "Drawing I Basic to Advanced",
+          arLabel: "الرسم من الأساسي إلى المتقدم",
+          href: `/${locale}/classes/art`,
+        },
+        {
+          id: "shading-color",
+          label: "Shading & Color Techniques",
+          arLabel: "تقنيات التظليل والألوان",
+          href: `/${locale}/classes/art`,
+        },
+        {
+          id: "portrait-caricature",
+          label: "Portrait & Caricature",
+          arLabel: "بورتريه وكاريكاتير",
+          href: `/${locale}/classes/art`,
+        },
+        {
+          id: "animation-drawing",
+          label: "Animation Drawing",
+          arLabel: "رسم الأنيميشن",
+          href: `/${locale}/classes/art`,
+        },
+        {
+          id: "acrylic",
+          label: "Acrylic",
+          arLabel: "أكريليك",
+          href: `/${locale}/classes/art`,
+        },
+        {
+          id: "oil-painting",
+          label: "Oil Painting",
+          arLabel: "رسم زيتي",
+          href: `/${locale}/classes/art`,
+        },
+        {
+          id: "mixed-media",
+          label: "Mixed Media",
+          arLabel: "وسائط مختلطة",
+          href: `/${locale}/classes/art`,
+        },
+        {
+          id: "watercolor",
+          label: "Watercolor",
+          arLabel: "ألوان مائية",
+          href: `/${locale}/classes/art`,
+        },
+        {
+          id: "paper-art",
+          label: "Paper Art",
+          arLabel: "فن الورق",
+          href: `/${locale}/classes/art`,
+        },
+        {
+          id: "collage",
+          label: "Collage",
+          arLabel: "كولاج",
+          href: `/${locale}/classes/art`,
+        },
+        {
+          id: "mandala-dotting-art",
+          label: "Mandala Dotting Art",
+          arLabel: "فن الماندالا والتنقيط",
+          href: `/${locale}/classes/art`,
+        },
+        {
+          id: "calligraphy",
+          label: "Calligraphy",
+          arLabel: "الخط",
+          href: `/${locale}/classes/art`,
+        },
+        {
+          id: "colored-pencil-drawing",
+          label: "Colored Pencil Drawing",
+          arLabel: "رسم بالألوان الخشبية",
+          href: `/${locale}/classes/art`,
+        },
+        {
+          id: "arts-crafts",
+          label: "Arts & Crafts",
+          arLabel: "الفنون والأشغال اليدوية",
+          href: `/${locale}/classes/art`,
+        },
+      ],
+    },
+    {
+      id: "ballet",
+      label: "Ballet",
+      arLabel: "الباليه",
+      href: `/${locale}/classes/ballet`,
+      children: [
+        {
+          id: "baby-ballet",
+          label: "Baby Ballet",
+          arLabel: "باليه الأطفال",
+          href: `/${locale}/classes/ballet/baby-ballet`,
+        },
+        {
+          id: "open-ballet",
+          label: "Open Ballet",
+          arLabel: "صف الباليه المفتوح",
+          href: `/${locale}/classes/ballet/open-ballet`,
+        },
+        {
+          id: "rad-ballet",
+          label: "RAD Ballet",
+          arLabel: "باليه RAD",
+          href: `/${locale}/classes/ballet/rad-ballet`,
+        },
+      ],
+    },
+    {
+      id: "dance",
+      label: "Dance",
+      arLabel: "الرقص",
+      href: `/${locale}/classes/dance`,
+      children: [
+        {
+          id: "aerial-hoop",
+          label: "Aerial Hoop",
+          arLabel: "الأيريل هوب",
+          href: `/${locale}/classes/dance/aerial-hoop`,
+        },
+        {
+          id: "body-flexibility",
+          label: "Body & Flexibility",
+          arLabel: "الجسم والمرونة",
+          href: `/${locale}/classes/dance/body&flexibility`,
+          children: [
+            {
+              id: "body-flexibility-program",
+              label: "Body Flexibility",
+              arLabel: "مرونة الجسم",
+              href: `/${locale}/classes/dance/body&flexibility`,
+            },
+            {
+              id: "stretch-conditioning",
+              label: "Stretch & Conditioning",
+              arLabel: "التمدد والتكييف",
+              href: `/${locale}/classes/dance/body&flexibility`,
+            },
+            {
+              id: "posture-mobility",
+              label: "Posture & Mobility",
+              arLabel: "الوضعية والحركة",
+              href: `/${locale}/classes/dance/body&flexibility`,
+            },
+            {
+              id: "yoga",
+              label: "Yoga",
+              arLabel: "يوغا",
+              href: `/${locale}/classes/dance/body&flexibility`,
+            },
+            {
+              id: "breath-balance",
+              label: "Breath & Balance",
+              arLabel: "التنفس والتوازن",
+              href: `/${locale}/classes/dance/body&flexibility`,
+            },
+            {
+              id: "movement-mindfulness",
+              label: "Movement & Mindfulness",
+              arLabel: "الحركة واليقظة",
+              href: `/${locale}/classes/dance/body&flexibility`,
+            },
+            {
+              id: "movement-retreats",
+              label: "Movement Retreats",
+              arLabel: "خلوات الحركة",
+              href: `/${locale}/classes/dance/body&flexibility`,
+            },
+            {
+              id: "timeless-movement",
+              label: "Timeless Movement",
+              arLabel: "الحركة الخالدة",
+              href: `/${locale}/classes/dance/body&flexibility`,
+            },
+          ],
+        },
+        {
+          id: "contemporary-dance",
+          label: "Contemporary Dance",
+          arLabel: "الرقص المعاصر",
+          href: `/${locale}/classes/dance/contemporary-dance`,
+        },
+        {
+          id: "kids-movements",
+          label: "Kids Movements",
+          arLabel: "حركات الأطفال",
+          href: `/${locale}/classes/dance/kids-movements`,
+          children: [
+            {
+              id: "kids-baby-ballet",
+              label: "Baby Ballet (Ages 3-5)",
+              arLabel: "باليه الأطفال (3-5 سنوات)",
+              href: `/${locale}/classes/dance/kids-movements`,
+            },
+            {
+              id: "kids-baby-gymnastics",
+              label: "Baby Gymnastics (3.5-4 yrs)",
+              arLabel: "جمباز الأطفال (3.5-4 سنوات)",
+              href: `/${locale}/classes/dance/kids-movements`,
+            },
+            {
+              id: "kids-gymnastics",
+              label: "Gymnastics for Kids (4-6 yrs)",
+              arLabel: "الجمباز للأطفال (4-6 سنوات)",
+              href: `/${locale}/classes/dance/kids-movements`,
+            },
+            {
+              id: "kids-basics-gymnastics",
+              label: "Basics of Gymnastics (6-8 yrs)",
+              arLabel: "أساسيات الجمباز (6-8 سنوات)",
+              href: `/${locale}/classes/dance/kids-movements`,
+            },
+            {
+              id: "kids-junior-jazz",
+              label: "Junior Jazz Dance (8-16 yrs)",
+              arLabel: "جاز للصغار (8-16 سنة)",
+              href: `/${locale}/classes/dance/kids-movements`,
+            },
+            {
+              id: "kids-contemporary",
+              label: "Contemporary Dance (8-16 yrs)",
+              arLabel: "الرقص المعاصر (8-16 سنة)",
+              href: `/${locale}/classes/dance/kids-movements`,
+            },
+            {
+              id: "kids-hip-hop",
+              label: "Hip-Hop (8-16 yrs)",
+              arLabel: "هيب هوب (8-16 سنة)",
+              href: `/${locale}/classes/dance/kids-movements`,
+            },
+          ],
+        },
+        {
+          id: "salsa",
+          label: "Salsa",
+          arLabel: "سالسا",
+          href: `/${locale}/classes/dance/salsa`,
+        },
+        {
+          id: "zumba",
+          label: "Zumba",
+          arLabel: "زومبا",
+          href: `/${locale}/classes/dance/zumba`,
+        },
+      ],
+    },
+    {
+      id: "music",
+      label: "Music",
+      arLabel: "الموسيقى",
+      children: [
+        {
+          id: "bass",
+          label: "Bass",
+          arLabel: "باص",
+          href: `/${locale}/classes/music/bass`,
+        },
+        {
+          id: "drumsandpercussion",
+          label: "Drums & Percussion",
+          arLabel: "الدرامز والإيقاع",
+          href: `/${locale}/classes/music/drumsandpercussion`,
+        },
+        {
+          id: "durbuka",
+          label: "Durbuka",
+          arLabel: "دربوكة",
+          href: `/${locale}/classes/music/durbuka`,
+        },
+        {
+          id: "guitar",
+          label: "Guitar",
+          arLabel: "غيتار",
+          href: `/${locale}/classes/music/guitar`,
+        },
+        {
+          id: "handpan",
+          label: "Handpan",
+          arLabel: "هاندبان",
+          href: `/${locale}/classes/music/handpan`,
+        },
+        {
+          id: "musicawakening",
+          label: "Music Awakening",
+          arLabel: "الإيقاظ الموسيقي",
+          href: `/${locale}/classes/music/musicawakening`,
+        },
+        {
+          id: "oud",
+          label: "Oud",
+          arLabel: "عود",
+          href: `/${locale}/classes/music/oud`,
+        },
+        {
+          id: "piano",
+          label: "Piano",
+          arLabel: "بيانو",
+          href: `/${locale}/classes/music/piano`,
+        },
+        {
+          id: "sightreading",
+          label: "Sight Reading",
+          arLabel: "القراءة الموسيقية",
+          href: `/${locale}/classes/music/sightreading`,
+        },
+        {
+          id: "solfege",
+          label: "Solfege",
+          arLabel: "صولفيج",
+          href: `/${locale}/classes/music/solfege`,
+        },
+        {
+          id: "theory",
+          label: "Theory",
+          arLabel: "النظرية",
+          href: `/${locale}/classes/music/theory`,
+        },
+        {
+          id: "violin",
+          label: "Violin",
+          arLabel: "كمان",
+          href: `/${locale}/classes/music/violin`,
+        },
+        {
+          id: "vocal",
+          label: "Vocal",
+          arLabel: "غناء",
+          href: `/${locale}/classes/music/vocal`,
+        },
+      ],
+    },
   ];
 
   const userLinks = [
@@ -329,27 +705,19 @@ export default function Navbar() {
   const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
   const EASE_IN: [number, number, number, number] = [0.55, 0, 0.8, 0.2];
 
-  const sealVariants: Variants = {
-    hidden: { clipPath: "circle(0% at 100% 0%)", opacity: 0, scale: 0.92 },
+  const menuPanelVariants: Variants = {
+    hidden: { opacity: 0, scale: 0.96, y: -10 },
     visible: {
-      clipPath: "circle(150% at 100% 0%)",
       opacity: 1,
       scale: 1,
-      transition: {
-        clipPath: { duration: 0.65, ease: EASE_OUT },
-        opacity: { duration: 0.2 },
-        scale: { duration: 0.65, ease: EASE_OUT },
-      },
+      y: 0,
+      transition: { duration: 0.32, ease: EASE_OUT },
     },
     exit: {
-      clipPath: "circle(0% at 100% 0%)",
       opacity: 0,
-      scale: 0.95,
-      transition: {
-        clipPath: { duration: 0.45, ease: EASE_IN },
-        opacity: { duration: 0.3 },
-        scale: { duration: 0.45 },
-      },
+      scale: 0.97,
+      y: -8,
+      transition: { duration: 0.22, ease: EASE_IN },
     },
   };
 
@@ -431,16 +799,126 @@ export default function Navbar() {
     setNotificationOpen(isOpen);
   };
 
-  // ── Workshop href ──────────────────────────────────────────────────────────
-  const workshopHref = `/${locale}/reservation`;
-  const workshopLabel = isArabic ? "ورشة عمل" : "Workshops";
+  const pathMatches = (targetPath: string[]) =>
+    targetPath.every((segment, index) => classesMenuPath[index] === segment);
+
+  const classesRootPath = ["classes"];
+  const classesOpen = pathMatches(classesRootPath);
+  const activeClassCategory = classesMenu.find((node) =>
+    pathMatches([...classesRootPath, node.id]),
+  );
+  const activeNestedClassNode = activeClassCategory?.children?.find((node) =>
+    pathMatches([...classesRootPath, activeClassCategory.id, node.id]),
+  );
+
+  const renderClassNodes = (
+    nodes: ClassMenuNode[],
+    parentPath: string[],
+    depth = 0,
+  ) => {
+    const isFlyout = isDesktopMenu && depth > 0;
+    const flyoutPositionClass =
+      depth === 1 ? "absolute right-full top-[-8.75rem] z-20 mr-3" : "absolute right-full top-[-0.75rem] z-20 mr-3";
+
+    return (
+      <div
+        className={
+          isFlyout
+            ? `${flyoutPositionClass} w-72 overflow-visible rounded-2xl border border-white/10 bg-black/18 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.38)] backdrop-blur-sm`
+            : "relative mt-2"
+        }
+        onWheel={
+          depth > 0
+            ? (event) => {
+              event.stopPropagation();
+            }
+            : undefined
+        }
+      >
+        <div
+          className={
+            isFlyout
+              ? "navbar-submenu-scroll max-h-[26rem] space-y-1 overflow-y-auto overscroll-contain pr-1"
+              : "space-y-1"
+          }
+        >
+          {nodes.map((node) => {
+            const nodePath = [...parentPath, node.id];
+            const isOpen = pathMatches(nodePath);
+            const hasChildren = Boolean(node.children?.length);
+
+            return (
+              <div
+                key={node.id}
+                className="relative w-full"
+                onMouseEnter={() => setClassesMenuPath(nodePath)}
+              >
+                <div
+                  className={`group relative flex items-center gap-2 rounded-2xl px-3 py-2 transition-colors duration-200 bg-transparent ${isArabic ? "flex-row-reverse" : "flex-row"}`}
+                >
+                  {node.href ? (
+                    <Link
+                      href={node.href}
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setUserMenuOpen(false);
+                        setClassesMenuPath([]);
+                      }}
+                      className={`relative z-10 flex-1 text-sm transition-colors duration-300 hover:text-royal-gold ${isArabic ? "text-right font-layla" : "text-left"} text-royal-cream`}
+                    >
+                      {isArabic ? node.arLabel : node.label}
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setClassesMenuPath(isOpen ? parentPath : nodePath);
+                      }}
+                      className={`relative z-10 flex-1 text-sm text-royal-cream transition-colors duration-300 hover:text-royal-gold ${isArabic ? "text-right font-layla" : "text-left"}`}
+                    >
+                      {isArabic ? node.arLabel : node.label}
+                    </button>
+                  )}
+
+                  {hasChildren ? (
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        setClassesMenuPath(isOpen ? parentPath : nodePath);
+                      }}
+                      className="relative z-10 flex h-6 w-6 items-center justify-center text-xs text-royal-cream/80 transition-colors duration-300 hover:text-royal-gold"
+                      aria-label={isArabic ? "عرض القائمة الفرعية" : "Toggle submenu"}
+                    >
+                      <FontAwesomeIcon
+                        icon={isArabic ? faCaretRight : faCaretLeft}
+                        className={`transition-transform duration-300 ${isOpen ? (isArabic ? "-rotate-90" : "rotate-90") : ""}`}
+                      />
+                    </button>
+                  ) : null}
+                </div>
+
+                {!isDesktopMenu && hasChildren && isOpen ? (
+                  <div className={`pt-2 ${isArabic ? "pr-3" : "pl-3"}`}>
+                    {renderClassNodes(node.children!, nodePath, depth + 1)}
+                  </div>
+                ) : null}
+
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
       {/* ── Top Bar ─────────────────────────────────────────────────────────── */}
       <motion.header
         initial={{ y: -12, opacity: 0 }}
-        animate={{ y: isDone ? 0 : -12, opacity: isDone ? 1 : 0 }}
+        animate={{ y: showNavbarChrome ? 0 : -12, opacity: showNavbarChrome ? 1 : 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="fixed top-3 md:top-4 left-0 right-0 z-50 px-4 sm:px-6 md:px-8 py-3 md:py-5 flex items-center justify-between"
       >
@@ -546,47 +1024,27 @@ export default function Navbar() {
         >
           {/* Workshop button — EN: left of bell | AR: right of bell (handled by flex-row-reverse) */}
           {/* Desktop + tablet only — hidden on mobile (shown in menu instead) */}
-          <motion.div
+          {/* <motion.div
             whileTap={{ scale: 0.96 }}
             whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.2 }}
             className="hidden sm:block"
-          >
-            <Link
-              href={workshopHref}
-              onClick={() => {
-                setMenuOpen(false);
-                setUserMenuOpen(false);
-              }}
-              className="liquid-glass-green backdrop-blur-xs shimmer flex items-center justify-center px-4 md:px-6 py-2 md:py-2.5 rounded-full transition-all duration-300 cursor-pointer"
-            >
-              <span
-                className={`text-royal-green text-xs md:text-sm tracking-widest uppercase font-medium whitespace-nowrap ${isArabic ? "scale-125 inline-block" : ""}`}
-              >
-                {workshopLabel}
-              </span>
-            </Link>
-          </motion.div>
-          {/* Enrollment — desktop only */}
-          <motion.div
-            whileTap={{ scale: 0.96 }}
-            whileHover={{ scale: 1.03 }}
-            transition={{ duration: 0.2 }}
-            className="hidden md:block"
-          >
-            <button
-              type="button"
-              onClick={() => router.push(`/${locale}/reservation`)}
-              className="liquid-glass-gold backdrop-blur-xs shimmer flex items-center justify-center gap-3 px-6 lg:px-8 py-3 lg:py-4 rounded-full transition-all duration-300 cursor-pointer"
-            >
-              <span
-                className={`text-royal-gold text-sm tracking-widest uppercase whitespace-nowrap inline-block ${isArabic ? "scale-150" : ""}`}
-              >
-                {t("Enrollment")}
-              </span>
-            </button>
-          </motion.div>
-
+          > */}
+            {/* <Link */}
+              {/* href={workshopHref} */}
+              {/* onClick={() => { */}
+                {/* setMenuOpen(false); */}
+                {/* setUserMenuOpen(false); */}
+              {/* }} */}
+              {/* className="liquid-glass-green backdrop-blur-xs shimmer flex items-center justify-center px-4 md:px-6 py-2 md:py-2.5 rounded-full transition-all duration-300 cursor-pointer" */}
+            {/* > */}
+              {/* <span */}
+                {/* className={`text-royal-green text-xs md:text-sm tracking-widest uppercase font-medium whitespace-nowrap ${isArabic ? "scale-125 inline-block" : ""}`}
+              // >
+              //   {workshopLabel}
+              // </span>
+            // </Link>
+          // </motion.div> */}
           {/* Admin — desktop only */}
           {user && isAdmin && (
             <motion.div
@@ -707,7 +1165,7 @@ export default function Navbar() {
       {/* Hidden on mobile — mobile uses the floating button below */}
       <motion.div
         initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: isDone ? 1 : 0, x: isDone ? 0 : 20 }}
+        animate={{ opacity: showNavbarChrome ? 1 : 0, x: showNavbarChrome ? 0 : 20 }}
         transition={{ duration: 0.7, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className="hidden md:flex fixed right-0 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-2 pr-3"
       >
@@ -959,66 +1417,135 @@ export default function Navbar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            variants={sealVariants}
+            variants={menuPanelVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            className={`fixed z-50 top-24 sm:top-28 ${isArabic ? "left-4 sm:left-8 w-[calc(100vw-2rem)] max-w-sm sm:w-96" : "right-4 sm:right-8 w-[calc(100vw-2rem)] max-w-sm sm:w-96"} rounded-3xl liquid-glass backdrop-blur-xs shadow-2xl shadow-black/60`}
-            style={{ clipPath: "inset(0 round 1.5rem)" }}
+            onMouseLeave={() => setClassesMenuPath([])}
+            className={`
+  fixed z-50 top-24 sm:top-28
+  ${isArabic ? "left-4 sm:left-8 w-[calc(100vw-2rem)] max-w-sm sm:w-96" : "right-4 sm:right-8 w-[calc(100vw-2rem)] max-w-sm sm:w-96"}
+  overflow-visible rounded-3xl liquid-glass backdrop-blur-xs shadow-2xl shadow-black/60
+`}
           >
             <div className="h-px w-full bg-linear-to-r from-transparent via-royal-gold/50 to-transparent" />
-            <div className="px-6 py-8 sm:px-10 sm:py-10">
-              <motion.nav
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
+            <div
+              className="navbar-submenu-scroll max-h-[calc(100vh-9rem)] overflow-y-auto overscroll-contain"
+              onWheel={(event) => {
+                event.stopPropagation();
+              }}
+            >
+              <div className="px-6 py-8 sm:px-10 sm:py-10">
+                <motion.nav
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
                 className={`flex flex-col ${isArabic ? "items-start" : "items-end"} gap-0`}
               >
-                {navLinks.map((link) => (
-                  <motion.div
-                    key={link.href}
-                    variants={itemVariants}
-                    className="w-full"
-                  >
-                    <Link
-                      href={`/${locale}${link.href}`}
-                      onClick={(e) => {
-                        handleNavClick(e, link.href);
-                        setMenuOpen(false);
-                      }}
-                      className={`group relative flex items-center gap-1 py-5 w-full border-b border-white/5 last:border-0 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
+                {navLinks.map((link) => {
+                  if (link.type === "classes") {
+                    return (
+                      <motion.div
+                        key={link.href}
+                        variants={itemVariants}
+                        className="w-full"
+                        onMouseEnter={() => setClassesMenuPath(classesRootPath)}
+                      >
+                        <div
+                          className={`
+                            group relative w-full py-5
+                            border-b border-white/5 last:border-0
+                          `}
+                        >
+                          <div
+                            className={`relative flex items-center gap-1 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
+                          >
+                            <span
+                              className="absolute inset-0 -mx-4 rounded-2xl opacity-0 scale-95 -translate-x-3 transition-all duration-300 ease-out pointer-events-none"
+                              style={glassHoverStyle}
+                            />
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setClassesMenuPath(classesOpen ? [] : classesRootPath)
+                              }
+                              className={`relative z-10 flex w-full items-center gap-1 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
+                            >
+                              <span
+                                className={`relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out ${isArabic ? "translate-x-0 group-hover:translate-x-2" : "translate-x-0 group-hover:-translate-x-2"}`}
+                              >
+                                <FontAwesomeIcon
+                                  icon={isArabic ? faCaretRight : faCaretLeft}
+                                />
+                              </span>
+                              <span
+                                className={`relative z-10 text-royal-cream text-3xl font-light tracking-wide -translate-x-1 text-left transition-all duration-300 ease-out group-hover:text-royal-gold ${isArabic ? "group-hover:translate-x-5" : "group-hover:-translate-x-5"}`}
+                              >
+                                {link.label}
+                              </span>
+                            </button>
+                          </div>
+
+                          {classesOpen ? (
+                            <div className="relative z-10 mt-4 rounded-2xl border border-white/10 bg-black/18 p-3 backdrop-blur-sm">
+                              {renderClassNodes(classesMenu, classesRootPath)}
+                            </div>
+                          ) : null}
+                        </div>
+                      </motion.div>
+                    );
+                  }
+
+                  return (
+                    <motion.div
+                      key={link.href}
+                      variants={itemVariants}
+                      className="w-full"
                     >
-                      <span
-                        className="absolute inset-0 -mx-4 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none"
-                        style={glassHoverStyle}
-                      />
-                      <span
-                        className={`relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out ${isArabic ? "translate-x-0 group-hover:translate-x-2" : "translate-x-0 group-hover:-translate-x-2"}`}
+                      <Link
+                        href={`/${locale}${link.href}`}
+                        onClick={(e) => {
+                          handleNavClick(e, link.href);
+                          setMenuOpen(false);
+                        }}
+                        className={`
+                          group relative flex items-center gap-1 py-5 w-full
+                          border-b border-white/5 last:border-0
+                          ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}
+                        `}
                       >
-                        <FontAwesomeIcon
-                          icon={isArabic ? faCaretRight : faCaretLeft}
+                        <span
+                          className="absolute inset-0 -mx-4 rounded-2xl opacity-0 scale-95 -translate-x-3 transition-all duration-300 ease-out pointer-events-none"
+                          style={glassHoverStyle}
                         />
-                      </span>
-                      <span
-                        className={`relative z-10 text-royal-cream text-3xl font-light tracking-wide -translate-x-1 transition-all duration-300 ease-out group-hover:text-royal-gold ${isArabic ? "group-hover:translate-x-5" : "group-hover:-translate-x-5"}`}
-                      >
-                        {link.label}
-                      </span>
-                    </Link>
-                  </motion.div>
-                ))}
+                        <span
+                          className={`relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out ${isArabic ? "translate-x-0 group-hover:translate-x-2" : "translate-x-0 group-hover:-translate-x-2"}`}
+                        >
+                          <FontAwesomeIcon
+                            icon={isArabic ? faCaretRight : faCaretLeft}
+                          />
+                        </span>
+                        <span
+                          className={`relative z-10 text-royal-cream text-3xl font-light tracking-wide -translate-x-1 transition-all duration-300 ease-out group-hover:text-royal-gold ${isArabic ? "group-hover:translate-x-5" : "group-hover:-translate-x-5"}`}
+                        >
+                          {link.label}
+                        </span>
+                      </Link>
+                    </motion.div>
+                  );
+                })}
 
                 {/* Workshop — mobile only (hidden on sm+ since it's in the left cluster there) */}
                 <motion.div
                   variants={itemVariants}
                   className="w-full sm:hidden"
                 >
-                  <Link
-                    href={workshopHref}
-                    onClick={() => setMenuOpen(false)}
-                    className={`group relative flex items-center gap-1 py-5 w-full border-b border-white/5 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
-                  >
+                  {/* <Link */}
+                    {/* // href={workshopHref} */}
+                    {/* onClick={() => setMenuOpen(false)} */}
+                    {/* className={`group relative flex items-center gap-1 py-5 w-full border-b border-white/5 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`} */}
+                  {/* > */}
                     <span
                       className="absolute inset-0 -mx-4 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none"
                       style={glassHoverStyle}
@@ -1033,9 +1560,9 @@ export default function Navbar() {
                     <span
                       className={`relative z-10 text-royal-gold text-3xl font-light tracking-wide -translate-x-1 transition-all duration-300 ease-out group-hover:text-royal-gold ${isArabic ? "group-hover:translate-x-5" : "group-hover:-translate-x-5"}`}
                     >
-                      {workshopLabel}
+                      {/* {workshopLabel} */}
                     </span>
-                  </Link>
+                  {/* </Link> */}
                 </motion.div>
 
                 {/* Contact Us */}
@@ -1050,7 +1577,7 @@ export default function Navbar() {
                     className={`group relative flex items-center gap-1 py-5 w-full border-b border-white/5 last:border-0 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
                   >
                     <span
-                      className="absolute inset-0 -mx-4 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none"
+                      className="absolute inset-0 -mx-4 rounded-2xl opacity-0 scale-95 -translate-x-3 transition-all duration-300 ease-out pointer-events-none"
                       style={glassHoverStyle}
                     />
                     <span className="relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 translate-x-0 group-hover:-translate-x-2 transition-all duration-300 ease-out">
@@ -1081,7 +1608,7 @@ export default function Navbar() {
                       className={`group relative flex items-center gap-1 py-5 w-full border-b border-white/5 last:border-0 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
                     >
                       <span
-                        className="absolute inset-0 -mx-4 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none"
+                        className="absolute inset-0 -mx-4 rounded-2xl opacity-0 scale-95 -translate-x-3 transition-all duration-300 ease-out pointer-events-none"
                         style={glassHoverStyle}
                       />
                       <span className="relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 translate-x-0 group-hover:-translate-x-2 transition-all duration-300 ease-out">
@@ -1097,8 +1624,46 @@ export default function Navbar() {
                     </Link>
                   </motion.div>
                 )}
-              </motion.nav>
+                </motion.nav>
+              </div>
             </div>
+            {isDesktopMenu && classesOpen && activeClassCategory?.children?.length ? (
+              <div
+                className="absolute z-20 w-72 overflow-visible rounded-2xl border border-white/10 bg-black/18 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.38)] backdrop-blur-sm"
+                style={{ right: "calc(100% + 0.75rem)", top: "1rem" }}
+                onWheel={(event) => {
+                  event.stopPropagation();
+                }}
+              >
+                {renderClassNodes(
+                  activeClassCategory.children,
+                  [...classesRootPath, activeClassCategory.id],
+                  0,
+                )}
+              </div>
+            ) : null}
+            {isDesktopMenu &&
+            classesOpen &&
+            activeNestedClassNode?.children?.length &&
+            activeClassCategory ? (
+              <div
+                className="absolute z-20 w-72 overflow-visible rounded-2xl border border-white/10 bg-black/18 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.38)] backdrop-blur-sm"
+                style={{ right: "calc(100% + 19.5rem)", top: "1rem" }}
+                onWheel={(event) => {
+                  event.stopPropagation();
+                }}
+              >
+                {renderClassNodes(
+                  activeNestedClassNode.children,
+                  [
+                    ...classesRootPath,
+                    activeClassCategory.id,
+                    activeNestedClassNode.id,
+                  ],
+                  0,
+                )}
+              </div>
+            ) : null}
             <div className="h-px w-full bg-linear-to-r from-transparent via-royal-gold/50 to-transparent" />
           </motion.div>
         )}
