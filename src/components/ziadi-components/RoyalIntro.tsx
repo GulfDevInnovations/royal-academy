@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type SymbolState = "hidden" | "rising" | "spinning" | "falling";
@@ -29,20 +30,20 @@ const SECTIONS: Section[] = [
     id: "dance-wellness",
     label: "Dance & Wellness",
     subclasses: [
-      { label: "Hip Hop", href: "/contemporary-dance" },
-      { label: "Aerial Hoop", href: "/yoga-movement" },
-      { label: "Zumba", href: "/Zumba" },
-      { label: "Salsa", href: "/Salsa" },
-      { label: "Yoga", href: "/Yoga" },
-      { label: "Breath & Balance", href: "/Breath" },
-      { label: "Wellness & Mindful Movement", href: "/Wellness" },
-      { label: "Mindfulness", href: "/Mindfulness" },
-      { label: "Gymnastics for kids", href: "/Gymnastics" },
-      { label: "Body Flexibility", href: "/Flexibility" },
-      { label: "Stretch & conditioning", href: "/Stretch" },
-      { label: "Posture & Mobility", href: "/Posture" },
-      { label: "Timeless Movement", href: "/Timeless" },
-      { label: "Movement Retreats", href: "/Movement" },
+      { label: "Hip Hop", href: "/hip-hop" },
+      { label: "Aerial Hoop", href: "/aerial-hoop" },
+      { label: "Zumba", href: "/zumba" },
+      { label: "Salsa", href: "/salsa" },
+      { label: "Yoga", href: "/yoga" },
+      { label: "Breath & Balance", href: "/breath" },
+      { label: "Wellness & Mindful Movement", href: "/wellness" },
+      { label: "Mindfulness", href: "/mindfulness" },
+      { label: "Gymnastics for kids", href: "/gymnastics" },
+      { label: "Body Flexibility", href: "/flexibility" },
+      { label: "Stretch & conditioning", href: "/stretch" },
+      { label: "Posture & Mobility", href: "/posture" },
+      { label: "Timeless Movement", href: "/timeless" },
+      { label: "Movement Retreats", href: "/movement" },
     ],
     image: "/images/HeroSection/dance&wellnessGold.png",
   },
@@ -94,285 +95,6 @@ const SECTIONS: Section[] = [
     image: "/images/HeroSection/artGold.png",
   },
 ];
-
-// ─── CursorSVG ────────────────────────────────────────────────────────────────
-function CursorSVG({ clicked = false }: { clicked?: boolean }) {
-  return (
-    <svg
-      width="22"
-      height="26"
-      viewBox="0 0 22 26"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      style={{
-        filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.55))",
-        transform: clicked ? "scale(0.82)" : "scale(1)",
-        transition: "transform 0.08s ease",
-      }}
-    >
-      <path
-        d="M4 3.5L4 20.5L8.2 16.8L10.8 22.5L13.8 21.3L11.2 15.5H18L4 3.5Z"
-        fill="rgba(0,0,0,0.35)"
-        transform="translate(1,1.5)"
-      />
-      <path
-        d="M4 3.5L4 20.5L8.2 16.8L10.8 22.5L13.8 21.3L11.2 15.5H18L4 3.5Z"
-        fill="rgba(248,240,225,0.97)"
-      />
-      <path
-        d="M4 3.5L4 20.5L8.2 16.8L10.8 22.5L13.8 21.3L11.2 15.5H18L4 3.5Z"
-        stroke="rgba(196,168,100,0.7)"
-        strokeWidth="0.7"
-        fill="none"
-      />
-    </svg>
-  );
-}
-
-// ─── RevealButton (Desktop only) ─────────────────────────────────────────────
-function RevealButton({ onReveal }: { onReveal: () => void }) {
-  const [fading, setFading] = useState(false);
-  const [hovered, setHovered] = useState(false);
-
-  const handleClick = () => {
-    if (fading) return;
-    setFading(true);
-    setTimeout(() => onReveal(), 600);
-  };
-
-  return (
-    <div
-      onClick={handleClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={
-        {
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 20,
-          cursor: "pointer",
-          opacity: fading ? 0 : 1,
-          transition: "opacity 0.6s cubic-bezier(0.4,0,0.2,1)",
-          background: hovered
-            ? "linear-gradient(to top, rgba(6,3,1,0.50) 0%, rgba(10,5,2,0.40) 20%, transparent 60%)"
-            : "linear-gradient(to top, rgba(4,2,1,0.40) 0%, rgba(8,4,1,0.30) 20%, transparent 60%)",
-          paddingTop: 60,
-          paddingBottom: 52,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 14,
-        } as React.CSSProperties
-      }
-    >
-      <div
-        style={{
-          width: hovered ? "65%" : "22%",
-          height: 2,
-          background:
-            "linear-gradient(to right, transparent, rgba(196,168,120,0.6), transparent)",
-          transition: "width 0.5s cubic-bezier(0.4,0,0.2,1)",
-          marginBottom: 2,
-        }}
-      />
-      <div
-        style={{
-          fontFamily: "Georgia, 'Times New Roman', serif",
-          fontSize: "1.2rem",
-          letterSpacing: "0.38em",
-          textTransform: "uppercase",
-          color: "rgba(222,194,158,0.9)",
-          userSelect: "none",
-          filter: hovered ? "brightness(1.2)" : "brightness(1)",
-          transition:
-            "color 0.4s ease, transform 0.45s cubic-bezier(0.4,0,0.2,1)",
-          animation: "exploreOurClassesPulse 2.4s infinite",
-        }}
-      >
-        Click to Explore our classes
-      </div>
-    </div>
-  );
-}
-
-// ─── HoverHint (Desktop) ──────────────────────────────────────────────────────
-function HoverHint({
-  onHoverIndex,
-  onDone,
-}: {
-  onHoverIndex: (i: number) => void;
-  onDone: () => void;
-}) {
-  const [visible, setVisible] = useState(false); // ✅ start false, check storage first
-  const [fading, setFading] = useState(false);
-  const [x, setX] = useState(12.5);
-  const cols = [12.5, 37.5, 62.5, 87.5];
-  const PAUSE = 900;
-  const TRAVEL = 600;
-
-  useEffect(() => {
-    const seen = localStorage.getItem("hoverHintSeen");
-    if (seen) {
-      onDone(); // ✅ already seen, skip and reset parent immediately
-      return;
-    }
-    setVisible(true); // ✅ first time, show it
-  }, []);
-
-  useEffect(() => {
-    if (!visible) return;
-    let cancelled = false;
-    const animate = async () => {
-      for (let i = 0; i < cols.length; i++) {
-        if (cancelled) return;
-        setX(cols[i]);
-        onHoverIndex(i);
-        await new Promise((r) =>
-          setTimeout(r, i === 0 ? PAUSE : TRAVEL + PAUSE),
-        );
-        if (cancelled) return;
-      }
-      setX(cols[0]);
-      onHoverIndex(0);
-      await new Promise((r) => setTimeout(r, TRAVEL + 300));
-      if (cancelled) return;
-      setFading(true);
-      await new Promise((r) => setTimeout(r, 800));
-      if (!cancelled) {
-        setVisible(false);
-        localStorage.setItem("hoverHintSeen", "true"); // ✅ mark as seen
-        onDone();
-      }
-    };
-    animate();
-    return () => {
-      cancelled = true;
-    };
-  }, [visible]);
-
-  if (!visible) return null;
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        // Position the cursor hint lower — near the label resting position
-        bottom: 68,
-        left: "6%",
-        right: "6%",
-        zIndex: 30,
-        pointerEvents: "none",
-        opacity: fading ? 0 : 1,
-        transition: "opacity 0.8s ease",
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          left: `${x}%`,
-          bottom: 0,
-          transform: "translate(-50%, 0)",
-          transition: `left ${TRAVEL}ms cubic-bezier(0.4,0,0.2,1)`,
-        }}
-      >
-        <CursorSVG />
-      </div>
-    </div>
-  );
-}
-
-// ─── TapHint (Mobile) ─────────────────────────────────────────────────────────
-function TapHint({
-  onTapIndex,
-  onDone,
-}: {
-  onTapIndex: (i: number) => void;
-  onDone: () => void;
-}) {
-  const [visible, setVisible] = useState(false); // ✅ start false
-  const [fading, setFading] = useState(false);
-  const [clicked, setClicked] = useState(false);
-  const [rowIndex, setRowIndex] = useState(0);
-  const PAUSE = 1000;
-  const TRAVEL = 550;
-
-  useEffect(() => {
-    const seen = localStorage.getItem("tapHintSeen");
-    if (seen) {
-      onDone(); // ✅ already seen, skip
-      return;
-    }
-    setVisible(true); // ✅ first time, show it
-  }, []);
-
-  useEffect(() => {
-    if (!visible) return;
-    let cancelled = false;
-    const animate = async () => {
-      for (let i = 0; i < SECTIONS.length; i++) {
-        if (cancelled) return;
-        setRowIndex(i);
-        await new Promise((r) => setTimeout(r, i === 0 ? 300 : TRAVEL));
-        if (cancelled) return;
-        setClicked(true);
-        onTapIndex(i);
-        await new Promise((r) => setTimeout(r, 140));
-        if (cancelled) return;
-        setClicked(false);
-        await new Promise((r) => setTimeout(r, PAUSE));
-        if (cancelled) return;
-      }
-      onTapIndex(0);
-      setRowIndex(0);
-      await new Promise((r) => setTimeout(r, 300));
-      if (cancelled) return;
-      setFading(true);
-      await new Promise((r) => setTimeout(r, 800));
-      if (!cancelled) {
-        setVisible(false);
-        localStorage.setItem("tapHintSeen", "true"); // ✅ mark as seen
-        onDone();
-      }
-    };
-    animate();
-    return () => {
-      cancelled = true;
-    };
-  }, [visible]);
-
-  if (!visible) return null;
-
-  const yOffset = rowIndex * 52 + 26;
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 30,
-        pointerEvents: "none",
-        opacity: fading ? 0 : 1,
-        transition: "opacity 0.8s ease",
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          bottom: 258 - yOffset,
-          left: "60%",
-          transform: "translate(-50%, 0)",
-          transition: `bottom ${TRAVEL}ms cubic-bezier(0.4,0,0.2,1)`,
-        }}
-      >
-        <CursorSVG clicked={clicked} />
-      </div>
-    </div>
-  );
-}
 
 // ─── SymbolCard ───────────────────────────────────────────────────────────────
 interface SymbolCardProps {
@@ -441,6 +163,11 @@ function SymbolCard({ section, isActive, isMobile }: SymbolCardProps) {
           width: w,
           height: h,
           position: "relative",
+          overflow: "hidden",
+          borderRadius: 16,
+          border: "1px solid rgba(196,168,120,0.18)",
+          background:
+            "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)",
           animation:
             symState !== "hidden"
               ? "continuousSpin 2s linear infinite"
@@ -454,8 +181,50 @@ function SymbolCard({ section, isActive, isMobile }: SymbolCardProps) {
           alt={section.label}
           fill
           unoptimized
-          style={{ objectFit: "contain" }}
+          style={{ objectFit: "cover" }}
         />
+
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(to top, rgba(10,4,2,0.72) 0%, rgba(10,4,2,0.26) 45%, transparent 78%)",
+          }}
+        />
+
+        <div
+          style={{
+            position: "absolute",
+            left: 8,
+            right: 8,
+            bottom: 8,
+            padding: isMobile ? "6px 10px" : "8px 12px",
+            borderRadius: 999,
+            background:
+              "linear-gradient(135deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.06) 100%)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+            border: "1px solid rgba(255,255,255,0.14)",
+            boxShadow: "0 10px 28px rgba(0,0,0,0.35)",
+          }}
+        >
+          <div
+            style={{
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontStyle: "italic",
+              letterSpacing: "0.04em",
+              fontSize: isMobile ? "0.85rem" : "0.95rem",
+              lineHeight: 1.15,
+              color: "rgba(248,240,225,0.92)",
+              textAlign: "center",
+              textShadow: "0 1px 10px rgba(0,0,0,0.45)",
+              userSelect: "none",
+            }}
+          >
+            {section.label}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -551,6 +320,8 @@ function Subclasses({
   section: Section;
   isActive: boolean;
 }) {
+  const pathname = usePathname();
+  const locale = pathname.split("/")[1] || "en";
   const hasMore = section.subclasses.length > VISIBLE_ITEMS;
 
   // Intercept wheel so HomeClient doesn't slide to the next floor
@@ -597,18 +368,33 @@ function Subclasses({
           scrollbarColor: "rgba(196,155,80,0.55) rgba(30,12,4,0.4)",
         }}
       >
-        {section.subclasses.map((sub, idx) => (
-          <div
-            key={sub.href}
-            style={{
-              opacity: isActive ? 1 : 0,
-              transform: isActive ? "translateY(0)" : "translateY(6px)",
-              transition: `opacity 0.4s ease ${0.08 * idx}s, transform 0.4s ease ${0.08 * idx}s`,
-            }}
-          >
-            <SubclassItem sub={sub} />
-          </div>
-        ))}
+        {section.subclasses.map((sub, idx) => {
+          const raw = sub.href.startsWith("/") ? sub.href.slice(1) : sub.href;
+          const slug = raw.toLowerCase();
+          const resolvedHref =
+            section.id === "dance-wellness"
+              ? `/${locale}/classes/dance/${slug}`
+              : section.id === "ballet"
+                ? `/${locale}/classes/ballet/${slug}`
+                : section.id === "music"
+                  ? `/${locale}/classes/music/${slug}`
+                  : section.id === "art"
+                    ? `/${locale}/classes/art/${slug}`
+                    : `/${locale}${sub.href.startsWith("/") ? sub.href : `/${sub.href}`}`;
+
+          return (
+            <div
+              key={`${section.id}-${sub.href}`}
+              style={{
+                opacity: isActive ? 1 : 0,
+                transform: isActive ? "translateY(0)" : "translateY(6px)",
+                transition: `opacity 0.4s ease ${0.08 * idx}s, transform 0.4s ease ${0.08 * idx}s`,
+              }}
+            >
+              <SubclassItem sub={{ ...sub, href: resolvedHref }} />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -916,41 +702,6 @@ function MobileDepartments({ activeIndex, onTap }: MobileDepartmentsProps) {
           );
         })}
       </div>
-
-      {/* Scroll hint */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 6,
-          paddingTop: 8,
-          paddingBottom: 16,
-          opacity: 0.38,
-          pointerEvents: "none",
-        }}
-      >
-        <div
-          style={{
-            fontFamily: "Georgia, serif",
-            fontSize: "0.52rem",
-            letterSpacing: "0.3em",
-            color: "rgba(196,168,120,0.8)",
-            textTransform: "uppercase",
-          }}
-        >
-          Scroll
-        </div>
-        <div
-          style={{
-            width: 1,
-            height: 18,
-            background:
-              "linear-gradient(to bottom, rgba(196,168,120,0.7), transparent)",
-            animation: "scrollPulse 2s ease-in-out infinite",
-          }}
-        />
-      </div>
     </div>
   );
 }
@@ -1070,8 +821,7 @@ interface RoyalIntroProps {
 export default function RoyalIntro({ active, onScrolled }: RoyalIntroProps) {
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [isMobile, setIsMobile] = useState<boolean>(false);
-  const [departmentsRevealed, setDepartmentsRevealed] =
-    useState<boolean>(false);
+  const departmentsRevealed = true;
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
@@ -1082,10 +832,6 @@ export default function RoyalIntro({ active, onScrolled }: RoyalIntroProps) {
   }, []);
 
   const handleActivate = useCallback((i: number) => setActiveIndex(i), []);
-
-  const handleReveal = useCallback(() => {
-    setDepartmentsRevealed(true);
-  }, []);
 
   // Scroll trigger — only when active
   useEffect(() => {
@@ -1140,10 +886,6 @@ export default function RoyalIntro({ active, onScrolled }: RoyalIntroProps) {
       )}
 
       <style>{`
-        @keyframes scrollPulse {
-          0%, 100% { opacity: 0.28; transform: scaleY(0.8); }
-          50%       { opacity: 0.9;  transform: scaleY(1); }
-        }
         @keyframes continuousSpin {
           from { transform: rotateY(0deg); }
           to   { transform: rotateY(360deg); }
@@ -1197,20 +939,9 @@ export default function RoyalIntro({ active, onScrolled }: RoyalIntroProps) {
         />
       )}
 
-      {/* ── Desktop: reveal button (shown until clicked) ── */}
-      {!isMobile && !departmentsRevealed && (
-        <RevealButton onReveal={handleReveal} />
-      )}
-
       {/* ── Desktop: hover hint + departments (shown after reveal) ── */}
       {!isMobile && (
         <>
-          {departmentsRevealed && (
-            <HoverHint
-              onHoverIndex={(i) => setActiveIndex(i)}
-              onDone={() => setActiveIndex(-1)} // ✅ clears highlight after hint ends
-            />
-          )}
           <DesktopDepartments
             activeIndex={activeIndex}
             onHover={handleActivate}
@@ -1222,52 +953,8 @@ export default function RoyalIntro({ active, onScrolled }: RoyalIntroProps) {
       {/* ── Mobile: always-on departments + tap hint ── */}
       {isMobile && (
         <>
-          <TapHint
-            onTapIndex={(i) => setActiveIndex(i)}
-            onDone={() => setActiveIndex(-1)} // ✅ clears highlight after hint ends
-          />
           <MobileDepartments activeIndex={activeIndex} onTap={handleActivate} />
         </>
-      )}
-
-      {/* Desktop scroll hint (only after departments are revealed) */}
-      {!isMobile && departmentsRevealed && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: 22,
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 20,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 7,
-            opacity: 0.4,
-            pointerEvents: "none",
-          }}
-        >
-          <div
-            style={{
-              fontFamily: "Georgia, serif",
-              fontSize: "0.58rem",
-              letterSpacing: "0.3em",
-              color: "rgba(196,168,120,0.8)",
-              textTransform: "uppercase",
-            }}
-          >
-            Scroll to our background
-          </div>
-          <div
-            style={{
-              width: 1,
-              height: 22,
-              background:
-                "linear-gradient(to bottom, rgba(196,168,120,0.7), transparent)",
-              animation: "scrollPulse 2s ease-in-out infinite",
-            }}
-          />
-        </div>
       )}
 
       {/* Gold rule */}

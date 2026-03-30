@@ -16,11 +16,13 @@ export default function DanceWellnessSubclassPage({
   title,
   description,
   highlights,
+  imgSrc,
 }: {
   locale: string;
   title: LocalizedText;
   description: LocalizedText;
   highlights: LocalizedText[];
+  imgSrc: string;
 }) {
   const isArabic = locale === "ar";
   const titleText = pickText(locale, title);
@@ -35,8 +37,8 @@ export default function DanceWellnessSubclassPage({
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/dance-hero.jpg"
-            alt="Dance & Wellness"
+            src={imgSrc}
+            alt={`${titleText} — Dance & Wellness`}
             fill
             priority
             className="object-cover"
@@ -102,7 +104,7 @@ export default function DanceWellnessSubclassPage({
             <ul className="mt-3 space-y-2 text-sm text-royal-cream/85 sm:text-[15px]">
               {highlights.map((item) => (
                 <li key={item.en} className="flex items-start gap-2">
-                  <span className="mt-[7px] h-1 w-1 rotate-45 bg-royal-gold/70" />
+                  <span className="mt-1.75 h-1 w-1 rotate-45 bg-royal-gold/70" />
                   <span>{pickText(locale, item)}</span>
                 </li>
               ))}
