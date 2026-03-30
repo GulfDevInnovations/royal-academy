@@ -444,14 +444,6 @@ function MobileAboutWrapper({
           onScrollDown={undefined}
         />
       </div>
-      <div
-        style={{
-          height: 1,
-          margin: "0 24px",
-          background:
-            "linear-gradient(to right, transparent, rgba(196,168,120,0.4), transparent)",
-        }}
-      />
     </>
   );
 }
@@ -673,7 +665,7 @@ export function MobileHomePage({
               position: "relative",
               zIndex: 1,
               width: "100%",
-              paddingBottom: 40,
+              paddingBottom: 0,
               animation: "ra-fadein 0.5s ease both",
             }}
           >
