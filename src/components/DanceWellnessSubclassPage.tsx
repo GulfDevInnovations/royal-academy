@@ -17,18 +17,30 @@ export default function DanceWellnessSubclassPage({
   description,
   highlights,
   imgSrc,
+  reservationQuery,
 }: {
   locale: string;
   title: LocalizedText;
   description: LocalizedText;
   highlights: LocalizedText[];
   imgSrc: string;
+  reservationQuery?: {
+    q?: string;
+  };
 }) {
   const isArabic = locale === "ar";
   const titleText = pickText(locale, title);
   const descriptionText = pickText(locale, description);
 
-  const reservationHref = `/${locale}/reservation`;
+  const reservationHref = (() => {
+    const params = new URLSearchParams();
+    params.set("dept", "dance");
+    if (reservationQuery?.q) params.set("q", reservationQuery.q);
+    const queryString = params.toString();
+    return queryString
+      ? `/${locale}/reservation?${queryString}`
+      : `/${locale}/reservation`;
+  })();
   const contactHref = `/${locale}/contact`;
   const rootHref = `/${locale}`;
 
@@ -44,8 +56,8 @@ export default function DanceWellnessSubclassPage({
             className="object-cover"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-black/55" />
-          <div className="absolute inset-0 bg-linear-to-t from-royal-purple/95 via-royal-purple/60 to-transparent" />
+          <div className="absolute inset-0 bg-black/35" />
+          <div className="absolute inset-0 bg-linear-to-t from-royal-purple/90 via-royal-purple/40 to-transparent" />
         </div>
 
         <div className="relative mx-auto w-full max-w-6xl px-4 pt-24 pb-14 sm:px-6 sm:pt-28 sm:pb-16 md:pt-32 md:pb-20">

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 
 const MOVEMENT_SLIDES = [
   "/images/movement01.png",
@@ -22,9 +22,9 @@ const IMAGES_PER_VIEW = 3;
 export default function BodyFlexibilityPage({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const locale = params?.locale ?? "en";
+  const { locale = "en" } = use(params);
   const isArabic = locale === "ar";
 
   const [activeSlide, setActiveSlide] = useState(0);
@@ -155,11 +155,11 @@ export default function BodyFlexibilityPage({
   return (
     <main
       dir={isArabic ? "rtl" : "ltr"}
-      className="min-h-screen bg-royal-purple"
+      className="min-h-screen pt-20 md:pt-30 bg-royal-purple"
       onWheelCapture={(event) => event.stopPropagation()}
       onTouchMoveCapture={(event) => event.stopPropagation()}
     >
-      <section className="relative h-[44vh] min-h-88 overflow-hidden mt-30">
+      <section className="relative h-[44vh] min-h-88 overflow-hidden">
         <div className="absolute inset-0">
           {slideGroups.map((group, index) => (
             <div
@@ -200,7 +200,7 @@ export default function BodyFlexibilityPage({
 
         <div
           dir="ltr"
-          className="absolute left-1/2 top-2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/10 px-3 py-2 backdrop-blur-sm"
+          className="absolute left-1/2 top-75 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/10 px-3 py-2 backdrop-blur-sm md:top-5"
         >
           <button
             type="button"
@@ -268,7 +268,7 @@ export default function BodyFlexibilityPage({
 
           <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Link
-              href={`/${locale}/reservation`}
+              href={`/${locale}/reservation?${new URLSearchParams({ dept: "dance", q: "Body & Flexibility" }).toString()}`}
               className="liquid-glass-gold shimmer inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:w-auto sm:py-2.5"
             >
               {content.enrollment}

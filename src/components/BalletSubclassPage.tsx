@@ -16,17 +16,31 @@ export default function BalletSubclassPage({
   title,
   description,
   highlights,
+  img,
+  reservationQuery,
 }: {
   locale: string;
   title: LocalizedText;
   description: LocalizedText;
   highlights: LocalizedText[];
+  img?: string;
+  reservationQuery?: {
+    q?: string;
+  };
 }) {
   const isArabic = locale === "ar";
   const titleText = pickText(locale, title);
   const descriptionText = pickText(locale, description);
 
-  const reservationHref = `/${locale}/reservation`;
+  const reservationHref = (() => {
+    const params = new URLSearchParams();
+    params.set("dept", "ballet");
+    if (reservationQuery?.q) params.set("q", reservationQuery.q);
+    const queryString = params.toString();
+    return queryString
+      ? `/${locale}/reservation?${queryString}`
+      : `/${locale}/reservation`;
+  })();
   const contactHref = `/${locale}/contact`;
   const rootHref = `/${locale}`;
 
@@ -35,15 +49,15 @@ export default function BalletSubclassPage({
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/ballet-hero.jpg"
+            src={img ?? "/images/ballet-hero.jpg"}
             alt="Ballet"
             fill
             priority
             className="object-cover"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-black/55" />
-          <div className="absolute inset-0 bg-linear-to-t from-royal-purple/95 via-royal-purple/60 to-transparent" />
+          <div className="absolute inset-0 bg-black/35" />
+          <div className="absolute inset-0 bg-linear-to-t from-royal-purple/90 via-royal-purple/40 to-transparent" />
         </div>
 
         <div className="relative mx-auto w-full max-w-6xl px-4 pb-14 pt-24 sm:px-6 sm:pb-16 sm:pt-28 md:pb-20 md:pt-32">

@@ -4,6 +4,11 @@ import Link from "next/link";
 import { Pause, Play } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  musicCtaTextClass,
+  musicHelperTextClass,
+  musicTypography,
+} from "@/lib/musicTypography";
 
 const FLYING_NOTES = [
   { id: "note-1", symbol: "♪", left: "14%", bottom: "18%", delay: "0s", duration: "4.8s" },
@@ -25,7 +30,7 @@ const GLASS_CARD_STYLE = {
 
 const TEXT_HIGHLIGHT_STYLE = {
   background: "rgba(43,25,18,0.48)",
-  padding: "0.06rem 0.32rem",
+  padding: "0.16rem 0.32rem",
   borderRadius: "0.35rem",
   boxDecorationBreak: "clone",
   WebkitBoxDecorationBreak: "clone",
@@ -370,7 +375,9 @@ export default function OudPage() {
               aria-label="Audio progress"
             />
             <AudioWaveform bars={waveformBars} />
-            <div className="mt-2 flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-royal-cream/75">
+            <div
+              className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
+            >
               <span>{formatTime(currentTime)}</span>
               <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
               <span>{formatTime(duration)}</span>
@@ -385,23 +392,21 @@ export default function OudPage() {
           style={GLASS_CARD_STYLE}
           dir={isArabic ? "rtl" : "ltr"}
         >
-          <p className="text-[11px] leading-5 text-royal-cream/90 sm:text-[12px] sm:leading-[1.35rem]">
+          <p className={`${musicTypography.body} text-royal-cream/90`}>
             <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
           </p>
 
           <div className="mt-4 flex flex-col items-start gap-3">
             <p
-              className={`text-[10px] text-royal-gold/65 ${
-                isArabic ? "leading-5" : "uppercase tracking-[0.22em]"
-              }`}
+              className={`${musicHelperTextClass(isArabic)} text-royal-gold/65`}
             >
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
             </p>
             <Link
               href={reservationHref}
-              className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 text-[10px] font-medium text-[#2b1912] transition-transform duration-300 hover:scale-[1.03] ${
-                isArabic ? "leading-5" : "uppercase tracking-[0.2em]"
-              }`}
+              className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+                isArabic,
+              )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03]`}
             >
               {content.reserveCta}
             </Link>
@@ -446,7 +451,9 @@ export default function OudPage() {
               aria-label="Audio progress"
             />
             <AudioWaveform bars={waveformBars} />
-            <div className="mt-2 flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-royal-cream/75">
+            <div
+              className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
+            >
               <span>{formatTime(currentTime)}</span>
               <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
               <span>{formatTime(duration)}</span>
@@ -460,23 +467,21 @@ export default function OudPage() {
             style={GLASS_CARD_STYLE}
             dir={isArabic ? "rtl" : "ltr"}
           >
-            <p className="text-[11px] leading-5 text-royal-cream/90 sm:text-[12px] sm:leading-[1.35rem]">
+            <p className={`${musicTypography.body} text-royal-cream/90`}>
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
             </p>
 
             <div className="mt-4 flex flex-col items-start gap-3">
               <p
-                className={`text-[10px] text-royal-gold/65 ${
-                  isArabic ? "leading-5" : "uppercase tracking-[0.22em]"
-                }`}
+                className={`${musicHelperTextClass(isArabic)} text-royal-gold/65`}
               >
                 <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
               </p>
               <Link
                 href={reservationHref}
-                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 text-[10px] font-medium text-[#2b1912] transition-transform duration-300 hover:scale-[1.03] ${
-                  isArabic ? "leading-5" : "uppercase tracking-[0.2em]"
-                }`}
+                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+                  isArabic,
+                )} text-[#2b1912] transition-transform duration-300 hover:scale-[1.03]`}
               >
                 {content.reserveCta}
               </Link>

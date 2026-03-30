@@ -179,10 +179,11 @@ function HandpanPad({
 
 export default function HandpanPage() {
   const params = useParams<{ locale: string }>();
+  const locale = params?.locale ?? "en";
   const audioContextRef = useRef<AudioContext | null>(null);
   const activeTimeoutRef = useRef<number | null>(null);
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
-  const isArabic = params?.locale === "ar";
+  const isArabic = locale === "ar";
 
   useEffect(() => {
     return () => {
@@ -365,7 +366,7 @@ export default function HandpanPage() {
                     {content.reserveHelper}
                   </p>
                   <Link
-                    href={`/reservation/sub-handpan`}
+                    href={`/${locale}/reservation/sub-handpan`}
                     className="liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.22em] text-[#eadfc9]/88 transition-transform duration-300 hover:scale-[1.03]"
                   >
                     {content.reserveCta}

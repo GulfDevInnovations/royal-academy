@@ -11,6 +11,7 @@ export default async function RadBalletPage({
     <BalletSubclassPage
       locale={locale}
       title={{ en: "RAD Ballet", ar: "باليه RAD" }}
+      reservationQuery={{ q: "RAD Ballet" }}
       description={{
         en: "Structured ballet training inspired by Royal Academy of Dance standards — building strong technique and artistry.",
         ar: "تدريب باليه منظم مستوحى من معايير Royal Academy of Dance — لبناء تقنية قوية وحس فني.",
@@ -20,6 +21,7 @@ export default async function RadBalletPage({
         { en: "Graceful port de bras and musical phrasing", ar: "حركات ذراعين رشيقة وتعبير موسيقي" },
         { en: "Progressive combinations and confidence", ar: "تركيبات تدريجية وثقة" },
       ]}
+      img="/images/dance/rad-ballet.jpg"
     />
   );
 }

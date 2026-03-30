@@ -45,40 +45,10 @@ body {
   font-family: var(--font-layla), sans-serif;
 }
 
-/* Scale up all Tailwind text sizes for Arabic */
-/* globals.css */
-
-[dir="rtl"] .text-xs {
-  transform: scale(1.4);
-  display: inline-block;
-}
-[dir="rtl"] .text-sm {
-  transform: scale(1.4);
-  display: inline-block;
-}
-[dir="rtl"] .text-base {
-  transform: scale(1.4);
-  display: inline-block;
-}
-[dir="rtl"] .text-lg {
-  transform: scale(1.4);
-  display: inline-block;
-}
-[dir="rtl"] .text-xl {
-  transform: scale(1.4);
-  display: inline-block;
-}
-[dir="rtl"] .text-2xl {
-  transform: scale(1.4);
-  display: inline-block;
-}
-[dir="rtl"] .text-3xl {
-  transform: scale(1.4);
-  display: inline-block;
-}
-[dir="rtl"] .text-4xl {
-  transform: scale(1.4);
-  display: inline-block;
+/* Slightly scale typography for Arabic via root font-size.
+   Avoid transform-based scaling which can cause clipping/overlap. */
+html[dir="rtl"] {
+  font-size: 18px;
 }
 
 html {

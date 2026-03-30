@@ -817,8 +817,13 @@ export default function Navbar() {
     depth = 0,
   ) => {
     const isFlyout = isDesktopMenu && depth > 0;
-    const flyoutPositionClass =
-      depth === 1 ? "absolute right-full top-[-8.75rem] z-20 mr-3" : "absolute right-full top-[-0.75rem] z-20 mr-3";
+    const flyoutPositionClass = isArabic
+      ? depth === 1
+        ? "absolute left-full top-[-8.75rem] z-20 ml-3"
+        : "absolute left-full top-[-0.75rem] z-20 ml-3"
+      : depth === 1
+        ? "absolute right-full top-[-8.75rem] z-20 mr-3"
+        : "absolute right-full top-[-0.75rem] z-20 mr-3";
 
     return (
       <div
@@ -838,7 +843,7 @@ export default function Navbar() {
         <div
           className={
             isFlyout
-              ? "navbar-submenu-scroll max-h-[26rem] space-y-1 overflow-y-auto overscroll-contain pr-1"
+              ? "navbar-submenu-scroll max-h-104 space-y-1 overflow-y-auto overscroll-contain pr-1"
               : "space-y-1"
           }
         >
@@ -888,12 +893,16 @@ export default function Navbar() {
                         event.stopPropagation();
                         setClassesMenuPath(isOpen ? parentPath : nodePath);
                       }}
-                      className="relative z-10 flex h-6 w-6 items-center justify-center text-xs text-royal-cream/80 transition-colors duration-300 hover:text-royal-gold"
+                      className={`relative z-10 flex items-center justify-center text-xs text-royal-cream/80 transition-colors duration-300 hover:text-royal-gold ${
+                        isDesktopMenu
+                          ? "h-6 w-6"
+                          : "h-11 w-11 rounded-xl -m-2 bg-black/10 hover:bg-black/20"
+                      }`}
                       aria-label={isArabic ? "عرض القائمة الفرعية" : "Toggle submenu"}
                     >
                       <FontAwesomeIcon
-                        icon={isArabic ? faCaretRight : faCaretLeft}
-                        className={`transition-transform duration-300 ${isOpen ? (isArabic ? "-rotate-90" : "rotate-90") : ""}`}
+                        icon={isArabic ? faCaretLeft : faCaretRight}
+                        className={`transition-transform duration-300 ${isOpen ? "rotate-90" : ""}`}
                       />
                     </button>
                   ) : null}
@@ -1488,9 +1497,11 @@ export default function Navbar() {
                           </div>
 
                           {classesOpen ? (
-                            <div className="relative z-10 mt-4 rounded-2xl border border-white/10 bg-black/18 p-3 backdrop-blur-sm">
-                              {renderClassNodes(classesMenu, classesRootPath)}
-                            </div>
+                            isDesktopMenu ? null : (
+                              <div className="relative z-10 mt-4 rounded-2xl border border-white/10 bg-black/18 p-3 backdrop-blur-sm">
+                                {renderClassNodes(classesMenu, classesRootPath)}
+                              </div>
+                            )
                           ) : null}
                         </div>
                       </motion.div>
@@ -1627,10 +1638,29 @@ export default function Navbar() {
                 </motion.nav>
               </div>
             </div>
+            {isDesktopMenu && classesOpen ? (
+              <div
+                className="absolute z-20 w-72 overflow-visible rounded-2xl border border-white/10 bg-black/18 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.38)] backdrop-blur-sm"
+                style={
+                  isArabic
+                    ? { left: "100%", top: "1rem" }
+                    : { right: "100%", top: "1rem" }
+                }
+                onWheel={(event) => {
+                  event.stopPropagation();
+                }}
+              >
+                {renderClassNodes(classesMenu, classesRootPath)}
+              </div>
+            ) : null}
             {isDesktopMenu && classesOpen && activeClassCategory?.children?.length ? (
               <div
                 className="absolute z-20 w-72 overflow-visible rounded-2xl border border-white/10 bg-black/18 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.38)] backdrop-blur-sm"
-                style={{ right: "calc(100% + 0.75rem)", top: "1rem" }}
+                style={
+                  isArabic
+                    ? { left: "calc(100% + 18rem)", top: "1rem" }
+                    : { right: "calc(100% + 18rem)", top: "1rem" }
+                }
                 onWheel={(event) => {
                   event.stopPropagation();
                 }}
@@ -1648,7 +1678,11 @@ export default function Navbar() {
             activeClassCategory ? (
               <div
                 className="absolute z-20 w-72 overflow-visible rounded-2xl border border-white/10 bg-black/18 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.38)] backdrop-blur-sm"
-                style={{ right: "calc(100% + 19.5rem)", top: "1rem" }}
+                style={
+                  isArabic
+                    ? { left: "calc(100% + 36rem)", top: "1rem" }
+                    : { right: "calc(100% + 36rem)", top: "1rem" }
+                }
                 onWheel={(event) => {
                   event.stopPropagation();
                 }}

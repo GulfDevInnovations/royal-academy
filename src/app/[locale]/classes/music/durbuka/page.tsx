@@ -1,10 +1,14 @@
-//@ts-ignore
 "use client";
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Pause, Play } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  musicCtaTextClass,
+  musicHelperTextClass,
+  musicTypography,
+} from "@/lib/musicTypography";
 
 const WAVEFORM_BAR_COUNT = 28;
 const WAVEFORM_IDLE_BARS = Array.from(
@@ -81,7 +85,7 @@ export default function DurbukaPage() {
   const params = useParams<{ locale: string }>();
   const locale = params?.locale ?? "en";
   const isArabic = locale === "ar";
-  const reservationHref = `/${locale}/reservation/sub-durbuka`;
+  const reservationHref = `/${locale}/reservation`;
   const content = isArabic
     ? {
         paragraph:
@@ -315,7 +319,9 @@ export default function DurbukaPage() {
             className="font-goudy flex w-[min(15rem,28vw)] min-w-[12rem] flex-col items-center gap-4 xl:w-[min(17rem,22vw)]"
             dir="ltr"
           >
-            <p className="max-w-[14rem] text-center text-[11px] uppercase tracking-[0.18em] text-royal-cream/88">
+            <p
+              className={`max-w-[14rem] text-center ${musicTypography.captionCaps} text-royal-cream/88`}
+            >
               Daren darya- Radolph Manoukian
             </p>
 
@@ -351,7 +357,9 @@ export default function DurbukaPage() {
                 aria-label="Audio progress"
               />
               <AudioWaveform bars={waveformBars} />
-              <div className="mt-2 flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-royal-cream/75">
+              <div
+                className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
+              >
                 <span>{formatTime(currentTime)}</span>
                 <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
                 <span>{formatTime(duration)}</span>
@@ -366,7 +374,7 @@ export default function DurbukaPage() {
               dir={isArabic ? "rtl" : "ltr"}
             >
               <p
-                className={`text-[13px] leading-[1.5rem] text-royal-cream/90 sm:text-[14px] sm:leading-[1.65rem] ${
+                className={`${musicTypography.body} text-royal-cream/90 ${
                   isArabic ? "text-right" : ""
                 }`}
               >
@@ -379,16 +387,18 @@ export default function DurbukaPage() {
                 }`}
               >
                 <p
-                  className={`w-full text-[10px] text-royal-gold/65 ${
-                    isArabic ? "text-right leading-5" : "uppercase tracking-[0.22em]"
+                  className={`w-full ${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
+                    isArabic ? "text-right" : ""
                   }`}
                 >
                   <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
                 </p>
                 <Link
                   href={reservationHref}
-                  className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 text-[10px] font-medium text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
-                    isArabic ? "self-end text-right leading-5" : "uppercase tracking-[0.2em]"
+                  className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 ${musicCtaTextClass(
+                    isArabic,
+                  )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
+                    isArabic ? "self-end text-right" : ""
                   }`}
                 >
                   {content.reserveCta}
@@ -404,7 +414,9 @@ export default function DurbukaPage() {
           className="font-goudy flex w-full max-w-[19rem] flex-col items-center gap-4 sm:max-w-[22rem]"
           dir="ltr"
         >
-          <p className="max-w-[16rem] text-center text-[11px] uppercase tracking-[0.18em] text-royal-cream/88">
+          <p
+            className={`max-w-[16rem] text-center ${musicTypography.captionCaps} text-royal-cream/88`}
+          >
             Daren darya- Radolph Manoukian
           </p>
 
@@ -440,7 +452,9 @@ export default function DurbukaPage() {
               aria-label="Audio progress"
             />
             <AudioWaveform bars={waveformBars} />
-            <div className="mt-2 flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-royal-cream/75">
+            <div
+              className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
+            >
               <span>{formatTime(currentTime)}</span>
               <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
               <span>{formatTime(duration)}</span>
@@ -453,7 +467,7 @@ export default function DurbukaPage() {
             dir={isArabic ? "rtl" : "ltr"}
           >
             <p
-              className={`text-[13px] leading-[1.5rem] text-royal-cream/90 ${
+              className={`${musicTypography.body} text-royal-cream/90 ${
                 isArabic ? "text-right" : ""
               }`}
             >
@@ -466,16 +480,18 @@ export default function DurbukaPage() {
               }`}
             >
               <p
-                className={`w-full text-[10px] text-royal-gold/65 ${
-                  isArabic ? "text-right leading-5" : "uppercase tracking-[0.22em]"
+                className={`w-full ${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
+                  isArabic ? "text-right" : ""
                 }`}
               >
                 <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
               </p>
               <Link
                 href={reservationHref}
-                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 text-[10px] font-medium text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
-                  isArabic ? "self-end text-right leading-5" : "uppercase tracking-[0.2em]"
+                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 ${musicCtaTextClass(
+                  isArabic,
+                )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
+                  isArabic ? "self-end text-right" : ""
                 }`}
               >
                 {content.reserveCta}

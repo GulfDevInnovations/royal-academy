@@ -757,10 +757,10 @@ async function main() {
   // ─────────────────────────────────────────────
   // BOOKINGS
   // ─────────────────────────────────────────────
-  const student1 = student1User.studentProfile!
+  const student1Profile = student1User.studentProfile!
   const booking1 = await prisma.booking.create({
     data: {
-      studentId: student1.id,
+      studentId: student1Profile.id,
       subClassId: subPiano.id,
       month: 1,
       year: 2026,

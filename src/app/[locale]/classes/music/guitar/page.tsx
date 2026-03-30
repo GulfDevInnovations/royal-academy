@@ -1,10 +1,14 @@
-//@ts-ignore
 "use client";
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Pause, Play } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import {
+  musicCtaTextClass,
+  musicHelperTextClass,
+  musicTypography,
+} from "@/lib/musicTypography";
 
 const GLASS_CARD_STYLE = {
   background:
@@ -120,7 +124,7 @@ export default function GuitarPage() {
   const [roomPreviewFocus, setRoomPreviewFocus] = useState({ x: 50, y: 50 });
   const locale = params?.locale ?? "en";
   const isArabic = locale === "ar";
-  const reservationHref = `/${locale}/reservation/sub-guitar`;
+  const reservationHref = `/${locale}/reservation`;
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -409,7 +413,9 @@ export default function GuitarPage() {
             className="font-goudy flex w-[min(18rem,24vw)] min-w-[15rem] flex-col items-center gap-4"
             dir="ltr"
           >
-            <p className="max-w-[14rem] text-center text-[11px] uppercase tracking-[0.18em] text-royal-cream/88">
+            <p
+              className={`max-w-[14rem] text-center ${musicTypography.captionCaps} text-royal-cream/88`}
+            >
               Sensational Spanish Guitar, Cover of Enrique Iglesias &quot;Bailando&quot;
             </p>
 
@@ -445,7 +451,9 @@ export default function GuitarPage() {
                 aria-label="Audio progress"
               />
               <AudioWaveform bars={waveformBars} />
-              <div className="mt-2 flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-royal-cream/75">
+              <div
+                className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
+              >
                 <span>{formatTime(currentTime)}</span>
                 <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
                 <span>{formatTime(duration)}</span>
@@ -459,23 +467,21 @@ export default function GuitarPage() {
               style={GLASS_CARD_STYLE}
               dir={isArabic ? "rtl" : "ltr"}
             >
-              <p className="text-[13px] leading-6 text-royal-cream/90 sm:text-[14px] sm:leading-[1.55rem]">
+              <p className={`${musicTypography.body} text-royal-cream/90`}>
                 <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
               </p>
 
               <div className="mt-4 flex flex-col items-start gap-3">
                 <p
-                  className={`text-[12px] text-royal-gold/65 ${
-                    isArabic ? "leading-6" : "uppercase tracking-[0.2em]"
-                  }`}
+                  className={`${musicHelperTextClass(isArabic)} text-royal-gold/65`}
                 >
                   {content.reserveHelper}
                 </p>
                 <Link
                   href={reservationHref}
-                  className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 text-[10px] font-medium text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
-                    isArabic ? "leading-6" : "uppercase tracking-[0.2em]"
-                  }`}
+                  className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+                    isArabic,
+                  )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03]`}
                 >
                   {content.reserveCta}
                 </Link>
@@ -483,9 +489,10 @@ export default function GuitarPage() {
                   <button
                     type="button"
                     onClick={handleRoomPreview}
-                    className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 text-[10px] font-medium text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
-                      isArabic ? "leading-6" : "uppercase tracking-[0.12em]"
-                    }`}
+                    className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+                      isArabic,
+                      "narrow",
+                    )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03]`}
                   >
                     {content.roomCta}
                   </button>
@@ -522,7 +529,9 @@ export default function GuitarPage() {
           className="font-goudy flex w-full max-w-[18rem] flex-col items-center gap-4 sm:max-w-[20rem]"
           dir="ltr"
         >
-          <p className="max-w-[16rem] text-center text-[11px] uppercase tracking-[0.18em] text-royal-cream/88">
+          <p
+            className={`max-w-[16rem] text-center ${musicTypography.captionCaps} text-royal-cream/88`}
+          >
             Sensational Spanish Guitar, Cover of Enrique Iglesias &quot;Bailando&quot;
           </p>
 
@@ -558,7 +567,9 @@ export default function GuitarPage() {
               aria-label="Audio progress"
             />
             <AudioWaveform bars={waveformBars} />
-            <div className="mt-2 flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-royal-cream/75">
+            <div
+              className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
+            >
               <span>{formatTime(currentTime)}</span>
               <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
               <span>{formatTime(duration)}</span>
@@ -572,23 +583,21 @@ export default function GuitarPage() {
             style={GLASS_CARD_STYLE}
             dir={isArabic ? "rtl" : "ltr"}
           >
-            <p className="text-[13px] leading-6 text-royal-cream/90 sm:text-[14px] sm:leading-[1.55rem]">
+            <p className={`${musicTypography.body} text-royal-cream/90`}>
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
             </p>
 
             <div className="mt-4 flex flex-col items-start gap-3">
               <p
-                className={`text-[12px] text-royal-gold/65 ${
-                  isArabic ? "leading-6" : "uppercase tracking-[0.2em]"
-                }`}
+                className={`${musicHelperTextClass(isArabic)} text-royal-gold/65`}
               >
                 {content.reserveHelper}
               </p>
               <Link
                 href={reservationHref}
-                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 text-[10px] font-medium text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
-                  isArabic ? "leading-6" : "uppercase tracking-[0.2em]"
-                }`}
+                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+                  isArabic,
+                )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03]`}
               >
                 {content.reserveCta}
               </Link>
@@ -596,9 +605,10 @@ export default function GuitarPage() {
                 <button
                   type="button"
                   onClick={handleRoomPreview}
-                  className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 text-[10px] font-medium text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
-                    isArabic ? "leading-6" : "uppercase tracking-[0.12em]"
-                  }`}
+                  className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+                    isArabic,
+                    "narrow",
+                  )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03]`}
                 >
                   {content.roomCta}
                 </button>

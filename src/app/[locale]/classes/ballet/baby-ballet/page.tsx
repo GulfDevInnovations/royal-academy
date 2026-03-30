@@ -11,6 +11,7 @@ export default async function BabyBalletPage({
     <BalletSubclassPage
       locale={locale}
       title={{ en: "Baby Ballet", ar: "باليه للأطفال الصغار" }}
+      reservationQuery={{ q: "Baby Ballet" }}
       description={{
         en: "A gentle introduction to ballet for little ones — focusing on coordination, rhythm, and joyful movement.",
         ar: "مدخل لطيف إلى الباليه للصغار — يركز على التناسق والإيقاع وحب الحركة.",

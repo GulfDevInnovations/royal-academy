@@ -69,8 +69,7 @@ export default async function ContactPage({
 
   return (
     <main
-      className="min-h-screen px-4 py-24"
-      style={{ backgroundColor: "#227b81" }}
+      className="min-h-screen bg-royal-purple px-4 py-24"
     >
       <div
         className="fixed inset-0 pointer-events-none"

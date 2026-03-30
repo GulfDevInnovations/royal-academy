@@ -5,6 +5,7 @@ export default function SalsaPage({ params }: { params: { locale: string } }) {
     <DanceWellnessSubclassPage
       locale={params.locale}
       title={{ en: "Salsa" }}
+      reservationQuery={{ q: "Salsa" }}
       description={{
         en: "Learn timing, turns, and partner-work fundamentals with a focus on technique, connection, and musical interpretation.",
       }}

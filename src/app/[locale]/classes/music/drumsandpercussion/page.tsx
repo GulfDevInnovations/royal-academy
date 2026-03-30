@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState, useCallback, type MouseEvent } from "react";
+import { musicCtaTextClass, musicHelperTextClass } from "@/lib/musicTypography";
 
 type DrumPad = {
   id: string;
@@ -400,7 +401,7 @@ export default function DrumsPage() {
   const activePadTimeoutRef = useRef<number | null>(null);
   const locale = params?.locale ?? "en";
   const isArabic = locale === "ar";
-  const reservationHref = `/${locale}/reservation/sub-drums&percussion`;
+  const reservationHref = `/${locale}/reservation`;
   const content = isArabic
     ? {
         paragraph:
@@ -723,13 +724,17 @@ export default function DrumsPage() {
                 </div>
             </div>
 
-            <p className="text-center text-[10px] uppercase tracking-[0.22em] text-royal-gold/65">
+            <p
+              className={`text-center ${musicHelperTextClass(isArabic)} text-royal-gold/65`}
+            >
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
             </p>
 
             <Link
               href={reservationHref}
-              className="liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#3b2418] transition-transform duration-300 hover:scale-[1.03]"
+              className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+                isArabic,
+              )} text-[#3b2418] transition-transform duration-300 hover:scale-[1.03]`}
             >
               {content.reserveCta}
             </Link>

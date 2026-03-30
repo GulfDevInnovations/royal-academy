@@ -5,6 +5,7 @@ import AboutSection from "@/components/home/v2/AboutSectionV2";
 import HomeTrioShowcaseFloor from "@/components/home/v2/HomeTrioShowcaseFloorV2";
 import { useNavbarState } from "@/components/NavbarStateContext";
 import { useHomeNav } from "@/context/HomeNavigationContext";
+import { usePreloader } from "@/context/PreloaderContext";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import RoyalCombinedIntroHeroV2 from "@/components/home/v2/RoyalCombinedIntroHeroV2Section";
 import { useLocale } from "next-intl";
@@ -17,6 +18,7 @@ const FLOOR_COUNT = 3;
 
 export default function HomeClientV2() {
   const { setNavSolid } = useNavbarState();
+  const { markDone } = usePreloader();
   const [floor, setFloor] = useState(0);
   const isAnimating = useRef(false);
   const elevatorRef = useRef<HTMLDivElement>(null);
@@ -26,6 +28,12 @@ export default function HomeClientV2() {
   const pathname = usePathname();
   const { requestedFloor, clearRequest } = useHomeNav();
   const locale = useLocale();
+
+  // V2 home doesn't run the v1 "world" preloader sequence.
+  // Mark preloader as done so the navbar isn't stuck hidden on the home route.
+  useEffect(() => {
+    markDone();
+  }, [markDone]);
 
   // Keep navbar style aligned with current floor (hero wants transparent)
   useEffect(() => {

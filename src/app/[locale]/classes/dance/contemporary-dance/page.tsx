@@ -8,15 +8,16 @@ export default function ContemporaryDancePage({
   return (
     <DanceWellnessSubclassPage
       locale={params.locale}
-      title={{ en: "Hip Hop" }}
+      title={{ en: "Contemporary Dance" }}
+      reservationQuery={{ q: "Contemporary Dance" }}
       description={{
-        en: "High-energy classes that build groove, musicality, and confidence — with foundations for beginners and challenging combos for advanced dancers.",
+        en: "Contemporary dance sessions that build control, fluidity, and expression — with technique-focused progressions for every level.",
       }}
       highlights={[
-        { en: "Groove, bounce, and musical timing" },
-        { en: "Footwork, coordination, and stamina" },
-        { en: "Choreography + freestyle prompts" },
-        { en: "Performance confidence and stage presence" },
+        { en: "Floorwork, flow, and body awareness" },
+        { en: "Strength, mobility, and alignment" },
+        { en: "Musicality and movement quality" },
+        { en: "Choreography and creative exploration" },
       ]}
       imgSrc="/images/dance/contemporary.jpg"
     />

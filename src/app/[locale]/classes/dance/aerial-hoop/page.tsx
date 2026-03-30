@@ -9,6 +9,7 @@ export default function YogaMovementPage({
     <DanceWellnessSubclassPage
       locale={params.locale}
       title={{ en: "Aerial Hoop" }}
+      reservationQuery={{ q: "Aerial Hoop" }}
       description={{
         en: "Aerial hoop sessions focused on strength, control, and graceful transitions — with progressions designed for safe skill-building.",
       }}
