@@ -965,6 +965,8 @@ export default function AboutSection({
         position: "relative",
         overflow: scrollable ? "visible" : "hidden",
         zIndex: 2,
+        background:
+          "radial-gradient(circle at 18% 12%, rgba(196,168,130,0.16) 0%, transparent 55%), radial-gradient(circle at 82% 28%, rgba(92,45,74,0.30) 0%, transparent 62%), linear-gradient(135deg, var(--royal-purple) 0%, var(--royal-dark) 58%, #0b0f2a 100%)",
       }}
     >
       {/* Top gold rule */}
@@ -1003,7 +1005,7 @@ export default function AboutSection({
             backgroundRepeat: "repeat",
             backgroundSize: "auto",
             animation: "patternScroll 32s linear infinite",
-            opacity: 1,
+            opacity: 0.55,
             pointerEvents: "none",
             zIndex: 0,
           }}
@@ -1017,7 +1019,7 @@ export default function AboutSection({
             backgroundRepeat: "repeat",
             backgroundSize: "auto",
             animation: "patternScroll 32s linear infinite",
-            opacity: 1,
+            opacity: 0.65,
             pointerEvents: "none",
             zIndex: 0,
           }}
@@ -1033,7 +1035,7 @@ export default function AboutSection({
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          opacity: 1,
+          opacity: 0.75,
           pointerEvents: "none",
           zIndex: 1,
         }}

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import HomeClient from "@/components/royal-intro/HomeClient";
 
 export const dynamic = "force-dynamic";
+import HomeClientV2 from "@/components/home/v2/HomeClientV2";
 
 export default async function Home({
   params,
@@ -48,4 +49,5 @@ export default async function Home({
       backgroundImageUrl="/images/rooms/initial-room4.png"
     />
   );
+  return <HomeClientV2 />;
 }

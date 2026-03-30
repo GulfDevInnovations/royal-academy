@@ -26,77 +26,7 @@ type Section = {
 };
 
 const SECTIONS_V2: Section[] = [
-  {
-    id: "ballet",
-    label: "Ballet",
-    icon: "/images/HeroSection/balletGold.png",
-    image: "/images/ballet-hero.jpg",
-    subclasses: [
-      {
-        id: "baby-ballet",
-        label: "Baby Ballet",
-        slug: "baby-ballet",
-        image: "/images/babyballet.png",
-      },
-      {
-        id: "rad-ballet",
-        label: "RAD Ballet",
-        slug: "rad-ballet",
-        image: "/images/ballet.png",
-      },
-      {
-        id: "open-ballet",
-        label: "Open Ballet",
-        slug: "open-ballet",
-        image: "/images/ballet-hero.jpg",
-      },
-    ],
-  },
-  {
-    id: "dance",
-    label: "Dance & Wellness",
-    icon: "/images/HeroSection/dance&wellnessGold.png",
-    image: "/images/dance-hero.jpg",
-    subclasses: [
-      {
-        id: "aerial-hoop",
-        label: "Aerial Hoop",
-        slug: "aerial-hoop",
-        image: "/images/dance/aerial-hoop.jpg",
-      },
-      {
-        id: "contemporary-dance",
-        label: "Contemporary Dance",
-        slug: "contemporary-dance",
-        image: "/images/dance/contemporary.jpg",
-      },
-      {
-        id: "salsa",
-        label: "Salsa",
-        slug: "salsa",
-        image: "/images/dance/salsa.jpg",
-      },
-      {
-        id: "zumba",
-        label: "Zumba",
-        slug: "zumba",
-        image: "/images/dance/zumba.jpg",
-      },
-      {
-        id: "body-flexibility",
-        label: "Body & Flexibility",
-        slug: "body&flexibility",
-        image: "/images/movement01.png",
-      },
-      {
-        id: "kids-movements",
-        label: "Kids Movements",
-        slug: "kids-movements",
-        image: "/images/babygymnastics.png",
-      },
-    ],
-  },
-  {
+    {
     id: "music",
     label: "Music",
     icon: "/images/HeroSection/musicGold.png",
@@ -179,6 +109,76 @@ const SECTIONS_V2: Section[] = [
         label: "Music Awakening",
         slug: "musicawakening",
         image: "/images/musicawakening.png",
+      },
+    ],
+  },
+  {
+    id: "ballet",
+    label: "Ballet",
+    icon: "/images/HeroSection/balletGold.png",
+    image: "/images/ballet-hero.jpg",
+    subclasses: [
+      {
+        id: "baby-ballet",
+        label: "Baby Ballet",
+        slug: "baby-ballet",
+        image: "/images/babyballet.png",
+      },
+      {
+        id: "rad-ballet",
+        label: "RAD Ballet",
+        slug: "rad-ballet",
+        image: "/images/ballet.png",
+      },
+      {
+        id: "open-ballet",
+        label: "Open Ballet",
+        slug: "open-ballet",
+        image: "/images/ballet-hero.jpg",
+      },
+    ],
+  },
+  {
+    id: "dance",
+    label: "Dance & Wellness",
+    icon: "/images/HeroSection/dance&wellnessGold.png",
+    image: "/images/dance-hero.jpg",
+    subclasses: [
+      {
+        id: "aerial-hoop",
+        label: "Aerial Hoop",
+        slug: "aerial-hoop",
+        image: "/images/dance/aerial-hoop.jpg",
+      },
+      {
+        id: "contemporary-dance",
+        label: "Contemporary Dance",
+        slug: "contemporary-dance",
+        image: "/images/dance/contemporary.jpg",
+      },
+      {
+        id: "salsa",
+        label: "Salsa",
+        slug: "salsa",
+        image: "/images/dance/salsa.jpg",
+      },
+      {
+        id: "zumba",
+        label: "Zumba",
+        slug: "zumba",
+        image: "/images/dance/zumba.jpg",
+      },
+      {
+        id: "body-flexibility",
+        label: "Body & Flexibility",
+        slug: "body&flexibility",
+        image: "/images/movement01.png",
+      },
+      {
+        id: "kids-movements",
+        label: "Kids Movements",
+        slug: "kids-movements",
+        image: "/images/babygymnastics.png",
       },
     ],
   },
@@ -279,8 +279,8 @@ function SymbolCard({ section, isActive, isMobile }: SymbolCardProps) {
         ? "opacity 0.45s ease, transform 0.5s cubic-bezier(0.55,0,1,0.8)"
         : "none";
 
-  const w = isMobile ? 62 : 110;
-  const h = isMobile ? 104 : 184;
+  const w = isMobile ? 62 : 100;
+  const h = isMobile ? 104 : 140;
   const minH = isMobile ? 112 : 168;
 
   return (
@@ -291,7 +291,7 @@ function SymbolCard({ section, isActive, isMobile }: SymbolCardProps) {
         justifyContent: "center",
         alignItems: "flex-end",
         minHeight: minH,
-        marginBottom: isMobile ? "0.5rem" : "0.9rem",
+        marginBottom: isMobile ? "0.5rem" : "0.2rem",
         opacity: isVisible ? 1 : 0,
         transform: outerTransform,
         transition: outerTransition,
@@ -487,7 +487,6 @@ function DesktopDepartmentsV2({ activeIndex, onHover, revealed }: DesktopDepartm
                 cursor: "pointer",
                 transition: "flex 0.6s cubic-bezier(0.4,0,0.2,1)",
               }}
-              onMouseEnter={() => onHover(i)}
             >
               <div
                 style={{
@@ -499,6 +498,7 @@ function DesktopDepartmentsV2({ activeIndex, onHover, revealed }: DesktopDepartm
                 }}
               >
                 <SymbolCard section={section} isActive={isActive} isMobile={false} />
+
                 <div
                   style={{
                     fontFamily: "Georgia, 'Times New Roman', serif",
@@ -510,6 +510,7 @@ function DesktopDepartmentsV2({ activeIndex, onHover, revealed }: DesktopDepartm
                       "font-size 0.5s cubic-bezier(0.4,0,0.2,1), color 0.5s ease",
                     letterSpacing: "0.03em",
                   }}
+                                onMouseEnter={() => onHover(i)}
                 >
                   {section.label}
                 </div>
@@ -577,21 +578,46 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
 
   useEffect(() => {
     if (!active) return;
-    const trigger = () => {
-      if (active) onScrolled();
+
+    // Desktop navigation is handled globally by HomeClient (wheel/keys).
+    // Here we only support mobile swipe-to-next-floor, while explicitly
+    // ignoring gestures that start inside scrollable subclass panels.
+    if (!isMobile) return;
+
+    let startY: number | null = null;
+    let startTarget: EventTarget | null = null;
+
+    const isInsideHeroScrollable = (target: EventTarget | null) => {
+      const el = target as Element | null;
+      return !!el?.closest?.('[data-hero-scrollable="true"]');
     };
-    const onKey = (e: KeyboardEvent) => {
-      if (["ArrowDown", " ", "PageDown"].includes(e.key)) trigger();
+
+    const onTouchStart = (e: TouchEvent) => {
+      startTarget = e.target;
+      if (isInsideHeroScrollable(startTarget)) {
+        startY = null;
+        return;
+      }
+      startY = e.touches?.[0]?.clientY ?? null;
     };
-    window.addEventListener("wheel", trigger, { once: true });
-    window.addEventListener("touchmove", trigger, { once: true });
-    window.addEventListener("keydown", onKey, { once: true });
+
+    const onTouchEnd = (e: TouchEvent) => {
+      if (startY === null) return;
+      if (isInsideHeroScrollable(startTarget)) return;
+      const endY = e.changedTouches?.[0]?.clientY;
+      if (typeof endY !== "number") return;
+
+      const delta = startY - endY;
+      if (delta > 34) onScrolled();
+    };
+
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
     return () => {
-      window.removeEventListener("wheel", trigger);
-      window.removeEventListener("touchmove", trigger);
-      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend", onTouchEnd);
     };
-  }, [active, onScrolled]);
+  }, [active, isMobile, onScrolled]);
 
   return (
     <section
@@ -602,27 +628,39 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
         overflow: "hidden",
       }}
     >
-      {!isMobile && (
-        <Image
-          src="/images/initial-room4.png"
-          alt="Royal Academy Room"
-          fill
-          unoptimized
-          priority
-          style={{ objectFit: "cover", objectPosition: "50% 80%", zIndex: 0 }}
-        />
-      )}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 0,
+          background:
+            "radial-gradient(circle at 50% 12%, rgba(196,168,130,0.18) 20%, transparent 80%), radial-gradient(circle at 82% 28%, rgba(92,45,74,0.35) 50%, transparent 62%), linear-gradient(135deg, var(--royal-purple) 0%, var(--royal-dark) 58%, #0b0f2a 100%)",
+        }}
+      />
 
-      {isMobile && (
-        <Image
-          src="/images/initial-mobile2.png"
-          alt="Royal Academy Room"
-          fill
-          unoptimized
-          priority
-          style={{ objectFit: "cover", objectPosition: "50% 50%", zIndex: 0 }}
-        />
-      )}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 1,
+          pointerEvents: "none",
+          background:
+            "linear-gradient(to bottom, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.0) 30%, rgba(0,0,0,0.58) 100%)",
+          opacity: 0.9,
+        }}
+      />
+
+      {/* Subtle grain (keeps the new gradient from feeling flat) */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 2,
+          opacity: 0.018,
+          pointerEvents: "none",
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+        }}
+      />
 
       <style>{`
         @keyframes continuousSpin {
@@ -660,7 +698,7 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
             pointerEvents: "auto",
           }}
         >
-          <div style={{ flex: 1, display: "flex", gap: 22, pointerEvents: "none" }}>
+          <div style={{ flex: 1, display: "flex", gap: 22, pointerEvents: "auto" }}>
             {/* Image panel */}
             <div
               className="liquid-glass"
@@ -740,6 +778,8 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
               className="liquid-glass"
               style={{
                 flex: 1,
+                display: "flex",
+                flexDirection: "column",
                 borderRadius: 24,
                 border: "1px solid rgba(255,255,255,0.10)",
                 padding: 18,
@@ -784,66 +824,79 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                 </div>
               </div>
 
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={activeSection.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.22 }}
-                >
+              <div
+                data-hero-scrollable="true"
+                onWheelCapture={(e) => e.stopPropagation()}
+                onTouchMoveCapture={(e) => e.stopPropagation()}
+                style={{
+                  flex: 1,
+                  overflowY: "auto",
+                  overscrollBehavior: "contain",
+                  WebkitOverflowScrolling: "touch",
+                  paddingRight: 6,
+                  scrollbarWidth: "thin",
+                }}
+              >
+                <AnimatePresence mode="wait" initial={false}>
                   <motion.div
-                    initial="hidden"
-                    animate="show"
-                    variants={{
-                      hidden: {},
-                      show: {
-                        transition: {
-                          staggerChildren: 0.09,
-                          delayChildren: 0.08,
-                        },
-                      },
-                    }}
-                    className="flex flex-col -space-y-2"
+                    key={activeSection.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.22 }}
                   >
-                    {activeSection.subclasses.map((sub) => (
-                      <motion.div
-                        key={sub.id}
-                        variants={{
-                          hidden: { opacity: 0, y: 14, scale: 0.985 },
-                          show: { opacity: 1, y: 0, scale: 1 },
-                        }}
-                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                        className="relative"
-                      >
-                        <Link
-                          href={resolveSubclassHref(locale, activeSection.id, sub.slug)}
-                          onMouseEnter={() => setHoveredSubclassId(sub.id)}
-                          onMouseLeave={() => setHoveredSubclassId(null)}
-                          className="group block rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm transition hover:bg-white/10"
-                          style={{
-                            boxShadow:
-                              "0 18px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06)",
-                            textDecoration: "none",
+                    <motion.div
+                      initial="hidden"
+                      animate="show"
+                      variants={{
+                        hidden: {},
+                        show: {
+                          transition: {
+                            staggerChildren: 0.09,
+                            delayChildren: 0.08,
+                          },
+                        },
+                      }}
+                      className="flex flex-col gap-2"
+                    >
+                      {activeSection.subclasses.map((sub) => (
+                        <motion.div
+                          key={sub.id}
+                          variants={{
+                            hidden: { opacity: 0, y: 30, scale: 0.985 },
+                            show: { opacity: 1, y: 0, scale: 1 },
                           }}
+                          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                          className="relative"
                         >
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
-                              <div className="text-[11px] font-semibold uppercase tracking-[0.26em] text-royal-gold/70">
-                                {activeSection.label}
-                              </div>
-                              <div className="mt-2 font-goudy text-xl leading-tight text-royal-cream/95">
+                          <Link
+                            href={resolveSubclassHref(
+                              locale,
+                              activeSection.id,
+                              sub.slug,
+                            )}
+                            onMouseEnter={() => setHoveredSubclassId(sub.id)}
+                            onMouseLeave={() => setHoveredSubclassId(null)}
+                            className="group block rounded-2xl border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-sm transition hover:bg-white/10"
+                            style={{
+                              boxShadow:
+                                "0 18px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06)",
+                              textDecoration: "none",
+                            }}
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="mt-1 font-goudy text-xl leading-tight text-royal-cream/95">
                                 {sub.label}
                               </div>
+                              <div className="h-10 w-10 shrink-0 rounded-full border border-white/10 bg-black/20 backdrop-blur-sm transition group-hover:bg-black/25" />
                             </div>
-                            <div className="h-10 w-10 shrink-0 rounded-full border border-white/10 bg-black/20 backdrop-blur-sm transition group-hover:bg-black/25" />
-                          </div>
-                        </Link>
-                      </motion.div>
-                    ))}
+                          </Link>
+                        </motion.div>
+                      ))}
+                    </motion.div>
                   </motion.div>
-                </motion.div>
-              </AnimatePresence>
+                </AnimatePresence>
+              </div>
             </div>
           </div>
         </div>
@@ -1000,6 +1053,9 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
             </div>
 
             <div
+              data-hero-scrollable="true"
+              onWheelCapture={(e) => e.stopPropagation()}
+              onTouchMoveCapture={(e) => e.stopPropagation()}
               style={{
                 maxHeight: "40vh",
                 overflowY: "auto",
@@ -1008,7 +1064,7 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                 paddingRight: 2,
               }}
             >
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-5">
                 {activeSection.subclasses.map((sub) => (
                   <Link
                     key={sub.id}
