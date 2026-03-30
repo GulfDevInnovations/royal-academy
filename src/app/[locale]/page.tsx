@@ -5,8 +5,9 @@ import HomeWrapper from "@/components/layout-toggle/HomeWrapper"; // adjust path
 export default async function Home({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  await params;
   const where = {
     status: "ACTIVE" as const,
     isActive: true,
