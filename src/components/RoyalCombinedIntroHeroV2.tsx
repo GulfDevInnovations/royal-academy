@@ -26,7 +26,7 @@ type Section = {
 };
 
 const SECTIONS_V2: Section[] = [
-    {
+  {
     id: "music",
     label: "Music",
     icon: "/images/HeroSection/musicGold.png",
@@ -228,9 +228,14 @@ const SECTIONS_V2: Section[] = [
   },
 ];
 
-function resolveSubclassHref(locale: string, sectionId: MainClassId, subclassSlug: string) {
+function resolveSubclassHref(
+  locale: string,
+  sectionId: MainClassId,
+  subclassSlug: string,
+) {
   if (sectionId === "dance") return `/${locale}/classes/dance/${subclassSlug}`;
-  if (sectionId === "ballet") return `/${locale}/classes/ballet/${subclassSlug}`;
+  if (sectionId === "ballet")
+    return `/${locale}/classes/ballet/${subclassSlug}`;
   if (sectionId === "music") return `/${locale}/classes/music/${subclassSlug}`;
   return `/${locale}/classes/art`;
 }
@@ -309,7 +314,9 @@ function SymbolCard({ section, isActive, isMobile }: SymbolCardProps) {
           background:
             "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)",
           animation:
-            symState !== "hidden" ? "continuousSpin 2s linear infinite" : "none",
+            symState !== "hidden"
+              ? "continuousSpin 2s linear infinite"
+              : "none",
           filter:
             "drop-shadow(0 0 20px rgba(196,168,130,0.6)) drop-shadow(0 0 7px rgba(196,168,130,0.35))",
         }}
@@ -432,7 +439,11 @@ interface DesktopDepartmentsProps {
   revealed: boolean;
 }
 
-function DesktopDepartmentsV2({ activeIndex, onHover, revealed }: DesktopDepartmentsProps) {
+function DesktopDepartmentsV2({
+  activeIndex,
+  onHover,
+  revealed,
+}: DesktopDepartmentsProps) {
   return (
     <div
       style={{
@@ -497,7 +508,11 @@ function DesktopDepartmentsV2({ activeIndex, onHover, revealed }: DesktopDepartm
                   gap: 10,
                 }}
               >
-                <SymbolCard section={section} isActive={isActive} isMobile={false} />
+                <SymbolCard
+                  section={section}
+                  isActive={isActive}
+                  isMobile={false}
+                />
 
                 <div
                   style={{
@@ -505,12 +520,14 @@ function DesktopDepartmentsV2({ activeIndex, onHover, revealed }: DesktopDepartm
                     fontSize: isActive ? "1.8rem" : "2.25rem",
                     fontWeight: 400,
                     lineHeight: 1.1,
-                    color: isActive ? "rgba(222,194,158,1)" : "rgba(200,175,140,0.8)",
+                    color: isActive
+                      ? "rgba(222,194,158,1)"
+                      : "rgba(200,175,140,0.8)",
                     transition:
                       "font-size 0.5s cubic-bezier(0.4,0,0.2,1), color 0.5s ease",
                     letterSpacing: "0.03em",
                   }}
-                                onMouseEnter={() => onHover(i)}
+                  onMouseEnter={() => onHover(i)}
                 >
                   {section.label}
                 </div>
@@ -544,13 +561,18 @@ interface RoyalCombinedProps {
   onScrolled: () => void;
 }
 
-export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCombinedProps) {
+export default function RoyalCombinedIntroHeroV2({
+  active,
+  onScrolled,
+}: RoyalCombinedProps) {
   const pathname = usePathname();
   const locale = pathname.split("/")[1] || "en";
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [hoveredSubclassId, setHoveredSubclassId] = useState<string | null>(null);
+  const [hoveredSubclassId, setHoveredSubclassId] = useState<string | null>(
+    null,
+  );
 
   const departmentsRevealed = true;
 
@@ -566,7 +588,10 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
 
   const hoveredSubclass = useMemo(() => {
     if (!hoveredSubclassId) return null;
-    return activeSection.subclasses.find((sub) => sub.id === hoveredSubclassId) ?? null;
+    return (
+      activeSection.subclasses.find((sub) => sub.id === hoveredSubclassId) ??
+      null
+    );
   }, [activeSection.subclasses, hoveredSubclassId]);
 
   const displayImage = hoveredSubclass?.image ?? activeSection.image;
@@ -684,7 +709,12 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
         }}
       />
 
-      {!isMobile && <StageOverlay activeIndex={activeIndex} revealed={departmentsRevealed} />}
+      {!isMobile && (
+        <StageOverlay
+          activeIndex={activeIndex}
+          revealed={departmentsRevealed}
+        />
+      )}
 
       {!isMobile && (
         <div
@@ -698,7 +728,9 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
             pointerEvents: "auto",
           }}
         >
-          <div style={{ flex: 1, display: "flex", gap: 22, pointerEvents: "auto" }}>
+          <div
+            style={{ flex: 1, display: "flex", gap: 22, pointerEvents: "auto" }}
+          >
             {/* Image panel */}
             <div
               className="liquid-glass"
@@ -866,7 +898,10 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                             hidden: { opacity: 0, y: 30, scale: 0.985 },
                             show: { opacity: 1, y: 0, scale: 1 },
                           }}
-                          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                          transition={{
+                            duration: 0.35,
+                            ease: [0.16, 1, 0.3, 1],
+                          }}
                           className="relative"
                         >
                           <Link
@@ -1029,7 +1064,7 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                           alt={section.label}
                           fill
                           unoptimized
-                          style={{ objectFit: "cover" }}
+                          style={{ objectFit: "contain" }}
                         />
                       </div>
                       <div
@@ -1068,7 +1103,11 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                 {activeSection.subclasses.map((sub) => (
                   <Link
                     key={sub.id}
-                    href={resolveSubclassHref(locale, activeSection.id, sub.slug)}
+                    href={resolveSubclassHref(
+                      locale,
+                      activeSection.id,
+                      sub.slug,
+                    )}
                     onPointerEnter={() => setHoveredSubclassId(sub.id)}
                     onPointerLeave={() => setHoveredSubclassId(null)}
                     className="block rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm"
