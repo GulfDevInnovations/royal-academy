@@ -38,7 +38,7 @@ const SECTIONS_V2: Section[] = [
         id: "piano",
         label: "Piano",
         slug: "piano",
-        image: "/images/pianoroom.png",
+        image: "/images/piano.jpg",
       },
       {
         id: "guitar",
@@ -330,7 +330,9 @@ function SymbolCard({ section, isActive, isMobile }: SymbolCardProps) {
           background:
             "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)",
           animation:
-            symState !== "hidden" ? "continuousSpin 2s linear infinite" : "none",
+            symState !== "hidden"
+              ? "continuousSpin 2s linear infinite"
+              : "none",
           filter:
             "drop-shadow(0 0 20px rgba(196,168,130,0.6)) drop-shadow(0 0 7px rgba(196,168,130,0.35))",
         }}
@@ -527,7 +529,11 @@ function DesktopDepartmentsV2({
                   gap: 10,
                 }}
               >
-                <SymbolCard section={section} isActive={isActive} isMobile={false} />
+                <SymbolCard
+                  section={section}
+                  isActive={isActive}
+                  isMobile={false}
+                />
 
                 <div
                   style={{
@@ -535,7 +541,9 @@ function DesktopDepartmentsV2({
                     fontSize: isActive ? "1.8rem" : "2.25rem",
                     fontWeight: 400,
                     lineHeight: 1.1,
-                    color: isActive ? "rgba(222,194,158,1)" : "rgba(200,175,140,0.8)",
+                    color: isActive
+                      ? "rgba(222,194,158,1)"
+                      : "rgba(200,175,140,0.8)",
                     transition:
                       "font-size 0.5s cubic-bezier(0.4,0,0.2,1), color 0.5s ease",
                     letterSpacing: "0.03em",
@@ -604,13 +612,18 @@ interface RoyalCombinedProps {
   onScrolled: () => void;
 }
 
-export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCombinedProps) {
+export default function RoyalCombinedIntroHeroV2({
+  active,
+  onScrolled,
+}: RoyalCombinedProps) {
   const pathname = usePathname();
   const locale = pathname.split("/")[1] || "en";
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [hoveredSubclassId, setHoveredSubclassId] = useState<string | null>(null);
+  const [hoveredSubclassId, setHoveredSubclassId] = useState<string | null>(
+    null,
+  );
 
   const departmentsRevealed = true;
 
@@ -629,7 +642,10 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
 
   const hoveredSubclass = useMemo(() => {
     if (!hoveredSubclassId) return null;
-    return activeSection.subclasses.find((sub) => sub.id === hoveredSubclassId) ?? null;
+    return (
+      activeSection.subclasses.find((sub) => sub.id === hoveredSubclassId) ??
+      null
+    );
   }, [activeSection.subclasses, hoveredSubclassId]);
 
   const displayImage = hoveredSubclass?.image ?? activeSection.image;
@@ -747,7 +763,12 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
         }}
       />
 
-      {!isMobile && <StageOverlay activeIndex={activeIndex} revealed={departmentsRevealed} />}
+      {!isMobile && (
+        <StageOverlay
+          activeIndex={activeIndex}
+          revealed={departmentsRevealed}
+        />
+      )}
 
       {!isMobile && (
         <div
@@ -761,7 +782,9 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
             pointerEvents: "auto",
           }}
         >
-          <div style={{ flex: 1, display: "flex", gap: 22, pointerEvents: "auto" }}>
+          <div
+            style={{ flex: 1, display: "flex", gap: 22, pointerEvents: "auto" }}
+          >
             {/* Image panel */}
             <div
               className="liquid-glass"
@@ -995,7 +1018,10 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                             hidden: { opacity: 0, y: 30, scale: 0.985 },
                             show: { opacity: 1, y: 0, scale: 1 },
                           }}
-                          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                          transition={{
+                            duration: 0.35,
+                            ease: [0.16, 1, 0.3, 1],
+                          }}
                           className="relative"
                         >
                           <Link
@@ -1194,7 +1220,7 @@ export default function RoyalCombinedIntroHeroV2({ active, onScrolled }: RoyalCo
                           alt={section.label}
                           fill
                           unoptimized
-                          style={{ objectFit: "cover" }}
+                          style={{ objectFit: "contain" }}
                         />
                       </div>
                       <div

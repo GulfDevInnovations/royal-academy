@@ -139,7 +139,7 @@ export default function SubClassFormModal({
                 <AdminSelect
                   label="Teacher"
                   name="teacherId"
-                  defaultValue={editing?.teacherId ?? ""}
+                  defaultValue={editing?.teachers?.[0]?.teacherId ?? ""}
                 >
                   <option className="text-black" value="">
                     No teacher assigned

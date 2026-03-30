@@ -6,30 +6,49 @@ import Footer from "./Footer";
 
 // ─── Placeholder media ────────────────────────────────────────────────────────
 const MEDIA: { type: "image" | "video"; src: string }[] = [
-  { type: "image", src: "/images/about-1.jpg" },
-  { type: "image", src: "/images/about-2.jpg" },
-  { type: "image", src: "/images/about-3.jpg" },
+  { type: "image", src: "/images/aboutSection/about-1.jpg" },
+  { type: "image", src: "/images/aboutSection/about-2.jpg" },
+  { type: "image", src: "/images/aboutSection/about-3.jpg" },
+  { type: "image", src: "/images/aboutSection/about-4.jpg" },
 ];
 
-// ─── Philosophy content ───────────────────────────────────────────────────────
+// ─── Philosophy content (EN + AR) ────────────────────────────────────────────
 const PHILOSOPHY = [
   {
     id: "history",
-    label: "Our Story",
-    heading: "Founded on a Vision of Excellence",
-    body: "Royal Academy was founded in Muscat with a singular conviction: that the arts are not a luxury, but a language — one that shapes character, refines the spirit, and connects humanity across centuries. From its earliest days, the Academy has drawn together masters of ballet, music, dance, and visual art under one roof.",
+    label: { en: "Our Story", ar: "قصتنا" },
+    heading: {
+      en: "Founded on a Vision of Excellence",
+      ar: "تأسست على رؤية من التميز",
+    },
+    body: {
+      en: "Royal Academy was founded in Muscat with a singular conviction: that the arts are not a luxury, but a language — one that shapes character, refines the spirit, and connects humanity across centuries. From its earliest days, the Academy has drawn together masters of ballet, music, dance, and visual art under one roof.",
+      ar: "تأسست الأكاديمية الملكية في مسقط بقناعة راسخة: أن الفنون ليست ترفاً، بل هي لغة — تشكّل الشخصية، وتُصقل الروح، وتربط الإنسانية عبر القرون. منذ أولى أيامها، جمعت الأكاديمية تحت سقف واحد أساتذة الباليه والموسيقى والرقص والفنون البصرية.",
+    },
   },
   {
     id: "philosophy",
-    label: "Teaching Philosophy",
-    heading: "Discipline as Liberation",
-    body: "True creative freedom is born not from the absence of structure, but from a profound mastery of it. Every student is guided through a rigorous yet nurturing curriculum — one that honours classical traditions while encouraging original expression. Our teachers are mentors who see the full potential of each student.",
+    label: { en: "Teaching Philosophy", ar: "فلسفة التعليم" },
+    heading: {
+      en: "Discipline as Liberation",
+      ar: "الانضباط بوصفه تحرراً",
+    },
+    body: {
+      en: "True creative freedom is born not from the absence of structure, but from a profound mastery of it. Every student is guided through a rigorous yet nurturing curriculum — one that honours classical traditions while encouraging original expression. Our teachers are mentors who see the full potential of each student.",
+      ar: "الحرية الإبداعية الحقيقية لا تولد من غياب البنية، بل من إتقانها العميق. يُرشَد كل طالب عبر منهج صارم ومحفّز في آنٍ واحد — يُكرّم التقاليد الكلاسيكية ويشجع التعبير الأصيل. معلمونا موجّهون يرون الإمكانات الكاملة لكل طالب.",
+    },
   },
   {
     id: "values",
-    label: "Core Values",
-    heading: "Excellence · Integrity · Community · Heritage",
-    body: "We hold ourselves to the highest standards as a form of respect for the art. We teach with honesty and celebrate progress over perfection. The Academy is a place of belonging — for students, families, and the wider cultural life of Oman. We preserve great traditions, ensuring they are passed with care to the next generation.",
+    label: { en: "Core Values", ar: "القيم الجوهرية" },
+    heading: {
+      en: "Excellence · Integrity · Community · Heritage",
+      ar: "التميز · النزاهة · المجتمع · التراث",
+    },
+    body: {
+      en: "We hold ourselves to the highest standards as a form of respect for the art. We teach with honesty and celebrate progress over perfection. The Academy is a place of belonging — for students, families, and the wider cultural life of Oman. We preserve great traditions, ensuring they are passed with care to the next generation.",
+      ar: "نُلزم أنفسنا بأعلى المعايير احتراماً للفن. نُعلّم بصدق ونحتفي بالتقدم قبل الكمال. الأكاديمية مكان للانتماء — للطلاب والعائلات والحياة الثقافية الأرحب في عُمان. نحافظ على التقاليد العظيمة ونضمن انتقالها بعناية إلى الجيل القادم.",
+    },
   },
 ];
 
@@ -120,7 +139,6 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         </linearGradient>
       </defs>
 
-      {/* ── Outer border lines ── */}
       <rect
         x="1"
         y="1"
@@ -141,7 +159,6 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         strokeWidth="0.6"
       />
 
-      {/* ── Four corner ornaments ── */}
       {(
         [
           [0, 0, 1, 1],
@@ -214,7 +231,6 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         </g>
       ))}
 
-      {/* ── Top center medallion ── */}
       <g transform={`translate(${sw / 2}, 0)`} filter="url(#bsoftGlow)">
         <circle
           cx="0"
@@ -290,7 +306,6 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         />
       </g>
 
-      {/* ── Bottom center medallion ── */}
       <g transform={`translate(${sw / 2}, ${sh})`} filter="url(#bsoftGlow)">
         <circle
           cx="0"
@@ -366,7 +381,6 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         />
       </g>
 
-      {/* ── Left center medallion ── */}
       <g transform={`translate(0, ${sh / 2})`} filter="url(#bsoftGlow)">
         <circle
           cx="0"
@@ -408,20 +422,6 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         >
           RA
         </text>
-        <path
-          d="M 0,-34 C -6,-26 6,-22 0,-26"
-          fill="none"
-          stroke="rgba(196,168,130,0.6)"
-          strokeWidth="1"
-          strokeLinecap="round"
-        />
-        <path
-          d="M 0,34 C -6,26 6,22 0,26"
-          fill="none"
-          stroke="rgba(196,168,130,0.6)"
-          strokeWidth="1"
-          strokeLinecap="round"
-        />
         <line
           x1="0"
           y1="-44"
@@ -442,7 +442,6 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         />
       </g>
 
-      {/* ── Right center medallion ── */}
       <g transform={`translate(${sw}, ${sh / 2})`} filter="url(#bsoftGlow)">
         <circle
           cx="0"
@@ -484,20 +483,6 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         >
           RA
         </text>
-        <path
-          d="M 0,-34 C -6,-26 6,-22 0,-26"
-          fill="none"
-          stroke="rgba(196,168,130,0.6)"
-          strokeWidth="1"
-          strokeLinecap="round"
-        />
-        <path
-          d="M 0,34 C -6,26 6,22 0,26"
-          fill="none"
-          stroke="rgba(196,168,130,0.6)"
-          strokeWidth="1"
-          strokeLinecap="round"
-        />
         <line
           x1="0"
           y1="-44"
@@ -518,7 +503,6 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         />
       </g>
 
-      {/* ── Animated shimmer ── */}
       <rect
         x="1"
         y="1"
@@ -602,6 +586,7 @@ function RoyalMediaPlayer({
     };
   }, [playing, current, item.type, goNext]);
 
+  // On desktop the player fills its grid cell; on mobile it uses old sizing
   return (
     <div
       style={{
@@ -610,19 +595,16 @@ function RoyalMediaPlayer({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        zIndex: 2,
       }}
     >
       <div
         ref={containerRef}
         style={{
           position: "relative",
-          // Mobile: nearly full width with small side margins for the frame medallions
-          // Desktop: original constrained width
-          width: isMobile ? "calc(100% - 56px)" : "calc(60% - 100px)",
-          height: "100%",
-          padding: 0,
-          marginTop: isMobile ? "40px" : "180px",
+          width: isMobile ? "calc(100% - 56px)" : "100%",
+          height: isMobile ? undefined : "100%",
+          aspectRatio: isMobile ? "4/3" : undefined,
+          marginTop: isMobile ? "40px" : 0,
         }}
       >
         {/* Baroque frame */}
@@ -690,8 +672,6 @@ function RoyalMediaPlayer({
               />
             )}
           </AnimatePresence>
-
-          {/* Vignette */}
           <div
             style={{
               position: "absolute",
@@ -709,7 +689,7 @@ function RoyalMediaPlayer({
           onClick={() => setPlaying((p) => !p)}
           style={{
             position: "absolute",
-            bottom: isMobile ? 20 : 30,
+            bottom: isMobile ? 28 : 42,
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 20,
@@ -743,31 +723,124 @@ function RoyalMediaPlayer({
   );
 }
 
-// ─── Philosophy panel ─────────────────────────────────────────────────────────
-function PhilosophyPanel({
+// ─── Philosophy card (used in desktop sidebar slots) ─────────────────────────
+function PhilosophyCard({
+  item,
   active,
-  isMobile,
+  locale,
+  delay = 0,
+  align = "left",
+}: {
+  item: (typeof PHILOSOPHY)[number];
+  active: boolean;
+  locale: string;
+  delay?: number;
+  align?: "left" | "right";
+}) {
+  const isArabic = locale === "ar";
+  const dir = isArabic ? "rtl" : "ltr";
+  const textAlign = isArabic ? "right" : align === "right" ? "right" : "left";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: align === "left" ? -18 : 18 }}
+      animate={{
+        opacity: active ? 1 : 0,
+        x: active ? 0 : align === "left" ? -18 : 18,
+      }}
+      transition={{ duration: 0.6, delay }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+        padding: "20px 24px",
+        borderLeft:
+          align === "left" ? "1px solid rgba(196,168,130,0.18)" : undefined,
+        borderRight:
+          align === "right" ? "1px solid rgba(196,168,130,0.18)" : undefined,
+        direction: dir,
+        textAlign,
+      }}
+    >
+      {/* Label */}
+      <div
+        style={{
+          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontSize: "0.62rem",
+          letterSpacing: "0.28em",
+          textTransform: "uppercase",
+          color: "rgba(196,168,130,0.55)",
+        }}
+      >
+        {isArabic ? item.label.ar : item.label.en}
+      </div>
+
+      {/* Heading */}
+      <div
+        style={{
+          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontSize: "clamp(0.85rem, 1.1vw, 1.15rem)",
+          fontWeight: 400,
+          color: "rgba(222,194,171,0.82)",
+          lineHeight: 1.35,
+        }}
+      >
+        — {isArabic ? item.heading.ar : item.heading.en}
+      </div>
+
+      {/* Thin gold rule */}
+      <div
+        style={{
+          height: 1,
+          background:
+            align === "left"
+              ? "linear-gradient(to right, rgba(196,168,130,0.35), transparent)"
+              : "linear-gradient(to left, rgba(196,168,130,0.35), transparent)",
+          margin: "2px 0",
+        }}
+      />
+
+      {/* Body */}
+      <div
+        style={{
+          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontSize: "clamp(0.72rem, 0.85vw, 0.9rem)",
+          lineHeight: 1.72,
+          color: "rgba(222,194,171,0.42)",
+        }}
+      >
+        {isArabic ? item.body.ar : item.body.en}
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Mobile philosophy panel (unchanged behaviour) ────────────────────────────
+function MobilePhilosophyPanel({
+  active,
+  locale,
 }: {
   active: boolean;
-  isMobile: boolean;
+  locale: string;
 }) {
   const [activeTab, setActiveTab] = useState(0);
+  const isArabic = locale === "ar";
 
   return (
     <div
       style={{
         width: "100%",
-        height: "100%",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        padding: isMobile ? "16px 24px 16px 24px" : "20px 80px 20px 80px",
+        padding: "16px 32px 24px 32px",
         position: "relative",
-        marginTop: isMobile ? "100px" : "80px",
+        marginTop: "80px",
         zIndex: 2,
+        direction: isArabic ? "rtl" : "ltr",
       }}
     >
-      {/* Header row */}
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: active ? 1 : 0, y: active ? 0 : -8 }}
@@ -776,9 +849,7 @@ function PhilosophyPanel({
           display: "flex",
           alignItems: "baseline",
           gap: 20,
-          marginBottom: isMobile ? 10 : 16,
-          whiteSpace: isMobile ? "normal" : "nowrap",
-          zIndex: 2,
+          marginBottom: 10,
         }}
       >
         <div
@@ -800,7 +871,7 @@ function PhilosophyPanel({
         <h2
           style={{
             fontFamily: "Georgia, 'Times New Roman', serif",
-            fontSize: isMobile ? "1.1rem" : "clamp(1.1rem, 1.6vw, 1.6rem)",
+            fontSize: "1.1rem",
             fontWeight: 400,
             lineHeight: 1.2,
             color: "rgba(222,194,171,0.95)",
@@ -808,12 +879,20 @@ function PhilosophyPanel({
             margin: 0,
           }}
         >
-          The Spirit of{" "}
-          <em style={{ color: "rgba(196,168,130,0.9)" }}>the Academy</em>
+          {isArabic ? (
+            <>
+              روح <em style={{ color: "rgba(196,168,130,0.9)" }}>الأكاديمية</em>
+            </>
+          ) : (
+            <>
+              The Spirit of{" "}
+              <em style={{ color: "rgba(196,168,130,0.9)" }}>the Academy</em>
+            </>
+          )}
         </h2>
       </motion.div>
 
-      {/* Tab row */}
+      {/* Tabs */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: active ? 1 : 0 }}
@@ -821,13 +900,10 @@ function PhilosophyPanel({
         style={{
           display: "flex",
           gap: 0,
-          marginBottom: isMobile ? 10 : 16,
+          marginBottom: 10,
           borderBottom: "1px solid rgba(196,168,130,0.1)",
-          whiteSpace: "nowrap",
-          overflowX: isMobile ? "auto" : "visible",
-          // Hide scrollbar on mobile but allow scroll
+          overflowX: "auto",
           scrollbarWidth: "none",
-          zIndex: 2,
         }}
       >
         {PHILOSOPHY.map((p, i) => (
@@ -836,8 +912,8 @@ function PhilosophyPanel({
             onClick={() => setActiveTab(i)}
             style={{
               fontFamily: "Georgia, 'Times New Roman', serif",
-              fontSize: isMobile ? "0.65rem" : "0.80rem",
-              letterSpacing: isMobile ? "0.12em" : "0.22em",
+              fontSize: "0.65rem",
+              letterSpacing: "0.12em",
               textTransform: "uppercase",
               color:
                 activeTab === i
@@ -849,14 +925,14 @@ function PhilosophyPanel({
                 activeTab === i
                   ? "1px solid rgba(196,168,130,0.65)"
                   : "1px solid transparent",
-              padding: isMobile ? "5px 10px 7px" : "6px 18px 8px",
+              padding: "5px 10px 7px",
               cursor: "pointer",
               marginBottom: -1,
               transition: "all 0.3s ease",
               flexShrink: 0,
             }}
           >
-            {p.label}
+            {isArabic ? p.label.ar : p.label.en}
           </button>
         ))}
       </motion.div>
@@ -869,39 +945,40 @@ function PhilosophyPanel({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.35 }}
-          style={{ flex: 1, overflow: "hidden", zIndex: 2 }}
+          style={{ overflow: "hidden" }}
         >
           <div
             style={{
               fontFamily: "Georgia, 'Times New Roman', serif",
-              fontSize: isMobile ? "1rem" : "1.5rem",
+              fontSize: "1rem",
               fontWeight: 400,
               color: "rgba(222,194,171,0.75)",
               letterSpacing: "0.04em",
-              marginBottom: isMobile ? 8 : 10,
-              // On mobile allow wrapping; on desktop keep nowrap with ellipsis
-              whiteSpace: isMobile ? "normal" : "nowrap",
+              marginBottom: 8,
+              whiteSpace: "normal",
               overflow: "hidden",
-              textOverflow: isMobile ? "unset" : "ellipsis",
             }}
           >
-            — {PHILOSOPHY[activeTab].heading}
+            —{" "}
+            {isArabic
+              ? PHILOSOPHY[activeTab].heading.ar
+              : PHILOSOPHY[activeTab].heading.en}
           </div>
           <div
             style={{
               fontFamily: "Georgia, 'Times New Roman', serif",
-              fontSize: isMobile ? "0.82rem" : "1rem",
-              lineHeight: isMobile ? 1.65 : 1.75,
+              fontSize: "0.82rem",
+              lineHeight: 1.65,
               color: "rgba(222,194,171,0.45)",
-              maxWidth: "100%",
             }}
           >
-            {PHILOSOPHY[activeTab].body}
+            {isArabic
+              ? PHILOSOPHY[activeTab].body.ar
+              : PHILOSOPHY[activeTab].body.en}
           </div>
         </motion.div>
       </AnimatePresence>
 
-      {/* Animated rule */}
       <motion.div
         initial={{ scaleX: 0 }}
         animate={{ scaleX: active ? 1 : 0 }}
@@ -909,26 +986,23 @@ function PhilosophyPanel({
         style={{
           marginTop: 12,
           height: 1,
-          zIndex: 2,
           background:
             "linear-gradient(to right, rgba(196,168,130,0.4), transparent)",
           transformOrigin: "left",
         }}
       />
 
-      {/* Decorative large quote */}
       <div
         style={{
           position: "absolute",
           bottom: 0,
-          right: isMobile ? 16 : 60,
+          right: 16,
           fontFamily: "Georgia, serif",
-          fontSize: isMobile ? "4rem" : "6rem",
+          fontSize: "4rem",
           color: "rgba(196,168,130,0.035)",
           lineHeight: 1,
           pointerEvents: "none",
           userSelect: "none",
-          zIndex: 2,
         }}
       >
         &quot;
@@ -937,17 +1011,182 @@ function PhilosophyPanel({
   );
 }
 
+// ─── Desktop layout: frame centered, history left, philosophy right, values below ──
+function DesktopAboutLayout({
+  active,
+  locale,
+}: {
+  active: boolean;
+  locale: string;
+}) {
+  return (
+    <div
+      style={{
+        width: "100%",
+        flex: 1,
+        display: "grid",
+        // Three columns: [left panel] [center frame] [right panel]
+        gridTemplateColumns:
+          "minmax(280px, 1fr) minmax(260px, 32vw) minmax(280px, 1fr)",
+        gridTemplateRows: "auto auto",
+        gap: "0 0",
+        padding: "88px 40px 0 40px",
+        height: "100%", // add this
+        alignContent: "center",
+        position: "relative",
+        zIndex: 2,
+        boxSizing: "border-box",
+      }}
+    >
+      {/* ── Left: Our Story ── */}
+      <div
+        style={{
+          gridColumn: "1 / 2",
+          gridRow: "1 / 2",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-end",
+          paddingRight: 32,
+        }}
+      >
+        <div style={{ maxWidth: 380, width: "100%" }}>
+          <PhilosophyCard
+            item={PHILOSOPHY[0]}
+            active={active}
+            locale={locale}
+            delay={0.25}
+            align="right"
+          />
+        </div>
+      </div>
+
+      {/* ── Center: Media frame ── */}
+      <div
+        style={{
+          gridColumn: "2 / 3",
+          gridRow: "1 / 2",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: 320,
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "100%",
+            aspectRatio: "4 / 3",
+            position: "relative",
+            maxHeight: "50vh",
+          }}
+        >
+          <RoyalMediaPlayer active={active} isMobile={false} />
+        </div>
+      </div>
+
+      {/* ── Right: Teaching Philosophy ── */}
+      <div
+        style={{
+          gridColumn: "3 / 4",
+          gridRow: "1 / 2",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          paddingLeft: 32,
+        }}
+      >
+        <div style={{ maxWidth: 380, width: "100%" }}>
+          <PhilosophyCard
+            item={PHILOSOPHY[1]}
+            active={active}
+            locale={locale}
+            delay={0.35}
+            align="left"
+          />
+        </div>
+      </div>
+
+      {/* ── Bottom: Core Values (spans all 3 columns, centered under frame) ── */}
+      <div
+        style={{
+          gridColumn: "1 / 4",
+          gridRow: "2 / 3",
+          display: "flex",
+          justifyContent: "center",
+          padding: "32px 0 32px 0",
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: active ? 1 : 0, y: active ? 0 : 12 }}
+          transition={{ duration: 0.6, delay: 0.45 }}
+          style={{
+            maxWidth: 1200,
+            width: "100%",
+            padding: "8px 16px",
+            borderTop: "1px solid rgba(196,168,130,0.15)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+            textAlign: "center",
+            direction: locale === "ar" ? "rtl" : "ltr",
+          }}
+        >
+          {/* Label */}
+          <div
+            style={{
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontSize: "0.62rem",
+              letterSpacing: "0.28em",
+              textTransform: "uppercase",
+              color: "rgba(196,168,130,0.55)",
+            }}
+          >
+            {locale === "ar" ? PHILOSOPHY[2].label.ar : PHILOSOPHY[2].label.en}
+          </div>
+
+          {/* Heading */}
+          <div
+            style={{
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontSize: "clamp(0.85rem, 1.1vw, 1.1rem)",
+              color: "rgba(222,194,171,0.8)",
+              letterSpacing: "0.06em",
+            }}
+          >
+            {locale === "ar"
+              ? PHILOSOPHY[2].heading.ar
+              : PHILOSOPHY[2].heading.en}
+          </div>
+
+          {/* Body */}
+          <div
+            style={{
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontSize: "clamp(0.72rem, 0.85vw, 0.88rem)",
+              lineHeight: 1.72,
+              color: "rgba(222,194,171,0.4)",
+            }}
+          >
+            {locale === "ar" ? PHILOSOPHY[2].body.ar : PHILOSOPHY[2].body.en}
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main export ──────────────────────────────────────────────────────────────
 export default function AboutSection({
-  active = false, // ← default here ✓
+  active = false,
   locale,
-  scrollable = false, // ← default here ✓
+  scrollable = false,
   onScrollUp,
   onScrollDown,
 }: {
-  active?: boolean; // ← no default here ✓
+  active?: boolean;
   locale: string;
-  scrollable?: boolean; // ← no default here ✓
+  scrollable?: boolean;
   onScrollUp?: () => void;
   onScrollDown?: () => void;
 }) {
@@ -995,51 +1234,20 @@ export default function AboutSection({
         }}
       />
 
-      {/* ── Scrolling background pattern — mobile vs desktop ── */}
-      {isMobile ? (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: "url('/images/pattern.png')",
-            backgroundRepeat: "repeat",
-            backgroundSize: "auto",
-            animation: "patternScroll 32s linear infinite",
-            opacity: 1,
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
-        />
-      ) : (
-        <>
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage: "url('/images/pattern.png')",
-              backgroundRepeat: "repeat",
-              backgroundSize: "auto",
-              animation: "patternScroll 32s linear infinite",
-              opacity: 1,
-              pointerEvents: "none",
-              zIndex: 0,
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage: "url('/images/pattern.png')",
-              backgroundRepeat: "repeat",
-              backgroundSize: "auto",
-              animation: "patternScroll 32s linear infinite",
-              opacity: 1,
-              pointerEvents: "none",
-              zIndex: 0,
-            }}
-          />
-        </>
-      )}
+      {/* Scrolling background pattern */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: "url('/images/pattern.png')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "auto",
+          animation: "patternScroll 32s linear infinite",
+          opacity: 1,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
 
       {/* Fixed overlay pattern */}
       <div
@@ -1056,39 +1264,42 @@ export default function AboutSection({
         }}
       />
 
-      {/* ── Top portion — media frame ── */}
-      {/* Mobile: 50% height, Desktop: 58% height */}
-      <div
-        style={{
-          flex: scrollable ? "none" : isMobile ? "0 0 50%" : "0 0 58%",
-          height: scrollable ? "56vw" : undefined, // aspect-ratio-ish on mobile
-          minHeight: scrollable ? 280 : undefined,
-          maxHeight: scrollable ? 420 : undefined,
-          position: "relative",
-          paddingTop: 16,
-        }}
-      >
-        <RoyalMediaPlayer active={active} isMobile={isMobile} />
-      </div>
+      {/* ── Layout branch: mobile vs desktop ── */}
+      {isMobile ? (
+        <>
+          {/* Mobile: stacked — media on top, philosophy tabs below */}
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              position: "relative",
+              zIndex: 2,
+              marginTop: 80,
+            }}
+          >
+            <div
+              style={{
+                flex: "none",
+                height: "56vw",
+                minHeight: 280,
+                maxHeight: 420,
+                paddingTop: 16,
+              }}
+            >
+              <RoyalMediaPlayer active={active} isMobile={true} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <MobilePhilosophyPanel active={active} locale={locale} />
+            </div>
+          </div>
+        </>
+      ) : (
+        /* Desktop: centered frame with flanking cards + values below */
+        <DesktopAboutLayout active={active} locale={locale} />
+      )}
 
-      {/* ── Bottom portion — philosophy ── */}
-      <div style={{ flex: 1, position: "relative", zIndex: 2 }}>
-        <PhilosophyPanel active={active} isMobile={isMobile} />
-      </div>
-
-      {/* Bottom rule */}
-      {/* <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: 1,
-          zIndex: 2,
-          background:
-            "linear-gradient(to right, transparent, rgba(196,168,130,0.25), transparent)",
-        }}
-      /> */}
+      {/* Footer */}
       <div style={{ position: "relative", zIndex: 3, flexShrink: 0 }}>
         <Footer locale={locale} />
       </div>
