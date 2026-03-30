@@ -7,7 +7,7 @@ import HomeTrioShowcaseFloor from "@/components/HomeTrioShowcaseFloor";
 import { useNavbarState } from "@/components/NavbarStateContext";
 import { useHomeNav } from "@/context/HomeNavigationContext";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import RoyalCombined from "./RoyalCombinedIntroHero";
+import RoyalCombinedIntroHeroV2 from "./RoyalCombinedIntroHeroV2";
 
 // Floor layout:
 //   0 → Intro
@@ -188,7 +188,10 @@ export default function HomeClient() {
             height: "100vh",
           }}
         >
-          <RoyalCombined onScrolled={() => slideTo(1)} active={floor === 0} />
+          <RoyalCombinedIntroHeroV2
+            onScrolled={() => slideTo(1)}
+            active={floor === 0}
+          />
         </div>
 
         {/* Floor 1 — About */}

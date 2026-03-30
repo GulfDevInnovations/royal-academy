@@ -310,44 +310,6 @@ function DesktopLayout({
           })}
         </div>
       </div>
-
-      {/* Scroll hint */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 24,
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 20,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 8,
-          opacity: 0.45,
-          pointerEvents: "none",
-        }}
-      >
-        <div
-          style={{
-            fontFamily: "Georgia, 'Times New Roman', serif",
-            fontSize: "0.6rem",
-            letterSpacing: "0.3em",
-            color: "rgba(196,168,120,0.8)",
-            textTransform: "uppercase",
-          }}
-        >
-          Scroll
-        </div>
-        <div
-          style={{
-            width: 1,
-            height: 24,
-            background:
-              "linear-gradient(to bottom, rgba(196,168,120,0.7), transparent)",
-            animation: "scrollPulse 2s ease-in-out infinite",
-          }}
-        />
-      </div>
     </>
   );
 }
@@ -524,41 +486,6 @@ function MobileLayout({
           );
         })}
       </div>
-
-      {/* Scroll hint */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 6,
-          paddingTop: 10,
-          paddingBottom: 18,
-          opacity: 0.4,
-          pointerEvents: "none",
-        }}
-      >
-        <div
-          style={{
-            fontFamily: "Georgia, 'Times New Roman', serif",
-            fontSize: "0.55rem",
-            letterSpacing: "0.3em",
-            color: "rgba(196,168,120,0.8)",
-            textTransform: "uppercase",
-          }}
-        >
-          Scroll
-        </div>
-        <div
-          style={{
-            width: 1,
-            height: 20,
-            background:
-              "linear-gradient(to bottom, rgba(196,168,120,0.7), transparent)",
-            animation: "scrollPulse 2s ease-in-out infinite",
-          }}
-        />
-      </div>
     </div>
   );
 }
@@ -614,10 +541,6 @@ export default function RoyalHeroSection() {
       )}
 
       <style>{`
-        @keyframes scrollPulse {
-          0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
-          50%       { opacity: 0.9; transform: scaleY(1); }
-        }
         @keyframes continuousSpin {
           from { transform: rotateY(0deg); }
           to   { transform: rotateY(360deg); }

@@ -122,11 +122,15 @@ function GlassCard({
   title,
   locale,
   onClick,
+  onMouseEnter,
+  onMouseLeave,
 }: {
   item: ShowcaseItem;
   title: string;
   locale: string;
   onClick: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }) {
   const heroMedia = item.media[0];
 
@@ -134,6 +138,8 @@ function GlassCard({
     <button
       type="button"
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       className="group relative h-full w-full overflow-hidden rounded-3xl border border-white/10 bg-black/15 text-left shadow-2xl shadow-black/55 transition-transform duration-300 hover:-translate-y-px focus:outline-none"
     >
       {/* Media fills the entire card */}
@@ -393,6 +399,17 @@ export default function HomeTrioShowcaseFloor({
 }: Props) {
   const locale = useLocale();
 
+  const marqueeMessages =
+    locale === "ar"
+      ? [
+          "أهلاً بكم في رويال أكاديمي — عروض هذا الشهر • أخبار جديدة • فعاليات قادمة",
+          "إطلاق حصة الربيع التجريبية — احجز مكانك لتجربة مميزة في الموسيقى والرقص",
+        ]
+      : [
+          "Welcome to Royal Academy — First Ever Dance Academy in the Region to offer Authentic certifications in Ballet",
+          "Launching our Spring Trial Class — Book your spot for a transformative experience in music and dance",
+        ];
+
   const offers: ShowcaseItem[] = useMemo(
     () => [
       {
@@ -561,27 +578,29 @@ export default function HomeTrioShowcaseFloor({
     | null
   >(null);
 
-  const paused = !active || modal !== null;
+  const [hoveredColumn, setHoveredColumn] = useState<ColumnKey | null>(null);
+
+  const basePaused = !active || modal !== null;
 
   const offersRotation = useRotatingIndex({
     length: offers.length,
     intervalMs: ROTATE_MS,
     initialDelayMs: delaysRef.current.offers,
-    paused,
+    paused: basePaused || hoveredColumn === "offers",
   });
 
   const newsRotation = useRotatingIndex({
     length: news.length,
     intervalMs: ROTATE_MS,
     initialDelayMs: delaysRef.current.news,
-    paused,
+    paused: basePaused || hoveredColumn === "news",
   });
 
   const upcomingsRotation = useRotatingIndex({
     length: upcomings.length,
     intervalMs: ROTATE_MS,
     initialDelayMs: delaysRef.current.upcomings,
-    paused,
+    paused: basePaused || hoveredColumn === "upcomings",
   });
 
   const columnOrder: Array<{ key: ColumnKey; label: LocalizedText }> = [
@@ -608,6 +627,35 @@ export default function HomeTrioShowcaseFloor({
       </div>
 
       <div className="relative mx-auto flex h-full w-full max-w-8xl flex-col px-4 py-35 sm:px-6 lg:px-10">
+        <div className="relative z-20 mb-6 w-full">
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/15 px-4 py-2 backdrop-blur-xl">
+            <div dir="ltr" className="relative overflow-hidden">
+              <motion.div
+                style={{ willChange: "transform" }}
+                className="inline-flex w-max items-center"
+                animate={{ x: ["0%", "-50%"] }}
+                transition={{
+                  duration: 35,
+                  ease: "linear",
+                  repeat: Infinity,
+                }}
+              >
+                {[...marqueeMessages, ...marqueeMessages].map((message, index) => (
+                  <div
+                    key={`marquee-message-${index}`}
+                    className="flex shrink-0 items-center whitespace-nowrap"
+                  >
+                    <span className="text-[25px] font-semibold uppercase tracking-[0.32em] text-royal-cream/80">
+                      {message}
+                    </span>
+                    <span aria-hidden className="inline-block w-screen" />
+                  </div>
+                ))}
+              </motion.div>
+            </div>
+          </div>
+        </div>
+
         <div className="grid flex-1 grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
           {columnOrder.map((col) => {
             const rotation =
@@ -668,6 +716,12 @@ export default function HomeTrioShowcaseFloor({
                         title={pickText(locale, col.label)}
                         locale={locale}
                         onClick={() => setModal({ key: col.key, index: rotation.index })}
+                        onMouseEnter={() => setHoveredColumn(col.key)}
+                        onMouseLeave={() =>
+                          setHoveredColumn((currentHovered) =>
+                            currentHovered === col.key ? null : currentHovered,
+                          )
+                        }
                       />
                     </motion.div>
                   </AnimatePresence>
