@@ -66,7 +66,7 @@ export default function UpdatePasswordPage() {
         <div className="flex justify-center mb-8">
           <Link href={`/${locale}`}>
             <Image
-              src="/images/Logo-White.png"
+              src="/images//logo/Logo-White.png"
               alt="Royal Academy"
               width={140}
               height={52}

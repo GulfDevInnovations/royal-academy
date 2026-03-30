@@ -7,6 +7,7 @@ import { useNavbarState } from "@/components/NavbarStateContext";
 import { useHomeNav } from "@/context/HomeNavigationContext";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import RoyalCombinedIntroHeroV2 from "@/components/home/v2/RoyalCombinedIntroHeroV2Section";
+import { useLocale } from "next-intl";
 
 // Floor layout:
 //   0 → Offers / News / Upcomings
@@ -24,6 +25,7 @@ export default function HomeClientV2() {
   const router = useRouter();
   const pathname = usePathname();
   const { requestedFloor, clearRequest } = useHomeNav();
+  const locale = useLocale();
 
   // Keep navbar style aligned with current floor (hero wants transparent)
   useEffect(() => {
@@ -155,7 +157,10 @@ export default function HomeClientV2() {
             height: "100vh",
           }}
         >
-          <RoyalCombinedIntroHeroV2 onScrolled={() => slideTo(2)} active={floor === 1} />
+          <RoyalCombinedIntroHeroV2
+            onScrolled={() => slideTo(2)}
+            active={floor === 1}
+          />
         </div>
 
         {/* Floor 2 — About */}
@@ -168,7 +173,12 @@ export default function HomeClientV2() {
             height: "100vh",
           }}
         >
-          <AboutSection active={floor === 2} onScrollUp={() => slideTo(1)} onScrollDown={() => {}} />
+          <AboutSection
+            active={floor === 2}
+            locale={locale}
+            onScrollUp={() => slideTo(1)}
+            onScrollDown={() => {}}
+          />
         </div>
       </div>
     </div>

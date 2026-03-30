@@ -298,7 +298,11 @@ function ShowcaseModal({
                 <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between gap-3">
                   <button
                     type="button"
-                    onClick={() => setMediaIndex((prev) => clampIndex(prev - 1, item.media.length))}
+                    onClick={() =>
+                      setMediaIndex((prev) =>
+                        clampIndex(prev - 1, item.media.length),
+                      )
+                    }
                     className="rounded-full border border-white/12 bg-black/25 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/85 transition-colors hover:bg-black/35"
                   >
                     {locale === "ar" ? "وسائط" : "Media"} ←
@@ -310,7 +314,11 @@ function ShowcaseModal({
                   </div>
                   <button
                     type="button"
-                    onClick={() => setMediaIndex((prev) => clampIndex(prev + 1, item.media.length))}
+                    onClick={() =>
+                      setMediaIndex((prev) =>
+                        clampIndex(prev + 1, item.media.length),
+                      )
+                    }
                     className="rounded-full border border-white/12 bg-black/25 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/85 transition-colors hover:bg-black/35"
                   >
                     → {locale === "ar" ? "وسائط" : "Media"}
@@ -368,14 +376,18 @@ function ShowcaseModal({
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setIndex(clampIndex(index - 1, items.length))}
+                    onClick={() =>
+                      setIndex(clampIndex(index - 1, items.length))
+                    }
                     className="rounded-full border border-white/12 bg-black/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/75 transition-colors hover:bg-black/30"
                   >
                     {locale === "ar" ? "السابق" : "Previous"}
                   </button>
                   <button
                     type="button"
-                    onClick={() => setIndex(clampIndex(index + 1, items.length))}
+                    onClick={() =>
+                      setIndex(clampIndex(index + 1, items.length))
+                    }
                     className="rounded-full border border-white/12 bg-black/25 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/85 transition-colors hover:bg-black/35"
                   >
                     {locale === "ar" ? "التالي" : "Next"}
@@ -435,10 +447,17 @@ export default function HomeTrioShowcaseFloor({
           ar: "اشترك شهرياً واحصل على متابعة إضافية خلال الشهر الأول.",
         },
         date: "2026-04-03",
-        link: { href: "/payment/monthly", label: { en: "View Plans", ar: "عرض الخطط" } },
+        link: {
+          href: "/payment/monthly",
+          label: { en: "View Plans", ar: "عرض الخطط" },
+        },
         media: [
           { type: "image", src: "/images/guitarroom.png", alt: "Guitar room" },
-          { type: "image", src: "/images/initial-room2.png", alt: "Royal room" },
+          {
+            type: "image",
+            src: "/images/initial-room2.png",
+            alt: "Royal room",
+          },
         ],
       },
       {
@@ -454,7 +473,11 @@ export default function HomeTrioShowcaseFloor({
           label: { en: "Explore", ar: "استكشف" },
         },
         media: [
-          { type: "image", src: "/images/dance-hero.jpg", alt: "Dance & Wellness" },
+          {
+            type: "image",
+            src: "/images/dance-hero.jpg",
+            alt: "Dance & Wellness",
+          },
           { type: "image", src: "/images/ballet-hero.jpg", alt: "Ballet" },
         ],
       },
@@ -472,7 +495,10 @@ export default function HomeTrioShowcaseFloor({
           ar: "نوسع فريق التدريس لدينا عبر الموسيقى والرقص.",
         },
         date: "2026-03-18",
-        link: { href: "/teachers", label: { en: "Meet Teachers", ar: "تعرف عليهم" } },
+        link: {
+          href: "/teachers",
+          label: { en: "Meet Teachers", ar: "تعرف عليهم" },
+        },
         media: [
           { type: "image", src: "/images/about-1.jpg", alt: "Academy" },
           { type: "image", src: "/images/about-2.jpg", alt: "Academy" },
@@ -486,7 +512,10 @@ export default function HomeTrioShowcaseFloor({
           ar: "تضاف أبرز اللقطات إلى خط زمن المعرض أسبوعياً.",
         },
         date: "2026-03-22",
-        link: { href: "/aesthetics", label: { en: "Open Gallery", ar: "فتح المعرض" } },
+        link: {
+          href: "/gallery",
+          label: { en: "Open Gallery", ar: "فتح المعرض" },
+        },
         media: [
           { type: "image", src: "/images/about-2.jpg", alt: "Gallery" },
           { type: "image", src: "/images/about-3.jpg", alt: "Gallery" },
@@ -538,7 +567,7 @@ export default function HomeTrioShowcaseFloor({
           ar: "لحظة على المسرح لعرض التقدم والاحتفال معاً.",
         },
         date: "2026-05-05",
-        link: { href: "/aesthetics", label: { en: "See Moments", ar: "شاهد" } },
+        link: { href: "/gallery", label: { en: "See Moments", ar: "شاهد" } },
         media: [
           { type: "image", src: "/images/music-hero.jpg", alt: "Showcase" },
           { type: "image", src: "/images/initial-room.png", alt: "Royal room" },
@@ -552,7 +581,10 @@ export default function HomeTrioShowcaseFloor({
           ar: "جلسات مركزة على التقنية والإيقاع والذوق الموسيقي — لجميع المستويات.",
         },
         date: "2026-05-20",
-        link: { href: "/classes", label: { en: "Browse Classes", ar: "الصفوف" } },
+        link: {
+          href: "/classes",
+          label: { en: "Browse Classes", ar: "الصفوف" },
+        },
         media: [
           { type: "image", src: "/images/drums.png", alt: "Workshops" },
           { type: "image", src: "/images/oud.png", alt: "Oud" },
@@ -571,13 +603,10 @@ export default function HomeTrioShowcaseFloor({
     };
   }
 
-  const [modal, setModal] = useState<
-    | {
-        key: ColumnKey;
-        index: number;
-      }
-    | null
-  >(null);
+  const [modal, setModal] = useState<{
+    key: ColumnKey;
+    index: number;
+  } | null>(null);
 
   const [hoveredColumn, setHoveredColumn] = useState<ColumnKey | null>(null);
 
@@ -618,10 +647,25 @@ export default function HomeTrioShowcaseFloor({
 
   const mobileSelected =
     mobileKey === "offers"
-      ? { key: "offers" as const, items: offers, rotation: offersRotation, label: { en: "Offers", ar: "العروض" } }
+      ? {
+          key: "offers" as const,
+          items: offers,
+          rotation: offersRotation,
+          label: { en: "Offers", ar: "العروض" },
+        }
       : mobileKey === "news"
-        ? { key: "news" as const, items: news, rotation: newsRotation, label: { en: "News", ar: "الأخبار" } }
-        : { key: "upcomings" as const, items: upcomings, rotation: upcomingsRotation, label: { en: "Upcomings", ar: "القادم" } };
+        ? {
+            key: "news" as const,
+            items: news,
+            rotation: newsRotation,
+            label: { en: "News", ar: "الأخبار" },
+          }
+        : {
+            key: "upcomings" as const,
+            items: upcomings,
+            rotation: upcomingsRotation,
+            label: { en: "Upcomings", ar: "القادم" },
+          };
 
   const mobileCurrent = mobileSelected.items[mobileSelected.rotation.index];
 
@@ -650,17 +694,19 @@ export default function HomeTrioShowcaseFloor({
                   repeat: Infinity,
                 }}
               >
-                {[...marqueeMessages, ...marqueeMessages].map((message, index) => (
-                  <div
-                    key={`marquee-message-${index}`}
-                    className="flex shrink-0 items-center whitespace-nowrap"
-                  >
-                    <span className="text-[16px] font-semibold uppercase tracking-[0.26em] text-royal-cream/80 sm:text-[20px] sm:tracking-[0.3em] lg:text-[25px] lg:tracking-[0.32em]">
-                      {message}
-                    </span>
-                    <span aria-hidden className="inline-block w-screen" />
-                  </div>
-                ))}
+                {[...marqueeMessages, ...marqueeMessages].map(
+                  (message, index) => (
+                    <div
+                      key={`marquee-message-${index}`}
+                      className="flex shrink-0 items-center whitespace-nowrap"
+                    >
+                      <span className="text-[16px] font-semibold uppercase tracking-[0.26em] text-royal-cream/80 sm:text-[20px] sm:tracking-[0.3em] lg:text-[25px] lg:tracking-[0.32em]">
+                        {message}
+                      </span>
+                      <span aria-hidden className="inline-block w-screen" />
+                    </div>
+                  ),
+                )}
               </motion.div>
             </div>
           </div>
@@ -669,13 +715,14 @@ export default function HomeTrioShowcaseFloor({
         {/* Mobile / tablet: one large card with tabs (bigger media) */}
         <div className="flex flex-1 min-h-0 flex-col lg:hidden">
           <div className="mb-3 flex items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/10 p-2 backdrop-blur-xl">
-            {(
-              [
-                { key: "offers" as const, label: { en: "Offers", ar: "العروض" } },
-                { key: "news" as const, label: { en: "News", ar: "الأخبار" } },
-                { key: "upcomings" as const, label: { en: "Upcomings", ar: "القادم" } },
-              ]
-            ).map((tab) => {
+            {[
+              { key: "offers" as const, label: { en: "Offers", ar: "العروض" } },
+              { key: "news" as const, label: { en: "News", ar: "الأخبار" } },
+              {
+                key: "upcomings" as const,
+                label: { en: "Upcomings", ar: "القادم" },
+              },
+            ].map((tab) => {
               const activeTab = mobileKey === tab.key;
               return (
                 <button
@@ -738,7 +785,10 @@ export default function HomeTrioShowcaseFloor({
                     title={pickText(locale, mobileSelected.label)}
                     locale={locale}
                     onClick={() =>
-                      setModal({ key: mobileSelected.key, index: mobileSelected.rotation.index })
+                      setModal({
+                        key: mobileSelected.key,
+                        index: mobileSelected.rotation.index,
+                      })
                     }
                   />
                 </motion.div>
@@ -785,7 +835,11 @@ export default function HomeTrioShowcaseFloor({
             setIndex={(nextIndex) => {
               if (!modal) return;
               const itemsForKey =
-                modal.key === "offers" ? offers : modal.key === "news" ? news : upcomings;
+                modal.key === "offers"
+                  ? offers
+                  : modal.key === "news"
+                    ? news
+                    : upcomings;
               const next = clampIndex(nextIndex, itemsForKey.length);
               setModal({ key: modal.key, index: next });
             }}
@@ -811,7 +865,11 @@ export default function HomeTrioShowcaseFloor({
                   : upcomingsRotation;
 
             const items =
-              col.key === "offers" ? offers : col.key === "news" ? news : upcomings;
+              col.key === "offers"
+                ? offers
+                : col.key === "news"
+                  ? news
+                  : upcomings;
 
             const current = items[rotation.index];
 
@@ -860,7 +918,9 @@ export default function HomeTrioShowcaseFloor({
                         item={current}
                         title={pickText(locale, col.label)}
                         locale={locale}
-                        onClick={() => setModal({ key: col.key, index: rotation.index })}
+                        onClick={() =>
+                          setModal({ key: col.key, index: rotation.index })
+                        }
                         onMouseEnter={() => setHoveredColumn(col.key)}
                         onMouseLeave={() =>
                           setHoveredColumn((currentHovered) =>
@@ -876,20 +936,24 @@ export default function HomeTrioShowcaseFloor({
                   <button
                     type="button"
                     onClick={() =>
-                      rotation.setIndex((prev) => clampIndex(prev - 1, items.length))
+                      rotation.setIndex((prev) =>
+                        clampIndex(prev - 1, items.length),
+                      )
                     }
                     className="rounded-full border border-white/10 bg-black/15 px-2 py-1.5 transition-colors hover:bg-black/25 sm:px-3 sm:py-2"
                   >
-                    <ArrowUp className="hover:cursor-pointer"/> 
+                    <ArrowUp className="hover:cursor-pointer" />
                   </button>
                   <button
                     type="button"
                     onClick={() =>
-                      rotation.setIndex((prev) => clampIndex(prev + 1, items.length))
+                      rotation.setIndex((prev) =>
+                        clampIndex(prev + 1, items.length),
+                      )
                     }
                     className="rounded-full border border-white/10 bg-black/15 px-2 py-1.5 transition-colors hover:bg-black/25 sm:px-3 sm:py-2"
                   >
-                    <ArrowDown className="hover:cursor-pointer"/>
+                    <ArrowDown className="hover:cursor-pointer" />
                   </button>
                 </div>
 
@@ -897,7 +961,10 @@ export default function HomeTrioShowcaseFloor({
                   open={modal?.key === col.key}
                   onClose={() => setModal(null)}
                   items={items}
-                  index={(modal?.key === col.key ? modal.index : rotation.index) ?? rotation.index}
+                  index={
+                    (modal?.key === col.key ? modal.index : rotation.index) ??
+                    rotation.index
+                  }
                   setIndex={(nextIndex) => {
                     const next = clampIndex(nextIndex, items.length);
                     setModal({ key: col.key, index: next });

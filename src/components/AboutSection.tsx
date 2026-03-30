@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Footer from "./Footer";
 
 // ─── Placeholder media ────────────────────────────────────────────────────────
 const MEDIA: { type: "image" | "video"; src: string }[] = [
@@ -31,6 +32,28 @@ const PHILOSOPHY = [
     body: "We hold ourselves to the highest standards as a form of respect for the art. We teach with honesty and celebrate progress over perfection. The Academy is a place of belonging — for students, families, and the wider cultural life of Oman. We preserve great traditions, ensuring they are passed with care to the next generation.",
   },
 ];
+
+// ─── Inject patternScroll keyframe once ──────────────────────────────────────
+const PATTERN_SCROLL_CSS = `
+@keyframes patternScroll {
+  from { background-position: 0 0; }
+  to   { background-position: 0 500px; }
+}
+`;
+
+function usePatternScrollKeyframe() {
+  useEffect(() => {
+    const id = "pattern-scroll-keyframe";
+    if (document.getElementById(id)) return;
+    const style = document.createElement("style");
+    style.id = id;
+    style.textContent = PATTERN_SCROLL_CSS;
+    document.head.appendChild(style);
+    return () => {
+      document.getElementById(id)?.remove();
+    };
+  }, []);
+}
 
 // ─── useIsMobile hook ─────────────────────────────────────────────────────────
 function useIsMobile(breakpoint = 768) {
@@ -599,7 +622,7 @@ function RoyalMediaPlayer({
           width: isMobile ? "calc(100% - 56px)" : "calc(60% - 100px)",
           height: "100%",
           padding: 0,
-          marginTop: isMobile ? "180px" : "180px",
+          marginTop: isMobile ? "40px" : "180px",
         }}
       >
         {/* Baroque frame */}
@@ -610,6 +633,7 @@ function RoyalMediaPlayer({
               inset: 0,
               zIndex: 3,
               pointerEvents: "none",
+              overflow: "visible",
             }}
           >
             <BaroqueFrame width={frameSize.width} height={frameSize.height} />
@@ -915,23 +939,31 @@ function PhilosophyPanel({
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 export default function AboutSection({
-  active = false,
+  active = false, // ← default here ✓
+  locale,
+  scrollable = false, // ← default here ✓
+  onScrollUp,
+  onScrollDown,
 }: {
-  active?: boolean;
+  active?: boolean; // ← no default here ✓
+  locale: string;
+  scrollable?: boolean; // ← no default here ✓
   onScrollUp?: () => void;
   onScrollDown?: () => void;
 }) {
   const isMobile = useIsMobile(768);
+  usePatternScrollKeyframe();
 
   return (
     <div
       style={{
         width: "100%",
-        height: "100%",
+        height: scrollable ? "auto" : "100%",
+        minHeight: scrollable ? "100svh" : undefined,
         display: "flex",
         flexDirection: "column",
         position: "relative",
-        overflow: "hidden",
+        overflow: scrollable ? "visible" : "hidden",
         zIndex: 2,
         background:
           "radial-gradient(circle at 18% 12%, rgba(196,168,130,0.16) 0%, transparent 55%), radial-gradient(circle at 82% 28%, rgba(92,45,74,0.30) 0%, transparent 62%), linear-gradient(135deg, var(--royal-purple) 0%, var(--royal-dark) 58%, #0b0f2a 100%)",
@@ -971,27 +1003,42 @@ export default function AboutSection({
             inset: 0,
             backgroundImage: "url('/images/pattern.png')",
             backgroundRepeat: "repeat",
-            backgroundSize: "300px",
+            backgroundSize: "auto",
             animation: "patternScroll 32s linear infinite",
-            opacity: 0.55,
+            opacity: 1,
             pointerEvents: "none",
             zIndex: 0,
           }}
         />
       ) : (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: "url('/images/pattern.png')",
-            backgroundRepeat: "repeat",
-            backgroundSize: "auto",
-            animation: "patternScroll 32s linear infinite",
-            opacity: 0.65,
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
-        />
+        <>
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: "url('/images/pattern.png')",
+              backgroundRepeat: "repeat",
+              backgroundSize: "auto",
+              animation: "patternScroll 32s linear infinite",
+              opacity: 1,
+              pointerEvents: "none",
+              zIndex: 0,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: "url('/images/pattern.png')",
+              backgroundRepeat: "repeat",
+              backgroundSize: "auto",
+              animation: "patternScroll 32s linear infinite",
+              opacity: 1,
+              pointerEvents: "none",
+              zIndex: 0,
+            }}
+          />
+        </>
       )}
 
       {/* Fixed overlay pattern */}
@@ -1003,7 +1050,7 @@ export default function AboutSection({
           backgroundRepeat: "no-repeat",
           backgroundSize: "cover",
           backgroundPosition: "center",
-          opacity: 0.75,
+          opacity: 1,
           pointerEvents: "none",
           zIndex: 1,
         }}
@@ -1013,7 +1060,10 @@ export default function AboutSection({
       {/* Mobile: 50% height, Desktop: 58% height */}
       <div
         style={{
-          flex: isMobile ? "0 0 50%" : "0 0 58%",
+          flex: scrollable ? "none" : isMobile ? "0 0 50%" : "0 0 58%",
+          height: scrollable ? "56vw" : undefined, // aspect-ratio-ish on mobile
+          minHeight: scrollable ? 280 : undefined,
+          maxHeight: scrollable ? 420 : undefined,
           position: "relative",
           paddingTop: 16,
         }}
@@ -1027,7 +1077,7 @@ export default function AboutSection({
       </div>
 
       {/* Bottom rule */}
-      <div
+      {/* <div
         style={{
           position: "absolute",
           bottom: 0,
@@ -1038,7 +1088,10 @@ export default function AboutSection({
           background:
             "linear-gradient(to right, transparent, rgba(196,168,130,0.25), transparent)",
         }}
-      />
+      /> */}
+      <div style={{ position: "relative", zIndex: 3, flexShrink: 0 }}>
+        <Footer locale={locale} />
+      </div>
     </div>
   );
 }

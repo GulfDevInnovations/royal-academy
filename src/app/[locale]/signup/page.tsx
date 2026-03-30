@@ -52,7 +52,7 @@ export default function SignUpPage() {
         <div className="flex justify-center mb-8">
           <Link href={`/${locale}`}>
             <Image
-              src="/images/Logo-White.png"
+              src="/images/logo/Logo-White.png"
               alt="Royal Academy"
               width={140}
               height={52}
@@ -308,11 +308,14 @@ function AuthPhoneInput({ locale }: { locale: string }) {
         inputMode="numeric"
         pattern="[0-9]{8}"
         maxLength={8}
-        placeholder={locale === "ar" ? "رقم الهاتف (8 أرقام)" : "Phone Number (8 digits)"}
+        placeholder={
+          locale === "ar" ? "رقم الهاتف (8 أرقام)" : "Phone Number (8 digits)"
+        }
         className="w-full bg-transparent outline-none placeholder:tracking-wide"
         style={{ color: "#e4d0b5", direction: "ltr", textAlign: "left" }}
         onFocus={(e) => {
-          const wrapper = e.currentTarget.parentElement as HTMLDivElement | null;
+          const wrapper = e.currentTarget
+            .parentElement as HTMLDivElement | null;
           if (!wrapper) return;
           wrapper.style.border = "1px solid rgba(228,208,181,0.40)";
           wrapper.style.boxShadow = `
@@ -322,7 +325,8 @@ function AuthPhoneInput({ locale }: { locale: string }) {
           `;
         }}
         onBlur={(e) => {
-          const wrapper = e.currentTarget.parentElement as HTMLDivElement | null;
+          const wrapper = e.currentTarget
+            .parentElement as HTMLDivElement | null;
           if (!wrapper) return;
           wrapper.style.border = "1px solid rgba(228,208,181,0.15)";
           wrapper.style.boxShadow = `

@@ -373,23 +373,26 @@ function Subclasses({
           const slug = raw.toLowerCase();
           const resolvedHref =
             section.id === "dance-wellness"
-              ? `/${locale}/classes/dance/${slug}`: section.id === "ballet"
-                ? `/${locale}/classes/ballet/${slug}` : section.id === "music"
-                  ? `/${locale}/classes/music/${slug}` : section.id === "art"
+              ? `/${locale}/classes/dance/${slug}`
+              : section.id === "ballet"
+                ? `/${locale}/classes/ballet/${slug}`
+                : section.id === "music"
+                  ? `/${locale}/classes/music/${slug}`
+                  : section.id === "art"
                     ? `/${locale}/classes/art/${slug}`
-              : `/${locale}${sub.href.startsWith("/") ? sub.href : `/${sub.href}`}`;
+                    : `/${locale}${sub.href.startsWith("/") ? sub.href : `/${sub.href}`}`;
 
           return (
-          <div
-            key={`${section.id}-${sub.href}`}
-            style={{
-              opacity: isActive ? 1 : 0,
-              transform: isActive ? "translateY(0)" : "translateY(6px)",
-              transition: `opacity 0.4s ease ${0.08 * idx}s, transform 0.4s ease ${0.08 * idx}s`,
-            }}
-          >
-            <SubclassItem sub={{ ...sub, href: resolvedHref }} />
-          </div>
+            <div
+              key={`${section.id}-${sub.href}`}
+              style={{
+                opacity: isActive ? 1 : 0,
+                transform: isActive ? "translateY(0)" : "translateY(6px)",
+                transition: `opacity 0.4s ease ${0.08 * idx}s, transform 0.4s ease ${0.08 * idx}s`,
+              }}
+            >
+              <SubclassItem sub={{ ...sub, href: resolvedHref }} />
+            </div>
           );
         })}
       </div>
@@ -809,16 +812,13 @@ function StageOverlay({ activeIndex, revealed }: StageOverlayProps) {
 }
 
 // ─── Props ────────────────────────────────────────────────────────────────────
-interface RoyalCombinedProps {
+interface RoyalIntroProps {
   active: boolean;
   onScrolled: () => void;
 }
 
 // ─── Root component ───────────────────────────────────────────────────────────
-export default function RoyalCombined({
-  active,
-  onScrolled,
-}: RoyalCombinedProps) {
+export default function RoyalIntro({ active, onScrolled }: RoyalIntroProps) {
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const departmentsRevealed = true;
@@ -864,7 +864,7 @@ export default function RoyalCombined({
       {/* Desktop background */}
       {!isMobile && (
         <Image
-          src="/images/initial-room4.png"
+          src="/images/rooms/initial-room4.png"
           alt="Royal Academy Room"
           fill
           unoptimized

@@ -1,4 +1,6 @@
-import HomeClientV2 from "@/components/home/v2/HomeClientV2";
+import { prisma } from "@/lib/prisma";
+export const dynamic = "force-dynamic";
+import HomeWrapper from "@/components/layout-toggle/HomeWrapper"; // adjust path if needed
 
 export default async function Home({
   params,
@@ -7,5 +9,38 @@ export default async function Home({
 }) {
   await params;
 
-  return <HomeClientV2 />;
+  const where = {
+    status: "ACTIVE" as const,
+    isActive: true,
+  };
+
+  const [upcoming, news, offers] = await Promise.all([
+    prisma.upcoming.findMany({ where, orderBy: { sortOrder: "asc" } }),
+    prisma.news.findMany({ where, orderBy: { sortOrder: "asc" } }),
+    prisma.offer.findMany({ where, orderBy: { sortOrder: "asc" } }),
+  ]);
+
+  const serializeBase = (i: any) => ({
+    ...i,
+    eventDate: i.eventDate?.toISOString() ?? null,
+    publishAt: i.publishAt?.toISOString() ?? null,
+    expireAt: i.expireAt?.toISOString() ?? null,
+    createdAt: i.createdAt.toISOString(),
+    updatedAt: i.updatedAt.toISOString(),
+  });
+
+  return (
+    <HomeWrapper
+      worldData={{
+        upcoming: upcoming.map(serializeBase),
+        news: news.map(serializeBase),
+        offers: offers.map((i) => ({
+          ...serializeBase(i),
+          discountValue: i.discountValue?.toString() ?? null,
+        })),
+      }}
+      logoUrl="/images/logo/logo-color.png"
+      backgroundImageUrl="/images/rooms/initial-room4.png"
+    />
+  );
 }
