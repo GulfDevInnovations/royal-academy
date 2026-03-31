@@ -1217,7 +1217,16 @@ export default function RoyalCombinedIntroHeroV2({
                     }}
                   >
                     <div className="flex flex-col items-center gap-2">
-                      <div className="relative h-9 w-9 overflow-hidden rounded-xl border border-white/10 bg-black/20">
+                      <div
+                        className="relative h-9 w-9 overflow-hidden rounded-xl border border-white/10 bg-black/20"
+                        style={{
+                          transformStyle: "preserve-3d",
+                          animation: "continuousSpin 9.5s linear infinite",
+                          boxShadow: isActive
+                            ? "0 10px 24px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.14)"
+                            : "0 8px 20px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.1)",
+                        }}
+                      >
                         <Image
                           src={section.icon}
                           alt={section.label}
@@ -1230,7 +1239,7 @@ export default function RoyalCombinedIntroHeroV2({
                         style={{
                           fontFamily: "Georgia, 'Times New Roman', serif",
                           fontStyle: "italic",
-                          fontSize: 12,
+                          fontSize: 14,
                           letterSpacing: "0.03em",
                           color: isActive
                             ? "rgba(222,194,158,0.98)"
@@ -1255,7 +1264,7 @@ export default function RoyalCombinedIntroHeroV2({
                           <div
                             style={{
                               marginTop: 3,
-                              fontSize: 10,
+                              fontSize: 12,
                               opacity: 0.9,
                               ...(sectionPrimaryIsArabic
                                 ? undefined
@@ -1320,6 +1329,52 @@ export default function RoyalCombinedIntroHeroV2({
                         background: "rgba(0,0,0,0.22)",
                       }}
                     >
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 8,
+                          left: 8,
+                          right: 8,
+                          zIndex: 3,
+                          display: "flex",
+                          justifyContent: "center",
+                          pointerEvents: "none",
+                        }}
+                      >
+                        <div
+                          style={{
+                            maxWidth: "100%",
+                            padding: "6px 12px",
+                            borderRadius: 999,
+                            background:
+                              "linear-gradient(135deg, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0.10) 100%)",
+                            border: "1px solid rgba(255,255,255,0.34)",
+                            backdropFilter: "blur(14px) saturate(120%)",
+                            WebkitBackdropFilter: "blur(14px) saturate(120%)",
+                            boxShadow:
+                              "0 5 26px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.32)",
+                            textAlign: "center",
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontFamily: "Georgia, 'Times New Roman', serif",
+                              fontStyle: "italic",
+                              fontSize: 13,
+                              lineHeight: 1.1,
+                              letterSpacing: "0.03em",
+                              color: "rgba(250,241,224,0.98)",
+                              textShadow: "0 1px 10px rgba(0,0,0,0.55)",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {sub.label}
+                          </div>
+                        </div>
+                      </div>
+
                       <Image
                         src={sub.image}
                         alt={sub.label}
