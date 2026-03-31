@@ -51,15 +51,13 @@ export async function signUp(formData: FormData) {
 
   const supabase = await createClient();
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback`,
-      // user_metadata is fine for non-sensitive display info only
-      data: { firstName, lastName },
-    },
-  });
+const { data, error } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    emailRedirectTo: `https://royalacadeymct.com/api/auth/callback?next=/en/login`,
+  }
+});
 
   if (error) return { error: error.message };
   if (!data.user) return { error: "Could not create user. Please try again." };
