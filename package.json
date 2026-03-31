@@ -5,12 +5,15 @@
   "scripts": {
     "postinstall": "prisma generate",
     "prebuild": "prisma generate && node scripts/prisma-migrate-deploy-if-env.cjs",
+    "predev": "prisma generate && prisma db push",
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "prestart": "node scripts/prisma-migrate-deploy-if-env.cjs",
     "start": "next start",
     "lint": "eslint",
     "prisma:generate": "prisma generate",
+    "prisma:db:push": "prisma db push",
+    "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy"
   },
   "prisma": {
