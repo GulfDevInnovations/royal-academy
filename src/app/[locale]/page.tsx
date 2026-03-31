@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 import HomeWrapper from "@/components/layout-toggle/HomeWrapper"; // adjust path if needed
+import type { News, Offer, Upcoming } from "@prisma/client";
 
 export default async function Home({
   params,
@@ -14,11 +15,22 @@ export default async function Home({
     isActive: true,
   };
 
-  const [upcoming, news, offers] = await Promise.all([
-    prisma.upcoming.findMany({ where, orderBy: { sortOrder: "asc" } }),
-    prisma.news.findMany({ where, orderBy: { sortOrder: "asc" } }),
-    prisma.offer.findMany({ where, orderBy: { sortOrder: "asc" } }),
-  ]);
+  let upcoming: Upcoming[] = [];
+  let news: News[] = [];
+  let offers: Offer[] = [];
+
+  try {
+    [upcoming, news, offers] = await Promise.all([
+      prisma.upcoming.findMany({ where, orderBy: { sortOrder: "asc" } }),
+      prisma.news.findMany({ where, orderBy: { sortOrder: "asc" } }),
+      prisma.offer.findMany({ where, orderBy: { sortOrder: "asc" } }),
+    ]);
+  } catch (error) {
+    // Dev convenience: allow the homepage to render even if Postgres isn't up locally.
+    // In production we still want to fail fast so we notice DB outages.
+    if (process.env.NODE_ENV === "production") throw error;
+    console.error("[home] Failed to load content from DB; rendering empty lists.", error);
+  }
 
   type WithBaseDates = {
     createdAt: Date;
@@ -48,7 +60,7 @@ export default async function Home({
           discountValue: i.discountValue?.toString() ?? null,
         })),
       }}
-      logoUrl="/images/logo/logo-color.png"
+      logoUrl="/images/logo/Logo-Color.png"
       backgroundImageUrl="/images/rooms/initial-room4.png"
     />
   );
