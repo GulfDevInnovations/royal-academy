@@ -939,7 +939,7 @@ export function Subclasses({
       >
         {section.subclasses.map((sub, idx) => (
           <div
-            key={sub.href}
+            key={`${section.id}-${sub.href}-${idx}`}
             style={{
               opacity: isActive ? 1 : 0,
               transform: isActive ? "translateY(0)" : "translateY(5px)",

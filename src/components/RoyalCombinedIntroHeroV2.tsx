@@ -1033,6 +1033,7 @@ export default function RoyalCombinedIntroHeroV2({
                               activeSection.id,
                               sub.slug,
                             )}
+                            prefetch={false}
                             onMouseEnter={() => setHoveredSubclassId(sub.id)}
                             onMouseLeave={() => setHoveredSubclassId(null)}
                             className="group block rounded-2xl border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-sm transition hover:bg-white/10"
@@ -1308,6 +1309,7 @@ export default function RoyalCombinedIntroHeroV2({
                       activeSection.id,
                       sub.slug,
                     )}
+                    prefetch={false}
                     onPointerEnter={() => setHoveredSubclassId(sub.id)}
                     onPointerLeave={() => setHoveredSubclassId(null)}
                     aria-label={sub.label}
