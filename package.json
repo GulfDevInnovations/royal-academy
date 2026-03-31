@@ -10,6 +10,7 @@
     "prestart": "node scripts/prisma-migrate-deploy-if-env.cjs",
     "start": "next start",
     "lint": "eslint",
+    "deploy": "bash deploy.sh",
     "prisma:generate": "prisma generate",
     "prisma:migrate:deploy": "prisma migrate deploy"
   },
