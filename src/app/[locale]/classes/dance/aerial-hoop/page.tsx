@@ -1,13 +1,15 @@
 import DanceWellnessSubclassPage from "@/components/DanceWellnessSubclassPage";
 
-export default function YogaMovementPage({
+export default async function YogaMovementPage({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+
   return (
     <DanceWellnessSubclassPage
-      locale={params.locale}
+      locale={locale}
       title={{ en: "Aerial Hoop" }}
       reservationQuery={{ q: "Aerial Hoop" }}
       description={{

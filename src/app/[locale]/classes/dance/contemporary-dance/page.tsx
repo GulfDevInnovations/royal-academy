@@ -1,13 +1,15 @@
 import DanceWellnessSubclassPage from "@/components/DanceWellnessSubclassPage";
 
-export default function ContemporaryDancePage({
+export default async function ContemporaryDancePage({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+
   return (
     <DanceWellnessSubclassPage
-      locale={params.locale}
+      locale={locale}
       title={{ en: "Contemporary Dance" }}
       reservationQuery={{ q: "Contemporary Dance" }}
       description={{

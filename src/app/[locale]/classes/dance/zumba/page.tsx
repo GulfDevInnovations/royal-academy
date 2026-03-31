@@ -1,9 +1,15 @@
 import DanceWellnessSubclassPage from "@/components/DanceWellnessSubclassPage";
 
-export default function ZumbaPage({ params }: { params: { locale: string } }) {
+export default async function ZumbaPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+
   return (
     <DanceWellnessSubclassPage
-      locale={params.locale}
+      locale={locale}
       title={{ en: "Zumba" }}
       reservationQuery={{ q: "Zumba" }}
       description={{

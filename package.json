@@ -4,11 +4,14 @@
   "private": true,
   "scripts": {
     "postinstall": "prisma generate",
+    "prebuild": "prisma generate && node scripts/prisma-migrate-deploy-if-env.cjs",
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
+    "prestart": "node scripts/prisma-migrate-deploy-if-env.cjs",
     "start": "next start",
     "lint": "eslint",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:deploy": "prisma migrate deploy"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"

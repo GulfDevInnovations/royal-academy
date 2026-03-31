@@ -7,7 +7,8 @@ export default async function Home({
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  await params;
+  const { locale } = await params;
+
   const where = {
     status: "ACTIVE" as const,
     isActive: true,
@@ -38,6 +39,7 @@ export default async function Home({
 
   return (
     <HomeWrapper
+      key={locale}
       worldData={{
         upcoming: upcoming.map(serializeBase),
         news: news.map(serializeBase),
