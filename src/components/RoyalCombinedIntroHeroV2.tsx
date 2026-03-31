@@ -712,8 +712,9 @@ export default function RoyalCombinedIntroHeroV2({
           position: "absolute",
           inset: 0,
           zIndex: 0,
-          background:
-            "radial-gradient(circle at 50% 12%, rgba(196,168,130,0.18) 20%, transparent 80%), radial-gradient(circle at 82% 28%, rgba(92,45,74,0.35) 50%, transparent 62%), linear-gradient(135deg, var(--royal-purple) 0%, var(--royal-dark) 58%, #0b0f2a 100%)",
+          background: isMobile
+            ? "radial-gradient(circle at 50% 12%, rgba(196,168,130,0.12) 18%, transparent 78%), radial-gradient(circle at 82% 28%, rgba(92,45,74,0.26) 48%, transparent 64%), linear-gradient(135deg, #0b0a1c 0%, #060914 55%, #02040a 100%)"
+            : "radial-gradient(circle at 50% 12%, rgba(196,168,130,0.18) 20%, transparent 80%), radial-gradient(circle at 82% 28%, rgba(92,45,74,0.35) 50%, transparent 62%), linear-gradient(135deg, var(--royal-purple) 0%, var(--royal-dark) 58%, #0b0f2a 100%)",
         }}
       />
 
@@ -724,8 +725,10 @@ export default function RoyalCombinedIntroHeroV2({
           zIndex: 1,
           pointerEvents: "none",
           background:
-            "linear-gradient(to bottom, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.0) 30%, rgba(0,0,0,0.58) 100%)",
-          opacity: 0.9,
+            isMobile
+              ? "linear-gradient(to bottom, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.50) 38%, rgba(0,0,0,0.82) 100%)"
+              : "linear-gradient(to bottom, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.0) 30%, rgba(0,0,0,0.58) 100%)",
+          opacity: isMobile ? 1 : 0.9,
         }}
       />
 
@@ -1298,6 +1301,7 @@ export default function RoyalCombinedIntroHeroV2({
                     )}
                     onPointerEnter={() => setHoveredSubclassId(sub.id)}
                     onPointerLeave={() => setHoveredSubclassId(null)}
+                    aria-label={sub.label}
                     className="block rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm"
                     style={{
                       boxShadow:
@@ -1305,40 +1309,32 @@ export default function RoyalCombinedIntroHeroV2({
                       textDecoration: "none",
                     }}
                   >
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.26em] text-royal-gold/70">
-                      <div
-                        style={
-                          sectionPrimaryIsArabic
-                            ? {
-                                fontFamily: "var(--font-layla), sans-serif",
-                                textTransform: "none",
-                                letterSpacing: "0.04em",
-                              }
-                            : undefined
-                        }
-                      >
-                        {activeSectionPrimary}
-                      </div>
+                    <span className="sr-only">{sub.label}</span>
+                    <div
+                      style={{
+                        position: "relative",
+                        height: 76,
+                        borderRadius: 16,
+                        overflow: "hidden",
+                        border: "1px solid rgba(255,255,255,0.10)",
+                        background: "rgba(0,0,0,0.22)",
+                      }}
+                    >
+                      <Image
+                        src={sub.image}
+                        alt={sub.label}
+                        fill
+                        unoptimized
+                        style={{ objectFit: "cover", objectPosition: "50% 50%" }}
+                      />
                       <div
                         style={{
-                          marginTop: 4,
-                          fontSize: 10,
-                          letterSpacing: "0.06em",
-                          opacity: 0.9,
-                          ...(sectionPrimaryIsArabic
-                            ? undefined
-                            : {
-                                fontFamily: "var(--font-layla), sans-serif",
-                                textTransform: "none",
-                                letterSpacing: "0.04em",
-                              }),
+                          position: "absolute",
+                          inset: 0,
+                          background:
+                            "linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.18) 55%, rgba(0,0,0,0.62) 100%)",
                         }}
-                      >
-                        {activeSectionSecondary}
-                      </div>
-                    </div>
-                    <div className="mt-2 font-goudy text-xl leading-tight text-royal-cream/95">
-                      {sub.label}
+                      />
                     </div>
                   </Link>
                 ))}

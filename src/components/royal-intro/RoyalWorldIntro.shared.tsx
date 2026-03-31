@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useLocale } from "next-intl";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { ContentCard, Section } from "./RoyalWorldIntro.types";
 
 // ─────────────────────────────────────────────
@@ -798,9 +799,19 @@ export function SubclassItem({
   sub: { label: string; href: string };
 }) {
   const [hovered, setHovered] = useState(false);
+  const locale = useLocale();
+
+  const href = useMemo(() => {
+    const raw = sub.href;
+    if (/^(https?:\/\/|mailto:|tel:)/i.test(raw)) return raw;
+    if (/^\/[a-z]{2}(\/|$)/i.test(raw)) return raw;
+    if (raw.startsWith("/")) return `/${locale}${raw}`;
+    return `/${locale}/${raw}`;
+  }, [locale, sub.href]);
+
   return (
     <Link
-      href={sub.href}
+      href={href}
       onClick={(e) => e.stopPropagation()}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
