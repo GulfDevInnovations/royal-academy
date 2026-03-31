@@ -801,6 +801,7 @@ export function SubclassItem({
   return (
     <Link
       href={sub.href}
+      prefetch={false}
       onClick={(e) => e.stopPropagation()}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
