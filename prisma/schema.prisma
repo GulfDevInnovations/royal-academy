@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -229,7 +229,7 @@ model TeacherProfile {
   firstName   String
   lastName    String
   bio         String?
-  specialties String[]
+  specialties Json
   photoUrl    String?
   cvUrl       String?
   isAvailable Boolean  @default(true)
@@ -506,8 +506,8 @@ model MonthlyEnrollment {
   month                  Int
   year                   Int
   frequency              FrequencyType
-  preferredDays          DayOfWeek[]
-  scheduleIds            String[]      @default([]) // exact ClassSchedule IDs enrolled
+  preferredDays          Json // DayOfWeek[] stored as JSON
+  scheduleIds            Json // string[] of exact ClassSchedule IDs enrolled
   status                 BookingStatus @default(CONFIRMED)
   totalAmount            Decimal       @db.Decimal(10, 2)
   currency               String        @default("OMR")
@@ -559,8 +559,8 @@ model MultiMonthEnrollment {
   studentId     String
   subClassId    String
   frequency     FrequencyType
-  preferredDays DayOfWeek[]
-  scheduleIds   String[]      @default([]) // exact ClassSchedule IDs enrolled
+  preferredDays Json // DayOfWeek[] stored as JSON
+  scheduleIds   Json // string[] of exact ClassSchedule IDs enrolled
   // The calendar months covered, e.g. [{month:1,year:2026},{month:2,year:2026}]
   startMonth    Int
   startYear     Int
@@ -900,8 +900,8 @@ model Upcoming {
   title        String
   subtitle     String?
   description  String?
-  mediaUrls    String[]      @default([])
-  videoUrls    String[]      @default([])
+  mediaUrls    Json
+  videoUrls    Json
   thumbnailUrl String?
   linkUrl      String?
   linkLabel    String?
@@ -931,8 +931,8 @@ model News {
   title        String
   subtitle     String?
   description  String?
-  mediaUrls    String[]      @default([])
-  videoUrls    String[]      @default([])
+  mediaUrls    Json
+  videoUrls    Json
   thumbnailUrl String?
   linkUrl      String?
   linkLabel    String?
@@ -962,8 +962,8 @@ model Offer {
   title          String
   subtitle       String?
   description    String?
-  mediaUrls      String[]      @default([])
-  videoUrls      String[]      @default([])
+  mediaUrls      Json
+  videoUrls      Json
   thumbnailUrl   String?
   linkUrl        String?
   linkLabel      String?
@@ -971,8 +971,8 @@ model Offer {
   discountType   DiscountType?
   discountValue  Decimal?      @db.Decimal(10, 2)
   promoCode      String?       @unique
-  classIds       String[]      @default([])   // ← add this
-  subClassIds    String[]      @default([])
+  classIds       Json // string[] of Class IDs
+  subClassIds    Json // string[] of SubClass IDs
   publishAt      DateTime?
   expireAt       DateTime?
   status         ContentStatus @default(DRAFT)
