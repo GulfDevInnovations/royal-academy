@@ -5,10 +5,12 @@ import {
   getSubClassesForAssignment,
 } from "@/lib/actions/admin/teachers.actions";
 import TeachersClient from "./_components/TeachersClient";
+import { jsonToStringArray } from "@/lib/prisma-json";
 
 function serializeTeachers(teachers: Awaited<ReturnType<typeof getTeachers>>) {
   return teachers.map((t) => ({
     ...t,
+    specialties: jsonToStringArray(t.specialties as any),
     createdAt: t.createdAt.toISOString(),
     updatedAt: t.updatedAt.toISOString(),
     user: t.user ? { ...t.user } : null,

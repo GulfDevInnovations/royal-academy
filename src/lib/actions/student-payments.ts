@@ -3,6 +3,7 @@
 
 import { prisma } from "@/lib/prisma"; // ← fix singleton
 import { createClient } from "@/lib/supabase/server";
+import { jsonToStringArray } from "@/lib/prisma-json";
 
 export type PaymentStatus = "PAID" | "FAILED" | "REFUNDED" | "PARTIALLY_REFUNDED";
 
@@ -144,10 +145,13 @@ for (const e of monthlyEnrollments) {
   const p  = e.payment!;
   const sc = e.subClass;
 
+  const scheduleIds = jsonToStringArray(e.scheduleIds as any);
+  const preferredDays = jsonToStringArray(e.preferredDays as any);
+
   // Fetch ALL schedules matching preferred days — not just one
-  const schedules = e.scheduleIds.length > 0
+  const schedules = scheduleIds.length > 0
     ? await prisma.classSchedule.findMany({
-        where:   { id: { in: e.scheduleIds } },
+        where:   { id: { in: scheduleIds } },
         include: { teacher: true },
         orderBy: { startTime: "asc" },
       })
@@ -156,8 +160,8 @@ for (const e of monthlyEnrollments) {
         where: {
           subClassId: sc.id,
           status:     "ACTIVE",
-          ...(e.preferredDays.length > 0
-            ? { dayOfWeek: { in: e.preferredDays as any } }
+          ...(preferredDays.length > 0
+            ? { dayOfWeek: { in: preferredDays as any } }
             : {}),
         },
         include: { teacher: true },
@@ -213,9 +217,12 @@ for (const e of multiMonthEnrollments) {
   const p  = e.payment!;
   const sc = e.subClass;
 
-  const schedules = e.scheduleIds.length > 0
+  const scheduleIds = jsonToStringArray(e.scheduleIds as any);
+  const preferredDays = jsonToStringArray(e.preferredDays as any);
+
+  const schedules = scheduleIds.length > 0
     ? await prisma.classSchedule.findMany({
-        where:   { id: { in: e.scheduleIds } },
+        where:   { id: { in: scheduleIds } },
         include: { teacher: true },
         orderBy: { startTime: "asc" },
       })
@@ -223,8 +230,8 @@ for (const e of multiMonthEnrollments) {
         where: {
           subClassId: sc.id,
           status:     "ACTIVE",
-          ...(e.preferredDays.length > 0
-            ? { dayOfWeek: { in: e.preferredDays as any } }
+          ...(preferredDays.length > 0
+            ? { dayOfWeek: { in: preferredDays as any } }
             : {}),
         },
         include: { teacher: true },
