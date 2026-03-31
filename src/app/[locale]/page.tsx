@@ -5,8 +5,10 @@ import HomeWrapper from "@/components/layout-toggle/HomeWrapper"; // adjust path
 export default async function Home({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+
   const where = {
     status: "ACTIVE" as const,
     isActive: true,
@@ -37,6 +39,7 @@ export default async function Home({
 
   return (
     <HomeWrapper
+      key={locale}
       worldData={{
         upcoming: upcoming.map(serializeBase),
         news: news.map(serializeBase),
