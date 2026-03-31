@@ -9,14 +9,18 @@ const PRINCIPLE_STRIPS: Array<{
   label: string;
   special?: boolean;
 }> = [
-  { key: "about-1", src: "/images/about-1.jpg", label: "Excellence" },
+  {
+    key: "about-1",
+    src: "/images/aboutSection/about-1.jpg",
+    label: "Excellence",
+  },
   {
     key: "about-2",
-    src: "/images/about-2.jpg",
+    src: "/images/aboutSection/about-2.jpg",
     label: "Integrity",
     special: true,
   },
-  { key: "about-3", src: "/images/about-3.jpg", label: "Community" },
+  { key: "about-3", src: "/images/aboutSection/about-3.jpg", label: "Community" },
   {
     key: "art-hero",
     src: "/images/art-hero.jpg",

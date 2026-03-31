@@ -17,6 +17,7 @@ type Props = {
   active: boolean;
   onScrollUp: () => void;
   onScrollDown: () => void;
+  scrollable?: boolean;
 };
 
 type LocalizedText = {
@@ -419,6 +420,7 @@ export default function HomeTrioShowcaseFloor({
   active,
   onScrollUp,
   onScrollDown,
+  scrollable = false,
 }: Props) {
   const locale = useLocale();
   const [mobileKey, setMobileKey] = useState<ColumnKey>("offers");
@@ -446,8 +448,12 @@ export default function HomeTrioShowcaseFloor({
         date: "2026-03-28",
         link: { href: "/reservation", label: { en: "Reserve", ar: "احجز" } },
         media: [
-          { type: "image", src: "/images/pianoroom.png", alt: "Piano room" },
-          { type: "image", src: "/images/initial-room.png", alt: "Royal room" },
+          { type: "image", src: "/images/piano.jpg", alt: "Piano room" },
+          {
+            type: "image",
+            src: "/images/rooms/initial-room.png",
+            alt: "Royal room",
+          },
         ],
       },
       {
@@ -466,7 +472,7 @@ export default function HomeTrioShowcaseFloor({
           { type: "image", src: "/images/guitarroom.png", alt: "Guitar room" },
           {
             type: "image",
-            src: "/images/initial-room2.png",
+            src: "/images/rooms/initial-room2.png",
             alt: "Royal room",
           },
         ],
@@ -511,8 +517,16 @@ export default function HomeTrioShowcaseFloor({
           label: { en: "Meet Teachers", ar: "تعرف عليهم" },
         },
         media: [
-          { type: "image", src: "/images/about-1.jpg", alt: "Academy" },
-          { type: "image", src: "/images/about-2.jpg", alt: "Academy" },
+          {
+            type: "image",
+            src: "/images/aboutSection/about-1.jpg",
+            alt: "Academy",
+          },
+          {
+            type: "image",
+            src: "/images/aboutSection/about-2.jpg",
+            alt: "Academy",
+          },
         ],
       },
       {
@@ -528,8 +542,16 @@ export default function HomeTrioShowcaseFloor({
           label: { en: "Open Gallery", ar: "فتح المعرض" },
         },
         media: [
-          { type: "image", src: "/images/about-2.jpg", alt: "Gallery" },
-          { type: "image", src: "/images/about-3.jpg", alt: "Gallery" },
+          {
+            type: "image",
+            src: "/images/aboutSection/about-2.jpg",
+            alt: "Gallery",
+          },
+          {
+            type: "image",
+            src: "/images/aboutSection/about-3.jpg",
+            alt: "Gallery",
+          },
         ],
       },
       {
@@ -542,8 +564,16 @@ export default function HomeTrioShowcaseFloor({
         date: "2026-03-30",
         link: { href: "/about", label: { en: "Learn More", ar: "اعرف أكثر" } },
         media: [
-          { type: "image", src: "/images/initial-room4.png", alt: "Rooms" },
-          { type: "image", src: "/images/initial-room3.png", alt: "Rooms" },
+          {
+            type: "image",
+            src: "/images/rooms/initial-room4.png",
+            alt: "Rooms",
+          },
+          {
+            type: "image",
+            src: "/images/rooms/initial-room3.png",
+            alt: "Rooms",
+          },
         ],
       },
     ],
@@ -581,7 +611,11 @@ export default function HomeTrioShowcaseFloor({
         link: { href: "/gallery", label: { en: "See Moments", ar: "شاهد" } },
         media: [
           { type: "image", src: "/images/music-hero.jpg", alt: "Showcase" },
-          { type: "image", src: "/images/initial-room.png", alt: "Royal room" },
+          {
+            type: "image",
+            src: "/images/rooms/initial-room.png",
+            alt: "Royal room",
+          },
         ],
       },
       {
@@ -706,18 +740,24 @@ export default function HomeTrioShowcaseFloor({
 
   const mobileCurrent = mobileSelected.items[mobileSelected.rotation.index];
 
+  const rootClassName = scrollable
+    ? "relative min-h-svh w-full overflow-x-hidden bg-royal-purple text-royal-cream"
+    : "relative h-screen w-screen overflow-hidden bg-royal-purple text-royal-cream";
+
   return (
-    <section
-      className="relative h-screen w-screen overflow-hidden bg-royal-purple text-royal-cream"
-      dir={locale === "ar" ? "rtl" : "ltr"}
-    >
+    <section className={rootClassName} dir={locale === "ar" ? "rtl" : "ltr"}>
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-black/55" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,215,170,0.18)_0%,transparent_60%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,235,180,0.05)_0%,transparent_40%,rgba(255,235,180,0.03)_100%)]" />
       </div>
 
-      <div className="relative mx-auto flex h-full w-full max-w-8xl flex-col px-4 pt-25 sm:px-6 sm:p5-20 lg:px-10 lg:pt-30 lg:pb-10">
+      <div
+        className={
+          "relative mx-auto flex w-full max-w-8xl flex-col px-4 pt-25 sm:px-6 sm:p5-20 lg:px-10 lg:pt-30 lg:pb-10 " +
+          (scrollable ? "min-h-svh" : "h-full")
+        }
+      >
         <div className="relative z-20 mb-3 w-full sm:mb-5 lg:mb-6">
           <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/15 px-4 py-2 backdrop-blur-xl">
             <div dir="ltr" className="relative overflow-hidden">
@@ -786,7 +826,7 @@ export default function HomeTrioShowcaseFloor({
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,235,180,0.07)_0%,transparent_58%)]" />
               <div className="absolute inset-0 opacity-5">
                 <Image
-                  src="/images/Logo-gray-cropped.png"
+                  src="/images/logo/Logo-gray-cropped.png"
                   alt="Royal Academy"
                   fill
                   sizes="100vw"
@@ -803,7 +843,7 @@ export default function HomeTrioShowcaseFloor({
               </p>
             </div>
 
-            <div className="relative z-10 flex-1 min-h-0">
+            <div className="relative z-10 flex-1 min-h-[45svh] sm:min-h-[55svh]">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div
                   key={mobileCurrent.id}
@@ -926,7 +966,7 @@ export default function HomeTrioShowcaseFloor({
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,235,180,0.07)_0%,transparent_58%)]" />
                   <div className="absolute inset-0 opacity-5">
                     <Image
-                      src="/images/Logo-gray-cropped.png"
+                      src="/images/logo/Logo-gray-cropped.png"
                       alt="Royal Academy"
                       fill
                       sizes="(max-width: 1024px) 100vw, 33vw"

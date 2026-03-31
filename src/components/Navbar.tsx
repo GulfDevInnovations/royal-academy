@@ -61,6 +61,8 @@ export default function Navbar() {
   const [socialOpen, setSocialOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const socialRef = useRef<HTMLDivElement>(null);
+  const classesRowRef = useRef<HTMLDivElement>(null);
+  const [classesRowTop, setClassesRowTop] = useState(0);
 
   const locale = useLocale();
   const router = useRouter();
@@ -139,6 +141,8 @@ export default function Navbar() {
   useEffect(() => {
     if (!menuOpen) {
       setClassesMenuPath([]);
+    } else if (classesRowRef.current) {
+      setClassesRowTop(classesRowRef.current.offsetTop);
     }
   }, [menuOpen]);
 
@@ -154,7 +158,7 @@ export default function Navbar() {
     return () => mediaQuery.removeEventListener("change", syncMenuMode);
   }, []);
 
-  // ── 2. Escape key closes contact modal ───────────────────────────────────────
+  // ── 2. Escape key closes contact modal ────────────────────────────────────
   useEffect(() => {
     if (!contactModalOpen) return;
     const onEscape = (e: KeyboardEvent) => {
@@ -245,11 +249,102 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/", label: t("home") },
-    // { href: "/teachers", label: t("teachers") },
     { href: "/classes", label: t("classes"), type: "classes" as const },
-    { href: "/reservation", label: t("reservation") },
+    { href: "/reservation", label: t("Enrollment") },
     { href: "/about", label: t("about") },
     { href: "/gallery", label: t("gallery") },
+  ];
+
+  const userLinks = [
+    {
+      href: "/profile-setting",
+      label: isArabic ? "الملف الشخصي" : "Profile Settings",
+      icon: faUser,
+    },
+    {
+      href: "/my-classes",
+      label: isArabic ? "دروسي" : "My Classes",
+      icon: faBookOpen,
+    },
+    {
+      href: "/payments",
+      label: isArabic ? "المدفوعات" : "Payments",
+      icon: faCreditCard,
+    },
+  ];
+
+  if (isAdmin) {
+    userLinks.unshift({
+      href: "/admin",
+      label: isArabic ? "لوحة التحكم" : "Admin Panel",
+      icon: faPalette,
+    });
+  }
+
+  const contactContent = isArabic
+    ? {
+        title: "تواصل معنا",
+        subtitle: "يمكنك التواصل مع الأكاديمية عبر الأرقام والمنصات التالية.",
+        phone1: "استفسارات الإنجليزية وواتساب",
+        phone2: "استفسارات العربية",
+        landline: "الهاتف الأرضي",
+        email: "البريد الإلكتروني",
+        platforms: "المنصات",
+      }
+    : {
+        title: "Contact Us",
+        subtitle:
+          "Reach Royal Academy through the following contact numbers and platforms.",
+        phone1: "English Inquiries & WhatsApp",
+        phone2: "Arabic Inquiries",
+        landline: "Landline",
+        email: "Email",
+        platforms: "Platforms",
+      };
+
+  const contactPhones = [
+    {
+      label: contactContent.phone1,
+      value: "+968 9327 6767",
+      href: "tel:+96893276767",
+    },
+    {
+      label: contactContent.phone2,
+      value: "+968 9886 2343",
+      href: "tel:+96898862343",
+    },
+    {
+      label: contactContent.landline,
+      value: "+968 2449 7033",
+      href: "tel:+96824497033",
+    },
+  ];
+
+  const contactPlatforms: Array<{
+    label: string;
+    href: string;
+    icon: IconDefinition;
+  }> = [
+    {
+      label: isArabic ? "واتساب" : "WhatsApp",
+      href: "https://wa.me/96893276767",
+      icon: faWhatsapp,
+    },
+    {
+      label: "YouTube",
+      href: "https://www.youtube.com/channel/UCBltWo91oBYJkW9k4r9iZCg",
+      icon: faYoutube,
+    },
+    {
+      label: "LinkedIn",
+      href: "https://www.linkedin.com/in/royal-academy-4729aa3a9",
+      icon: faLinkedinIn,
+    },
+    {
+      label: "TikTok",
+      href: "https://www.tiktok.com/@royalacademymct?is_from_webapp=1&sender_device=pc",
+      icon: faTiktok,
+    },
   ];
 
   const classesMenu: ClassMenuNode[] = [
@@ -596,98 +691,6 @@ export default function Navbar() {
     },
   ];
 
-  const userLinks = [
-    {
-      href: "/profile-setting",
-      label: isArabic ? "الملف الشخصي" : "Profile Settings",
-      icon: faUser,
-    },
-    {
-      href: "/my-classes",
-      label: isArabic ? "دروسي" : "My Classes",
-      icon: faBookOpen,
-    },
-    {
-      href: "/payments",
-      label: isArabic ? "المدفوعات" : "Payments",
-      icon: faCreditCard,
-    },
-  ];
-
-  if (isAdmin) {
-    userLinks.unshift({
-      href: "/admin",
-      label: isArabic ? "لوحة التحكم" : "Admin Panel",
-      icon: faPalette,
-    });
-  }
-
-  const contactContent = isArabic
-    ? {
-        title: "تواصل معنا",
-        subtitle: "يمكنك التواصل مع الأكاديمية عبر الأرقام والمنصات التالية.",
-        phone1: "استفسارات الإنجليزية وواتساب",
-        phone2: "استفسارات العربية",
-        landline: "الهاتف الأرضي",
-        email: "البريد الإلكتروني",
-        platforms: "المنصات",
-      }
-    : {
-        title: "Contact Us",
-        subtitle:
-          "Reach Royal Academy through the following contact numbers and platforms.",
-        phone1: "English Inquiries & WhatsApp",
-        phone2: "Arabic Inquiries",
-        landline: "Landline",
-        email: "Email",
-        platforms: "Platforms",
-      };
-
-  const contactPhones = [
-    {
-      label: contactContent.phone1,
-      value: "+968 9327 6767",
-      href: "tel:+96893276767",
-    },
-    {
-      label: contactContent.phone2,
-      value: "+968 9886 2343",
-      href: "tel:+96898862343",
-    },
-    {
-      label: contactContent.landline,
-      value: "+968 2449 7033",
-      href: "tel:+96824497033",
-    },
-  ];
-
-  const contactPlatforms: Array<{
-    label: string;
-    href: string;
-    icon: IconDefinition;
-  }> = [
-    {
-      label: isArabic ? "واتساب" : "WhatsApp",
-      href: "https://wa.me/96893276767",
-      icon: faWhatsapp,
-    },
-    {
-      label: "YouTube",
-      href: "https://www.youtube.com/channel/UCBltWo91oBYJkW9k4r9iZCg",
-      icon: faYoutube,
-    },
-    {
-      label: "LinkedIn",
-      href: "https://www.linkedin.com/in/royal-academy-4729aa3a9",
-      icon: faLinkedinIn,
-    },
-    {
-      label: "TikTok",
-      href: "https://www.tiktok.com/@royalacademymct?is_from_webapp=1&sender_device=pc",
-      icon: faTiktok,
-    },
-  ];
-
   // Social icons — phone first (call), then platforms
   const socialIcons: Array<{
     label: string;
@@ -704,6 +707,30 @@ export default function Navbar() {
 
   const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
   const EASE_IN: [number, number, number, number] = [0.55, 0, 0.8, 0.2];
+
+  const sealVariants: Variants = {
+    hidden: { clipPath: "circle(0% at 100% 0%)", opacity: 0, scale: 0.92 },
+    visible: {
+      clipPath: "circle(300% at 100% 0%)",
+      opacity: 1,
+      scale: 1,
+      transition: {
+        clipPath: { duration: 0.65, ease: EASE_OUT },
+        opacity: { duration: 0.2 },
+        scale: { duration: 0.65, ease: EASE_OUT },
+      },
+    },
+    exit: {
+      clipPath: "circle(0% at 100% 0%)",
+      opacity: 0,
+      scale: 0.95,
+      transition: {
+        clipPath: { duration: 0.45, ease: EASE_IN },
+        opacity: { duration: 0.3 },
+        scale: { duration: 0.45 },
+      },
+    },
+  };
 
   const menuPanelVariants: Variants = {
     hidden: { opacity: 0, scale: 0.96, y: -10 },
@@ -804,130 +831,216 @@ export default function Navbar() {
 
   const classesRootPath = ["classes"];
   const classesOpen = pathMatches(classesRootPath);
-  const activeClassCategory = classesMenu.find((node) =>
-    pathMatches([...classesRootPath, node.id]),
-  );
-  const activeNestedClassNode = activeClassCategory?.children?.find((node) =>
-    pathMatches([...classesRootPath, activeClassCategory.id, node.id]),
+
+  // Active category = the classesMenu item whose id is at index 1 of classesMenuPath
+  const activeClassCategory = classesMenu.find(
+    (node) => classesMenuPath[1] === node.id,
   );
 
-  const renderClassNodes = (
+  // Active nested node = child of activeClassCategory whose id is at index 2
+  const activeNestedClassNode = activeClassCategory?.children?.find(
+    (node) => classesMenuPath[2] === node.id,
+  );
+
+  // ── Workshop href ──────────────────────────────────────────────────────────
+  const workshopHref = `/${locale}/workshop`;
+  const workshopLabel = isArabic ? "ورشة عمل" : "Workshops";
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // CLASSES MENU — rebuilt
+  // ─────────────────────────────────────────────────────────────────────────
+  //
+  // MOBILE  → accordion: clicking a category expands its children inline
+  // DESKTOP → three flyout panels stacked to the left (or right in AR):
+  //           Panel 1: top-level categories  (always visible when classesOpen)
+  //           Panel 2: children of hovered category  (when activeClassCategory)
+  //           Panel 3: children of hovered sub-item  (when activeNestedClassNode)
+  //
+  // Key design decisions that fix the original bugs:
+  //  1. All three flyout panels are siblings inside the same `relative` wrapper
+  //     so `absolute` positioning is relative to the same origin.
+  //  2. Each panel has an invisible hover-bridge div on its open edge so the
+  //     mouse can travel from the main menu to the panel without triggering
+  //     onMouseLeave on the parent.
+  //  3. classesMenuPath is set by onMouseEnter on each row — no click required
+  //     on desktop.  On mobile, clicks toggle the accordion.
+  //  4. The flyout panels sit OUTSIDE the scrollable inner div so they are
+  //     never clipped by overflow-y:auto.
+
+  // Flyout panel shared styles
+  const flyoutPanelClass =
+    "absolute z-50 w-64 rounded-2xl border border-white/10 bg-black/75 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.55)] p-2";
+
+  // Offset from the right/left edge of the main menu panel (384px = sm:w-96)
+  // Panel 1 sits flush against the menu. Panel 2 & 3 stack further out.
+  // We use inline style because Tailwind JIT won't purge arbitrary calc values.
+  const flyoutStyle = (level: 1 | 2 | 3): React.CSSProperties => {
+    const gap = 8; // px gap between panels
+    const panelW = 256; // w-64 = 256px
+    const offset = (level - 1) * (panelW + gap);
+    return isArabic
+      ? { left: `calc(100% + ${gap + offset}px)`, top: classesRowTop }
+      : { right: `calc(100% + ${gap + offset}px)`, top: classesRowTop };
+  };
+
+  // Renders a scrollable list of nodes inside a flyout panel
+  const renderFlyoutList = (
+    nodes: ClassMenuNode[],
+    onHover: (node: ClassMenuNode) => void,
+    activeId: string | undefined,
+  ) => (
+    <div
+      className="navbar-submenu-scroll max-h-96 overflow-y-auto overscroll-contain space-y-0.5 pr-0.5"
+      onWheel={(e) => e.stopPropagation()}
+    >
+      {nodes.map((node) => {
+        const isActive = activeId === node.id;
+        const hasChildren = Boolean(node.children?.length);
+
+        return (
+          <div
+            key={node.id}
+            onMouseEnter={() => onHover(node)}
+            className={`
+              group flex items-center gap-2 rounded-xl px-3 py-2.5
+              cursor-pointer transition-all duration-200 select-none
+              ${isArabic ? "flex-row" : "flex-row"}
+              ${
+                isActive
+                  ? "bg-white/10 text-royal-gold"
+                  : "hover:bg-white/6 text-royal-cream hover:text-royal-gold"
+              }
+            `}
+          >
+            {node.href ? (
+              <Link
+                href={node.href}
+                onClick={() => {
+                  setMenuOpen(false);
+                  setClassesMenuPath([]);
+                }}
+                className="flex-1 text-sm leading-snug text-left"
+              >
+                {isArabic ? node.arLabel : node.label}
+              </Link>
+            ) : (
+              <span className="flex-1 text-sm leading-snug text-left">
+                {isArabic ? node.arLabel : node.label}
+              </span>
+            )}
+
+            {hasChildren && (
+              <FontAwesomeIcon
+                icon={isArabic ? faCaretRight : faCaretLeft}
+                className={`flex-shrink-0 text-[10px] transition-colors duration-200
+                  ${isActive ? "opacity-100 text-royal-gold" : "opacity-30 group-hover:opacity-70"}
+                `}
+              />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  // Mobile accordion — renders children inline under a parent node
+  const renderMobileAccordion = (
     nodes: ClassMenuNode[],
     parentPath: string[],
     depth = 0,
-  ) => {
-    const isFlyout = isDesktopMenu && depth > 0;
-    const flyoutPositionClass = isArabic
-      ? depth === 1
-        ? "absolute left-full top-[-8.75rem] z-20 ml-3"
-        : "absolute left-full top-[-0.75rem] z-20 ml-3"
-      : depth === 1
-        ? "absolute right-full top-[-8.75rem] z-20 mr-3"
-        : "absolute right-full top-[-0.75rem] z-20 mr-3";
+  ): React.ReactNode => (
+    <div className="space-y-0.5">
+      {nodes.map((node) => {
+        const nodePath = [...parentPath, node.id];
+        const isNodeOpen =
+          classesMenuPath.length > nodePath.length &&
+          nodePath.every((seg, i) => classesMenuPath[i] === seg);
+        const isNodeActive =
+          nodePath.length === classesMenuPath.length &&
+          nodePath.every((seg, i) => classesMenuPath[i] === seg);
+        const hasChildren = Boolean(node.children?.length);
 
-    return (
-      <div
-        className={
-          isFlyout
-            ? `${flyoutPositionClass} w-72 overflow-visible rounded-2xl border border-white/10 bg-black/18 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.38)] backdrop-blur-sm`
-            : "relative mt-2"
-        }
-        onWheel={
-          depth > 0
-            ? (event) => {
-              event.stopPropagation();
-            }
-            : undefined
-        }
-      >
-        <div
-          className={
-            isFlyout
-              ? "navbar-submenu-scroll max-h-104 space-y-1 overflow-y-auto overscroll-contain pr-1"
-              : "space-y-1"
-          }
-        >
-          {nodes.map((node) => {
-            const nodePath = [...parentPath, node.id];
-            const isOpen = pathMatches(nodePath);
-            const hasChildren = Boolean(node.children?.length);
-
-            return (
-              <div
-                key={node.id}
-                className="relative w-full"
-                onMouseEnter={() => setClassesMenuPath(nodePath)}
-              >
-                <div
-                  className={`group relative flex items-center gap-2 rounded-2xl px-3 py-2 transition-colors duration-200 bg-transparent ${isArabic ? "flex-row-reverse" : "flex-row"}`}
+        return (
+          <div key={node.id}>
+            <div
+              className={`
+                flex items-center gap-2 rounded-xl px-3 py-2.5
+                cursor-pointer transition-all duration-200
+                ${isArabic ? "flex-row-reverse" : "flex-row"}
+                ${
+                  isNodeActive || isNodeOpen
+                    ? "bg-white/10 text-royal-gold"
+                    : "hover:bg-white/6 text-royal-cream hover:text-royal-gold"
+                }
+              `}
+            >
+              {node.href ? (
+                <Link
+                  href={node.href}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setClassesMenuPath([]);
+                  }}
+                  className="flex-1 text-sm leading-snug"
                 >
-                  {node.href ? (
-                    <Link
-                      href={node.href}
-                      onClick={() => {
-                        setMenuOpen(false);
-                        setUserMenuOpen(false);
-                        setClassesMenuPath([]);
-                      }}
-                      className={`relative z-10 flex-1 text-sm transition-colors duration-300 hover:text-royal-gold ${isArabic ? "text-right font-layla" : "text-left"} text-royal-cream`}
-                    >
-                      {isArabic ? node.arLabel : node.label}
-                    </Link>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setClassesMenuPath(isOpen ? parentPath : nodePath);
-                      }}
-                      className={`relative z-10 flex-1 text-sm text-royal-cream transition-colors duration-300 hover:text-royal-gold ${isArabic ? "text-right font-layla" : "text-left"}`}
-                    >
-                      {isArabic ? node.arLabel : node.label}
-                    </button>
-                  )}
+                  {isArabic ? node.arLabel : node.label}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setClassesMenuPath(
+                      isNodeOpen || isNodeActive ? parentPath : nodePath,
+                    )
+                  }
+                  className="flex-1 text-sm leading-snug text-left"
+                >
+                  {isArabic ? node.arLabel : node.label}
+                </button>
+              )}
 
-                  {hasChildren ? (
-                    <button
-                      type="button"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        setClassesMenuPath(isOpen ? parentPath : nodePath);
-                      }}
-                      className={`relative z-10 flex items-center justify-center text-xs text-royal-cream/80 transition-colors duration-300 hover:text-royal-gold ${
-                        isDesktopMenu
-                          ? "h-6 w-6"
-                          : "h-11 w-11 rounded-xl -m-2 bg-black/10 hover:bg-black/20"
-                      }`}
-                      aria-label={isArabic ? "عرض القائمة الفرعية" : "Toggle submenu"}
-                    >
-                      <FontAwesomeIcon
-                        icon={isArabic ? faCaretLeft : faCaretRight}
-                        className={`transition-transform duration-300 ${isOpen ? "rotate-90" : ""}`}
-                      />
-                    </button>
-                  ) : null}
-                </div>
+              {hasChildren && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setClassesMenuPath(
+                      isNodeOpen || isNodeActive ? parentPath : nodePath,
+                    )
+                  }
+                  className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                  aria-label={isArabic ? "تبديل" : "Toggle"}
+                >
+                  <FontAwesomeIcon
+                    icon={isArabic ? faCaretRight : faCaretLeft}
+                    className={`text-[10px] transition-transform duration-300
+                      ${isNodeOpen || isNodeActive ? "rotate-90" : ""}
+                    `}
+                  />
+                </button>
+              )}
+            </div>
 
-                {!isDesktopMenu && hasChildren && isOpen ? (
-                  <div className={`pt-2 ${isArabic ? "pr-3" : "pl-3"}`}>
-                    {renderClassNodes(node.children!, nodePath, depth + 1)}
-                  </div>
-                ) : null}
-
+            {hasChildren && (isNodeOpen || isNodeActive) && (
+              <div
+                className={`mt-1 mb-1 rounded-xl border border-white/8 bg-black/20 p-2
+                  ${isArabic ? "mr-3" : "ml-3"}
+                `}
+              >
+                {renderMobileAccordion(node.children!, nodePath, depth + 1)}
               </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 
   return (
     <>
       {/* ── Top Bar ─────────────────────────────────────────────────────────── */}
       <motion.header
         initial={{ y: -12, opacity: 0 }}
-        animate={{ y: showNavbarChrome ? 0 : -12, opacity: showNavbarChrome ? 1 : 0 }}
+        animate={{ y: isDone ? 0 : -12, opacity: isDone ? 1 : 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="fixed top-3 md:top-4 left-0 right-0 z-50 px-4 sm:px-6 md:px-8 py-3 md:py-5 flex items-center justify-between"
       >
@@ -1027,33 +1140,53 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* ── Right side: Enrollment + Admin + Language + Menu ── */}
+        {/* ── Right side: Workshop + Enrollment + Admin + Language + Menu ── */}
         <div
           className={`flex items-center gap-2 md:gap-3 ${isArabic ? "flex-row" : "flex-row"}`}
         >
-          {/* Workshop button — EN: left of bell | AR: right of bell (handled by flex-row-reverse) */}
-          {/* Desktop + tablet only — hidden on mobile (shown in menu instead) */}
-          {/* <motion.div
+          {/* Workshop button — desktop + tablet only */}
+          <motion.div
             whileTap={{ scale: 0.96 }}
             whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.2 }}
             className="hidden sm:block"
-          > */}
-            {/* <Link */}
-              {/* href={workshopHref} */}
-              {/* onClick={() => { */}
-                {/* setMenuOpen(false); */}
-                {/* setUserMenuOpen(false); */}
-              {/* }} */}
-              {/* className="liquid-glass-green backdrop-blur-xs shimmer flex items-center justify-center px-4 md:px-6 py-2 md:py-2.5 rounded-full transition-all duration-300 cursor-pointer" */}
-            {/* > */}
-              {/* <span */}
-                {/* className={`text-royal-green text-xs md:text-sm tracking-widest uppercase font-medium whitespace-nowrap ${isArabic ? "scale-125 inline-block" : ""}`}
-              // >
-              //   {workshopLabel}
-              // </span>
-            // </Link>
-          // </motion.div> */}
+          >
+            <Link
+              href={workshopHref}
+              onClick={() => {
+                setMenuOpen(false);
+                setUserMenuOpen(false);
+              }}
+              className="liquid-glass-green backdrop-blur-xs shimmer flex items-center justify-center px-4 md:px-6 py-2 md:py-2.5 rounded-full transition-all duration-300 cursor-pointer"
+            >
+              <span
+                className={`text-royal-green text-xs md:text-sm tracking-widest uppercase font-medium whitespace-nowrap ${isArabic ? "scale-125 inline-block" : ""}`}
+              >
+                {workshopLabel}
+              </span>
+            </Link>
+          </motion.div>
+
+          {/* Enrollment — desktop only */}
+          <motion.div
+            whileTap={{ scale: 0.96 }}
+            whileHover={{ scale: 1.03 }}
+            transition={{ duration: 0.2 }}
+            className="hidden md:block"
+          >
+            <button
+              type="button"
+              onClick={() => router.push(`/${locale}/reservation`)}
+              className="liquid-glass-gold backdrop-blur-xs shimmer flex items-center justify-center gap-3 px-6 lg:px-8 py-3 lg:py-4 rounded-full transition-all duration-300 cursor-pointer"
+            >
+              <span
+                className={`text-royal-gold text-sm tracking-widest uppercase whitespace-nowrap inline-block ${isArabic ? "scale-150" : ""}`}
+              >
+                {t("Enrollment")}
+              </span>
+            </button>
+          </motion.div>
+
           {/* Admin — desktop only */}
           {user && isAdmin && (
             <motion.div
@@ -1092,7 +1225,7 @@ export default function Navbar() {
             </span>
           </motion.button>
 
-          {/* Menu button — shows text on md+, hamburger-only on mobile */}
+          {/* Menu button */}
           <motion.button
             onClick={() => {
               setMenuOpen(!menuOpen);
@@ -1113,7 +1246,7 @@ export default function Navbar() {
             }
             className={`shimmer backdrop-blur-xs flex items-center justify-center gap-2 md:gap-3 px-3 sm:px-4 md:px-8 py-2.5 md:py-4 rounded-full transition-all duration-300 cursor-pointer ${menuOpen ? "liquid-glass-gold" : "liquid-glass"}`}
           >
-            {/* Hamburger / X icon — always visible */}
+            {/* Hamburger / X icon */}
             <div className="flex flex-col gap-1.5">
               <motion.span
                 animate={
@@ -1170,11 +1303,10 @@ export default function Navbar() {
         </div>
       </motion.header>
 
-      {/* ── DESKTOP SOCIAL PANEL — fixed right edge, vertically centered ─────── */}
-      {/* Hidden on mobile — mobile uses the floating button below */}
+      {/* ── DESKTOP SOCIAL PANEL ─────────────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: showNavbarChrome ? 1 : 0, x: showNavbarChrome ? 0 : 20 }}
+        animate={{ opacity: isDone ? 1 : 0, x: isDone ? 0 : 20 }}
         transition={{ duration: 0.7, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className="hidden md:flex fixed right-0 top-1/2 -translate-y-1/2 z-40 flex-col items-center gap-2 pr-3"
       >
@@ -1205,13 +1337,11 @@ export default function Navbar() {
         ))}
       </motion.div>
 
-      {/* ── MOBILE FLOATING SOCIAL BUTTON — bottom-right, iPhone dock style ──── */}
-      {/* Only on mobile */}
+      {/* ── MOBILE FLOATING SOCIAL BUTTON ────────────────────────────────────── */}
       <div
         ref={socialRef}
         className="md:hidden fixed bottom-6 right-5 z-50 flex flex-col-reverse items-center gap-3"
       >
-        {/* Fanned icons — animate upward when open */}
         <AnimatePresence>
           {socialOpen &&
             socialIcons.map((item, i) => (
@@ -1253,7 +1383,6 @@ export default function Navbar() {
             ))}
         </AnimatePresence>
 
-        {/* Main FAB button */}
         <motion.button
           onClick={() => setSocialOpen((v) => !v)}
           whileTap={{ scale: 0.92 }}
@@ -1426,108 +1555,188 @@ export default function Navbar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            variants={menuPanelVariants}
+            variants={sealVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            onMouseLeave={() => setClassesMenuPath([])}
             className={`
-  fixed z-50 top-24 sm:top-28
-  ${isArabic ? "left-4 sm:left-8 w-[calc(100vw-2rem)] max-w-sm sm:w-96" : "right-4 sm:right-8 w-[calc(100vw-2rem)] max-w-sm sm:w-96"}
-  overflow-visible rounded-3xl liquid-glass backdrop-blur-xs shadow-2xl shadow-black/60
-`}
+    fixed z-50 top-24 sm:top-28
+    ${
+      isArabic
+        ? "left-4 sm:left-8 w-[calc(100vw-2rem)] max-w-sm sm:w-96"
+        : "right-4 sm:right-8 w-[calc(100vw-2rem)] max-w-sm sm:w-96"
+    }
+    overflow-visible
+  `}
           >
-            <div className="h-px w-full bg-linear-to-r from-transparent via-royal-gold/50 to-transparent" />
+            {/* Visual shell — rounded glass, does NOT clip children */}
             <div
-              className="navbar-submenu-scroll max-h-[calc(100vh-9rem)] overflow-y-auto overscroll-contain"
-              onWheel={(event) => {
-                event.stopPropagation();
-              }}
+              className="relative w-full overflow-visible rounded-3xl liquid-glass backdrop-blur-xs shadow-2xl shadow-black/60"
+              onMouseLeave={() => setClassesMenuPath([])}
             >
-              <div className="px-6 py-8 sm:px-10 sm:py-10">
-                <motion.nav
-                  variants={containerVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                className={`flex flex-col ${isArabic ? "items-start" : "items-end"} gap-0`}
+              <div className="h-px w-full bg-linear-to-r from-transparent via-royal-gold/50 to-transparent" />
+
+              <div
+                className="navbar-submenu-scroll max-h-[calc(100vh-9rem)] overflow-y-auto overscroll-contain"
+                onWheel={(event) => event.stopPropagation()}
               >
-                {navLinks.map((link) => {
-                  if (link.type === "classes") {
-                    return (
-                      <motion.div
-                        key={link.href}
-                        variants={itemVariants}
-                        className="w-full"
-                        onMouseEnter={() => setClassesMenuPath(classesRootPath)}
-                      >
-                        <div
-                          className={`
-                            group relative w-full py-5
-                            border-b border-white/5 last:border-0
-                          `}
+                <div className="px-6 py-8 sm:px-10 sm:py-10">
+                  <motion.nav
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className={`flex flex-col ${isArabic ? "items-start" : "items-end"} gap-0`}
+                  >
+                    {navLinks.map((link) => {
+                      // ── CLASSES LINK ────────────────────────────────────────
+                      if (link.type === "classes") {
+                        return (
+                          <motion.div
+                            key={link.href}
+                            variants={itemVariants}
+                            className="w-full"
+                          >
+                            <div className="w-full">
+                              {/* ── Trigger row ── */}
+                              <div
+                                ref={classesRowRef}
+                                className={`
+                                group relative w-full py-5
+                                border-b border-white/5
+                              `}
+                                onMouseEnter={
+                                  isDesktopMenu
+                                    ? () => {
+                                        if (classesRowRef.current)
+                                          setClassesRowTop(
+                                            classesRowRef.current.offsetTop,
+                                          );
+                                        setClassesMenuPath(classesRootPath);
+                                      }
+                                    : undefined
+                                }
+                              >
+                                <span
+                                  className="absolute inset-0 -mx-4 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 transition-all duration-300 ease-out pointer-events-none"
+                                  style={glassHoverStyle}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (!isDesktopMenu) {
+                                      setClassesMenuPath(
+                                        classesOpen ? [] : classesRootPath,
+                                      );
+                                    }
+                                  }}
+                                  className={`relative z-10 flex w-full items-center gap-2 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
+                                >
+                                  <FontAwesomeIcon
+                                    icon={isArabic ? faCaretRight : faCaretLeft}
+                                    className={`
+                                    relative z-10 text-royal-cream text-lg
+                                    transition-all duration-300 ease-out
+                                    opacity-0 group-hover:opacity-100
+                                    ${
+                                      !isDesktopMenu && classesOpen
+                                        ? "rotate-90 !opacity-100 text-royal-gold"
+                                        : ""
+                                    }
+                                  `}
+                                  />
+                                  <span
+                                    className={`
+                                    relative z-10 text-royal-cream text-3xl font-light
+                                    tracking-wide transition-all duration-300 ease-out
+                                    group-hover:text-royal-gold
+                                    ${classesOpen ? "text-royal-gold" : ""}
+                                    ${
+                                      isArabic
+                                        ? "group-hover:translate-x-3"
+                                        : "group-hover:-translate-x-3"
+                                    }
+                                  `}
+                                  >
+                                    {link.label}
+                                  </span>
+                                </button>
+                              </div>
+
+                              {/* ── MOBILE: inline accordion ── */}
+                              {!isDesktopMenu && classesOpen && (
+                                <div className="mt-3 mb-2 rounded-2xl border border-white/10 bg-black/15 p-3 backdrop-blur-sm">
+                                  {renderMobileAccordion(
+                                    classesMenu,
+                                    classesRootPath,
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        );
+                      }
+
+                      // ── ALL OTHER NAV LINKS ─────────────────────────────────
+                      return (
+                        <motion.div
+                          key={link.href}
+                          variants={itemVariants}
+                          className="w-full"
+                          onMouseEnter={
+                            isDesktopMenu
+                              ? () => setClassesMenuPath([])
+                              : undefined
+                          }
                         >
-                          <div
-                            className={`relative flex items-center gap-1 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
+                          <Link
+                            href={`/${locale}${link.href}`}
+                            onClick={(e) => {
+                              handleNavClick(e, link.href);
+                              setMenuOpen(false);
+                            }}
+                            className={`
+                            group relative flex items-center gap-1 py-5 w-full
+                            border-b border-white/5 last:border-0
+                            ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}
+                          `}
                           >
                             <span
                               className="absolute inset-0 -mx-4 rounded-2xl opacity-0 scale-95 -translate-x-3 transition-all duration-300 ease-out pointer-events-none"
                               style={glassHoverStyle}
                             />
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setClassesMenuPath(classesOpen ? [] : classesRootPath)
-                              }
-                              className={`relative z-10 flex w-full items-center gap-1 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
+                            <span
+                              className={`relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out ${isArabic ? "translate-x-0 group-hover:translate-x-2" : "translate-x-0 group-hover:-translate-x-2"}`}
                             >
-                              <span
-                                className={`relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out ${isArabic ? "translate-x-0 group-hover:translate-x-2" : "translate-x-0 group-hover:-translate-x-2"}`}
-                              >
-                                <FontAwesomeIcon
-                                  icon={isArabic ? faCaretRight : faCaretLeft}
-                                />
-                              </span>
-                              <span
-                                className={`relative z-10 text-royal-cream text-3xl font-light tracking-wide -translate-x-1 text-left transition-all duration-300 ease-out group-hover:text-royal-gold ${isArabic ? "group-hover:translate-x-5" : "group-hover:-translate-x-5"}`}
-                              >
-                                {link.label}
-                              </span>
-                            </button>
-                          </div>
+                              <FontAwesomeIcon
+                                icon={isArabic ? faCaretRight : faCaretLeft}
+                              />
+                            </span>
+                            <span
+                              className={`relative z-10 text-royal-cream text-3xl font-light tracking-wide -translate-x-1 transition-all duration-300 ease-out group-hover:text-royal-gold ${isArabic ? "group-hover:translate-x-5" : "group-hover:-translate-x-5"}`}
+                            >
+                              {link.label}
+                            </span>
+                          </Link>
+                        </motion.div>
+                      );
+                    })}
 
-                          {classesOpen ? (
-                            isDesktopMenu ? null : (
-                              <div className="relative z-10 mt-4 rounded-2xl border border-white/10 bg-black/18 p-3 backdrop-blur-sm">
-                                {renderClassNodes(classesMenu, classesRootPath)}
-                              </div>
-                            )
-                          ) : null}
-                        </div>
-                      </motion.div>
-                    );
-                  }
-
-                  return (
+                    {/* ── Workshop — mobile only ── */}
                     <motion.div
-                      key={link.href}
                       variants={itemVariants}
-                      className="w-full"
+                      className="w-full sm:hidden"
+                      onMouseEnter={
+                        isDesktopMenu ? () => setClassesMenuPath([]) : undefined
+                      }
                     >
                       <Link
-                        href={`/${locale}${link.href}`}
-                        onClick={(e) => {
-                          handleNavClick(e, link.href);
-                          setMenuOpen(false);
-                        }}
-                        className={`
-                          group relative flex items-center gap-1 py-5 w-full
-                          border-b border-white/5 last:border-0
-                          ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}
-                        `}
+                        href={workshopHref}
+                        onClick={() => setMenuOpen(false)}
+                        className={`group relative flex items-center gap-1 py-5 w-full border-b border-white/5 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
                       >
                         <span
-                          className="absolute inset-0 -mx-4 rounded-2xl opacity-0 scale-95 -translate-x-3 transition-all duration-300 ease-out pointer-events-none"
+                          className="absolute inset-0 -mx-4 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none"
                           style={glassHoverStyle}
                         />
                         <span
@@ -1538,167 +1747,170 @@ export default function Navbar() {
                           />
                         </span>
                         <span
-                          className={`relative z-10 text-royal-cream text-3xl font-light tracking-wide -translate-x-1 transition-all duration-300 ease-out group-hover:text-royal-gold ${isArabic ? "group-hover:translate-x-5" : "group-hover:-translate-x-5"}`}
+                          className={`relative z-10 text-royal-green text-3xl font-light tracking-wide -translate-x-1 transition-all duration-300 ease-out group-hover:text-royal-gold ${isArabic ? "group-hover:translate-x-5" : "group-hover:-translate-x-5"}`}
                         >
-                          {link.label}
+                          {workshopLabel}
                         </span>
                       </Link>
                     </motion.div>
-                  );
-                })}
 
-                {/* Workshop — mobile only (hidden on sm+ since it's in the left cluster there) */}
-                <motion.div
-                  variants={itemVariants}
-                  className="w-full sm:hidden"
-                >
-                  {/* <Link */}
-                    {/* // href={workshopHref} */}
-                    {/* onClick={() => setMenuOpen(false)} */}
-                    {/* className={`group relative flex items-center gap-1 py-5 w-full border-b border-white/5 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`} */}
-                  {/* > */}
-                    <span
-                      className="absolute inset-0 -mx-4 rounded-2xl opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100 -translate-x-3 group-hover:translate-x-0 transition-all duration-300 ease-out pointer-events-none"
-                      style={glassHoverStyle}
-                    />
-                    <span
-                      className={`relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300 ease-out ${isArabic ? "translate-x-0 group-hover:translate-x-2" : "translate-x-0 group-hover:-translate-x-2"}`}
+                    {/* ── Contact Us ── */}
+                    <motion.div
+                      variants={itemVariants}
+                      className="w-full"
+                      onMouseEnter={
+                        isDesktopMenu ? () => setClassesMenuPath([]) : undefined
+                      }
                     >
-                      <FontAwesomeIcon
-                        icon={isArabic ? faCaretRight : faCaretLeft}
-                      />
-                    </span>
-                    <span
-                      className={`relative z-10 text-royal-gold text-3xl font-light tracking-wide -translate-x-1 transition-all duration-300 ease-out group-hover:text-royal-gold ${isArabic ? "group-hover:translate-x-5" : "group-hover:-translate-x-5"}`}
-                    >
-                      {/* {workshopLabel} */}
-                    </span>
-                  {/* </Link> */}
-                </motion.div>
-
-                {/* Contact Us */}
-                <motion.div variants={itemVariants} className="w-full">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setContactModalOpen(true);
-                      setMenuOpen(false);
-                      setUserMenuOpen(false);
-                    }}
-                    className={`group relative flex items-center gap-1 py-5 w-full border-b border-white/5 last:border-0 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
-                  >
-                    <span
-                      className="absolute inset-0 -mx-4 rounded-2xl opacity-0 scale-95 -translate-x-3 transition-all duration-300 ease-out pointer-events-none"
-                      style={glassHoverStyle}
-                    />
-                    <span className="relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 translate-x-0 group-hover:-translate-x-2 transition-all duration-300 ease-out">
-                      <FontAwesomeIcon
-                        icon={isArabic ? faCaretRight : faCaretLeft}
-                      />
-                    </span>
-                    <span
-                      className={`relative z-10 text-royal-cream text-3xl font-light tracking-wide -translate-x-1 transition-all duration-300 ease-out group-hover:text-royal-gold ${isArabic ? "group-hover:translate-x-5" : "group-hover:-translate-x-5"}`}
-                    >
-                      {isArabic ? "تواصل معنا" : "Contact Us"}
-                    </span>
-                  </button>
-                </motion.div>
-
-                {/* Admin — mobile only (already in right cluster on desktop) */}
-                {user && isAdmin && (
-                  <motion.div
-                    variants={itemVariants}
-                    className="w-full md:hidden"
-                  >
-                    <Link
-                      href={adminHref}
-                      onClick={() => {
-                        setMenuOpen(false);
-                        setUserMenuOpen(false);
-                      }}
-                      className={`group relative flex items-center gap-1 py-5 w-full border-b border-white/5 last:border-0 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
-                    >
-                      <span
-                        className="absolute inset-0 -mx-4 rounded-2xl opacity-0 scale-95 -translate-x-3 transition-all duration-300 ease-out pointer-events-none"
-                        style={glassHoverStyle}
-                      />
-                      <span className="relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 translate-x-0 group-hover:-translate-x-2 transition-all duration-300 ease-out">
-                        <FontAwesomeIcon
-                          icon={isArabic ? faCaretRight : faCaretLeft}
-                        />
-                      </span>
-                      <span
-                        className={`relative z-10 text-royal-cream text-3xl font-light tracking-wide -translate-x-1 transition-all duration-300 ease-out group-hover:text-royal-gold ${isArabic ? "group-hover:translate-x-5" : "group-hover:-translate-x-5"}`}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setContactModalOpen(true);
+                          setMenuOpen(false);
+                          setUserMenuOpen(false);
+                        }}
+                        className={`group relative flex items-center gap-1 py-5 w-full border-b border-white/5 last:border-0 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
                       >
-                        {isArabic ? "لوحة التحكم" : "Admin Panel"}
-                      </span>
-                    </Link>
-                  </motion.div>
+                        <span
+                          className="absolute inset-0 -mx-4 rounded-2xl opacity-0 scale-95 -translate-x-3 transition-all duration-300 ease-out pointer-events-none"
+                          style={glassHoverStyle}
+                        />
+                        <span className="relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 translate-x-0 group-hover:-translate-x-2 transition-all duration-300 ease-out">
+                          <FontAwesomeIcon
+                            icon={isArabic ? faCaretRight : faCaretLeft}
+                          />
+                        </span>
+                        <span
+                          className={`relative z-10 text-royal-cream text-3xl font-light tracking-wide -translate-x-1 transition-all duration-300 ease-out group-hover:text-royal-gold ${isArabic ? "group-hover:translate-x-5" : "group-hover:-translate-x-5"}`}
+                        >
+                          {isArabic ? "تواصل معنا" : "Contact Us"}
+                        </span>
+                      </button>
+                    </motion.div>
+
+                    {/* ── Admin — mobile only ── */}
+                    {user && isAdmin && (
+                      <motion.div
+                        variants={itemVariants}
+                        className="w-full md:hidden"
+                        onMouseEnter={
+                          isDesktopMenu
+                            ? () => setClassesMenuPath([])
+                            : undefined
+                        }
+                      >
+                        <Link
+                          href={adminHref}
+                          onClick={() => {
+                            setMenuOpen(false);
+                            setUserMenuOpen(false);
+                          }}
+                          className={`group relative flex items-center gap-1 py-5 w-full border-b border-white/5 last:border-0 ${isArabic ? "flex-row-reverse" : "flex-row-reverse"}`}
+                        >
+                          <span
+                            className="absolute inset-0 -mx-4 rounded-2xl opacity-0 scale-95 -translate-x-3 transition-all duration-300 ease-out pointer-events-none"
+                            style={glassHoverStyle}
+                          />
+                          <span className="relative z-10 text-royal-cream text-2xl font-bold opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 translate-x-0 group-hover:-translate-x-2 transition-all duration-300 ease-out">
+                            <FontAwesomeIcon
+                              icon={isArabic ? faCaretRight : faCaretLeft}
+                            />
+                          </span>
+                          <span
+                            className={`relative z-10 text-royal-cream text-3xl font-light tracking-wide -translate-x-1 transition-all duration-300 ease-out group-hover:text-royal-gold ${isArabic ? "group-hover:translate-x-5" : "group-hover:-translate-x-5"}`}
+                          >
+                            {isArabic ? "لوحة التحكم" : "Admin Panel"}
+                          </span>
+                        </Link>
+                      </motion.div>
+                    )}
+                  </motion.nav>
+                </div>
+              </div>
+
+              {/* ── DESKTOP: flyout panel 1 — top-level categories ── */}
+              {isDesktopMenu && classesOpen && (
+                <div
+                  className={flyoutPanelClass}
+                  style={flyoutStyle(1)}
+                  onMouseEnter={() => setClassesMenuPath(classesRootPath)}
+                >
+                  <div
+                    className={`absolute top-0 bottom-0 w-3 ${isArabic ? "right-full" : "left-full"}`}
+                  />
+                  {renderFlyoutList(
+                    classesMenu,
+                    (node) => setClassesMenuPath([...classesRootPath, node.id]),
+                    activeClassCategory?.id,
+                  )}
+                </div>
+              )}
+
+              {/* ── DESKTOP: flyout panel 2 — children of hovered category ── */}
+              {isDesktopMenu &&
+                classesOpen &&
+                activeClassCategory?.children?.length && (
+                  <div
+                    className={flyoutPanelClass}
+                    style={flyoutStyle(2)}
+                    onMouseEnter={() =>
+                      setClassesMenuPath([
+                        ...classesRootPath,
+                        activeClassCategory.id,
+                      ])
+                    }
+                  >
+                    <div
+                      className={`absolute top-0 bottom-0 w-3 ${isArabic ? "right-full" : "left-full"}`}
+                    />
+                    {renderFlyoutList(
+                      activeClassCategory.children,
+                      (node) =>
+                        setClassesMenuPath([
+                          ...classesRootPath,
+                          activeClassCategory.id,
+                          node.id,
+                        ]),
+                      activeNestedClassNode?.id,
+                    )}
+                  </div>
                 )}
-                </motion.nav>
-              </div>
-            </div>
-            {isDesktopMenu && classesOpen ? (
-              <div
-                className="absolute z-20 w-72 overflow-visible rounded-2xl border border-white/10 bg-black/18 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.38)] backdrop-blur-sm"
-                style={
-                  isArabic
-                    ? { left: "100%", top: "1rem" }
-                    : { right: "100%", top: "1rem" }
-                }
-                onWheel={(event) => {
-                  event.stopPropagation();
-                }}
-              >
-                {renderClassNodes(classesMenu, classesRootPath)}
-              </div>
-            ) : null}
-            {isDesktopMenu && classesOpen && activeClassCategory?.children?.length ? (
-              <div
-                className="absolute z-20 w-72 overflow-visible rounded-2xl border border-white/10 bg-black/18 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.38)] backdrop-blur-sm"
-                style={
-                  isArabic
-                    ? { left: "calc(100% + 18rem)", top: "1rem" }
-                    : { right: "calc(100% + 18rem)", top: "1rem" }
-                }
-                onWheel={(event) => {
-                  event.stopPropagation();
-                }}
-              >
-                {renderClassNodes(
-                  activeClassCategory.children,
-                  [...classesRootPath, activeClassCategory.id],
-                  0,
+
+              {/* ── DESKTOP: flyout panel 3 — children of hovered sub-item ── */}
+              {isDesktopMenu &&
+                classesOpen &&
+                activeNestedClassNode?.children?.length && (
+                  <div
+                    className={flyoutPanelClass}
+                    style={flyoutStyle(3)}
+                    onMouseEnter={() =>
+                      setClassesMenuPath([
+                        ...classesRootPath,
+                        activeClassCategory!.id,
+                        activeNestedClassNode.id,
+                      ])
+                    }
+                  >
+                    <div
+                      className={`absolute top-0 bottom-0 w-3 ${isArabic ? "right-full" : "left-full"}`}
+                    />
+                    {renderFlyoutList(
+                      activeNestedClassNode.children,
+                      (node) =>
+                        setClassesMenuPath([
+                          ...classesRootPath,
+                          activeClassCategory!.id,
+                          activeNestedClassNode.id,
+                          node.id,
+                        ]),
+                      undefined,
+                    )}
+                  </div>
                 )}
-              </div>
-            ) : null}
-            {isDesktopMenu &&
-            classesOpen &&
-            activeNestedClassNode?.children?.length &&
-            activeClassCategory ? (
-              <div
-                className="absolute z-20 w-72 overflow-visible rounded-2xl border border-white/10 bg-black/18 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.38)] backdrop-blur-sm"
-                style={
-                  isArabic
-                    ? { left: "calc(100% + 36rem)", top: "1rem" }
-                    : { right: "calc(100% + 36rem)", top: "1rem" }
-                }
-                onWheel={(event) => {
-                  event.stopPropagation();
-                }}
-              >
-                {renderClassNodes(
-                  activeNestedClassNode.children,
-                  [
-                    ...classesRootPath,
-                    activeClassCategory.id,
-                    activeNestedClassNode.id,
-                  ],
-                  0,
-                )}
-              </div>
-            ) : null}
-            <div className="h-px w-full bg-linear-to-r from-transparent via-royal-gold/50 to-transparent" />
+
+              <div className="h-px w-full bg-linear-to-r from-transparent via-royal-gold/50 to-transparent" />
+            </div>{" "}
+            {/* closes visual shell div */}
           </motion.div>
         )}
       </AnimatePresence>

@@ -31,13 +31,7 @@ function getSafeLocale(formData: FormData) {
 }
 
 async function getRequestOrigin() {
-  const headerStore = await headers();
-  const forwardedProto = headerStore.get("x-forwarded-proto");
-  const forwardedHost = headerStore.get("x-forwarded-host");
-  const host = forwardedHost ?? headerStore.get("host");
-  const proto = forwardedProto ?? (host?.startsWith("localhost") ? "http" : "https");
-  if (host) return `${proto}://${host}`;
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  return process.env.NEXT_PUBLIC_SITE_URL || "https://royalacadeymct.com";
 }
 
 export async function signUp(formData: FormData) {
@@ -51,15 +45,13 @@ export async function signUp(formData: FormData) {
 
   const supabase = await createClient();
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback`,
-      // user_metadata is fine for non-sensitive display info only
-      data: { firstName, lastName },
-    },
-  });
+const { data, error } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    emailRedirectTo: `https://royalacadeymct.com/api/auth/callback?next=/${locale}/login`,
+  }
+});
 
   if (error) return { error: error.message };
   if (!data.user) return { error: "Could not create user. Please try again." };
@@ -106,8 +98,6 @@ export async function signIn(formData: FormData) {
     email,
     password,
   });
-  console.log('data', data)
-
   if (error) return { error: error.message };
   if (!data.user) return { error: "Login failed. Please try again." };
 
@@ -121,22 +111,30 @@ export async function signIn(formData: FormData) {
   // ✅ Sync role from Prisma → app_metadata on every login.
   // Ensures manual DB promotions (STUDENT → ADMIN) take effect
   // on the very next sign-in without any extra manual step.
-  const dbUser = await prisma.user.findUnique({
-    where: { id: data.user.id },
-    select: { role: true },
-  });
+  try {
+  const dbUser = await Promise.race([
+    prisma.user.findUnique({
+      where: { id: data.user.id },
+      select: { role: true },
+    }),
+    new Promise<null>((_, reject) =>
+      setTimeout(() => reject(new Error("Prisma timeout")), 5000)
+    ),
+  ]);
 
-  if (dbUser) {
-    console.log('dbUser', JSON.stringify(dbUser))
-    const currentRole = (data.user.app_metadata?.role as string | undefined) ?? null;
-    console.log('currentRole', currentRole)
-    if (dbUser.role !== currentRole) {
-      try {
-        await syncRoleToAppMetadata(data.user.id, dbUser.role);
-      } catch {
-        // Non-fatal in dev; avoids breaking login if service role key is missing/misconfigured.
+    if (dbUser) {
+      const currentRole = (data.user.app_metadata?.role as string | undefined) ?? null;
+      if (dbUser.role !== currentRole) {
+        try {
+          await syncRoleToAppMetadata(data.user.id, dbUser.role);
+        } catch {
+          // Non-fatal; avoids breaking login if service role key is missing/misconfigured.
+        }
       }
     }
+  } catch (prismaError) {
+    // Non-fatal; DB lookup failure should not block a successful Supabase auth.
+    console.error("[signIn] Prisma role-sync lookup failed:", prismaError);
   }
 
   const fallback = `/${locale}`;
@@ -145,7 +143,7 @@ export async function signIn(formData: FormData) {
       ? redirectTo
       : fallback;
 
-  redirect(safeRedirect);
+  return { redirectTo: safeRedirect };
 }
 
 export async function signOut(formData: FormData) {
@@ -161,7 +159,7 @@ export async function resendVerification(email: string) {
     type: "signup",
     email,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback?next=/en/login`,
     },
   });
   if (error) return { error: error.message };
@@ -207,9 +205,10 @@ export async function updatePassword(formData: FormData) {
   const { error } = await supabase.auth.updateUser({ password });
   if (error) return { error: error.message };
 
-  // Optional: sign out so user re-authenticates with new password.
   await supabase.auth.signOut();
-  redirect(`/${locale}/login?passwordUpdated=true`);
+  
+  // ✅ Return redirect path instead of calling redirect() directly
+  return { redirectTo: `/${locale}/login?passwordUpdated=true` };
 }
 
 // ─────────────────────────────────────────────────────────────

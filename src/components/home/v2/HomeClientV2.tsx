@@ -9,6 +9,7 @@ import { usePreloader } from "@/context/PreloaderContext";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import RoyalCombinedIntroHeroV2 from "@/components/home/v2/RoyalCombinedIntroHeroV2Section";
 import { useLocale } from "next-intl";
+import MobileHomePageV2 from "@/components/home/v2/MobileHomePageV2";
 
 // Floor layout:
 //   0 → Offers / News / Upcomings
@@ -20,6 +21,7 @@ export default function HomeClientV2() {
   const { setNavSolid } = useNavbarState();
   const { markDone } = usePreloader();
   const [floor, setFloor] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const isAnimating = useRef(false);
   const elevatorRef = useRef<HTMLDivElement>(null);
 
@@ -35,10 +37,51 @@ export default function HomeClientV2() {
     markDone();
   }, [markDone]);
 
+  // ── Detect mobile (match v1 home breakpoint) ────────────────────────────
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+
+    const computeIsMobile = () => {
+      const isTouchCapable =
+        (typeof navigator !== "undefined" && navigator.maxTouchPoints > 0) ||
+        "ontouchstart" in window;
+      return mq.matches || isTouchCapable;
+    };
+
+    const update = () => setIsMobile(computeIsMobile());
+    update();
+
+    const onResize = () => update();
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
+
+    // Safari < 14 uses addListener/removeListener
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", update);
+      return () => {
+        mq.removeEventListener("change", update);
+        window.removeEventListener("resize", onResize);
+        window.removeEventListener("orientationchange", onResize);
+      };
+    }
+
+    mq.addListener(update);
+    return () => {
+      mq.removeListener(update);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onResize);
+    };
+  }, []);
+
   // Keep navbar style aligned with current floor (hero wants transparent)
   useEffect(() => {
+    // On mobile we allow natural page scroll; keep navbar solid.
+    if (isMobile) {
+      setNavSolid(true);
+      return;
+    }
     setNavSolid(floor !== 1);
-  }, [floor, setNavSolid]);
+  }, [floor, isMobile, setNavSolid]);
 
   const slideTo = useCallback(
     (targetFloor: number) => {
@@ -68,6 +111,7 @@ export default function HomeClientV2() {
 
   // ── Wheel + keyboard navigation ──────────────────────────────────────────
   useEffect(() => {
+    if (isMobile) return;
     const wheelOptions: AddEventListenerOptions = { passive: false };
 
     const onWheel = (e: WheelEvent) => {
@@ -100,14 +144,21 @@ export default function HomeClientV2() {
       window.removeEventListener("wheel", onWheel, wheelOptions);
       window.removeEventListener("keydown", onKey);
     };
-  }, [floor, slideTo]);
+  }, [floor, isMobile, slideTo]);
 
   // ── Navbar context requests ───────────────────────────────────────────────
   useEffect(() => {
     if (requestedFloor === null) return;
+    if (isMobile) {
+      // Mobile v2 is a freely scrollable page (v1-style).
+      // Ignore floor requests to avoid programmatic section jumps.
+      clearRequest();
+      return;
+    }
+
     slideTo(requestedFloor);
     clearRequest();
-  }, [requestedFloor, slideTo, clearRequest]);
+  }, [requestedFloor, slideTo, clearRequest, isMobile]);
 
   // ── ?floor= query param (navigating from another page) ───────────────────
   useEffect(() => {
@@ -117,78 +168,105 @@ export default function HomeClientV2() {
     if (isNaN(targetFloor)) return;
 
     const timer = window.setTimeout(() => {
+      if (isMobile) {
+        // See note above: mobile v2 ignores floor jumps.
+        router.replace(pathname, { scroll: true });
+        return;
+      }
       slideTo(targetFloor);
       router.replace(pathname, { scroll: false });
     }, 100);
 
     return () => window.clearTimeout(timer);
-  }, [pathname, router, searchParams, slideTo]);
+  }, [isMobile, pathname, router, searchParams, slideTo]);
+
+  const scrollTo = (targetFloor: number) => {
+    const el = document.getElementById(`home-v2-floor-${targetFloor}`);
+    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
-    <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
+    <>
+      {/* MOBILE: normal document scroll (no elevator / no scroll-jacking)
+          Rendered via CSS so it works before JS runs. */}
       <div
-        ref={elevatorRef}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: `${FLOOR_COUNT * 100}vh`,
-          transform: "translateY(0vh)",
-          willChange: "transform",
-        }}
+        className="md:hidden"
+        style={{ display: isMobile ? "block" : undefined }}
       >
-        {/* Floor 0 — Offers / News / Upcomings */}
-        <div
-          style={{
-            position: "absolute",
-            top: "0vh",
-            left: 0,
-            right: 0,
-            height: "100vh",
-          }}
-        >
-          <HomeTrioShowcaseFloor
-            active={floor === 0}
-            onScrollUp={() => {}}
-            onScrollDown={() => slideTo(1)}
-          />
-        </div>
+        <MobileHomePageV2 />
+      </div>
 
-        {/* Floor 1 — Intro */}
-        <div
-          style={{
-            position: "absolute",
-            top: "100vh",
-            left: 0,
-            right: 0,
-            height: "100vh",
-          }}
-        >
-          <RoyalCombinedIntroHeroV2
-            onScrolled={() => slideTo(2)}
-            active={floor === 1}
-          />
-        </div>
+      {/* DESKTOP: elevator layout */}
+      <div
+        className="hidden md:block"
+        style={{ display: isMobile ? "none" : undefined }}
+      >
+        <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>
+          <div
+            ref={elevatorRef}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: `${FLOOR_COUNT * 100}vh`,
+              transform: "translateY(0vh)",
+              willChange: "transform",
+            }}
+          >
+            {/* Floor 0 — Offers / News / Upcomings */}
+            <div
+              style={{
+                position: "absolute",
+                top: "0vh",
+                left: 0,
+                right: 0,
+                height: "100vh",
+              }}
+            >
+              <HomeTrioShowcaseFloor
+                active={floor === 0}
+                onScrollUp={() => {}}
+                onScrollDown={() => slideTo(1)}
+              />
+            </div>
 
-        {/* Floor 2 — About */}
-        <div
-          style={{
-            position: "absolute",
-            top: "200vh",
-            left: 0,
-            right: 0,
-            height: "100vh",
-          }}
-        >
-          <AboutSection
-            active={floor === 2}
-            locale={locale}
-            onScrollUp={() => slideTo(1)}
-            onScrollDown={() => {}}
-          />
+            {/* Floor 1 — Intro */}
+            <div
+              style={{
+                position: "absolute",
+                top: "100vh",
+                left: 0,
+                right: 0,
+                height: "100vh",
+              }}
+            >
+              <RoyalCombinedIntroHeroV2
+                onScrolled={() => slideTo(2)}
+                active={floor === 1}
+              />
+            </div>
+
+            {/* Floor 2 — About */}
+            <div
+              style={{
+                position: "absolute",
+                top: "200vh",
+                left: 0,
+                right: 0,
+                height: "100vh",
+              }}
+            >
+              <AboutSection
+                active={floor === 2}
+                locale={locale}
+                onScrollUp={() => slideTo(1)}
+                onScrollDown={() => {}}
+              />
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
