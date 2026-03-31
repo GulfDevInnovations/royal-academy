@@ -37,7 +37,7 @@ async function getRequestOrigin() {
   const host = forwardedHost ?? headerStore.get("host");
   const proto = forwardedProto ?? (host?.startsWith("localhost") ? "http" : "https");
   if (host) return `${proto}://${host}`;
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  return process.env.NEXT_PUBLIC_SITE_URL || "https://www.royalacadeymct.com";
 }
 
 export async function signUp(formData: FormData) {
