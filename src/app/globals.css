@@ -12,7 +12,7 @@
   --royal-white: #ffffff;
   --auth-teal: #227b81;
   --auth-sand: #e4d0b5;
-  --royal-green: #046758;
+  --royal-green: #8bae82;
 }
 
 @theme inline {
@@ -263,7 +263,6 @@ html {
 .navbar-submenu-scroll::-webkit-scrollbar-corner {
   background: transparent;
 }
-
 
 .shimmer-auto::before {
   content: "";
