@@ -94,6 +94,14 @@ const layla = localFont({
 export const metadata: Metadata = {
   title: "Royal Academy",
   description: "Excellence in Education | التميز في التعليم",
+  applicationName: "Royal Academy",
+  manifest: "/manifest.webmanifest",
+  themeColor: "#000000",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Royal Academy",
+  },
 };
 
 export default async function LocaleLayout({

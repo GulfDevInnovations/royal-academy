@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
+import type { News, Offer, Upcoming } from "@prisma/client";
 export const dynamic = "force-dynamic";
 import HomeWrapper from "@/components/layout-toggle/HomeWrapper"; // adjust path if needed
-import type { News, Offer, Upcoming } from "@prisma/client";
+
 
 export default async function Home({
   params,
