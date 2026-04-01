@@ -6,8 +6,8 @@ import { routing } from "@/i18n/routing";
 import localFont from "next/font/local";
 import "../globals.css";
 import ConditionalLayout from "@/components/ConditionalLayout";
-import Footer from "@/components/Footer";
 import { PreloaderProvider } from "@/context/PreloaderContext";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 const goudy = localFont({
   src: [
@@ -128,6 +128,7 @@ export default async function LocaleLayout({
       className={`${goudy.variable} ${layla.variable}`}
     >
       <body>
+        <ServiceWorkerRegister />
         <PreloaderProvider>
           <div className="min-h-screen bg-black text-royal-cream flex flex-col">
             <NextIntlClientProvider messages={messages}>
