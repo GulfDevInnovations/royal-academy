@@ -1,11 +1,14 @@
-const STATIC_CACHE = "royal-static-v1";
-const PAGE_CACHE = "royal-pages-v1";
+const STATIC_CACHE = "royal-static-v2";
+const PAGE_CACHE = "royal-pages-v2";
+const OFFLINE_URL = "/offline.html";
 const STATIC_ASSETS = [
   "/manifest.webmanifest",
   "/favicon.ico",
+  OFFLINE_URL,
   "/icons/icon-192x192.png",
   "/icons/icon-512x512.png",
   "/icons/icon-512x512-maskable.png",
+  "/images/logo/Logo-White.png",
 ];
 
 const BYPASS_PATHS = [
@@ -99,6 +102,12 @@ async function networkFirst(request, cacheName) {
 
     if (cachedResponse) {
       return cachedResponse;
+    }
+
+    const offlineResponse = await caches.match(OFFLINE_URL);
+
+    if (offlineResponse) {
+      return offlineResponse;
     }
 
     return new Response("Offline", {
