@@ -49,6 +49,38 @@ type ShowcaseItem = {
   media: MediaItem[];
 };
 
+const preloadedShowcaseImages = new Set<string>();
+const showcaseImagePreloadPromises = new Map<string, Promise<void>>();
+
+function preloadShowcaseImage(url: string) {
+  if (!url) return Promise.resolve();
+  if (typeof window === "undefined") return Promise.resolve();
+  if (preloadedShowcaseImages.has(url)) return Promise.resolve();
+
+  const existingPromise = showcaseImagePreloadPromises.get(url);
+  if (existingPromise) return existingPromise;
+
+  const promise = new Promise<void>((resolve) => {
+    const img = new window.Image();
+
+    const finish = () => {
+      preloadedShowcaseImages.add(url);
+      showcaseImagePreloadPromises.delete(url);
+      resolve();
+    };
+
+    img.onload = finish;
+    img.onerror = finish;
+    img.decoding = "async";
+    img.src = url;
+
+    if (img.complete) finish();
+  });
+
+  showcaseImagePreloadPromises.set(url, promise);
+  return promise;
+}
+
 function pickText(locale: string, text: LocalizedText) {
   if (locale === "ar" && text.ar) return text.ar;
   return text.en;
@@ -151,6 +183,7 @@ function GlassCard({
             src={heroMedia.src}
             alt={heroMedia.alt}
             fill
+            unoptimized
             className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
             sizes="(max-width: 1024px) 100vw, 33vw"
           />
@@ -284,6 +317,7 @@ function ShowcaseModal({
                   src={activeMedia.src}
                   alt={activeMedia.alt}
                   fill
+                  unoptimized
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
@@ -369,6 +403,7 @@ function ShowcaseModal({
               <div className="mt-6">
                 <Link
                   href={normalizeHref(locale, item.link.href)}
+                  prefetch={false}
                   className="inline-flex items-center justify-center rounded-full border border-white/12 bg-black/25 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/85 transition-colors hover:bg-black/35"
                 >
                   {pickText(
@@ -638,6 +673,27 @@ export default function HomeTrioShowcaseFloor({
     ],
     [],
   );
+
+  const showcaseImageUrls = useMemo(() => {
+    const urls = new Set<string>();
+
+    [offers, news, upcomings].forEach((group) => {
+      group.forEach((item) => {
+        item.media.forEach((media) => {
+          if (media.type === "image") urls.add(media.src);
+          if (media.type === "video" && media.poster) urls.add(media.poster);
+        });
+      });
+    });
+
+    return Array.from(urls);
+  }, [news, offers, upcomings]);
+
+  useEffect(() => {
+    showcaseImageUrls.forEach((url) => {
+      void preloadShowcaseImage(url);
+    });
+  }, [showcaseImageUrls]);
 
   const delaysRef = useRef<Record<ColumnKey, number> | null>(null);
   if (!delaysRef.current) {
