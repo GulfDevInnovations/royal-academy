@@ -597,14 +597,30 @@ function DesktopDepartments({
                     alignItems: "center",
                     width: "100%",
                     overflow: "hidden",
-                    maxHeight: isActive ? "160px" : "0px",
+                    maxHeight: isActive ? "360px" : "0px",
                     opacity: isActive ? 1 : 0,
                     transition:
-                      "max-height 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease",
+                      "max-height 0.55s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease",
                     pointerEvents: isActive ? "auto" : "none",
                   }}
                 >
-                  <Subclasses section={section} isActive={isActive} />
+                  <div
+                    style={{
+                      width: "100%",
+                      border: "1px solid rgba(196,168,120,0.28)",
+                      borderRadius: 6,
+                      overflow: "hidden",
+                      background: "rgba(0,0,0,0.28)",
+                      boxShadow:
+                        "0 2px 8px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,220,140,0.06)",
+                    }}
+                  >
+                    <Subclasses
+                      section={section}
+                      isActive={isActive}
+                      isMobile={true}
+                    />
+                  </div>
                   <div
                     style={{
                       height: 1,
@@ -630,10 +646,9 @@ function DesktopDepartments({
                       : "rgba(200, 175, 140, 0.75)",
                     transition:
                       "font-size 0.45s cubic-bezier(0.4,0,0.2,1), color 0.45s ease",
-                    /* Soft text-shadow when active gives a gentle glow without feeling heavy */
                     textShadow: isActive
-                      ? "0 0 24px rgba(196,155,80,0.25)"
-                      : "none",
+                      ? "0 2px 4px rgba(0,0,0,0.9), 0 -1px 0 rgba(255,230,140,0.5), 1px 0 2px rgba(0,0,0,0.7), -1px 0 2px rgba(0,0,0,0.7), 0 0 14px rgba(220,185,110,0.35)"
+                      : "0 2px 3px rgba(0,0,0,0.8), 0 -1px 0 rgba(255,220,140,0.2), 1px 0 1px rgba(0,0,0,0.5), -1px 0 1px rgba(0,0,0,0.5)",
                   }}
                 >
                   {section.label}

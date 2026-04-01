@@ -815,13 +815,15 @@ export function SubclassItem({
     ? "0 2px 0 rgba(0,0,0,0.8), 0 -1px 0 rgba(255,230,140,0.4), 1px 0 0 rgba(0,0,0,0.5), -1px 0 0 rgba(0,0,0,0.5), 0 0 10px rgba(220,185,110,0.2)"
     : "0 1px 0 rgba(0,0,0,0.7), 0 -1px 0 rgba(255,220,140,0.2), 1px 0 0 rgba(0,0,0,0.3), -1px 0 0 rgba(0,0,0,0.3)";
 
-  // ── Mobile: full-height image card ──────────────────────────────────────
+  // ── Image card (used for both mobile render and desktop subclass cards) ──
   if (isMobile) {
     return (
       <Link
         href={sub.href}
         prefetch={false}
         onClick={(e) => e.stopPropagation()}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         style={{
           position: "relative",
           display: "block",
@@ -830,9 +832,13 @@ export function SubclassItem({
           borderBottom: "1px solid rgba(196,168,120,0.2)",
           textDecoration: "none",
           flexShrink: 0,
+          transition: "box-shadow 0.3s ease",
+          boxShadow: hovered
+            ? "inset 0 0 0 1px rgba(196,168,120,0.35), 0 4px 18px rgba(0,0,0,0.55)"
+            : "none",
         }}
       >
-        {/* Background image */}
+        {/* Background image — zooms slightly on hover */}
         {sub.image && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -845,36 +851,80 @@ export function SubclassItem({
               height: "100%",
               objectFit: "cover",
               objectPosition: "center",
+              transform: hovered ? "scale(1.06)" : "scale(1)",
+              transition: "transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94)",
             }}
           />
         )}
-        {/* Dark scrim so text is readable */}
+        {/* Dark scrim — slightly lighter on hover */}
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background:
-              "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.28) 60%, rgba(0,0,0,0.12) 100%)",
+            background: hovered
+              ? "linear-gradient(to top, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.18) 60%, rgba(0,0,0,0.06) 100%)"
+              : "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.28) 60%, rgba(0,0,0,0.12) 100%)",
+            transition: "background 0.35s ease",
           }}
         />
-        {/* Label */}
-        <span
+        {/* Label with blurred ghost copy behind it */}
+        <div
           style={{
             position: "absolute",
-            bottom: 12,
-            left: 14,
-            right: 14,
-            fontFamily: "Georgia, 'Times New Roman', serif",
-            fontStyle: "italic",
-            fontSize: "1.05rem",
-            letterSpacing: "0.04em",
-            color: "rgba(235,210,160,0.95)",
-            textShadow: "0 2px 6px rgba(0,0,0,0.9), 0 1px 2px rgba(0,0,0,0.8)",
-            lineHeight: 1.3,
+            bottom: 10,
+            left: 10,
+            right: 10,
+            padding: "5px 10px 6px",
           }}
         >
-          {sub.label}
-        </span>
+          {/* Blurred ghost — same text, larger, behind the real label */}
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              padding: "5px 10px 6px",
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontStyle: "italic",
+              fontSize: "1.18rem",
+              letterSpacing: "0.04em",
+              lineHeight: 1.3,
+              color: hovered
+                ? "rgba(200,155,60,0.55)"
+                : "rgba(160,120,40,0.38)",
+              filter: hovered ? "blur(7px)" : "blur(5px)",
+              transform: "scale(1.06)",
+              transformOrigin: "left center",
+              transition: "color 0.35s ease, filter 0.35s ease",
+              userSelect: "none",
+              pointerEvents: "none",
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {sub.label}
+          </span>
+          {/* Real label on top */}
+          <span
+            style={{
+              position: "relative",
+              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontStyle: "italic",
+              fontSize: "1.0rem",
+              letterSpacing: "0.04em",
+              color: hovered ? "rgba(248,224,172,1)" : "rgba(225,198,148,0.92)",
+              textShadow: hovered
+                ? "0 1px 3px rgba(0,0,0,0.9), 0 0 8px rgba(200,160,70,0.22)"
+                : "0 1px 3px rgba(0,0,0,0.85)",
+              lineHeight: 1.3,
+              transition: "color 0.3s ease, text-shadow 0.3s ease",
+              display: "block",
+            }}
+          >
+            {sub.label}
+          </span>
+        </div>
       </Link>
     );
   }
