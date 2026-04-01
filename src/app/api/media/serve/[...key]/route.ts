@@ -26,8 +26,12 @@ function safeJoinKey(parts: string[]) {
   return key;
 }
 
+function isVideo(contentType: string) {
+  return contentType.startsWith("video/");
+}
+
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ key: string[] }> }
 ) {
   try {
@@ -47,11 +51,60 @@ export async function GET(
       path.join(process.cwd(), "storage", "uploads");
 
     const absPath = path.join(rootDir, key);
-    const file = await fs.readFile(absPath);
 
     const ext = path.extname(absPath).slice(1).toLowerCase();
     const contentType = MIME_BY_EXT[ext] || "application/octet-stream";
 
+    // Mobile browsers require Range request support to play videos.
+    // Without 206 Partial Content, iOS Safari and Android Chrome won't load video.
+    if (isVideo(contentType)) {
+      const stat = await fs.stat(absPath);
+      const fileSize = stat.size;
+      const rangeHeader = request.headers.get("range");
+
+      if (rangeHeader) {
+        // Parse "bytes=start-end"
+        const match = rangeHeader.match(/bytes=(\d*)-(\d*)/);
+        const start = match?.[1] ? parseInt(match[1], 10) : 0;
+        const end = match?.[2] ? parseInt(match[2], 10) : fileSize - 1;
+        const clampedEnd = Math.min(end, fileSize - 1);
+        const chunkSize = clampedEnd - start + 1;
+
+        const buffer = Buffer.allocUnsafe(chunkSize);
+        const fh = await fs.open(absPath, "r");
+        try {
+          await fh.read(buffer, 0, chunkSize, start);
+        } finally {
+          await fh.close();
+        }
+
+        return new NextResponse(buffer, {
+          status: 206,
+          headers: {
+            "Content-Type": contentType,
+            "Content-Range": `bytes ${start}-${clampedEnd}/${fileSize}`,
+            "Accept-Ranges": "bytes",
+            "Content-Length": String(chunkSize),
+            "Cache-Control": "public, max-age=31536000, immutable",
+          },
+        });
+      }
+
+      // No Range header — return full file but advertise range support
+      const file = await fs.readFile(absPath);
+      return new NextResponse(file, {
+        status: 200,
+        headers: {
+          "Content-Type": contentType,
+          "Accept-Ranges": "bytes",
+          "Content-Length": String(fileSize),
+          "Cache-Control": "public, max-age=31536000, immutable",
+        },
+      });
+    }
+
+    // Non-video files: serve as before
+    const file = await fs.readFile(absPath);
     return new NextResponse(file, {
       status: 200,
       headers: {

@@ -231,7 +231,7 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
         </g>
       ))}
 
-      <g transform={`translate(${sw / 2}, 0)`} filter="url(#bsoftGlow)">
+      {/* <g transform={`translate(${sw / 2}, 0)`} filter="url(#bsoftGlow)">
         <circle
           cx="0"
           cy="0"
@@ -501,7 +501,7 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
           strokeWidth="0.6"
           strokeDasharray="5,7"
         />
-      </g>
+      </g> */}
 
       <rect
         x="1"

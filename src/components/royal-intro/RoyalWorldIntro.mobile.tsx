@@ -6,12 +6,7 @@ import { createPortal } from "react-dom";
 import AboutSection from "@/components/AboutSection";
 import { usePreloader } from "@/context/PreloaderContext";
 import { ContentCard, SECTIONS, emptyCard } from "./RoyalWorldIntro.types";
-import {
-  Card,
-  MiniPilePopup,
-  SymbolCard,
-  Subclasses,
-} from "./RoyalWorldIntro.shared";
+import { Card, MiniPilePopup, Subclasses } from "./RoyalWorldIntro.shared";
 import { useLocale } from "next-intl";
 
 // ─────────────────────────────────────────────
@@ -21,14 +16,16 @@ import { useLocale } from "next-intl";
 const MOBILE_CARD_W = 260;
 const MOBILE_CARD_H = 400;
 const CAROUSEL_GAP = 16;
-const PEEK = 32;
+const PEEK = 45;
 
 function MobileCardCarousel({
   pileConfigs,
   onPileClick,
+  isRTL = false,
 }: {
   pileConfigs: { cards: ContentCard[]; label: string }[];
   onPileClick: (cards: ContentCard[], label: string) => void;
+  isRTL?: boolean;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
@@ -62,8 +59,10 @@ function MobileCardCarousel({
 
   const handleTouchEnd = () => {
     if (!isDraggingRef.current) return;
-    if (dragOffset < -60) goTo(activeIndex + 1);
-    else if (dragOffset > 60) goTo(activeIndex - 1);
+    const next = isRTL ? dragOffset > 60 : dragOffset < -60;
+    const prev = isRTL ? dragOffset < -60 : dragOffset > 60;
+    if (next) goTo(activeIndex + 1);
+    else if (prev) goTo(activeIndex - 1);
     else setDragOffset(0);
     isDraggingRef.current = false;
     touchStartX.current = null;
@@ -78,10 +77,11 @@ function MobileCardCarousel({
         flexDirection: "column",
         alignItems: "center",
         paddingTop: 100,
-        paddingBottom: 8,
+        paddingBottom: 20,
       }}
     >
       <div
+        dir="ltr"
         style={{ width: "100%", overflow: "hidden", position: "relative" }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -223,10 +223,11 @@ function MobileCardCarousel({
               width: i === activeIndex ? 20 : 6,
               height: 6,
               borderRadius: 3,
+              boxShadow: "0 0 6px rgba(220,185,110,0.6)",
               background:
                 i === activeIndex
-                  ? "rgba(200,169,110,0.9)"
-                  : "rgba(200,169,110,0.3)",
+                  ? "rgba(196,168,120,0.85)"
+                  : "rgba(196,168,120,0.85)",
               transition: "width 0.3s ease, background 0.3s ease",
               cursor: "pointer",
             }}
@@ -236,7 +237,7 @@ function MobileCardCarousel({
 
       <p
         style={{
-          marginTop: 8,
+          marginTop: 15,
           fontSize: 10,
           fontFamily: "'Arial', sans-serif",
           letterSpacing: "0.08em",
@@ -261,44 +262,66 @@ function MobileDepartmentsAccordion() {
     <section style={{ width: "100%" }}>
       <div
         style={{
-          padding: "16px 24px 8px",
+          background: "rgba(0, 0, 0, 0.55)",
+          padding: "28px 24px 20px",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
-          gap: 10,
+          gap: 12,
+          width: "100%",
         }}
       >
-        <div
-          style={{
-            flex: 1,
-            height: 1,
-            background:
-              "linear-gradient(to right, rgba(196,168,120,0.4), transparent)",
-          }}
-        />
         <span
           style={{
             fontFamily: "Georgia, 'Times New Roman', serif",
-            fontSize: "0.65rem",
-            letterSpacing: "0.3em",
+            fontSize: "0.75rem",
             textTransform: "uppercase",
-            color: "rgba(200,169,110,0.65)",
+            letterSpacing: "0.32em",
+            color: "rgba(220, 185, 110, 0.95)",
             whiteSpace: "nowrap",
+            fontWeight: "bold",
+            textShadow: "0 1px 6px rgba(0,0,0,0.6)",
+            display: "inline-block",
+            animation:
+              "breatheSpacing 12s ease-in-out , tiltLetters 9s ease-in-out ",
           }}
         >
           Our Classes
         </span>
+
+        {/* Decorative divider */}
+
         <div
           style={{
-            flex: 1,
-            height: 1,
-            background:
-              "linear-gradient(to left, rgba(196,168,120,0.4), transparent)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "60%",
           }}
-        />
+        >
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: "rgba(196,168,120,0.85)",
+                boxShadow: "0 0 6px rgba(220,185,110,0.6)",
+                animation: `gatherDots 8s cubic-bezier(0.45,0,0.55,1) infinite`,
+              }}
+            />
+          ))}
+        </div>
       </div>
 
       <div
-        style={{ width: "100%", borderTop: "1px solid rgba(196,168,130,0.22)" }}
+        style={{
+          width: "100%",
+          background: "rgba(0,0,0,0.32)",
+          borderTop: "1px solid rgba(196,168,130,0.5)",
+          boxShadow: "inset 0 1px 0 rgba(255,220,140,0.08)",
+        }}
       >
         {SECTIONS.map((section, i) => {
           const isActive = i === activeDep;
@@ -310,95 +333,118 @@ function MobileDepartmentsAccordion() {
                 position: "relative",
                 cursor: "pointer",
                 overflow: "hidden",
-                borderBottom: "1px solid rgba(196,168,130,0.22)",
-                maxHeight: isActive ? "420px" : "56px",
+                borderBottom: "1px solid rgba(196,168,130,0.45)",
+                boxShadow: isActive
+                  ? "inset 0 1px 0 rgba(255,220,140,0.12), inset 0 -1px 0 rgba(255,220,140,0.08)"
+                  : "inset 0 1px 0 rgba(255,255,255,0.03), inset 0 -1px 0 rgba(0,0,0,0.15)",
+                maxHeight: isActive ? "420px" : "68px",
                 transition: "max-height 0.55s cubic-bezier(0.4,0,0.2,1)",
                 background: isActive
-                  ? "linear-gradient(to right, rgba(196,140,60,0.06), transparent 70%)"
-                  : "transparent",
+                  ? "linear-gradient(to right, rgba(196,140,60,0.13), rgba(0,0,0,0.18) 70%)"
+                  : "rgba(0,0,0,0.08)",
               }}
             >
+              {/* ── Header row ── */}
               <div
                 style={{
+                  position: "relative",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  padding: "0 24px",
-                  height: 56,
+                  padding: "0 28px",
+                  height: 68,
                   flexShrink: 0,
+                  overflow: "hidden",
                 }}
               >
-                <div
-                  style={{ display: "flex", alignItems: "baseline", gap: 10 }}
-                >
-                  <span
-                    style={{
-                      fontFamily: "Georgia, serif",
-                      fontSize: "0.58rem",
-                      letterSpacing: "0.22em",
-                      color: isActive
-                        ? "rgba(196,168,120,0.7)"
-                        : "rgba(196,168,120,0.5)",
-                      userSelect: "none",
-                    }}
-                  >
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: "Georgia, serif",
-                      fontSize: isActive ? "1.35rem" : "1rem",
-                      color: isActive
-                        ? "rgba(222,194,158,1)"
-                        : "rgba(200,175,140,0.78)",
-                      transition:
-                        "font-size 0.45s cubic-bezier(0.4,0,0.2,1), color 0.4s ease",
-                      userSelect: "none",
-                    }}
-                  >
-                    {section.label}
-                  </span>
-                </div>
+                {/* Section label */}
                 <span
                   style={{
-                    fontSize: "0.65rem",
+                    fontFamily: "Georgia, serif",
+                    fontSize: isActive ? "1.35rem" : "1rem",
                     color: isActive
-                      ? "rgba(196,168,120,0.8)"
-                      : "rgba(196,168,120,0.5)",
-                    transform: isActive ? "rotate(180deg)" : "rotate(0deg)",
-                    transition: "transform 0.4s ease",
-                    display: "inline-block",
+                      ? "rgba(222,194,158,1)"
+                      : "rgba(200,175,140,0.85)",
+                    transition:
+                      "font-size 0.45s cubic-bezier(0.4,0,0.2,1), color 0.4s ease",
                     userSelect: "none",
+                    textShadow: isActive
+                      ? "0 2px 4px rgba(0,0,0,0.9), 0 -1px 0 rgba(255,230,140,0.5), 1px 0 2px rgba(0,0,0,0.7), -1px 0 2px rgba(0,0,0,0.7), 0 0 14px rgba(220,185,110,0.35)"
+                      : "0 2px 3px rgba(0,0,0,0.8), 0 -1px 0 rgba(255,220,140,0.2), 1px 0 1px rgba(0,0,0,0.5), -1px 0 1px rgba(0,0,0,0.5)",
                   }}
                 >
-                  ↑
+                  {section.label}
                 </span>
-              </div>
 
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  padding: "0 24px 4px",
-                }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <SymbolCard
-                  section={section}
-                  isActive={isActive}
-                  isMobile={true}
-                />
-                <Subclasses section={section} isActive={isActive} />
+                {/* Black circle on the right — just the shell, shrinks when active */}
                 <div
                   style={{
-                    height: 1,
-                    margin: "8px 0 10px",
-                    background: isActive
-                      ? "linear-gradient(to right, rgba(196,168,120,0.55), transparent)"
-                      : "transparent",
-                    transition: "background 0.4s ease",
+                    width: 60,
+                    height: 60,
+                    borderRadius: "50%",
+                    background: "#080808",
+                    opacity: 0.5,
+                    flexShrink: 0,
+                    transform: isActive ? "scale(0.40)" : "scale(1)",
+                    transition: "transform 0.5s cubic-bezier(0.22,1,0.36,1)",
+                    zIndex: 2,
                   }}
                 />
+
+                {/* Symbol is a sibling — NOT inside the circle — so it is unaffected by circle's scale */}
+                <div
+                  style={{
+                    position: "absolute",
+                    // resting position: centered over the circle (right:28px, circle is 60px wide → center at right:58px)
+                    right: isActive ? "calc(50% - 13px)" : 45,
+                    top: isActive ? 4 : "15%",
+                    transform: isActive ? "translateY(0)" : "translateY(-50%)",
+                    transition:
+                      "right 0.55s cubic-bezier(0.22,1,0.36,1), top 0.55s cubic-bezier(0.22,1,0.36,1), transform 0.55s cubic-bezier(0.22,1,0.36,1)",
+                    animation: "continuousSpin 4s linear infinite",
+                    pointerEvents: "none",
+                    zIndex: 10,
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={section.image}
+                    alt=""
+                    style={{
+                      width: isActive ? 34 : 26,
+                      height: isActive ? 57 : 43,
+                      objectFit: "contain",
+                      filter: isActive
+                        ? "drop-shadow(0 0 14px rgba(196,168,130,0.7)) drop-shadow(0 0 5px rgba(196,168,130,0.4))"
+                        : "drop-shadow(0 0 4px rgba(196,168,130,0.5))",
+                      transition:
+                        "width 0.55s cubic-bezier(0.22,1,0.36,1), height 0.55s cubic-bezier(0.22,1,0.36,1), filter 0.4s ease",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* ── Dropdown content ── */}
+              <div
+                style={{ padding: "0 28px 16px" }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div
+                  style={{
+                    border: "1px solid rgba(196,168,120,0.28)",
+                    borderRadius: 6,
+                    overflow: "hidden",
+                    background: "rgba(0,0,0,0.28)",
+                    boxShadow:
+                      "0 2px 8px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,220,140,0.06)",
+                  }}
+                >
+                  <Subclasses
+                    section={section}
+                    isActive={isActive}
+                    isMobile={true}
+                  />
+                </div>
               </div>
             </div>
           );
@@ -616,6 +662,7 @@ export function MobileHomePage({
           background: linear-gradient(to bottom, rgba(255,215,120,0.2), rgba(196,155,80,0.7), rgba(255,215,120,0.2));
           border-radius: 2px;
         }
+        
       `}</style>
 
       {/* ── Scrollable page root ── */}
@@ -630,12 +677,12 @@ export function MobileHomePage({
         }}
       >
         {/* Fixed background */}
-        {mounted && backgroundImageUrl && (
+        {mounted && (
           <div
             style={{
               position: "fixed",
               inset: 0,
-              backgroundImage: `url(${backgroundImageUrl})`,
+              backgroundImage: `url(/images/rooms/initial-mobile2.png)`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               opacity: 0.45,
@@ -674,14 +721,14 @@ export function MobileHomePage({
               <MobileCardCarousel
                 pileConfigs={pileConfigs}
                 onPileClick={(cards, label) => setPopupPile({ cards, label })}
+                isRTL={locale === "ar"}
               />
             </section>
 
             {/* Gold divider */}
             <div
               style={{
-                height: 1,
-                margin: "8px 24px",
+                height: 3,
                 background:
                   "linear-gradient(to right, transparent, rgba(196,168,120,0.5), transparent)",
               }}
@@ -689,6 +736,14 @@ export function MobileHomePage({
 
             {/* 2 ── Departments accordion */}
             <MobileDepartmentsAccordion />
+            <div
+              style={{
+                margin: "0px 24px",
+                height: 0.7,
+                background:
+                  "linear-gradient(to right, transparent, rgba(196,168,120,0.5), transparent)",
+              }}
+            />
 
             {/* 3 ── About + Parallax */}
             <MobileAboutWrapper pathname={pathname} locale={locale} />

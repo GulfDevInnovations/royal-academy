@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { ContentCard, Section } from "./RoyalWorldIntro.types";
 
 // ─────────────────────────────────────────────
@@ -60,10 +60,13 @@ export function ExpiryCountdown({ expireAt }: { expireAt: string }) {
 // ─────────────────────────────────────────────
 
 export function CardMedia({ card }: { card: ContentCard }) {
-  const allMedia: { type: "image" | "video"; src: string }[] = [
-    ...card.videoUrls.map((src) => ({ type: "video" as const, src })),
-    ...card.mediaUrls.map((src) => ({ type: "image" as const, src })),
-  ];
+  const allMedia = useMemo(
+    () => [
+      ...card.videoUrls.map((src) => ({ type: "video" as const, src })),
+      ...card.mediaUrls.map((src) => ({ type: "image" as const, src })),
+    ],
+    [card.videoUrls, card.mediaUrls],
+  );
 
   const [index, setIndex] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -214,7 +217,7 @@ export function Card({
       <div
         style={{
           width: "100%",
-          height: isMini ? "70%" : "48%",
+          height: isMini ? "80%" : "60%",
           flexShrink: 0,
           borderBottom: "2px solid #111",
           overflow: "hidden",
@@ -239,6 +242,7 @@ export function Card({
         <div
           style={{
             position: "absolute",
+            padding: 4,
             top: 0,
             right: 0,
             opacity: contentOpacity,
@@ -260,7 +264,7 @@ export function Card({
           <span
             style={{
               alignSelf: "flex-start",
-              fontSize: 9,
+              fontSize: 10,
               fontFamily: "'Arial', sans-serif",
               fontWeight: 700,
               letterSpacing: "0.1em",
@@ -287,7 +291,7 @@ export function Card({
               fontWeight: 700,
               lineHeight: 1.3,
               color: "#111",
-              margin: isMini ? "auto 0" : "0 0 4px",
+              margin: isMini ? "0 0" : "0 0 4px",
               fontFamily: "'Georgia', serif",
               paddingRight: isMini ? 0 : 28,
               overflow: "hidden",
@@ -790,14 +794,91 @@ export function SymbolCard({
 // ─────────────────────────────────────────────
 
 const ITEM_HEIGHT = 38;
+const MOBILE_ITEM_H = 114;
 export const VISIBLE_ITEMS = 3;
 
 export function SubclassItem({
   sub,
+  textShadow,
+  isMobile = false,
+  mobileHeight = 114,
 }: {
-  sub: { label: string; href: string };
+  sub: { label: string; href: string; image?: string };
+  textShadow?: string;
+  isMobile?: boolean;
+  mobileHeight?: number;
 }) {
   const [hovered, setHovered] = useState(false);
+
+  const defaultTextShadow = hovered
+    ? "0 2px 0 rgba(0,0,0,0.8), 0 -1px 0 rgba(255,230,140,0.4), 1px 0 0 rgba(0,0,0,0.5), -1px 0 0 rgba(0,0,0,0.5), 0 0 10px rgba(220,185,110,0.2)"
+    : "0 1px 0 rgba(0,0,0,0.7), 0 -1px 0 rgba(255,220,140,0.2), 1px 0 0 rgba(0,0,0,0.3), -1px 0 0 rgba(0,0,0,0.3)";
+
+  // ── Mobile: full-height image card ──────────────────────────────────────
+  if (isMobile) {
+    return (
+      <Link
+        href={sub.href}
+        prefetch={false}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          position: "relative",
+          display: "block",
+          height: mobileHeight,
+          overflow: "hidden",
+          borderBottom: "1px solid rgba(196,168,120,0.2)",
+          textDecoration: "none",
+          flexShrink: 0,
+        }}
+      >
+        {/* Background image */}
+        {sub.image && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={sub.image}
+            alt=""
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center",
+            }}
+          />
+        )}
+        {/* Dark scrim so text is readable */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.28) 60%, rgba(0,0,0,0.12) 100%)",
+          }}
+        />
+        {/* Label */}
+        <span
+          style={{
+            position: "absolute",
+            bottom: 12,
+            left: 14,
+            right: 14,
+            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontStyle: "italic",
+            fontSize: "1.05rem",
+            letterSpacing: "0.04em",
+            color: "rgba(235,210,160,0.95)",
+            textShadow: "0 2px 6px rgba(0,0,0,0.9), 0 1px 2px rgba(0,0,0,0.8)",
+            lineHeight: 1.3,
+          }}
+        >
+          {sub.label}
+        </span>
+      </Link>
+    );
+  }
+
+  // ── Desktop: original list-row style ────────────────────────────────────
   return (
     <Link
       href={sub.href}
@@ -815,16 +896,17 @@ export function SubclassItem({
         textDecoration: "none",
         padding: "7px 12px 7px 14px",
         color: hovered ? "rgba(240,215,168,1)" : "rgba(196,168,120,0.7)",
+        textShadow: textShadow ?? defaultTextShadow,
         boxShadow: hovered
           ? "inset 0 1px 0 rgba(255,230,160,0.12), inset 0 -1px 0 rgba(0,0,0,0.28), 0 0 18px rgba(196,155,80,0.07)"
           : "none",
         background: hovered
           ? "linear-gradient(to bottom, rgba(196,155,80,0.18) 0%, rgba(140,100,40,0.12) 100%)"
-          : "rgba(20,10,4,0.45)", // dark enough to look frosted without needing backdrop blur
+          : "rgba(20,10,4,0.45)",
         backdropFilter: "none",
         WebkitBackdropFilter: "none",
         transition:
-          "color 0.25s ease, box-shadow 0.3s ease, background 0.3s ease, padding-left 0.3s cubic-bezier(0.4,0,0.2,1)",
+          "color 0.25s ease, box-shadow 0.3s ease, background 0.3s ease, padding-left 0.3s cubic-bezier(0.4,0,0.2,1), text-shadow 0.3s ease",
         paddingLeft: hovered ? "20px" : "14px",
         overflow: "hidden",
       }}
@@ -856,21 +938,25 @@ export function SubclassItem({
 export function Subclasses({
   section,
   isActive,
+  style,
+  subItemTextShadow,
+  isMobile = false,
 }: {
   section: Section;
   isActive: boolean;
+  style?: React.CSSProperties;
+  subItemTextShadow?: string;
+  isMobile?: boolean;
 }) {
   const hasMore = section.subclasses.length > VISIBLE_ITEMS;
-
   const handleWheel = useCallback(
     (e: React.WheelEvent) => {
       if (hasMore) e.stopPropagation();
     },
     [hasMore],
   );
-
   return (
-    <div style={{ width: "100%", position: "relative" }}>
+    <div style={{ width: "100%", position: "relative", ...style }}>
       {/* Top fade */}
       {hasMore && (
         <div
@@ -889,7 +975,6 @@ export function Subclasses({
           }}
         />
       )}
-
       {/* Bottom fade */}
       {hasMore && (
         <div
@@ -908,23 +993,22 @@ export function Subclasses({
           }}
         />
       )}
-
       <div
         className="subclass-scroll"
         onWheel={handleWheel}
         style={{
           width: "100%",
-          maxHeight: `${ITEM_HEIGHT * VISIBLE_ITEMS}px`,
+          maxHeight: isMobile
+            ? `${MOBILE_ITEM_H * VISIBLE_ITEMS}px`
+            : `${ITEM_HEIGHT * VISIBLE_ITEMS}px`,
           overflowY: hasMore ? "auto" : "visible",
           overflowX: "hidden",
-          /* Firefox */
           scrollbarWidth: "thin",
           scrollbarColor: "rgba(196,155,80,0.45) transparent",
-          /* Subtle inset border — feels more refined than a full border */
-          boxShadow: "inset 0 0 0 1px rgba(196,168,120,0.18)",
-          borderRadius: 3,
-          paddingTop: 2,
-          paddingBottom: 2,
+          boxShadow: isMobile
+            ? "none"
+            : "inset 0 0 0 1px rgba(196,168,120,0.18)",
+          borderRadius: isMobile ? 0 : 3,
         }}
       >
         {section.subclasses.map((sub, idx) => (
@@ -936,7 +1020,12 @@ export function Subclasses({
               transition: `opacity 0.35s ease ${0.06 * idx}s, transform 0.35s ease ${0.06 * idx}s`,
             }}
           >
-            <SubclassItem sub={sub} />
+            <SubclassItem
+              sub={sub}
+              textShadow={subItemTextShadow}
+              isMobile={isMobile}
+              mobileHeight={MOBILE_ITEM_H}
+            />
           </div>
         ))}
       </div>
