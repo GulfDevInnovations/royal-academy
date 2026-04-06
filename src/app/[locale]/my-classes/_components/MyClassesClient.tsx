@@ -40,7 +40,7 @@ export type RescheduledSession = {
 
 export type EnrolledClass = {
   enrollmentId: string;
-  enrollmentType: "SINGLE" | "MULTI";
+  enrollmentType: "SINGLE" | "MULTI" | "WORKSHOP";
   status: string;
   frequency: string;
   preferredDays: string[];
@@ -62,6 +62,12 @@ export type EnrolledClass = {
     teacher: { firstName: string; lastName: string } | null;
   }[];
   rescheduledSessions: RescheduledSession[];
+  // Workshop-specific (only set when enrollmentType === "WORKSHOP")
+  workshopSlug?: string;
+  workshopEventDate?: string;
+  workshopStartTime?: string;
+  workshopEndTime?: string;
+  workshopTeacherName?: string | null;
   subClass: {
     id: string;
     name: string;
@@ -191,28 +197,47 @@ export default function MyClassesClient({ enrollments, studentName }: Props) {
             <EmptyState onBrowse={() => router.push("/reservation")} />
           ) : (
             <div className="space-y-4">
-              {enrollments.map((enrollment, i) => (
-                <EnrollmentCard
-                  key={enrollment.enrollmentId}
-                  enrollment={enrollment}
-                  index={i}
-                  isExpanded={expandedId === enrollment.enrollmentId}
-                  onToggle={() =>
-                    setExpandedId(
-                      expandedId === enrollment.enrollmentId
-                        ? null
-                        : enrollment.enrollmentId,
-                    )
-                  }
-                  onContinue={() =>
-                    router.push(`/reservation/${enrollment.subClass.id}`)
-                  }
-                  onViewClass={() =>
-                    router.push(`/classes/${enrollment.subClass.id}`)
-                  }
-                  onReschedule={() => setRescheduleTarget(enrollment)}
-                />
-              ))}
+              {enrollments.map((enrollment, i) =>
+                enrollment.enrollmentType === "WORKSHOP" ? (
+                  <WorkshopCard
+                    key={enrollment.enrollmentId}
+                    enrollment={enrollment}
+                    index={i}
+                    isExpanded={expandedId === enrollment.enrollmentId}
+                    onToggle={() =>
+                      setExpandedId(
+                        expandedId === enrollment.enrollmentId
+                          ? null
+                          : enrollment.enrollmentId,
+                      )
+                    }
+                    onView={() =>
+                      router.push(`/workshops/${enrollment.workshopSlug}`)
+                    }
+                  />
+                ) : (
+                  <EnrollmentCard
+                    key={enrollment.enrollmentId}
+                    enrollment={enrollment}
+                    index={i}
+                    isExpanded={expandedId === enrollment.enrollmentId}
+                    onToggle={() =>
+                      setExpandedId(
+                        expandedId === enrollment.enrollmentId
+                          ? null
+                          : enrollment.enrollmentId,
+                      )
+                    }
+                    onContinue={() =>
+                      router.push(`/reservation/${enrollment.subClass.id}`)
+                    }
+                    onViewClass={() =>
+                      router.push(`/classes/${enrollment.subClass.id}`)
+                    }
+                    onReschedule={() => setRescheduleTarget(enrollment)}
+                  />
+                ),
+              )}
             </div>
           )}
         </div>
@@ -550,6 +575,216 @@ function EnrollmentCard({
                   }}
                 >
                   Continue This Class
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// WorkshopCard
+// ─────────────────────────────────────────────
+
+const WORKSHOP_ACCENT = "#10B981";
+
+function WorkshopCard({
+  enrollment,
+  index,
+  isExpanded,
+  onToggle,
+  onView,
+}: {
+  enrollment: EnrolledClass;
+  index: number;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onView: () => void;
+}) {
+  const ac = WORKSHOP_ACCENT;
+  const status = statusColor(enrollment.status, enrollment.paymentStatus);
+
+  const eventLabel = enrollment.workshopEventDate
+    ? new Date(enrollment.workshopEventDate).toLocaleDateString("en-GB", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, delay: index * 0.06 }}
+      className="rounded-2xl border overflow-hidden"
+      style={{
+        background: "linear-gradient(145deg, #1a1610, #100e0c)",
+        borderColor: `${ac}22`,
+      }}
+    >
+      {/* Accent top bar */}
+      <div
+        className="h-0.5"
+        style={{
+          background: `linear-gradient(90deg, transparent, ${ac}, transparent)`,
+        }}
+      />
+
+      {/* Header row */}
+      <button
+        onClick={onToggle}
+        className="w-full text-left px-5 py-4 flex items-center gap-4"
+      >
+        {enrollment.subClass.coverUrl ? (
+          <img
+            src={enrollment.subClass.coverUrl}
+            alt={enrollment.subClass.name}
+            className="w-14 h-14 rounded-xl object-cover shrink-0"
+          />
+        ) : (
+          <div
+            className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 text-2xl font-bold font-goudy"
+            style={{ background: `${ac}18`, color: ac }}
+          >
+            {enrollment.subClass.name[0]}
+          </div>
+        )}
+
+        <div className="flex-1 min-w-0">
+          <p
+            className="text-[10px] font-bold uppercase tracking-widest mb-0.5"
+            style={{ color: `${ac}99` }}
+          >
+            Workshop
+          </p>
+          <p className="text-base font-bold text-royal-cream font-goudy leading-tight truncate">
+            {enrollment.subClass.name}
+          </p>
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
+            {eventLabel && (
+              <span className="text-xs text-royal-cream/40 flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                {eventLabel}
+              </span>
+            )}
+            {enrollment.workshopStartTime && (
+              <span className="text-xs text-royal-cream/40 flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {enrollment.workshopStartTime}–{enrollment.workshopEndTime}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="text-right">
+            <div className="flex items-center gap-1.5 justify-end">
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ background: status.dot }}
+              />
+              <span className="text-xs" style={{ color: status.dot }}>
+                {status.text}
+              </span>
+            </div>
+          </div>
+          <ChevronRight
+            className="w-4 h-4 text-royal-cream/20 transition-transform"
+            style={{ transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)" }}
+          />
+        </div>
+      </button>
+
+      {/* Expanded detail */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden"
+          >
+            <div
+              className="px-5 pb-5 pt-1 space-y-4 border-t"
+              style={{ borderColor: "rgba(255,255,255,0.05)" }}
+            >
+              {/* Details */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {enrollment.workshopTeacherName && (
+                  <DetailChip
+                    icon={<Users className="w-3.5 h-3.5" />}
+                    label="Instructor"
+                    value={enrollment.workshopTeacherName}
+                    ac={ac}
+                  />
+                )}
+                {enrollment.workshopStartTime && (
+                  <DetailChip
+                    icon={<Clock className="w-3.5 h-3.5" />}
+                    label="Time"
+                    value={`${enrollment.workshopStartTime}–${enrollment.workshopEndTime}`}
+                    ac={ac}
+                  />
+                )}
+                {eventLabel && (
+                  <DetailChip
+                    icon={<Calendar className="w-3.5 h-3.5" />}
+                    label="Date"
+                    value={eventLabel}
+                    ac={ac}
+                  />
+                )}
+              </div>
+
+              {/* Payment info */}
+              <div
+                className="flex items-center justify-between px-3 py-2.5 rounded-xl"
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  {enrollment.paymentStatus === "PAID" ? (
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  ) : (
+                    <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+                  )}
+                  <span className="text-xs text-royal-cream/50">
+                    {enrollment.paidAt
+                      ? `Paid · ${new Date(enrollment.paidAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}`
+                      : "Awaiting Payment"}
+                  </span>
+                </div>
+                <span
+                  className="text-sm font-bold font-goudy"
+                  style={{ color: ac }}
+                >
+                  {enrollment.totalAmount.toFixed(3)}{" "}
+                  <span className="text-xs font-normal text-royal-cream/30">
+                    {enrollment.currency}
+                  </span>
+                </span>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={onView}
+                  className="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 hover:opacity-90"
+                  style={{
+                    background: `linear-gradient(135deg, ${ac}, ${ac}bb)`,
+                    color: "#100e0c",
+                  }}
+                >
+                  View Workshop
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>

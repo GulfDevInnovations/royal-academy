@@ -263,7 +263,7 @@ function DesktopLayout({
 
                   <div
                     style={{
-                      fontFamily: "Georgia, 'Times New Roman', serif",
+                      fontFamily: "var(--font-text)",
                       fontSize: isActive ? "1.3rem" : "1.8rem",
                       fontWeight: 400,
                       lineHeight: 1.1,
@@ -280,7 +280,7 @@ function DesktopLayout({
 
                   <div
                     style={{
-                      fontFamily: "Georgia, 'Times New Roman', serif",
+                      fontFamily: "var(--font-text)",
                       fontStyle: "italic",
                       fontSize: "0.78rem",
                       color: "rgba(196,168,120,0.8)",
@@ -405,7 +405,7 @@ export function MobileLayout({
                   >
                     <span
                       style={{
-                        fontFamily: "Georgia, 'Times New Roman', serif",
+                        fontFamily: "var(--font-text)",
                         fontSize: "0.6rem",
                         letterSpacing: "0.25em",
                         color: isActive
@@ -419,7 +419,7 @@ export function MobileLayout({
                     </span>
                     <span
                       style={{
-                        fontFamily: "Georgia, 'Times New Roman', serif",
+                        fontFamily: "var(--font-text)",
                         fontSize: isActive ? "1.8rem" : "1.05rem",
                         fontWeight: 400,
                         lineHeight: 1.1,
@@ -455,7 +455,7 @@ export function MobileLayout({
                 {/* Subtitle */}
                 <div
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontFamily: "var(--font-text)",
                     fontStyle: "italic",
                     fontSize: "0.72rem",
                     color: "rgba(196,168,120,0.75)",

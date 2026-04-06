@@ -126,7 +126,7 @@ export default function PaymentModal({
         onClick={onClose}
       />
       <div
-        className="relative w-full max-w-sm rounded-2xl border border-white/[0.08] shadow-2xl z-10"
+        className="relative w-full max-w-sm rounded-2xl border border-white/8 shadow-2xl z-10"
         style={{ background: "#1a1d27" }}
       >
         {/* Header */}
@@ -204,7 +204,7 @@ export default function PaymentModal({
 
             {/* Child months breakdown for multi */}
             {type === "multi" && (
-              <div className="pt-1 border-t border-white/[0.05]">
+              <div className="pt-1 border-t border-white/5">
                 <p
                   className="text-[10px] mb-1.5"
                   style={{ color: adminColors.textMuted }}

@@ -60,7 +60,7 @@ export default async function MyClassesPage() {
 
   const studentId = studentProfile.id;
 
-  const [singles, multis, rescheduleLogs] = await Promise.all([
+  const [singles, multis, rescheduleLogs, workshopBookings] = await Promise.all([
     prisma.monthlyEnrollment.findMany({
       where: {
         studentId,
@@ -151,9 +151,24 @@ export default async function MyClassesPage() {
         },
       },
     }),
+
+    // Workshop bookings for this student
+    prisma.workshopBooking.findMany({
+      where: { studentId, status: "CONFIRMED" },
+      orderBy: { bookedAt: "desc" },
+      include: {
+        workshop: {
+          include: {
+            teacher: { select: { firstName: true, lastName: true } },
+          },
+        },
+        payment: { select: { status: true, amount: true, paidAt: true } },
+      },
+    }),
   ]);
 
   const p = plain({ singles, multis, rescheduleLogs });
+  const plainWorkshops: any[] = plain(workshopBookings);
 
   // Build a map: subClassId → reschedule logs
   // so each enrollment card can show its own history
@@ -269,6 +284,49 @@ export default async function MyClassesPage() {
               ? Number(m.subClass.twicePriceMonthly)
               : null,
           class: m.subClass.class,
+        },
+      }),
+    ),
+
+    ...plainWorkshops.map(
+      (wb: any): EnrolledClass => ({
+        enrollmentId: wb.id,
+        enrollmentType: "WORKSHOP",
+        status: wb.status,
+        frequency: "",
+        preferredDays: [],
+        month: null,
+        year: null,
+        startMonth: null,
+        startYear: null,
+        endMonth: null,
+        endYear: null,
+        totalMonths: null,
+        totalAmount: Number(wb.workshop.price),
+        currency: wb.workshop.currency,
+        paymentStatus: wb.payment?.status ?? null,
+        paidAt: wb.payment?.paidAt ?? null,
+        resolvedSlots: [],
+        rescheduledSessions: [],
+        workshopSlug: wb.workshop.slug,
+        workshopEventDate: wb.workshop.eventDate,
+        workshopStartTime: wb.workshop.startTime,
+        workshopEndTime: wb.workshop.endTime,
+        workshopTeacherName: wb.workshop.teacher
+          ? `${wb.workshop.teacher.firstName} ${wb.workshop.teacher.lastName}`
+          : null,
+        subClass: {
+          id: wb.workshop.id,
+          name: wb.workshop.title,
+          description: wb.workshop.description,
+          coverUrl: wb.workshop.coverUrl,
+          durationMinutes: 0,
+          level: null,
+          ageGroup: null,
+          isReschedulable: false,
+          oncePriceMonthly: null,
+          twicePriceMonthly: null,
+          class: { id: wb.workshop.id, name: "Workshop", iconUrl: null },
         },
       }),
     ),

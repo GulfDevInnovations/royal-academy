@@ -209,7 +209,7 @@ export default function NewsClient({
                   {/* Thumbnail */}
                   <AdminTd>
                     <div
-                      className="w-14 h-10 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0"
+                      className="w-14 h-10 rounded-lg overflow-hidden flex items-center justify-center shrink-0"
                       style={{ background: "rgba(255,255,255,0.04)" }}
                     >
                       {item.thumbnailUrl ? (

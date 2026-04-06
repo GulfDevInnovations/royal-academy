@@ -537,7 +537,7 @@ function DesktopDepartmentsV2({
 
                 <div
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontFamily: "var(--font-text)",
                     fontSize: isActive ? "1.8rem" : "2.25rem",
                     fontWeight: 400,
                     lineHeight: 1.1,
@@ -846,7 +846,7 @@ export default function RoyalCombinedIntroHeroV2({
               >
                 <div
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontFamily: "var(--font-text)",
                     fontStyle: "italic",
                     letterSpacing: "0.04em",
                     fontSize: "1.05rem",
@@ -966,7 +966,7 @@ export default function RoyalCombinedIntroHeroV2({
                   <div
                     style={{
                       marginTop: 6,
-                      fontFamily: "Georgia, 'Times New Roman', serif",
+                      fontFamily: "var(--font-text)",
                       fontStyle: "italic",
                       fontSize: 22,
                       letterSpacing: "0.03em",
@@ -1130,7 +1130,7 @@ export default function RoyalCombinedIntroHeroV2({
             >
               <div
                 style={{
-                  fontFamily: "Georgia, 'Times New Roman', serif",
+                  fontFamily: "var(--font-text)",
                   fontStyle: "italic",
                   letterSpacing: "0.04em",
                   fontSize: "1rem",
@@ -1238,7 +1238,7 @@ export default function RoyalCombinedIntroHeroV2({
                       </div>
                       <div
                         style={{
-                          fontFamily: "Georgia, 'Times New Roman', serif",
+                          fontFamily: "var(--font-text)",
                           fontStyle: "italic",
                           fontSize: 14,
                           letterSpacing: "0.03em",
@@ -1360,7 +1360,7 @@ export default function RoyalCombinedIntroHeroV2({
                         >
                           <div
                             style={{
-                              fontFamily: "Georgia, 'Times New Roman', serif",
+                              fontFamily: "var(--font-text)",
                               fontStyle: "italic",
                               fontSize: 13,
                               lineHeight: 1.1,

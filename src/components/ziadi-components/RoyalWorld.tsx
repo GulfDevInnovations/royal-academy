@@ -127,7 +127,7 @@ function CardMedia({ card }: { card: ContentCard }) {
           style={{
             fontSize: 12,
             color: "#bbb",
-            fontFamily: "Georgia, serif",
+            fontFamily: "var(--font-text)",
             fontStyle: "italic",
           }}
         >
@@ -298,7 +298,7 @@ function Card({ card, isFront }: { card: ContentCard; isFront: boolean }) {
             lineHeight: 1.25,
             color: "#111",
             margin: "0 0 4px",
-            fontFamily: "'Georgia', serif",
+            fontFamily: "var(--font-text)",
             paddingRight: 28,
           }}
         >
@@ -314,7 +314,7 @@ function Card({ card, isFront }: { card: ContentCard; isFront: boolean }) {
               margin: "0 0 5px",
               fontStyle: "italic",
               lineHeight: 1.4,
-              fontFamily: "'Georgia', serif",
+              fontFamily: "var(--font-text)",
             }}
           >
             {card.subtitle}
@@ -353,7 +353,7 @@ function Card({ card, isFront }: { card: ContentCard; isFront: boolean }) {
                 display: "-webkit-box",
                 WebkitLineClamp: 3,
                 WebkitBoxOrient: "vertical",
-                fontFamily: "'Georgia', serif",
+                fontFamily: "var(--font-text)",
               } as React.CSSProperties
             }
           >

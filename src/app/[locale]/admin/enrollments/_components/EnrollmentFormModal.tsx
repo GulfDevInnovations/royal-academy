@@ -52,15 +52,6 @@ const MONTHS_SHORT = [
   "Nov",
   "Dec",
 ];
-const DAYS_ORDER = [
-  "MONDAY",
-  "TUESDAY",
-  "WEDNESDAY",
-  "THURSDAY",
-  "FRIDAY",
-  "SATURDAY",
-  "SUNDAY",
-];
 const DAY_SHORT: Record<string, string> = {
   MONDAY: "Mon",
   TUESDAY: "Tue",
@@ -279,11 +270,11 @@ export default function EnrollmentFormModal({
         onClick={onClose}
       />
       <div
-        className="relative w-full max-w-lg rounded-2xl border border-white/[0.08] shadow-2xl z-10 max-h-[92vh] flex flex-col"
+        className="relative w-full max-w-lg rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[92vh] flex flex-col"
         style={{ background: "#1a1d27" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] shrink-0">
           <div>
             <h2
               className="text-sm font-semibold"
@@ -300,7 +291,7 @@ export default function EnrollmentFormModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
           >
             <X size={15} />
           </button>
@@ -865,7 +856,7 @@ export default function EnrollmentFormModal({
               <label className="flex items-center gap-3 cursor-pointer">
                 <div
                   onClick={() => setPayNow((v) => !v)}
-                  className="w-9 h-5 rounded-full relative transition-colors flex-shrink-0"
+                  className="w-9 h-5 rounded-full relative transition-colors shrink-0"
                   style={{
                     background: payNow ? "#f59e0b" : "rgba(255,255,255,0.1)",
                   }}
@@ -949,7 +940,7 @@ export default function EnrollmentFormModal({
               <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-red-500/10 border border-red-500/20">
                 <AlertTriangle
                   size={13}
-                  className="flex-shrink-0 mt-0.5 text-red-400"
+                  className="shrink-0 mt-0.5 text-red-400"
                 />
                 <p className="text-xs text-red-400">{error}</p>
               </div>

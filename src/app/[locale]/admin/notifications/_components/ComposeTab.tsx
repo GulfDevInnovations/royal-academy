@@ -12,7 +12,6 @@ import {
   AlertCircle,
   Loader2,
   CheckCircle2,
-  X,
 } from "lucide-react";
 import { sendNotification } from "@/lib/actions/admin/Notifications.actions";
 import type { AudienceOptions } from "../page";
@@ -199,7 +198,7 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
         <button
           type="button"
           onClick={() => setShowTemplates((v) => !v)}
-          className="w-full flex items-center justify-between px-4 py-3 text-sm transition-colors hover:bg-white/[0.02]"
+          className="w-full flex items-center justify-between px-4 py-3 text-sm transition-colors hover:bg-white/2"
           style={{ color: adminColors.textSecondary }}
         >
           <span className="font-medium">Message Templates</span>
@@ -215,10 +214,10 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
                 key={t.id}
                 type="button"
                 onClick={() => applyTemplate(t)}
-                className="flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.02]"
+                className="flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-white/2"
               >
                 <div
-                  className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
+                  className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
                   style={{ background: "#f59e0b" }}
                 />
                 <div>
@@ -358,7 +357,7 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
                 return (
                   <label
                     key={person.userId}
-                    className="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02] border-b"
+                    className="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors hover:bg-white/2 border-b"
                     style={{ borderColor: "rgba(255,255,255,0.04)" }}
                   >
                     <input
@@ -383,7 +382,7 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
                     </div>
                     {isSelected && (
                       <div
-                        className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
                         style={{ background: "#f59e0b" }}
                       />
                     )}
@@ -443,7 +442,7 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
             onChange={(e) => setBody(e.target.value)}
             rows={5}
             placeholder="Type your message here…"
-            className="w-full px-3 py-2.5 rounded-xl border bg-white/[0.03] text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-amber-500/40 resize-none transition-colors"
+            className="w-full px-3 py-2.5 rounded-xl border bg-white/3 text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-amber-500/40 resize-none transition-colors"
             style={{ borderColor: "rgba(255,255,255,0.07)" }}
             required
           />
@@ -484,8 +483,9 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
                     className="text-xs"
                     style={{ color: "rgba(245,158,11,0.8)" }}
                   >
-                    In-app notifications appear in the student's notification
-                    bell on the website. Link opens in a new tab when clicked.
+                    In-app notifications appear in the student&apos;s
+                    notification bell on the website. Link opens in a new tab
+                    when clicked.
                   </p>
                 </div>
               </div>
@@ -507,7 +507,7 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
           <label className="flex items-center gap-3 cursor-pointer">
             <div
               onClick={() => setScheduled((v) => !v)}
-              className="w-9 h-5 rounded-full relative transition-colors flex-shrink-0"
+              className="w-9 h-5 rounded-full relative transition-colors shrink-0"
               style={{
                 background: scheduled ? "#f59e0b" : "rgba(255,255,255,0.1)",
               }}
@@ -564,10 +564,7 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
       {/* ── Feedback ── */}
       {error && (
         <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20">
-          <AlertCircle
-            size={13}
-            className="flex-shrink-0 mt-0.5 text-red-400"
-          />
+          <AlertCircle size={13} className="shrink-0 mt-0.5 text-red-400" />
           <p className="text-xs text-red-400">{error}</p>
         </div>
       )}

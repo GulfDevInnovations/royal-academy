@@ -20,6 +20,7 @@ import {
   CalendarClock,
   Newspaper,
   Tag,
+  BriefcaseBusiness,
 } from "lucide-react";
 
 const navGroups = [
@@ -48,6 +49,7 @@ const navGroups = [
     label: "Scheduling",
     items: [
       { label: "Schedules", href: "/admin/schedules", icon: CalendarDays },
+      { label: "Workshops", href: "/admin/workshops", icon: BriefcaseBusiness },
     ],
   },
   {

@@ -13,6 +13,7 @@
   --auth-teal: #227b81;
   --auth-sand: #e4d0b5;
   --royal-green: #8bae82;
+  --royal-darkgreen: #052d1e;
 }
 
 @theme inline {
@@ -28,10 +29,16 @@
   --color-auth-teal: var(--auth-teal);
   --color-auth-sand: var(--auth-sand);
   --color-royal-green: var(--royal-green);
+  --color-royal-darkgreen: var(--royal-darkgreen);
 
   /*  font  */
   --font-family-goudy: var(--font-goudy), serif;
   --font-family-layla: var(--font-layla), sans-serif;
+  --font-text: var(--font-goudy), serif;
+}
+
+[dir="rtl"] {
+  --font-text: var(--font-layla), sans-serif;
 }
 
 /* Automatic font switching based on locale */

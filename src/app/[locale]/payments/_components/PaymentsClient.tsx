@@ -116,7 +116,7 @@ function PaymentCard({
 
   const continueHref =
     payment.type === "WORKSHOP"
-      ? `/workshops/${payment.subClassId}`
+      ? `/workshops/${payment.workshopSlug ?? payment.subClassId}`
       : `/reservation/${payment.subClassId}`;
 
   const detailRows = [
@@ -285,7 +285,7 @@ function PaymentCard({
                   color: "#d4b896",
                 }}
               >
-                Continue Class <ArrowRight size={12} />
+                {payment.type === "WORKSHOP" ? "View Workshop" : "Continue Class"} <ArrowRight size={12} />
               </Link>
             )}
           </div>

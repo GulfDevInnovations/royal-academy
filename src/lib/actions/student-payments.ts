@@ -26,6 +26,7 @@ export interface StudentPaymentRecord {
   method?:      string;
   paidAt?:      string;
   subClassId:   string;
+  workshopSlug?: string;
   level?:       string;
   ageGroup?:    string;
   timeString?: string;
@@ -332,6 +333,7 @@ for (const e of multiMonthEnrollments) {
         method:       p.method  ?? undefined,
         paidAt:       p.paidAt?.toISOString(),
         subClassId:   ws.id,
+        workshopSlug: ws.slug,
       });
     }
 

@@ -31,6 +31,21 @@ async function uploadMediaUrls(
 // UPCOMING
 // ─────────────────────────────────────────────
 
+export async function getUpcomingItems() {
+  const items = await prisma.upcoming.findMany({
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+  });
+  return items.map((item) => ({
+    ...item,
+    workshopId: item.workshopId ?? null,
+    eventDate:  item.eventDate?.toISOString()  ?? null,
+    publishAt:  item.publishAt?.toISOString()  ?? null,
+    expireAt:   item.expireAt?.toISOString()   ?? null,
+    createdAt:  item.createdAt.toISOString(),
+    updatedAt:  item.updatedAt.toISOString(),
+  }));
+}
+
 export async function createUpcoming(
   formData: FormData
 ): Promise<{ error?: string }> {
@@ -108,7 +123,6 @@ export async function updateUpcoming(
   formData: FormData
 ): Promise<{ error?: string }> {
   try {
-    await requireUser();
 
     const publishAtRaw = formData.get("publishAt") as string | null;
     const expireAtRaw = formData.get("expireAt") as string | null;
@@ -564,5 +578,35 @@ export async function toggleOfferActive(
     return {};
   } catch (e) {
     return { error: "Failed to update" };
+  }
+}
+
+export async function updateUpcomingSortOrder(
+  id: string,
+  sortOrder: number
+): Promise<{ error?: string }> {
+  try {
+    await requireUser();
+    await prisma.upcoming.update({ where: { id }, data: { sortOrder } });
+    revalidatePath("/[locale]/admin/upcoming", "page");
+    return {};
+  } catch (e) {
+    console.error("[updateUpcomingSortOrder]", e);
+    return { error: "Failed to update sort order" };
+  }
+}
+
+export async function updateUpcomingStatus(
+  id: string,
+  status: "DRAFT" | "ACTIVE" | "EXPIRED" | "ARCHIVED"
+): Promise<{ error?: string }> {
+  try {
+    await requireUser();
+    await prisma.upcoming.update({ where: { id }, data: { status } });
+    revalidatePath("/[locale]/admin/upcoming", "page");
+    return {};
+  } catch (e) {
+    console.error("[updateUpcomingStatus]", e);
+    return { error: "Failed to update status" };
   }
 }

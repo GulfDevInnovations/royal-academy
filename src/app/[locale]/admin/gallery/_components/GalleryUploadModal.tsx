@@ -230,7 +230,7 @@ export default function GalleryUploadModal({
               <div className="p-3">
                 <div className="flex items-center gap-3">
                   <div
-                    className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center"
+                    className="w-16 h-16 rounded-lg overflow-hidden shrink-0 flex items-center justify-center"
                     style={{ background: "rgba(255,255,255,0.04)" }}
                   >
                     {preview ? (
@@ -264,7 +264,7 @@ export default function GalleryUploadModal({
                   <button
                     type="button"
                     onClick={openFilePicker}
-                    className="flex-shrink-0 text-[11px] px-2.5 py-1 rounded-lg border transition-colors hover:bg-white/[0.05]"
+                    className="shrink-0 text-[11px] px-2.5 py-1 rounded-lg border transition-colors hover:bg-white/5"
                     style={{
                       borderColor: "rgba(255,255,255,0.1)",
                       color: adminColors.textMuted,

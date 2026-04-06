@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
-  Send,
   Loader2,
   Filter,
 } from "lucide-react";
@@ -32,13 +31,13 @@ const STATUS_CONFIG: Record<
   string,
   {
     label: string;
-    variant: "success" | "warning" | "error" | "default";
+    variant: "success" | "warning" | "danger" | "default";
     icon: React.ReactNode;
   }
 > = {
   SENT: { label: "Sent", variant: "success", icon: <CheckCircle2 size={11} /> },
   PENDING: { label: "Pending", variant: "warning", icon: <Clock size={11} /> },
-  FAILED: { label: "Failed", variant: "error", icon: <XCircle size={11} /> },
+  FAILED: { label: "Failed", variant: "danger", icon: <XCircle size={11} /> },
 };
 
 const TYPE_COLORS: Record<string, string> = {
@@ -140,7 +139,7 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-3 py-1.5 rounded-lg text-xs border bg-white/[0.04] text-white/70 focus:outline-none"
+          className="px-3 py-1.5 rounded-lg text-xs border bg-white/4 text-white/70 focus:outline-none"
           style={{ borderColor: "rgba(255,255,255,0.08)" }}
         >
           <option className="text-black" value="">
@@ -159,7 +158,7 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
-          className="px-3 py-1.5 rounded-lg text-xs border bg-white/[0.04] text-white/70 focus:outline-none"
+          className="px-3 py-1.5 rounded-lg text-xs border bg-white/4 text-white/70 focus:outline-none"
           style={{ borderColor: "rgba(255,255,255,0.08)" }}
         >
           <option className="text-black" value="">
@@ -295,7 +294,7 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
                           <button
                             onClick={() => handleRetry(n.id)}
                             disabled={isLoading}
-                            className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-amber-400 hover:bg-amber-500/[0.08]"
+                            className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-amber-400 hover:bg-amber-500/8"
                             title="Retry"
                           >
                             {isLoading ? (
@@ -308,7 +307,7 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
                         <button
                           onClick={() => handleDelete(n.id)}
                           disabled={isLoading}
-                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/[0.08]"
+                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
                           title="Delete"
                         >
                           {isLoading ? (

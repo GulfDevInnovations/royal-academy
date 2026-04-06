@@ -32,6 +32,7 @@ import NotificationBell from "./NotificationBell";
 import { useNavbarState } from "@/components/NavbarStateContext";
 import { useHomeNav, NAV_FLOOR_MAP } from "@/context/HomeNavigationContext";
 import { usePreloader } from "@/context/PreloaderContext";
+import LiquidMitosisGreenLink from "@/app/[locale]/mitosis-button/_component/LiquidMitosisButton";
 
 type ClassMenuNode = {
   id: string;
@@ -352,7 +353,7 @@ export default function Navbar() {
       id: "art",
       label: "Art",
       arLabel: "الفن",
-      href: `/${locale}/classes/art`,
+      href: "/#",
       children: [
         {
           id: "drawing",
@@ -444,7 +445,7 @@ export default function Navbar() {
       id: "ballet",
       label: "Ballet",
       arLabel: "الباليه",
-      href: `/${locale}/classes/ballet`,
+      href: "/#",
       children: [
         {
           id: "baby-ballet",
@@ -470,7 +471,7 @@ export default function Navbar() {
       id: "dance",
       label: "Dance",
       arLabel: "الرقص",
-      href: `/${locale}/classes/dance`,
+      href: "/#",
       children: [
         {
           id: "aerial-hoop",
@@ -608,6 +609,7 @@ export default function Navbar() {
       id: "music",
       label: "Music",
       arLabel: "الموسيقى",
+      href: "/#",
       children: [
         {
           id: "bass",
@@ -843,7 +845,7 @@ export default function Navbar() {
   );
 
   // ── Workshop href ──────────────────────────────────────────────────────────
-  const workshopHref = `/${locale}/workshop`;
+  const workshopHref = `/${locale}/workshops`;
   const workshopLabel = isArabic ? "ورشة عمل" : "Workshops";
 
   // ─────────────────────────────────────────────────────────────────────────
