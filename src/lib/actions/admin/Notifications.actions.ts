@@ -50,7 +50,7 @@ async function resolveAudience(
           subClassId,
           month,
           year,
-          status: { in: ["CONFIRMED", "PENDING"] },
+          status: { in: ["CONFIRMED"] },
         },
         include: { student: { select: { userId: true } } },
       });
@@ -63,7 +63,7 @@ async function resolveAudience(
         where: {
           month,
           year,
-          status:  "PENDING",
+          status:  "CANCELLED",
           payment: { is: null },
         },
         include: { student: { select: { userId: true } } },

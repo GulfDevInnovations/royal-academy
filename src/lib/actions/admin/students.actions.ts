@@ -27,7 +27,7 @@ export async function getStudents() {
         },
       },
       monthlyEnrollments: {
-        where: { status: { in: ["CONFIRMED", "PENDING"] } },
+        where: { status: { in: ["CONFIRMED"] } },
         include: {
           subClass: {
             include: {

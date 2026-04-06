@@ -58,7 +58,7 @@ export default function InvoiceModal({ payment, onClose }: Props) {
       <div
         id="invoice-print"
         className="relative z-10 bg-white text-gray-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl my-4 print:shadow-none print:rounded-none print:my-0 print:max-w-full"
-        style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
+        style={{ fontFamily: "var(--font-text)" }}
       >
         {/* ── Header ── */}
         <div className="bg-gradient-to-br from-[#0a0f2c] via-[#111a3e] to-[#5c2d4a] px-8 py-7 text-white">

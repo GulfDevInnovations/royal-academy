@@ -10,7 +10,7 @@ export default async function UpcomingAdminPage() {
 
   const serialized = items.map((item) => ({
     ...item,
-    discountValue: null,
+    workshopId: item.workshopId ?? null, // ← include so client knows which rows are workshops
     eventDate: item.eventDate?.toISOString() ?? null,
     publishAt: item.publishAt?.toISOString() ?? null,
     expireAt: item.expireAt?.toISOString() ?? null,

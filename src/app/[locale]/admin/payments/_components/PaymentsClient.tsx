@@ -22,8 +22,8 @@ import type {
   SerializedEnrollmentPayment,
   SerializedOtherPayment,
   PaymentStats,
-  PaymentTab,
 } from "../page";
+import { PaymentTab } from "@/lib/actions/admin/payments.actions";
 import { ToastContainer } from "@/components/admin/Toast";
 import { useToast } from "../../hooks/useToast";
 import {
@@ -83,15 +83,12 @@ const TABS: { key: PaymentTab; label: string }[] = [
   { key: "WORKSHOP", label: "Workshops" },
 ];
 
-const STATUS_BADGE: Record<
-  string,
-  "success" | "warning" | "error" | "info" | "default"
-> = {
-  PAID: "success",
-  PENDING: "warning",
-  FAILED: "error",
-  REFUNDED: "info",
-};
+const STATUS_BADGE: Record<string, "success" | "danger" | "info" | "default"> =
+  {
+    PAID: "success",
+    FAILED: "danger",
+    REFUNDED: "info",
+  };
 
 const METHOD_LABEL: Record<string, string> = {
   CASH: "Cash",
@@ -383,13 +380,6 @@ export default function PaymentsClient({
             icon: <TrendingUp size={14} />,
           },
           {
-            label: "Pending",
-            value: `${stats.pending.amount.toFixed(3)} OMR`,
-            count: stats.pending.count,
-            color: "#f59e0b",
-            icon: <Clock size={14} />,
-          },
-          {
             label: "Refunded",
             value: `${stats.refunded.amount.toFixed(3)} OMR`,
             count: stats.refunded.count,
@@ -517,9 +507,6 @@ export default function PaymentsClient({
           </option>
           <option className="text-black" value="PAID">
             Paid
-          </option>
-          <option className="text-black" value="PENDING">
-            Pending
           </option>
           <option className="text-black" value="FAILED">
             Failed

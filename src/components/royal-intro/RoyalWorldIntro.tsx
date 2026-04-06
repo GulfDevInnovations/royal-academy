@@ -636,7 +636,7 @@ function DesktopDepartments({
                 {/* Section label */}
                 <div
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontFamily: "var(--font-text)",
                     fontSize: isActive ? "1.75rem" : "2.2rem",
                     fontWeight: 400,
                     lineHeight: 1.15,
@@ -1126,7 +1126,7 @@ export default function RoyalWorldIntro({
             />
             <div
               style={{
-                fontFamily: "Georgia, 'Times New Roman', serif",
+                fontFamily: "var(--font-text)",
                 fontSize: "1.2rem",
                 letterSpacing: "0.38em",
                 textTransform: "uppercase",

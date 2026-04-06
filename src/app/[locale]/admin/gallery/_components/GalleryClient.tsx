@@ -442,7 +442,7 @@ export default function GalleryClient({
                       {/* Preview */}
                       <AdminTd>
                         <div
-                          className="w-14 h-10 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0"
+                          className="w-14 h-10 rounded-lg overflow-hidden flex items-center justify-center shrink-0"
                           style={{ background: "rgba(255,255,255,0.04)" }}
                         >
                           {item.mediaType === "IMAGE" ? (
@@ -470,7 +470,7 @@ export default function GalleryClient({
 
                       {/* Title / Description */}
                       <AdminTd>
-                        <div className="max-w-[180px]">
+                        <div className="max-w-45">
                           <p
                             className="text-xs font-medium truncate"
                             style={{ color: adminColors.textPrimary }}
@@ -523,7 +523,7 @@ export default function GalleryClient({
                       {/* People */}
                       <AdminTd>
                         {item.persons.length > 0 ? (
-                          <div className="flex flex-wrap gap-1 max-w-[140px]">
+                          <div className="flex flex-wrap gap-1 max-w-35">
                             {item.persons.slice(0, 2).map((p) => (
                               <span
                                 key={p.person.id}
@@ -615,7 +615,7 @@ export default function GalleryClient({
                             onClick={() =>
                               setModal({ type: "editItem", data: item })
                             }
-                            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+                            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
                             title="Edit"
                           >
                             <Pencil size={13} />
@@ -624,7 +624,7 @@ export default function GalleryClient({
                             onClick={() =>
                               setModal({ type: "deleteItem", data: item })
                             }
-                            className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/[0.08] transition-colors"
+                            className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/8 transition-colors"
                             title="Delete"
                           >
                             <Trash2 size={13} />
@@ -715,7 +715,7 @@ export default function GalleryClient({
                             onClick={() =>
                               setModal({ type: "editCategory", data: cat })
                             }
-                            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+                            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
                           >
                             <Pencil size={13} />
                           </button>
@@ -723,7 +723,7 @@ export default function GalleryClient({
                             onClick={() =>
                               setModal({ type: "deleteCategory", data: cat })
                             }
-                            className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/[0.08] transition-colors"
+                            className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/8 transition-colors"
                           >
                             <Trash2 size={13} />
                           </button>
@@ -806,7 +806,7 @@ export default function GalleryClient({
                             onClick={() =>
                               setModal({ type: "editPerson", data: person })
                             }
-                            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+                            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
                           >
                             <Pencil size={13} />
                           </button>
@@ -814,7 +814,7 @@ export default function GalleryClient({
                             onClick={() =>
                               setModal({ type: "deletePerson", data: person })
                             }
-                            className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/[0.08] transition-colors"
+                            className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/8 transition-colors"
                           >
                             <Trash2 size={13} />
                           </button>

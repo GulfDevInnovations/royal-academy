@@ -154,7 +154,7 @@ function TeacherSlide({
           />
           <span
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "var(--font-text)",
               fontSize: "0.65rem",
               letterSpacing: "0.3em",
               textTransform: "uppercase",
@@ -168,7 +168,7 @@ function TeacherSlide({
         {/* Name */}
         <div
           style={{
-            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontFamily: "var(--font-text)",
             fontSize: "clamp(2.2rem, 4vw, 3.5rem)",
             fontWeight: 400,
             lineHeight: 1.1,
@@ -194,7 +194,7 @@ function TeacherSlide({
         {/* Role */}
         <div
           style={{
-            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontFamily: "var(--font-text)",
             fontStyle: "italic",
             fontSize: "1.05rem",
             letterSpacing: "0.04em",
@@ -221,7 +221,7 @@ function TeacherSlide({
         <button
           onClick={() => onViewClasses(teacher.id)}
           style={{
-            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontFamily: "var(--font-text)",
             fontSize: "0.7rem",
             letterSpacing: "0.25em",
             textTransform: "uppercase",
@@ -280,7 +280,7 @@ function TeacherSlide({
         {/* Bio */}
         <div
           style={{
-            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontFamily: "var(--font-text)",
             fontSize: "1rem",
             lineHeight: 1.85,
             color: "rgba(222,194,171,0.65)",
@@ -321,7 +321,7 @@ function TeacherSlide({
                 <span
                   key={s}
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontFamily: "var(--font-text)",
                     fontSize: "0.65rem",
                     letterSpacing: "0.2em",
                     textTransform: "uppercase",
@@ -351,7 +351,7 @@ function TeacherSlide({
               <div>
                 <div
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontFamily: "var(--font-text)",
                     fontSize: "1.8rem",
                     color: color.label,
                     lineHeight: 1,
@@ -361,7 +361,7 @@ function TeacherSlide({
                 </div>
                 <div
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontFamily: "var(--font-text)",
                     fontSize: "0.6rem",
                     letterSpacing: "0.25em",
                     textTransform: "uppercase",
@@ -376,7 +376,7 @@ function TeacherSlide({
               <div>
                 <div
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontFamily: "var(--font-text)",
                     fontSize: "1.8rem",
                     color: color.label,
                     lineHeight: 1,
@@ -386,7 +386,7 @@ function TeacherSlide({
                 </div>
                 <div
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontFamily: "var(--font-text)",
                     fontSize: "0.6rem",
                     letterSpacing: "0.25em",
                     textTransform: "uppercase",
@@ -401,7 +401,7 @@ function TeacherSlide({
               <div>
                 <div
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontFamily: "var(--font-text)",
                     fontSize: "1.8rem",
                     color: teacher.isAvailable ? "#8fa67a" : "#9e7070",
                     lineHeight: 1,
@@ -417,7 +417,7 @@ function TeacherSlide({
                 </div>
                 <div
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontFamily: "var(--font-text)",
                     fontSize: "0.6rem",
                     letterSpacing: "0.25em",
                     textTransform: "uppercase",
@@ -477,7 +477,7 @@ function TeacherSlide({
             >
               <div
                 style={{
-                  fontFamily: "Georgia, 'Times New Roman', serif",
+                  fontFamily: "var(--font-text)",
                   fontSize: "7rem",
                   fontWeight: 300,
                   color: color.border,
@@ -527,7 +527,7 @@ function TeacherSlide({
           />
           <div
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "var(--font-text)",
               fontSize: "0.6rem",
               letterSpacing: "0.3em",
               textTransform: "uppercase",
@@ -617,7 +617,7 @@ function TeacherStrip({
                   alignItems: "center",
                   justifyContent: "center",
                   background: `linear-gradient(160deg, ${color.glow}, var(--royal-dark))`,
-                  fontFamily: "Georgia, serif",
+                  fontFamily: "var(--font-text)",
                   fontSize: "1.1rem",
                   color: color.border,
                   fontWeight: 300,
@@ -691,7 +691,7 @@ function Legend() {
           />
           <span
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "var(--font-text)",
               fontSize: "0.58rem",
               letterSpacing: "0.25em",
               textTransform: "uppercase",
@@ -802,7 +802,7 @@ export default function TeachersSection({
         <div>
           {/* <div
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "var(--font-text)",
               fontSize: "0.55rem",
               letterSpacing: "0.35em",
               textTransform: "uppercase",
@@ -813,7 +813,7 @@ export default function TeachersSection({
           </div>
           <div
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "var(--font-text)",
               fontSize: "0.9rem",
               letterSpacing: "0.15em",
               color: "rgba(222,194,171,0.8)",
@@ -861,7 +861,7 @@ export default function TeachersSection({
         >
           <p
             style={{
-              fontFamily: "Georgia, serif",
+              fontFamily: "var(--font-text)",
               color: "rgba(222,194,171,0.4)",
               fontSize: "1rem",
               letterSpacing: "0.1em",

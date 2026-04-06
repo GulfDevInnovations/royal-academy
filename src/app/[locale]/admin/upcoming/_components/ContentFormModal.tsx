@@ -47,6 +47,7 @@ export default function ContentFormModal({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [isExternal, setIsExternal] = useState(data?.isExternal ?? false);
+  const [newThumbnailFile, setNewThumbnailFile] = useState<File | null>(null);
 
   // ── Image previews ─────────────────────────────────────────────────────────
   // Existing URLs from the DB (shown on edit)
@@ -81,6 +82,13 @@ export default function ContentFormModal({
     const previews = files.map((f) => URL.createObjectURL(f));
     setNewImagePreviews((prev) => [...prev, ...previews]);
     // Reset input so the same file can be re-added after removal
+    e.target.value = "";
+  };
+
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setNewThumbnailFile(file);
     e.target.value = "";
   };
 
@@ -132,6 +140,9 @@ export default function ContentFormModal({
     fd.delete("videoFiles");
     if (existingVideo) fd.append("existingVideoUrls", existingVideo);
     if (newVideoFile) fd.append("videoFiles", newVideoFile);
+
+    fd.delete("thumbnailFile");
+    if (newThumbnailFile) fd.append("thumbnailFile", newThumbnailFile);
 
     // Derive isActive from status
     const status = fd.get("status") as string;
@@ -415,6 +426,9 @@ export default function ContentFormModal({
                   src={data.thumbnailUrl}
                   alt="thumbnail"
                   className="h-16 w-28 object-cover rounded-lg"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
                 />
                 <input
                   type="hidden"
@@ -434,10 +448,9 @@ export default function ContentFormModal({
               Add Thumbnaile
               <input
                 type="file"
-                name="thumbnailFile"
                 accept="image/*"
                 className="hidden"
-                style={{ color: adminColors.textSecondary }}
+                onChange={handleThumbnailChange} // ← add this handler
               />
             </label>
           </div>
@@ -543,10 +556,9 @@ export default function ContentFormModal({
                 </label>
 
                 <div
-                  className="rounded-lg border divide-y overflow-hidden"
+                  className="rounded-lg border divide-y overflow-hidden divide-white/5"
                   style={{
                     borderColor: adminColors.border,
-                    divideColor: adminColors.border,
                   }}
                 >
                   {classes.map((cls) => (

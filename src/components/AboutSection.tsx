@@ -264,7 +264,7 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
           y="5"
           textAnchor="middle"
           style={{
-            fontFamily: "Georgia, serif",
+            fontFamily: "var(--font-text)",
             fontSize: "14px",
             fill: "url(#braGold)",
             fontStyle: "italic",
@@ -339,7 +339,7 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
           y="5"
           textAnchor="middle"
           style={{
-            fontFamily: "Georgia, serif",
+            fontFamily: "var(--font-text)",
             fontSize: "14px",
             fill: "url(#braGold)",
             fontStyle: "italic",
@@ -414,7 +414,7 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
           y="4"
           textAnchor="middle"
           style={{
-            fontFamily: "Georgia, serif",
+            fontFamily: "var(--font-text)",
             fontSize: "12px",
             fill: "url(#braGold)",
             fontStyle: "italic",
@@ -475,7 +475,7 @@ function BaroqueFrame({ width, height }: { width: number; height: number }) {
           y="4"
           textAnchor="middle"
           style={{
-            fontFamily: "Georgia, serif",
+            fontFamily: "var(--font-text)",
             fontSize: "12px",
             fill: "url(#braGold)",
             fontStyle: "italic",
@@ -765,7 +765,7 @@ function PhilosophyCard({
       {/* Label */}
       <div
         style={{
-          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontFamily: "var(--font-text)",
           fontSize: "0.62rem",
           letterSpacing: "0.28em",
           textTransform: "uppercase",
@@ -778,7 +778,7 @@ function PhilosophyCard({
       {/* Heading */}
       <div
         style={{
-          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontFamily: "var(--font-text)",
           fontSize: "clamp(0.85rem, 1.1vw, 1.15rem)",
           fontWeight: 400,
           color: "rgba(222,194,171,0.82)",
@@ -803,7 +803,7 @@ function PhilosophyCard({
       {/* Body */}
       <div
         style={{
-          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontFamily: "var(--font-text)",
           fontSize: "clamp(0.72rem, 0.85vw, 0.9rem)",
           lineHeight: 1.72,
           color: "rgba(222,194,171,0.42)",
@@ -870,7 +870,7 @@ function MobilePhilosophyPanel({
         </div>
         <h2
           style={{
-            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontFamily: "var(--font-text)",
             fontSize: "1.1rem",
             fontWeight: 400,
             lineHeight: 1.2,
@@ -911,7 +911,7 @@ function MobilePhilosophyPanel({
             key={p.id}
             onClick={() => setActiveTab(i)}
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "var(--font-text)",
               fontSize: "0.65rem",
               letterSpacing: "0.12em",
               textTransform: "uppercase",
@@ -949,7 +949,7 @@ function MobilePhilosophyPanel({
         >
           <div
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "var(--font-text)",
               fontSize: "1rem",
               fontWeight: 400,
               color: "rgba(222,194,171,0.75)",
@@ -966,7 +966,7 @@ function MobilePhilosophyPanel({
           </div>
           <div
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "var(--font-text)",
               fontSize: "0.82rem",
               lineHeight: 1.65,
               color: "rgba(222,194,171,0.45)",
@@ -997,7 +997,7 @@ function MobilePhilosophyPanel({
           position: "absolute",
           bottom: 0,
           right: 16,
-          fontFamily: "Georgia, serif",
+          fontFamily: "var(--font-text)",
           fontSize: "4rem",
           color: "rgba(196,168,130,0.035)",
           lineHeight: 1,
@@ -1135,7 +1135,7 @@ function DesktopAboutLayout({
           {/* Label */}
           <div
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "var(--font-text)",
               fontSize: "0.62rem",
               letterSpacing: "0.28em",
               textTransform: "uppercase",
@@ -1148,7 +1148,7 @@ function DesktopAboutLayout({
           {/* Heading */}
           <div
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "var(--font-text)",
               fontSize: "clamp(0.85rem, 1.1vw, 1.1rem)",
               color: "rgba(222,194,171,0.8)",
               letterSpacing: "0.06em",
@@ -1162,7 +1162,7 @@ function DesktopAboutLayout({
           {/* Body */}
           <div
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "var(--font-text)",
               fontSize: "clamp(0.72rem, 0.85vw, 0.88rem)",
               lineHeight: 1.72,
               color: "rgba(222,194,171,0.4)",

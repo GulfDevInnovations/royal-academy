@@ -102,7 +102,7 @@ export function CardMedia({ card }: { card: ContentCard }) {
           style={{
             fontSize: 12,
             color: "#bbb",
-            fontFamily: "Georgia, serif",
+            fontFamily: "var(--font-text)",
             fontStyle: "italic",
           }}
         >
@@ -235,7 +235,7 @@ export function Card({
           flexDirection: "column",
           overflow: "hidden",
           position: "relative",
-          padding: isMini ? "6px 8px" : "12px 14px",
+          padding: "6px 8px",
           transition: `padding 0.5s ${EASE}`,
         }}
       >
@@ -293,7 +293,7 @@ export function Card({
               lineHeight: 1.3,
               color: "#111",
               margin: isMini ? "0 0" : "0 0 4px",
-              fontFamily: "'Georgia', serif",
+              fontFamily: "var(--font-text)",
               paddingRight: isMini ? 0 : 28,
               overflow: "hidden",
               display: "-webkit-box",
@@ -323,7 +323,7 @@ export function Card({
                 margin: "0 0 5px",
                 fontStyle: "italic",
                 lineHeight: 1.4,
-                fontFamily: "'Georgia', serif",
+                fontFamily: "var(--font-text)",
               }}
             >
               {card.subtitle}
@@ -358,7 +358,7 @@ export function Card({
                   display: "-webkit-box",
                   WebkitLineClamp: 3,
                   WebkitBoxOrient: "vertical",
-                  fontFamily: "'Georgia', serif",
+                  fontFamily: "var(--font-text)",
                 } as React.CSSProperties
               }
             >
@@ -886,7 +886,7 @@ export function SubclassItem({
               display: "flex",
               alignItems: "center",
               padding: "5px 10px 6px",
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "var(--font-text)",
               fontStyle: "italic",
               fontSize: "1.18rem",
               letterSpacing: "0.04em",
@@ -909,7 +909,7 @@ export function SubclassItem({
           <span
             style={{
               position: "relative",
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "var(--font-text)",
               fontStyle: "italic",
               fontSize: "1.0rem",
               letterSpacing: "0.04em",
@@ -940,7 +940,7 @@ export function SubclassItem({
       style={{
         position: "relative",
         display: "block",
-        fontFamily: "Georgia, 'Times New Roman', serif",
+        fontFamily: "var(--font-text)",
         fontStyle: "italic",
         fontSize: "1.05rem",
         letterSpacing: "0.04em",

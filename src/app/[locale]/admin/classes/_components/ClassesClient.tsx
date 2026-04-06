@@ -183,7 +183,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
 
                 {/* Icon */}
                 <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                   style={{ background: "rgba(245,158,11,0.1)" }}
                 >
                   <BookOpen size={14} style={{ color: "#f59e0b" }} />
@@ -226,7 +226,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
 
                 {/* Actions — stop propagation so clicks don't toggle expand */}
                 <div
-                  className="flex items-center gap-1 flex-shrink-0"
+                  className="flex items-center gap-1 shrink-0"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <AdminButton
@@ -239,14 +239,14 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                   </AdminButton>
                   <button
                     onClick={() => setModal({ type: "editClass", data: cls })}
-                    className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+                    className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
                     title="Edit class"
                   >
                     <Pencil size={13} />
                   </button>
                   <button
                     onClick={() => setModal({ type: "deleteClass", data: cls })}
-                    className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/[0.08] transition-colors"
+                    className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/8 transition-colors"
                     title="Delete class"
                   >
                     <Trash2 size={13} />
@@ -369,7 +369,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                                       data: sub,
                                     })
                                   }
-                                  className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+                                  className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
                                   title="Edit sub-class"
                                 >
                                   <Pencil size={13} />
@@ -378,7 +378,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                                   onClick={() =>
                                     setModal({ type: "deleteSub", data: sub })
                                   }
-                                  className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/[0.08] transition-colors"
+                                  className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/8 transition-colors"
                                   title="Delete sub-class"
                                 >
                                   <Trash2 size={13} />

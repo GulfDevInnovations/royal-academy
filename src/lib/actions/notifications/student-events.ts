@@ -267,7 +267,7 @@ export async function notifySessionRescheduled({
     userId,
     subject: "Session rescheduled ✅",
     body:    `Your ${className} session has been rescheduled${dateLabel ? ` to ${dateLabel}` : ""}. See you then!`,
-    linkUrl: "/dashboard/my-classes",
+    linkUrl: "/my-classes",
   });
 }
 
@@ -326,7 +326,7 @@ export async function notifyBookingCancelled({
     userId,
     subject: cancelledBy === "admin" ? "Class cancelled by academy" : "Booking cancelled",
     body,
-    linkUrl: "/dashboard/my-classes",
+    linkUrl: "/my-classes",
   });
 }
 

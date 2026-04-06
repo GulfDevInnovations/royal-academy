@@ -273,7 +273,7 @@ function MobileDepartmentsAccordion() {
       >
         <span
           style={{
-            fontFamily: "Georgia, 'Times New Roman', serif",
+            fontFamily: "var(--font-text)",
             fontSize: "0.75rem",
             textTransform: "uppercase",
             letterSpacing: "0.32em",
@@ -360,7 +360,7 @@ function MobileDepartmentsAccordion() {
                 {/* Section label */}
                 <span
                   style={{
-                    fontFamily: "Georgia, serif",
+                    fontFamily: "var(--font-text)",
                     fontSize: isActive ? "1.35rem" : "1rem",
                     color: isActive
                       ? "rgba(222,194,158,1)"

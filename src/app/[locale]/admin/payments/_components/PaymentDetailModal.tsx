@@ -49,15 +49,12 @@ const MONTHS_SHORT = [
   "Dec",
 ];
 
-const STATUS_BADGE: Record<
-  string,
-  "success" | "warning" | "error" | "info" | "default"
-> = {
-  PAID: "success",
-  PENDING: "warning",
-  FAILED: "error",
-  REFUNDED: "info",
-};
+const STATUS_BADGE: Record<string, "success" | "danger" | "info" | "default"> =
+  {
+    PAID: "success",
+    FAILED: "danger",
+    REFUNDED: "info",
+  };
 
 const METHOD_LABEL: Record<string, string> = {
   CASH: "Cash",

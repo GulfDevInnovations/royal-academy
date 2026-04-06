@@ -211,7 +211,7 @@ function SymbolCard({ section, isActive, isMobile }: SymbolCardProps) {
         >
           <div
             style={{
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "var(--font-text)",
               fontStyle: "italic",
               letterSpacing: "0.04em",
               fontSize: isMobile ? "0.85rem" : "0.95rem",
@@ -250,7 +250,7 @@ function SubclassItem({ sub }: { sub: { label: string; href: string } }) {
       style={{
         position: "relative",
         display: "block",
-        fontFamily: "Georgia, 'Times New Roman', serif",
+        fontFamily: "var(--font-text)",
         fontStyle: "italic",
         fontSize: "1.05rem",
         letterSpacing: "0.04em",
@@ -516,7 +516,7 @@ function DesktopDepartments({
                 </div>
                 <div
                   style={{
-                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontFamily: "var(--font-text)",
                     fontSize: isActive ? "1.8rem" : "2.25rem",
                     fontWeight: 400,
                     lineHeight: 1.1,
@@ -625,7 +625,7 @@ function MobileDepartments({ activeIndex, onTap }: MobileDepartmentsProps) {
                 >
                   <span
                     style={{
-                      fontFamily: "Georgia, serif",
+                      fontFamily: "var(--font-text)",
                       fontSize: "0.58rem",
                       letterSpacing: "0.22em",
                       color: isActive
@@ -639,7 +639,7 @@ function MobileDepartments({ activeIndex, onTap }: MobileDepartmentsProps) {
                   </span>
                   <span
                     style={{
-                      fontFamily: "Georgia, serif",
+                      fontFamily: "var(--font-text)",
                       fontSize: isActive ? "1.4rem" : "1rem",
                       fontWeight: 400,
                       lineHeight: 1.1,

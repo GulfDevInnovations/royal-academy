@@ -482,7 +482,8 @@ function TicketForm() {
           Ticket Submitted
         </h3>
         <p className="text-royal-cream/50 text-sm mb-4">
-          We've received your message and will respond within 1 business day.
+          We&apos;ve received your message and will respond within 1 business
+          day.
         </p>
         <button
           onClick={() => setSuccess(false)}
@@ -647,7 +648,7 @@ export default function SupportClient({
             Help & Support
           </h1>
           <p className="text-royal-cream/40 text-sm mt-1">
-            Find answers or reach our team — we're here to help.
+            Find answers or reach our team — we&apos;re here to help.
           </p>
         </div>
 
@@ -721,7 +722,7 @@ export default function SupportClient({
                 }}
               >
                 <Clock size={12} className="flex-shrink-0" />
-                You have open tickets — we'll reply within 1 business day.
+                You have open tickets — we&apos;ll reply within 1 business day.
               </div>
             )}
             <MyTickets tickets={myTickets} />
@@ -731,8 +732,8 @@ export default function SupportClient({
         {/* Submit ticket */}
         <Section title="Contact Support" icon={<Send size={15} />}>
           <p className="text-royal-cream/40 text-sm -mt-2">
-            Didn't find your answer? Send us a message and our team will get
-            back to you.
+            Didn&apos;t find your answer? Send us a message and our team will
+            get back to you.
           </p>
           <TicketForm />
           <div

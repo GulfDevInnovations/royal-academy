@@ -46,7 +46,7 @@ export default function LayoutToggle({ version, onChange }: Props) {
           fontSize: "10px",
           letterSpacing: "0.18em",
           textTransform: "uppercase",
-          fontFamily: "Georgia, serif",
+          fontFamily: "var(--font-text)",
           transition: "all 0.25s ease",
           background:
             version === "v1"
@@ -72,7 +72,7 @@ export default function LayoutToggle({ version, onChange }: Props) {
           fontSize: "10px",
           letterSpacing: "0.18em",
           textTransform: "uppercase",
-          fontFamily: "Georgia, serif",
+          fontFamily: "var(--font-text)",
           transition: "all 0.25s ease",
           background:
             version === "v2"

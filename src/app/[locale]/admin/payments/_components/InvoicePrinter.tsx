@@ -33,7 +33,6 @@ export function printInvoice(data: InvoiceData) {
 
   const STATUS_COLOR: Record<string, string> = {
     PAID: "#10b981",
-    PENDING: "#f59e0b",
     REFUNDED: "#60a5fa",
     FAILED: "#f87171",
   };

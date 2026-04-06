@@ -634,18 +634,27 @@ model Workshop {
   title       String
   description String?
   coverUrl    String?
+  imageUrls   String[] @default([])   
+  videoUrls   String[] @default([])
   teacherId   String?
+  roomId      String?
   eventDate   DateTime
   startTime   String
   endTime     String
   capacity    Int
+  enrolledCount  Int      @default(0)
+  reservedCount  Int      @default(0)
   price       Decimal  @db.Decimal(10, 2)
   currency    String   @default("OMR")
   isActive    Boolean  @default(true)
+  isOnline    Boolean  @default(false)
+  onlineLink  String?
+  slug  String?  @unique   // nullable first for backfill, then make required
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   teacher  TeacherProfile?   @relation(fields: [teacherId], references: [id])
+  room      Room?             @relation(fields: [roomId], references: [id])
   bookings WorkshopBooking[]
 
   @@map("workshops")
@@ -899,7 +908,7 @@ model Upcoming {
   id           String        @id @default(cuid())
   title        String
   subtitle     String?
-  description  String?
+  description  String?       @db.Text
   mediaUrls    String[]      @default([])
   videoUrls    String[]      @default([])
   thumbnailUrl String?
@@ -916,6 +925,7 @@ model Upcoming {
   createdBy    String?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  workshopId  String?   @unique
 
   @@index([status, isActive, sortOrder])
   @@index([publishAt, expireAt])
@@ -930,7 +940,7 @@ model News {
   id           String        @id @default(cuid())
   title        String
   subtitle     String?
-  description  String?
+  description  String?       @db.Text
   mediaUrls    String[]      @default([])
   videoUrls    String[]      @default([])
   thumbnailUrl String?
@@ -961,7 +971,7 @@ model Offer {
   id             String        @id @default(cuid())
   title          String
   subtitle       String?
-  description    String?
+  description    String?       @db.Text
   mediaUrls      String[]      @default([])
   videoUrls      String[]      @default([])
   thumbnailUrl   String?
@@ -986,4 +996,24 @@ model Offer {
   @@index([status, isActive, sortOrder])
   @@index([publishAt, expireAt])
   @@map("offers")
+}
+
+
+// ─────────────────────────────────────────────
+// ROOM (new)
+// ─────────────────────────────────────────────
+model Room {
+  id          String  @id @default(cuid())
+  name        String  // e.g. "Studio A", "Main Hall"
+  description String?
+  capacity    Int     // max physical capacity of the room
+  location    String? // floor, building, or address note
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workshops Workshop[]
+
+  @@map("rooms")
 }

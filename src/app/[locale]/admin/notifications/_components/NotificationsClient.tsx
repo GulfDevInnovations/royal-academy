@@ -181,7 +181,7 @@ export default function NotificationsClient({
       </div>
 
       {/* ── Tab content ── */}
-      <div className="min-h-[400px]">
+      <div className="min-h-100">
         {activeTab === "compose" && (
           <ComposeTab
             audienceOptions={audienceOptions}

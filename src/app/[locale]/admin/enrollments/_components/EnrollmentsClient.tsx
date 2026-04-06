@@ -17,11 +17,9 @@ import {
   ChevronLeft,
   ChevronRight,
   CheckCircle2,
-  Clock,
   Ban,
   MoreHorizontal,
   Trash2,
-  CalendarDays,
   Layers,
 } from "lucide-react";
 import {
@@ -114,7 +112,6 @@ const STATUS_CONFIG: Record<
     variant: "success",
     icon: <CheckCircle2 size={11} />,
   },
-  PENDING: { label: "Pending", variant: "warning", icon: <Clock size={11} /> },
   CANCELLED: {
     label: "Cancelled",
     variant: "default",
@@ -129,7 +126,6 @@ const STATUS_CONFIG: Record<
 
 const PAYMENT_CONFIG: Record<string, { label: string; color: string }> = {
   PAID: { label: "Paid", color: "#34d399" },
-  PENDING: { label: "Unpaid", color: "#f59e0b" },
   FAILED: { label: "Failed", color: "#f87171" },
   REFUNDED: { label: "Refunded", color: "#60a5fa" },
 };
@@ -319,7 +315,6 @@ export default function EnrollmentsClient({
     () => ({
       total: enrollments.length,
       confirmed: enrollments.filter((e) => e.status === "CONFIRMED").length,
-      pending: enrollments.filter((e) => e.status === "PENDING").length,
       revenue: enrollments
         .filter((e) => e.payment?.status === "PAID")
         .reduce((sum, e) => sum + (e.payment?.amount ?? 0), 0),
@@ -396,7 +391,6 @@ export default function EnrollmentsClient({
               (e) => e.status !== "CANCELLED",
             );
             const confirmed = active.filter((e) => e.status === "CONFIRMED");
-            const pending = active.filter((e) => e.status === "PENDING");
             const paid = active.filter((e) => e.payment?.status === "PAID");
             const colors = capacityColor(active.length, sc.capacity);
             const pct =
@@ -472,14 +466,7 @@ export default function EnrollmentsClient({
                     <span className="text-[11px]" style={{ color: "#34d399" }}>
                       ✓ {confirmed.length} confirmed
                     </span>
-                    {pending.length > 0 && (
-                      <span
-                        className="text-[11px]"
-                        style={{ color: "#f59e0b" }}
-                      >
-                        ⏳ {pending.length} pending
-                      </span>
-                    )}
+
                     <span
                       className="text-[11px] ml-auto"
                       style={{ color: adminColors.textMuted }}
@@ -499,9 +486,9 @@ export default function EnrollmentsClient({
                     </p>
                   ) : (
                     active.map((enrollment) => {
-                      const payStatus = enrollment.payment?.status ?? "PENDING";
+                      const payStatus = enrollment.payment?.status ?? "FAILED";
                       const payConf =
-                        PAYMENT_CONFIG[payStatus] ?? PAYMENT_CONFIG.PENDING;
+                        PAYMENT_CONFIG[payStatus] ?? PAYMENT_CONFIG.FAILED;
                       // Find matching full enrollment to get multiMonthEnrollment link
                       const full = enrollments.find(
                         (e) => e.id === enrollment.id,
@@ -736,11 +723,11 @@ export default function EnrollmentsClient({
           </AdminThead>
           <AdminTbody>
             {filteredEnrollments.map((enrollment) => {
-              const payStatus = enrollment.payment?.status ?? "PENDING";
+              const payStatus = enrollment.payment?.status ?? "FAILED";
               const payConf =
-                PAYMENT_CONFIG[payStatus] ?? PAYMENT_CONFIG.PENDING;
+                PAYMENT_CONFIG[payStatus] ?? PAYMENT_CONFIG.FAILED;
               const statusConf =
-                STATUS_CONFIG[enrollment.status] ?? STATUS_CONFIG.PENDING;
+                STATUS_CONFIG[enrollment.status] ?? STATUS_CONFIG.FAILED;
               const isMultiChild = !!enrollment.multiMonthEnrollment;
 
               return (
@@ -1103,11 +1090,11 @@ export default function EnrollmentsClient({
           </AdminThead>
           <AdminTbody>
             {multiMonthEnrollments.map((m) => {
-              const payStatus = m.payment?.status ?? "PENDING";
+              const payStatus = m.payment?.status ?? "FAILED";
               const payConf =
-                PAYMENT_CONFIG[payStatus] ?? PAYMENT_CONFIG.PENDING;
+                PAYMENT_CONFIG[payStatus] ?? PAYMENT_CONFIG.FAILED;
               const statusConf =
-                STATUS_CONFIG[m.status] ?? STATUS_CONFIG.PENDING;
+                STATUS_CONFIG[m.status] ?? STATUS_CONFIG.FAILED;
               const confirmedMonths = m.monthlyEnrollments.filter(
                 (me) => me.status === "CONFIRMED",
               ).length;
@@ -1369,7 +1356,6 @@ export default function EnrollmentsClient({
             color: adminColors.textPrimary,
           },
           { label: "Confirmed", value: stats.confirmed, color: "#34d399" },
-          { label: "Pending", value: stats.pending, color: "#f59e0b" },
           { label: "Multi-plans", value: stats.multiPlans, color: "#60a5fa" },
           {
             label: "Revenue",

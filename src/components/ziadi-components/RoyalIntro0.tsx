@@ -172,7 +172,7 @@
 //         </div>
 //         <p
 //           style={{
-//             fontFamily: "Georgia, 'Times New Roman', serif",
+//             fontFamily: "var(--font-text)",
 //             fontSize: baseSize > 135 ? "0.72rem" : "0.63rem",
 //             fontWeight: 600,
 //             letterSpacing: "0.08em",
@@ -186,7 +186,7 @@
 //         </p>
 //         <p
 //           style={{
-//             fontFamily: "Georgia, 'Times New Roman', serif",
+//             fontFamily: "var(--font-text)",
 //             fontStyle: "italic",
 //             fontSize: baseSize > 135 ? "0.62rem" : "0.55rem",
 //             color: "rgba(196,168,130,0.8)",
@@ -476,7 +476,7 @@
 //           >
 //             <p
 //               style={{
-//                 fontFamily: "Georgia, 'Times New Roman', serif",
+//                 fontFamily: "var(--font-text)",
 //                 fontSize: "0.6rem",
 //                 letterSpacing: "0.35em",
 //                 color: "rgba(196,168,130,0.65)",
