@@ -6,8 +6,8 @@ import { routing } from "@/i18n/routing";
 import localFont from "next/font/local";
 import "../globals.css";
 import ConditionalLayout from "@/components/ConditionalLayout";
-import Footer from "@/components/Footer";
 import { PreloaderProvider } from "@/context/PreloaderContext";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 const goudy = localFont({
   src: [
@@ -94,6 +94,14 @@ const layla = localFont({
 export const metadata: Metadata = {
   title: "Royal Academy",
   description: "Excellence in Education | التميز في التعليم",
+  applicationName: "Royal Academy",
+  manifest: "/manifest.webmanifest",
+  themeColor: "#000000",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Royal Academy",
+  },
 };
 
 export default async function LocaleLayout({
@@ -120,6 +128,7 @@ export default async function LocaleLayout({
       className={`${goudy.variable} ${layla.variable}`}
     >
       <body>
+        <ServiceWorkerRegister />
         <PreloaderProvider>
           <div className="min-h-screen bg-black text-royal-cream flex flex-col">
             <NextIntlClientProvider messages={messages}>
