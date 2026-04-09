@@ -21,7 +21,9 @@ export async function uploadGalleryItem(
     const file = formData.get("file") as File | null;
     const thumbnailFile = formData.get("thumbnail") as File | null;
     const title = (formData.get("title") as string) || null;
+    const title_ar = (formData.get("title_ar") as string | null)?.trim() || null;
     const description = (formData.get("description") as string) || null;
+    const description_ar = formData.get("description_ar") as string | null;
     const altText = (formData.get("altText") as string) || null;
     const categoryId = (formData.get("categoryId") as string) || null;
     const visibility = (formData.get("visibility") as string) || "DRAFT";
@@ -58,7 +60,9 @@ export async function uploadGalleryItem(
       data: {
         mediaType: result.kind === "video" ? "VIDEO" : "IMAGE",
         title,
+        title_ar,
         description,
+        description_ar,
         altText,
         url: result.url,
         storageKey: result.key,
@@ -93,7 +97,9 @@ export async function updateGalleryItem(
     await requireUser();
 
     const title = (formData.get("title") as string) || null;
+    const title_ar = (formData.get("title_ar") as string | null)?.trim() || null;
     const description = (formData.get("description") as string) || null;
+    const description_ar = formData.get("description_ar") as string | null;
     const altText = (formData.get("altText") as string) || null;
     const categoryId = (formData.get("categoryId") as string) || null;
     const visibility = formData.get("visibility") as string;
@@ -109,7 +115,9 @@ export async function updateGalleryItem(
         where: { id },
         data: {
           title,
+          title_ar,
           description,
+          description_ar, 
           altText,
           categoryId: categoryId || null,
           visibility: visibility as "PUBLISHED" | "DRAFT" | "ARCHIVED",
@@ -221,6 +229,7 @@ export async function createGalleryCategory(
     await requireUser();
 
     const name = (formData.get("name") as string).trim();
+    const name_ar = (formData.get("name_ar") as string).trim();
     const slug = (formData.get("slug") as string)
       .toLowerCase()
       .replace(/\s+/g, "-")
@@ -229,7 +238,7 @@ export async function createGalleryCategory(
 
     if (!name || !slug) return { error: "Name and slug are required" };
 
-    await prisma.galleryCategory.create({ data: { name, slug, sortOrder } });
+    await prisma.galleryCategory.create({ data: { name, name_ar, slug, sortOrder } });
 
     revalidatePath("/[locale]/admin/gallery", "page");
     return {};
@@ -249,6 +258,7 @@ export async function updateGalleryCategory(
     await requireUser();
 
     const name = (formData.get("name") as string).trim();
+    const name_ar = (formData.get("name_ar") as string).trim();
     const slug = (formData.get("slug") as string)
       .toLowerCase()
       .replace(/\s+/g, "-")
@@ -258,7 +268,7 @@ export async function updateGalleryCategory(
 
     await prisma.galleryCategory.update({
       where: { id },
-      data: { name, slug, sortOrder, isActive },
+      data: { name, name_ar, slug, sortOrder, isActive },
     });
 
     revalidatePath("/[locale]/admin/gallery", "page");

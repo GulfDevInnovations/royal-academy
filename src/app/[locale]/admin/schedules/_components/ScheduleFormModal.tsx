@@ -13,6 +13,9 @@ import {
   AdminButton,
   adminColors,
 } from "@/components/admin/ui";
+import { useTranslations } from "next-intl";
+import DatePicker from "@/components/date-time/DatePicker";
+import TimePicker from "@/components/date-time/TimePicker";
 
 const DAYS = [
   "MONDAY",
@@ -74,6 +77,7 @@ export default function ScheduleFormModal({
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("admin");
 
   const [selectedSubClassId, setSelectedSubClassId] = useState<string>(
     editing?.subClassId ?? "",
@@ -118,7 +122,7 @@ export default function ScheduleFormModal({
         onClick={onClose}
       />
       <div
-        className="relative w-full max-w-lg rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[92vh] flex flex-col"
+        className="relative w-full max-w-2xl rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[92vh] flex flex-col"
         style={{ background: "#1a1d27" }}
       >
         {/* Header */}
@@ -141,9 +145,9 @@ export default function ScheduleFormModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <X size={15} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
 
@@ -298,37 +302,56 @@ export default function ScheduleFormModal({
               </AdminSelect>
 
               <div className="grid grid-cols-2 gap-3">
-                <AdminInput
-                  label="Start Time *"
+                <TimePicker
+                  id="startTime"
                   name="startTime"
-                  type="time"
+                  label="Start Time"
                   defaultValue={editing?.startTime ?? ""}
                   required
+                  theme="dark"
+                  fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
+                  inputStyle={{ borderColor: adminColors.border }}
                 />
-                <AdminInput
-                  label="End Time *"
+                <TimePicker
+                  id="endTime"
                   name="endTime"
-                  type="time"
+                  label="End Time"
                   defaultValue={editing?.endTime ?? ""}
                   required
+                  theme="dark"
+                  fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
+                  inputStyle={{ borderColor: adminColors.border }}
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <AdminInput
-                  label="Start Date *"
+                <DatePicker
+                  id="startDate"
                   name="startDate"
-                  type="date"
+                  label="Start Date"
                   defaultValue={startDateVal}
                   required
+                  theme="dark"
+                  fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
+                  inputStyle={{ borderColor: adminColors.border }}
                 />
-                <AdminInput
-                  label="End Date"
-                  name="endDate"
-                  type="date"
-                  defaultValue={endDateVal}
-                  helperText="Leave blank for open-ended"
-                />
+                <div className="space-y-1">
+                  <DatePicker
+                    id="endDate"
+                    name="endDate"
+                    label="End Date"
+                    defaultValue={endDateVal}
+                    theme="dark"
+                    fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
+                    inputStyle={{ borderColor: adminColors.border }}
+                  />
+                  <p
+                    className="text-l"
+                    style={{ color: adminColors.textMuted }}
+                  >
+                    Leave blank for open-ended
+                  </p>
+                </div>
               </div>
 
               {!editing && (

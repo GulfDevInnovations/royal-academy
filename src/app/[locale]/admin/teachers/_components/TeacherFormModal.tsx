@@ -26,6 +26,7 @@ import {
   AdminBadge,
   adminColors,
 } from "@/components/admin/ui";
+import { useTranslations } from "next-intl";
 
 interface Props {
   onClose: () => void;
@@ -52,6 +53,8 @@ export default function TeacherFormModal({
   const [photoPreview, setPhotoPreview] = useState<string | null>(
     editing?.photoUrl ?? null,
   );
+  const [langTab, setLangTab] = useState<"en" | "ar">("en");
+  const t = useTranslations("admin");
 
   // ── Specialties ──
   const [specialties, setSpecialties] = useState<string[]>(
@@ -133,6 +136,12 @@ export default function TeacherFormModal({
     });
   };
 
+  const inputStyle = {
+    background: "rgba(255,255,255,0.04)",
+    borderColor: adminColors.border,
+    color: adminColors.textPrimary,
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
@@ -147,16 +156,16 @@ export default function TeacherFormModal({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] flex-shrink-0">
           <h2
-            className="text-sm font-semibold"
+            className="text-xl font-semibold"
             style={{ color: adminColors.textPrimary }}
           >
-            {editing ? "Edit Teacher" : "New Teacher"}
+            {editing ? "Edit Teacher" : t("newTeacher")}
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <X size={15} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
 
@@ -204,13 +213,13 @@ export default function TeacherFormModal({
                   {editing.user ? (
                     <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/[0.06]">
                       <span
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textMuted }}
                       >
                         Login account:
                       </span>
                       <span
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textSecondary }}
                       >
                         {editing.user.email}
@@ -227,7 +236,7 @@ export default function TeacherFormModal({
                   ) : (
                     <div className="px-3 py-2 rounded-lg border border-dashed border-white/[0.08]">
                       <p
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textMuted }}
                       >
                         No login account linked — teacher cannot access portal
@@ -241,16 +250,72 @@ export default function TeacherFormModal({
 
             {/* ── Profile ── */}
             <Section title="Profile">
-              <AdminTextarea
-                label="Bio"
-                name="bio"
-                placeholder="Background, teaching style, experience…"
-                defaultValue={editing?.bio ?? ""}
-                rows={3}
-              />
+              <div className="space-y-1.5">
+                <label
+                  className="text-l"
+                  style={{ color: adminColors.textSecondary }}
+                >
+                  Bio <span className="text-red-400">*</span>
+                  {langTab === "ar" && (
+                    <span
+                      className="ml-1 text-[10px]"
+                      style={{ color: adminColors.textMuted }}
+                    >
+                      (Arabic)
+                    </span>
+                  )}
+                </label>
+                <div
+                  className="flex items-center gap-1 p-1 rounded-lg w-fit"
+                  style={{ background: "rgba(255,255,255,0.05)" }}
+                >
+                  {(["en", "ar"] as const).map((lang) => (
+                    <button
+                      key={lang}
+                      type="button"
+                      onClick={() => setLangTab(lang)}
+                      className="px-3 py-1 rounded-md text-xs font-medium transition-all"
+                      style={{
+                        background:
+                          langTab === lang
+                            ? "rgba(251,191,36,0.15)"
+                            : "transparent",
+                        color:
+                          langTab === lang ? "#fbbf24" : adminColors.textMuted,
+                        border:
+                          langTab === lang
+                            ? "1px solid rgba(251,191,36,0.3)"
+                            : "1px solid transparent",
+                      }}
+                    >
+                      {lang === "en" ? "🇬🇧 English" : "🇴🇲 Arabic"}
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  name="bio"
+                  defaultValue={editing?.bio ?? ""}
+                  className="w-full text-l rounded-lg border px-3 py-2 outline-none"
+                  style={{
+                    ...inputStyle,
+                    display: langTab === "en" ? "block" : "none",
+                  }}
+                />
+                <textarea
+                  name="bio_ar"
+                  defaultValue={(editing as any)?.bio_ar ?? ""}
+                  dir="rtl"
+                  className="w-full text-l rounded-lg border px-3 py-2 outline-none"
+                  style={{
+                    ...inputStyle,
+                    fontFamily: "var(--font-layla, sans-serif)",
+                    display: langTab === "ar" ? "block" : "none",
+                  }}
+                />
+              </div>
               <div>
                 <label
-                  className="block text-xs font-medium mb-1.5"
+                  className="block text-l font-medium mb-1.5"
                   style={{ color: adminColors.textSecondary }}
                 >
                   Profile Photo
@@ -271,7 +336,7 @@ export default function TeacherFormModal({
 
                 {/* File input */}
                 <label
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer text-xs transition-colors hover:bg-white/[0.03]"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer text-l transition-colors hover:bg-white/[0.03]"
                   style={{
                     borderColor: adminColors.border,
                     color: adminColors.textSecondary,
@@ -318,7 +383,7 @@ export default function TeacherFormModal({
                     }
                   }}
                   placeholder="e.g. Violin, Ballet, Drums…"
-                  className="flex-1 px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/80 placeholder-white/20 focus:outline-none focus:border-amber-500/50 transition-all"
+                  className="flex-1 px-3 py-2 rounded-lg text-xl border bg-white/[0.04] text-white/80 placeholder-white/20 focus:outline-none focus:border-amber-500/50 transition-all"
                   style={{ borderColor: adminColors.border }}
                 />
                 <AdminButton
@@ -327,7 +392,7 @@ export default function TeacherFormModal({
                   size="sm"
                   onClick={addSpecialty}
                 >
-                  <Plus size={13} /> Add
+                  <Plus size={18} /> Add
                 </AdminButton>
               </div>
               {specialties.length > 0 && (
@@ -335,7 +400,7 @@ export default function TeacherFormModal({
                   {specialties.map((s) => (
                     <span
                       key={s}
-                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-l font-medium"
                       style={{
                         background: "rgba(245,158,11,0.1)",
                         color: "#f59e0b",
@@ -349,7 +414,7 @@ export default function TeacherFormModal({
                         }
                         className="hover:opacity-70"
                       >
-                        <Trash2 size={10} />
+                        <Trash2 size={14} />
                       </button>
                     </span>
                   ))}
@@ -359,13 +424,13 @@ export default function TeacherFormModal({
 
             {/* ── Sub-class Assignment ── */}
             <Section title="Assigned Sub-classes">
-              <p className="text-xs" style={{ color: adminColors.textMuted }}>
+              <p className="text-l" style={{ color: adminColors.textMuted }}>
                 Select which sub-classes this teacher is responsible for. A
                 sub-class can only have one teacher.
               </p>
 
               {allClasses.length === 0 ? (
-                <p className="text-xs" style={{ color: adminColors.textMuted }}>
+                <p className="text-l" style={{ color: adminColors.textMuted }}>
                   No classes available yet.
                 </p>
               ) : (
@@ -401,7 +466,7 @@ export default function TeacherFormModal({
                           )}
                           <BookOpen size={13} style={{ color: "#f59e0b" }} />
                           <span
-                            className="flex-1 text-sm font-medium"
+                            className="flex-1 text-xl font-medium"
                             style={{ color: adminColors.textPrimary }}
                           >
                             {cls.name}
@@ -412,7 +477,7 @@ export default function TeacherFormModal({
                             </AdminBadge>
                           )}
                           <span
-                            className="text-xs"
+                            className="text-l"
                             style={{ color: adminColors.textMuted }}
                           >
                             {cls.subClasses.length} sub-class
@@ -428,7 +493,7 @@ export default function TeacherFormModal({
                           >
                             {cls.subClasses.length === 0 ? (
                               <p
-                                className="px-4 py-2 text-xs"
+                                className="px-4 py-2 text-l"
                                 style={{ color: adminColors.textMuted }}
                               >
                                 No sub-classes in this class.
@@ -452,7 +517,7 @@ export default function TeacherFormModal({
                                       className="accent-amber-500 w-3.5 h-3.5"
                                     />
                                     <span
-                                      className="text-sm flex-1"
+                                      className="text-xl flex-1"
                                       style={{
                                         color: isChecked
                                           ? adminColors.textPrimary
@@ -464,7 +529,7 @@ export default function TeacherFormModal({
                                     {/* Show other teachers sharing this subclass */}
                                     {otherTeachers.length > 0 && (
                                       <span
-                                        className="text-[10px]"
+                                        className="text-[15px]"
                                         style={{ color: adminColors.textMuted }}
                                       >
                                         also:{" "}
@@ -496,7 +561,7 @@ export default function TeacherFormModal({
               {/* Summary */}
               {selectedSubIds.size > 0 && (
                 <p
-                  className="text-xs mt-2"
+                  className="text-l mt-2"
                   style={{ color: adminColors.textMuted }}
                 >
                   <span style={{ color: "#f59e0b" }}>
@@ -540,7 +605,7 @@ export default function TeacherFormModal({
             )}
 
             {error && (
-              <p className="text-xs px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+              <p className="text-l px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
                 {error}
               </p>
             )}
@@ -571,7 +636,7 @@ function Section({
   return (
     <div className="space-y-3">
       <p
-        className="text-[10px] font-semibold tracking-widest uppercase"
+        className="text-[15px] font-semibold tracking-widest uppercase"
         style={{ color: "rgba(245,158,11,0.6)" }}
       >
         {title}

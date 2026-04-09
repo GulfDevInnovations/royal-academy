@@ -41,6 +41,7 @@ import {
   adminColors,
 } from "@/components/admin/ui";
 import PaymentDetailModal from "./PaymentDetailModal";
+import { useTranslations } from "next-intl";
 
 // ─────────────────────────────────────────────
 // Constants
@@ -231,6 +232,8 @@ export default function PaymentsClient({
   const [selectedPayment, setSelectedPayment] =
     useState<NormalisedPayment | null>(null);
 
+  const t = useTranslations("admin");
+
   const [enrollmentPayments, setEnrollmentPayments] = useState(
     initialEnrollmentPayments,
   );
@@ -358,13 +361,13 @@ export default function PaymentsClient({
   // ─────────────────────────────────────────────
 
   return (
-    <div className="space-y-4 max-w-7xl mx-auto">
+    <div className="space-y-4 max-w-8xl mx-auto">
       <AdminPageHeader
         title="Payments"
         subtitle={`${MONTHS[month - 1]} ${year}`}
         action={
           <AdminButton variant="ghost" onClick={handleExport}>
-            <Download size={14} /> Export Excel
+            <Download size={18} /> Export Excel
           </AdminButton>
         }
       />
@@ -377,21 +380,21 @@ export default function PaymentsClient({
             value: `${stats.paid.amount.toFixed(3)} OMR`,
             count: stats.paid.count,
             color: "#34d399",
-            icon: <TrendingUp size={14} />,
+            icon: <TrendingUp size={18} />,
           },
           {
             label: "Refunded",
             value: `${stats.refunded.amount.toFixed(3)} OMR`,
             count: stats.refunded.count,
             color: "#60a5fa",
-            icon: <RotateCcw size={14} />,
+            icon: <RotateCcw size={18} />,
           },
           {
             label: "Failed",
             value: `${stats.failed.amount.toFixed(3)} OMR`,
             count: stats.failed.count,
             color: "#f87171",
-            icon: <AlertCircle size={14} />,
+            icon: <AlertCircle size={18} />,
           },
         ].map(({ label, value, count, color, icon }) => (
           <div
@@ -409,10 +412,10 @@ export default function PaymentsClient({
               {icon}
             </div>
             <div>
-              <p className="text-sm font-bold" style={{ color }}>
+              <p className="text-xl font-bold" style={{ color }}>
                 {value}
               </p>
-              <p className="text-xs" style={{ color: adminColors.textMuted }}>
+              <p className="text-l" style={{ color: adminColors.textMuted }}>
                 {label} · {count} payment{count !== 1 ? "s" : ""}
               </p>
             </div>
@@ -436,7 +439,7 @@ export default function PaymentsClient({
               <button
                 key={key}
                 onClick={() => setTab(key)}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 text-l font-medium transition-colors"
                 style={{
                   background:
                     tab === key
@@ -450,7 +453,7 @@ export default function PaymentsClient({
                 {label}
                 {count > 0 && (
                   <span
-                    className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold"
+                    className="px-1.5 py-0.5 rounded-full text-[15px] font-semibold"
                     style={{
                       background:
                         tab === key
@@ -479,10 +482,10 @@ export default function PaymentsClient({
             onClick={() => navigateMonth(-1)}
             className="p-1.5 rounded-md transition-colors text-white/40 hover:text-white/80"
           >
-            <ChevronLeft size={14} />
+            <ChevronLeft size={18} />
           </button>
           <span
-            className="text-sm px-2 font-medium"
+            className="text-xl px-2 font-medium"
             style={{ color: adminColors.textSecondary }}
           >
             {MONTHS_SHORT[month - 1]} {year}
@@ -491,7 +494,7 @@ export default function PaymentsClient({
             onClick={() => navigateMonth(1)}
             className="p-1.5 rounded-md transition-colors text-white/40 hover:text-white/80"
           >
-            <ChevronRight size={14} />
+            <ChevronRight size={18} />
           </button>
         </div>
 
@@ -499,11 +502,11 @@ export default function PaymentsClient({
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none"
+          className="px-3 py-2 rounded-lg text-xl border bg-white/4 text-white/70 focus:outline-none"
           style={{ borderColor: "rgba(255,255,255,0.08)" }}
         >
           <option className="text-black" value="">
-            All statuses
+            {t("allStatuses")}
           </option>
           <option className="text-black" value="PAID">
             Paid
@@ -517,7 +520,7 @@ export default function PaymentsClient({
         </select>
 
         <span
-          className="text-xs ml-auto"
+          className="text-l ml-auto"
           style={{ color: adminColors.textMuted }}
         >
           {displayed.length} payment{displayed.length !== 1 ? "s" : ""}
@@ -534,14 +537,14 @@ export default function PaymentsClient({
         ) : (
           <AdminTable>
             <AdminThead>
-              <AdminTh>Student</AdminTh>
+              <AdminTh>{t("student")}</AdminTh>
               <AdminTh>Description</AdminTh>
-              <AdminTh>Type</AdminTh>
-              <AdminTh>Amount</AdminTh>
-              <AdminTh>Method</AdminTh>
-              <AdminTh>Date</AdminTh>
-              <AdminTh>Status</AdminTh>
-              <AdminTh className="text-right">Actions</AdminTh>
+              <AdminTh>{t("type")}</AdminTh>
+              <AdminTh>{t("amount")}</AdminTh>
+              <AdminTh>{t("method")}</AdminTh>
+              <AdminTh>{t("date")}</AdminTh>
+              <AdminTh>{t("status")}</AdminTh>
+              <AdminTh className="text-right">{t("actions")}</AdminTh>
             </AdminThead>
             <AdminTbody>
               {displayed.map((payment) => {
@@ -551,7 +554,7 @@ export default function PaymentsClient({
                     <AdminTd>
                       <div className="flex items-center gap-2">
                         <div
-                          className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-semibold"
+                          className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[15px] font-semibold"
                           style={{
                             background: "rgba(245,158,11,0.1)",
                             color: "#f59e0b",
@@ -565,13 +568,13 @@ export default function PaymentsClient({
                         </div>
                         <div>
                           <p
-                            className="text-sm font-medium"
+                            className="text-xl font-medium"
                             style={{ color: adminColors.textPrimary }}
                           >
                             {payment.studentName}
                           </p>
                           <p
-                            className="text-xs"
+                            className="text-l"
                             style={{ color: adminColors.textMuted }}
                           >
                             {payment.studentContact}
@@ -582,13 +585,13 @@ export default function PaymentsClient({
 
                     <AdminTd>
                       <p
-                        className="text-sm"
+                        className="text-xl"
                         style={{ color: adminColors.textSecondary }}
                       >
                         {payment.description}
                       </p>
                       <p
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textMuted }}
                       >
                         {payment.detail}
@@ -597,7 +600,7 @@ export default function PaymentsClient({
 
                     <AdminTd>
                       <span
-                        className="text-xs font-medium px-2 py-1 rounded-lg"
+                        className="text-l font-medium px-2 py-1 rounded-lg"
                         style={{
                           background: typeColor.bg,
                           color: typeColor.text,
@@ -617,13 +620,13 @@ export default function PaymentsClient({
 
                     <AdminTd>
                       <p
-                        className="text-sm font-semibold"
+                        className="text-xl font-semibold"
                         style={{ color: adminColors.textPrimary }}
                       >
                         {payment.amount.toFixed(3)}
                       </p>
                       <p
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textMuted }}
                       >
                         {payment.currency}
@@ -632,7 +635,7 @@ export default function PaymentsClient({
 
                     <AdminTd>
                       <span
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textSecondary }}
                       >
                         {payment.method
@@ -644,7 +647,7 @@ export default function PaymentsClient({
                     <AdminTd>
                       {payment.paidAt ? (
                         <p
-                          className="text-xs"
+                          className="text-l"
                           style={{ color: adminColors.textSecondary }}
                         >
                           {new Date(payment.paidAt).toLocaleDateString(
@@ -658,7 +661,7 @@ export default function PaymentsClient({
                         </p>
                       ) : (
                         <span
-                          className="text-xs"
+                          className="text-l"
                           style={{ color: adminColors.textMuted }}
                         >
                           —
@@ -677,10 +680,10 @@ export default function PaymentsClient({
                     <AdminTd className="text-right">
                       <button
                         onClick={() => setSelectedPayment(payment)}
-                        className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-amber-400 hover:bg-amber-500/[0.08]"
+                        className="p-1.5 rounded-lg transition-colors text-purple-600 hover:text-purple-400 hover:bg-amber-500/8"
                         title="View details"
                       >
-                        <Eye size={13} />
+                        <Eye size={20} />
                       </button>
                     </AdminTd>
                   </AdminTr>

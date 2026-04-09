@@ -229,6 +229,7 @@ model TeacherProfile {
   firstName   String
   lastName    String
   bio         String?
+  bio_ar      String?
   specialties String[]
   photoUrl    String?
   cvUrl       String?
@@ -310,7 +311,9 @@ model VerificationToken {
 model Class {
   id          String   @id @default(cuid())
   name        String
+  name_ar     String?
   description String?
+  description_ar String?
   iconUrl     String?
   coverUrl    String?
   isActive    Boolean  @default(true)
@@ -327,7 +330,9 @@ model SubClass {
   id                String      @id @default(cuid())
   classId           String
   name              String // e.g. "Violin", "Ballet for Kids", "Ballet"
+  name_ar           String?
   description       String?
+  description_ar String?
   coverUrl          String?
   capacity          Int         @default(10)
   durationMinutes   Int         @default(60)
@@ -632,7 +637,9 @@ model TrialBooking {
 model Workshop {
   id          String   @id @default(cuid())
   title       String
+  title_ar    String?
   description String?
+  description_ar String?
   coverUrl    String?
   imageUrls   String[] @default([])   
   videoUrls   String[] @default([])
@@ -835,6 +842,7 @@ model TicketReply {
 model GalleryCategory {
   id        String   @id @default(cuid())
   name      String
+  name_ar   String?
   slug      String   @unique
   sortOrder Int      @default(0)
   isActive  Boolean  @default(true)
@@ -851,7 +859,9 @@ model GalleryItem {
   categoryId          String?
   mediaType           GalleryMediaType
   title               String?
+  title_ar            String?
   description         String?
+  description_ar      String?
   url                 String // Supabase Storage public URL
   thumbnailUrl        String? // video poster frame
   altText             String?
@@ -907,8 +917,11 @@ model GalleryItemPerson {
 model Upcoming {
   id           String        @id @default(cuid())
   title        String
+  title_ar     String?
   subtitle     String?
+  subtitle_ar  String?
   description  String?       @db.Text
+  description_ar String?     @db.Text 
   mediaUrls    String[]      @default([])
   videoUrls    String[]      @default([])
   thumbnailUrl String?
@@ -939,8 +952,11 @@ model Upcoming {
 model News {
   id           String        @id @default(cuid())
   title        String
+  title_ar     String?
   subtitle     String?
+  subtitle_ar  String?
   description  String?       @db.Text
+  description_ar String?     @db.Text 
   mediaUrls    String[]      @default([])
   videoUrls    String[]      @default([])
   thumbnailUrl String?
@@ -970,8 +986,11 @@ model News {
 model Offer {
   id             String        @id @default(cuid())
   title          String
+  title_ar       String?
   subtitle       String?
+  subtitle_ar    String?
   description    String?       @db.Text
+  description_ar String?       @db.Text
   mediaUrls      String[]      @default([])
   videoUrls      String[]      @default([])
   thumbnailUrl   String?
@@ -981,7 +1000,7 @@ model Offer {
   discountType   DiscountType?
   discountValue  Decimal?      @db.Decimal(10, 2)
   promoCode      String?       @unique
-  classIds       String[]      @default([])   // ← add this
+  classIds       String[]      @default([])   
   subClassIds    String[]      @default([])
   publishAt      DateTime?
   expireAt       DateTime?

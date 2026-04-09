@@ -37,6 +37,7 @@ import {
 } from "@/components/admin/ui";
 import StudentEditModal from "./StudentEditModal";
 import SmsModal from "./SmsModal";
+import { useTranslations } from "next-intl";
 
 // ─────────────────────────────────────────────
 // Types
@@ -99,6 +100,7 @@ export default function StudentsClient({
   const router = useRouter();
   const { toasts, toast, remove } = useToast();
   const [, startRefresh] = useTransition();
+  const t = useTranslations("admin");
 
   // ── Modal state ──
   type Modal =
@@ -240,12 +242,12 @@ export default function StudentsClient({
   const SortIcon = ({ k }: { k: SortKey }) =>
     sortKey === k ? (
       sortDir === "asc" ? (
-        <ChevronUp size={12} />
+        <ChevronUp size={15} />
       ) : (
-        <ChevronDown size={12} />
+        <ChevronDown size={15} />
       )
     ) : (
-      <ChevronUp size={12} className="opacity-20" />
+      <ChevronUp size={15} className="opacity-20" />
     );
 
   // ── Selection helpers ──
@@ -341,7 +343,7 @@ export default function StudentsClient({
   ].filter(Boolean).length;
 
   return (
-    <div className="space-y-4 max-w-7xl mx-auto">
+    <div className="space-y-4 max-w-8xl mx-auto">
       <AdminPageHeader
         title="Students"
         subtitle={`${initialStudents.length} students total`}
@@ -350,9 +352,9 @@ export default function StudentsClient({
       {/* ── Search + filter bar ── */}
       <div className="flex items-center gap-3 flex-wrap">
         {/* Search */}
-        <div className="relative flex-1 min-w-[220px] max-w-sm">
+        <div className="relative flex-1 min-w-55 max-w-sm">
           <Search
-            size={14}
+            size={17}
             className="absolute left-3 top-1/2 -translate-y-1/2"
             style={{ color: adminColors.textMuted }}
           />
@@ -361,7 +363,7 @@ export default function StudentsClient({
             placeholder="Search by name, phone, email…"
             value={filters.search}
             onChange={(e) => setFilter("search", e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border bg-white/[0.04] text-white/80 placeholder-white/25 focus:outline-none focus:border-amber-500/50 transition-all"
+            className="w-full pl-9 pr-4 py-2 text-xl rounded-lg border bg-yellow-100 text-yellow-950 placeholder:text-yellow-700 focus:outline-none focus:border-amber-500/50 transition-all"
             style={{ borderColor: adminColors.border }}
           />
         </div>
@@ -369,7 +371,7 @@ export default function StudentsClient({
         {/* Filter toggle */}
         <button
           onClick={() => setShowFilters((v) => !v)}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm border transition-colors"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-xl border transition-colors"
           style={{
             borderColor:
               activeFilterCount > 0
@@ -383,11 +385,13 @@ export default function StudentsClient({
                 : "rgba(255,255,255,0.03)",
           }}
         >
-          <Filter size={13} />
-          Filters
+          <span className="flex items-center gap-1 text-amber-200">
+            <Filter size={16} />
+            Filters
+          </span>
           {activeFilterCount > 0 && (
             <span
-              className="w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center"
+              className="w-4 h-4 rounded-full text-[16px] font-bold flex items-center justify-center"
               style={{ background: "#f59e0b", color: "#000" }}
             >
               {activeFilterCount}
@@ -398,14 +402,10 @@ export default function StudentsClient({
         {/* Export all */}
         <button
           onClick={() => exportToExcel(displayedStudents)}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm border transition-colors hover:border-white/20 hover:text-white/70"
-          style={{
-            borderColor: adminColors.border,
-            color: adminColors.textSecondary,
-            background: "rgba(255,255,255,0.03)",
-          }}
+          className="gap-1 flex items-center justify-center px-5 py-2 rounded-xl border cursor-pointer hover:bg-white/5 transition-colors"
+          style={{ color: adminColors.blueText }}
         >
-          <Download size={13} />
+          <Download size={16} />
           Export{" "}
           {displayedStudents.length !== initialStudents.length
             ? "filtered"
@@ -420,7 +420,7 @@ export default function StudentsClient({
             {/* Class */}
             <div className="space-y-1.5">
               <label
-                className="text-xs font-medium"
+                className="text-l font-medium"
                 style={{ color: adminColors.textSecondary }}
               >
                 Class
@@ -428,7 +428,7 @@ export default function StudentsClient({
               <select
                 value={filters.classId}
                 onChange={(e) => setFilter("classId", e.target.value)}
-                className="w-full px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
+                className="w-full px-3 py-2 rounded-lg text-xl border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
                 style={{ borderColor: adminColors.border }}
               >
                 <option className="text-black" value="">
@@ -445,7 +445,7 @@ export default function StudentsClient({
             {/* Sub-class */}
             <div className="space-y-1.5">
               <label
-                className="text-xs font-medium"
+                className="text-l font-medium"
                 style={{ color: adminColors.textSecondary }}
               >
                 Sub-class
@@ -453,7 +453,7 @@ export default function StudentsClient({
               <select
                 value={filters.subClassId}
                 onChange={(e) => setFilter("subClassId", e.target.value)}
-                className="w-full px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
+                className="w-full px-3 py-2 rounded-lg text-xl border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
                 style={{ borderColor: adminColors.border }}
               >
                 <option className="text-black" value="">
@@ -470,19 +470,19 @@ export default function StudentsClient({
             {/* Day of week */}
             <div className="space-y-1.5">
               <label
-                className="text-xs font-medium"
+                className="text-l font-medium"
                 style={{ color: adminColors.textSecondary }}
               >
-                Day of week
+                {t("dayOfWeek")}
               </label>
               <select
                 value={filters.dayOfWeek}
                 onChange={(e) => setFilter("dayOfWeek", e.target.value)}
-                className="w-full px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
+                className="w-full px-3 py-2 rounded-lg text-xl border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
                 style={{ borderColor: adminColors.border }}
               >
                 <option className="text-black" value="">
-                  Any day
+                  {t("anyDay")}
                 </option>
                 {DAYS.map((d) => (
                   <option className="text-black" key={d} value={d}>
@@ -495,7 +495,7 @@ export default function StudentsClient({
             {/* Status */}
             <div className="space-y-1.5">
               <label
-                className="text-xs font-medium"
+                className="text-l font-medium"
                 style={{ color: adminColors.textSecondary }}
               >
                 Status
@@ -503,7 +503,7 @@ export default function StudentsClient({
               <select
                 value={filters.status}
                 onChange={(e) => setFilter("status", e.target.value)}
-                className="w-full px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
+                className="w-full px-3 py-2 rounded-lg text-xl border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
                 style={{ borderColor: adminColors.border }}
               >
                 <option className="text-black" value="all">
@@ -530,14 +530,14 @@ export default function StudentsClient({
                   status: "all",
                 })
               }
-              className="mt-3 flex items-center gap-1.5 text-xs transition-colors"
-              style={{ color: adminColors.textMuted }}
+              className="mt-3 flex items-center gap-1.5 text-l transition-colors"
+              style={{ color: adminColors.redText }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "#f87171")}
               onMouseLeave={(e) =>
-                (e.currentTarget.style.color = adminColors.textMuted)
+                (e.currentTarget.style.color = adminColors.redText)
               }
             >
-              <X size={12} /> Clear all filters
+              <X size={16} /> {t("clearAllFilters")}
             </button>
           )}
         </AdminCard>
@@ -549,7 +549,7 @@ export default function StudentsClient({
           className="sticky top-4 z-30 flex items-center gap-3 px-5 py-3 rounded-xl border shadow-2xl"
           style={{ background: "#1e2130", borderColor: "rgba(245,158,11,0.3)" }}
         >
-          <span className="text-sm font-semibold" style={{ color: "#f59e0b" }}>
+          <span className="text-xl font-semibold" style={{ color: "#f59e0b" }}>
             {selected.size} selected
           </span>
           <div className="flex-1" />
@@ -558,58 +558,54 @@ export default function StudentsClient({
             onClick={() =>
               setModal({ type: "sms", students: selectedStudents })
             }
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-l font-medium border transition-colors"
             style={{
               borderColor: "rgba(96,165,250,0.3)",
               color: "#60a5fa",
               background: "rgba(96,165,250,0.08)",
             }}
           >
-            <MessageSquare size={13} /> Send SMS
+            <MessageSquare size={16} /> Send SMS
           </button>
 
           <button
             onClick={() => handleBulkStatus(true)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-l font-medium border transition-colors"
             style={{
               borderColor: "rgba(52,211,153,0.3)",
               color: "#34d399",
               background: "rgba(52,211,153,0.08)",
             }}
           >
-            <UserCheck size={13} /> Activate
+            <UserCheck size={16} /> {t("activate")}
           </button>
 
           <button
             onClick={() => handleBulkStatus(false)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-l font-medium border transition-colors"
             style={{
               borderColor: "rgba(248,113,113,0.3)",
               color: "#f87171",
               background: "rgba(248,113,113,0.08)",
             }}
           >
-            <UserX size={13} /> Deactivate
+            <UserX size={16} /> {t("deactivate")}
           </button>
 
           <button
             onClick={() => exportToExcel(selectedStudents)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
-            style={{
-              borderColor: adminColors.border,
-              color: adminColors.textSecondary,
-              background: "rgba(255,255,255,0.04)",
-            }}
+            className="gap-1 flex items-center justify-center px-5 py-1.5 rounded-xl border cursor-pointer hover:bg-white/5 transition-colors"
+            style={{ color: adminColors.blueText }}
           >
-            <Download size={13} /> Export selected
+            <Download size={16} /> {t("exportSelected")}
           </button>
 
           <button
             onClick={() => setSelected(new Set())}
             className="p-1.5 rounded-lg transition-colors"
-            style={{ color: adminColors.textMuted }}
+            style={{ color: adminColors.pinkText }}
           >
-            <X size={14} />
+            <X size={20} />
           </button>
         </div>
       )}
@@ -618,7 +614,7 @@ export default function StudentsClient({
       <AdminCard noPadding>
         {displayedStudents.length === 0 ? (
           <AdminEmptyState
-            title="No students found"
+            title={t("noStudentsFound")}
             description="Try adjusting your search or filters."
           />
         ) : (
@@ -642,7 +638,7 @@ export default function StudentsClient({
                   onClick={() => toggleSort("name")}
                   className="flex items-center gap-1 hover:text-white/70 transition-colors"
                 >
-                  Student <SortIcon k="name" />
+                  {t("student")} <SortIcon k="name" />
                 </button>
               </AdminTh>
               <AdminTh>
@@ -654,7 +650,7 @@ export default function StudentsClient({
                 </button>
               </AdminTh>
               <AdminTh>Enrollments</AdminTh>
-              <AdminTh>Schedule</AdminTh>
+              <AdminTh>{t("schedule")}</AdminTh>
               <AdminTh>
                 <button
                   onClick={() => toggleSort("status")}
@@ -668,7 +664,7 @@ export default function StudentsClient({
                   onClick={() => toggleSort("joinedAt")}
                   className="flex items-center gap-1 hover:text-white/70 transition-colors"
                 >
-                  Joined <SortIcon k="joinedAt" />
+                  {t("joined")} <SortIcon k="joinedAt" />
                 </button>
               </AdminTh>
               <AdminTh className="text-right">Actions</AdminTh>
@@ -690,9 +686,9 @@ export default function StudentsClient({
                         }}
                       >
                         {isSelected ? (
-                          <CheckSquare size={15} />
+                          <CheckSquare size={18} />
                         ) : (
-                          <Square size={15} />
+                          <Square size={18} />
                         )}
                       </button>
                     </AdminTd>
@@ -701,7 +697,7 @@ export default function StudentsClient({
                     <AdminTd>
                       <div className="flex items-center gap-3">
                         <div
-                          className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0"
+                          className="w-7 h-7 rounded-full flex items-center justify-center text-[16px] font-bold flex-shrink-0"
                           style={{
                             background: "rgba(96,165,250,0.12)",
                             color: "#60a5fa",
@@ -712,13 +708,13 @@ export default function StudentsClient({
                         </div>
                         <div>
                           <p
-                            className="text-sm font-medium"
+                            className="text-xl font-medium"
                             style={{ color: adminColors.textPrimary }}
                           >
                             {student.firstName} {student.lastName}
                           </p>
                           <p
-                            className="text-xs"
+                            className="text-l"
                             style={{ color: adminColors.textMuted }}
                           >
                             {student.user.email}
@@ -774,7 +770,7 @@ export default function StudentsClient({
                         ].map((day) => (
                           <span
                             key={day}
-                            className="text-[10px] px-1.5 py-0.5 rounded font-medium"
+                            className="text-[15px] px-1.5 py-0.5 rounded font-medium"
                             style={{
                               background: "rgba(245,158,11,0.1)",
                               color: "#f59e0b",
@@ -821,17 +817,17 @@ export default function StudentsClient({
                           onClick={() =>
                             setModal({ type: "sms", students: [student] })
                           }
-                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-blue-400 hover:bg-blue-500/[0.08]"
+                          className="p-1.5 rounded-lg transition-colors text-purple-600 hover:text-purple-400 hover:bg-blue-500/[0.08]"
                           title="Send SMS"
                         >
-                          <MessageSquare size={13} />
+                          <MessageSquare size={20} />
                         </button>
                         <button
                           onClick={() => setModal({ type: "edit", student })}
-                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-white/70 hover:bg-white/[0.05]"
+                          className="p-1.5 rounded-lg transition-colors text-blue-400 hover:text-blue-600 hover:bg-white/5"
                           title="Edit student"
                         >
-                          <Pencil size={13} />
+                          <Pencil size={20} />
                         </button>
                       </div>
                     </AdminTd>
@@ -846,10 +842,10 @@ export default function StudentsClient({
       {/* Result count */}
       {displayedStudents.length !== initialStudents.length && (
         <p
-          className="text-xs text-center"
+          className="text-l text-center"
           style={{ color: adminColors.textMuted }}
         >
-          Showing {displayedStudents.length} of {initialStudents.length}{" "}
+          {t("showing")} {displayedStudents.length} of {initialStudents.length}{" "}
           students
         </p>
       )}

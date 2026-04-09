@@ -23,6 +23,7 @@ import type {
   SerializedOtherPayment,
 } from "../page";
 import { AdminButton, AdminBadge, adminColors } from "@/components/admin/ui";
+import { useTranslations } from "next-intl";
 
 type AnyPayment =
   | { kind: "enrollment"; data: SerializedEnrollmentPayment }
@@ -73,6 +74,7 @@ export default function PaymentDetailModal({
   const [isPending, startTransition] = useTransition();
   const [isPrinting, setPrinting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations("admin");
 
   // ── Derived fields ──
   const isEnrollment = payment.kind === "enrollment";
@@ -184,10 +186,10 @@ export default function PaymentDetailModal({
               className="text-sm font-semibold"
               style={{ color: adminColors.textPrimary }}
             >
-              Payment Details
+              {t("paymentDetails")}
             </h2>
             <p
-              className="text-xs mt-0.5 font-mono"
+              className="text-l mt-0.5 font-mono"
               style={{ color: adminColors.textMuted }}
             >
               {p.id.slice(0, 16)}…
@@ -205,14 +207,14 @@ export default function PaymentDetailModal({
                 ) : (
                   <Printer size={13} />
                 )}
-                Print
+                {t("print")}
               </AdminButton>
             )}
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-white/30 hover:text-white/70 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
             >
-              <X size={15} />
+              <X size={16} style={{ color: adminColors.pinkText }} />
             </button>
           </div>
         </div>
@@ -228,13 +230,13 @@ export default function PaymentDetailModal({
           >
             <div>
               <p
-                className="text-3xl font-bold"
+                className="text-5xl font-bold"
                 style={{ color: adminColors.textPrimary }}
               >
                 {Number(p.amount).toFixed(3)}
               </p>
               <p
-                className="text-sm mt-0.5"
+                className="text-xl mt-0.5"
                 style={{ color: adminColors.textMuted }}
               >
                 {p.currency}
@@ -247,10 +249,10 @@ export default function PaymentDetailModal({
 
           {/* ── Student ── */}
           {student && (
-            <Row label="Student">
+            <Row label={t("student")}>
               <div className="flex items-center gap-2">
                 <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-semibold"
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-[16px] font-semibold"
                   style={{
                     background: "rgba(245,158,11,0.12)",
                     color: "#f59e0b",
@@ -261,13 +263,13 @@ export default function PaymentDetailModal({
                 </div>
                 <div>
                   <p
-                    className="text-sm font-medium"
+                    className="text-xl font-medium"
                     style={{ color: adminColors.textPrimary }}
                   >
                     {student.firstName} {student.lastName}
                   </p>
                   <p
-                    className="text-xs"
+                    className="text-l"
                     style={{ color: adminColors.textMuted }}
                   >
                     {student.user?.phone ?? student.user?.email ?? "—"}
@@ -280,13 +282,13 @@ export default function PaymentDetailModal({
           {/* ── Description ── */}
           <Row label="For">
             <p
-              className="text-sm font-medium"
+              className="text-xl font-medium"
               style={{ color: adminColors.textPrimary }}
             >
               {description.title}
             </p>
             <p
-              className="text-xs mt-0.5"
+              className="text-l mt-0.5"
               style={{ color: adminColors.textMuted }}
             >
               {description.detail}
@@ -296,7 +298,7 @@ export default function PaymentDetailModal({
           {/* ── Payment info ── */}
           <div className="space-y-2">
             <DetailLine
-              label="Method"
+              label={t("method")}
               value={p.method ? (METHOD_LABEL[p.method] ?? p.method) : "—"}
             />
             <DetailLine label="Paid at" value={fmtDate(p.paidAt ?? null)} />
@@ -328,26 +330,26 @@ export default function PaymentDetailModal({
               {!showRefund ? (
                 <button
                   onClick={() => setShowRefund(true)}
-                  className="flex items-center gap-2 text-xs transition-colors"
+                  className="flex items-center gap-2 text-l transition-colors"
                   style={{ color: "rgba(248,113,113,0.7)" }}
                 >
                   <RotateCcw size={12} />
-                  Issue refund
+                  {t("issueRefund")}
                 </button>
               ) : (
                 <div className="space-y-3">
                   <p
-                    className="text-xs font-semibold"
+                    className="text-l font-semibold"
                     style={{ color: "#f87171" }}
                   >
-                    Confirm Refund
+                    {t("confirmRefund")}
                   </p>
                   <textarea
                     value={refundReason}
                     onChange={(e) => setRefundReason(e.target.value)}
                     placeholder="Reason for refund (required)…"
                     rows={2}
-                    className="w-full px-3 py-2 rounded-lg text-xs border bg-white/[0.03] text-white/70 placeholder-white/20 focus:outline-none resize-none"
+                    className="w-full px-3 py-2 rounded-lg text-l border bg-white/3 text-white/70 placeholder-white/20 focus:outline-none resize-none"
                     style={{ borderColor: "rgba(248,113,113,0.25)" }}
                   />
                   <div className="flex items-center gap-2">
@@ -368,7 +370,7 @@ export default function PaymentDetailModal({
                         setShowRefund(false);
                         setRefundReason("");
                       }}
-                      className="text-xs"
+                      className="text-l"
                       style={{ color: adminColors.textMuted }}
                     >
                       Cancel
@@ -385,7 +387,7 @@ export default function PaymentDetailModal({
                 size={13}
                 className="flex-shrink-0 mt-0.5 text-red-400"
               />
-              <p className="text-xs text-red-400">{error}</p>
+              <p className="text-l text-red-400">{error}</p>
             </div>
           )}
         </div>
@@ -406,7 +408,7 @@ function Row({
   return (
     <div>
       <p
-        className="text-[10px] font-semibold tracking-widest uppercase mb-1.5"
+        className="text-[16px] font-semibold tracking-widest uppercase mb-1.5"
         style={{ color: "rgba(245,158,11,0.6)" }}
       >
         {label}
@@ -422,11 +424,11 @@ function DetailLine({ label, value }: { label: string; value: string }) {
       className="flex items-center justify-between py-1.5 border-b"
       style={{ borderColor: "rgba(255,255,255,0.04)" }}
     >
-      <span className="text-xs" style={{ color: adminColors.textMuted }}>
+      <span className="text-l" style={{ color: adminColors.textMuted }}>
         {label}
       </span>
       <span
-        className="text-xs font-medium"
+        className="text-l font-medium"
         style={{ color: adminColors.textSecondary }}
       >
         {value}

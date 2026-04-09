@@ -136,7 +136,9 @@ export async function createWorkshop(
       const w = await tx.workshop.create({
         data: {
           title:       (formData.get("title") as string).trim(),
+          title_ar:    (formData.get("title_ar") as string).trim(),
           description: (formData.get("description") as string | null) || null,
+          description_ar: (formData.get("description_ar") as string | null) || null,
           coverUrl,
           imageUrls,
           videoUrls,
@@ -159,7 +161,9 @@ export async function createWorkshop(
       await tx.upcoming.create({
         data: {
           title:        w.title,
+          title_ar:     w.title_ar,
           description:  w.description,
+          description_ar: w.description_ar,
           mediaUrls:    imageUrls,
           videoUrls,
           thumbnailUrl: coverUrl,
@@ -238,7 +242,9 @@ export async function updateWorkshop(
       where: { id },
       data: {
         title:       (formData.get("title") as string).trim(),
+        title_ar:    (formData.get("title_ar") as string).trim(),
         description: (formData.get("description") as string | null) || null,
+        description_ar: (formData.get("description_ar") as string | null) || null,
         coverUrl,
         imageUrls,
         videoUrls,

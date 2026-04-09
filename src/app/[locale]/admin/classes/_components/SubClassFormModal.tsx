@@ -14,6 +14,7 @@ import {
   AdminButton,
   adminColors,
 } from "@/components/admin/ui";
+import { useTranslations } from "next-intl";
 
 interface Teacher {
   id: string;
@@ -48,6 +49,8 @@ export default function SubClassFormModal({
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [langTab, setLangTab] = useState<"en" | "ar">("en");
+  const t = useTranslations("admin");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,6 +70,12 @@ export default function SubClassFormModal({
     });
   };
 
+  const inputStyle = {
+    background: "rgba(255,255,255,0.04)",
+    borderColor: adminColors.border,
+    color: adminColors.textPrimary,
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
@@ -82,13 +91,13 @@ export default function SubClassFormModal({
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] shrink-0">
           <div>
             <h2
-              className="text-sm font-semibold"
+              className="text-xl font-semibold"
               style={{ color: adminColors.textPrimary }}
             >
               {editing ? "Edit Sub-Class" : "New Sub-Class"}
             </h2>
             <p
-              className="text-xs mt-0.5"
+              className="text-l mt-0.5"
               style={{ color: adminColors.textMuted }}
             >
               Under: {parentClass.name}
@@ -96,9 +105,9 @@ export default function SubClassFormModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <X size={15} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
 
@@ -109,18 +118,110 @@ export default function SubClassFormModal({
             onSubmit={handleSubmit}
             className="px-6 py-5 space-y-5"
           >
+            <div
+              className="flex items-center gap-1 p-1 rounded-lg w-fit"
+              style={{ background: "rgba(255,255,255,0.05)" }}
+            >
+              {(["en", "ar"] as const).map((lang) => (
+                <button
+                  key={lang}
+                  type="button"
+                  onClick={() => setLangTab(lang)}
+                  className="px-3 py-1 rounded-md text-xs font-medium transition-all"
+                  style={{
+                    background:
+                      langTab === lang
+                        ? "rgba(251,191,36,0.15)"
+                        : "transparent",
+                    color: langTab === lang ? "#fbbf24" : adminColors.textMuted,
+                    border:
+                      langTab === lang
+                        ? "1px solid rgba(251,191,36,0.3)"
+                        : "1px solid transparent",
+                  }}
+                >
+                  {lang === "en" ? "🇬🇧 English" : "🇴🇲 Arabic"}
+                </button>
+              ))}
+            </div>
             {/* ── Basic Info ── */}
             <Section title="Basic Info">
+              <div className="space-y-1.5">
+                <label
+                  className="text-l"
+                  style={{ color: adminColors.textSecondary }}
+                >
+                  Class Name <span className="text-red-400">*</span>
+                  {langTab === "ar" && (
+                    <span
+                      className="ml-1 text-[16px]"
+                      style={{ color: adminColors.textMuted }}
+                    >
+                      (Arabic)
+                    </span>
+                  )}
+                </label>
+                <input
+                  name="name"
+                  defaultValue={editing?.name ?? ""}
+                  placeholder="e.g. Dance, Painting, Music"
+                  className="w-full text-l rounded-lg border px-3 py-2 outline-none"
+                  style={{
+                    ...inputStyle,
+                    display: langTab === "en" ? "block" : "none",
+                  }}
+                />
+                <input
+                  name="name_ar"
+                  defaultValue={(editing as any)?.name_ar ?? ""}
+                  dir="rtl"
+                  placeholder="مثال: رقص، رسم، موسيقى"
+                  className="w-full text-l rounded-lg border px-3 py-2 outline-none"
+                  style={{
+                    ...inputStyle,
+                    fontFamily: "var(--font-layla, sans-serif)",
+                    display: langTab === "ar" ? "block" : "none",
+                  }}
+                />
+              </div>
+              {/* Description */}
+              <div className="space-y-1.5">
+                <label className="text-l">
+                  Description
+                  {langTab === "ar" && (
+                    <span
+                      className="ml-1 text-[16px]"
+                      style={{ color: adminColors.textMuted }}
+                    >
+                      (Arabic)
+                    </span>
+                  )}
+                </label>
+                <textarea
+                  name="description"
+                  defaultValue={editing?.description ?? ""}
+                  rows={3}
+                  className="w-full text-l rounded-lg border px-3 py-2 outline-none resize-none"
+                  style={{
+                    ...inputStyle,
+                    display: langTab === "en" ? "block" : "none",
+                  }}
+                />
+                <textarea
+                  name="description_ar"
+                  defaultValue={(editing as any)?.description_ar ?? ""}
+                  rows={3}
+                  dir="rtl"
+                  placeholder="الوصف بالعربي"
+                  className="w-full text-l rounded-lg border px-3 py-2 outline-none resize-none"
+                  style={{
+                    ...inputStyle,
+                    fontFamily: "var(--font-layla, sans-serif)",
+                    display: langTab === "ar" ? "block" : "none",
+                  }}
+                />
+              </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="col-span-2">
-                  <AdminInput
-                    label="Name *"
-                    name="name"
-                    placeholder="e.g. Violin for Kids, Ballet Beginner"
-                    defaultValue={editing?.name ?? ""}
-                    required
-                  />
-                </div>
                 <AdminSelect
                   label="Session Type"
                   name="sessionType"
@@ -151,12 +252,6 @@ export default function SubClassFormModal({
                   ))}
                 </AdminSelect>
               </div>
-              <AdminTextarea
-                label="Description"
-                name="description"
-                placeholder="What will students learn in this class?"
-                defaultValue={editing?.description ?? ""}
-              />
             </Section>
 
             {/* ── Class Details ── */}
@@ -285,7 +380,7 @@ export default function SubClassFormModal({
             </Section>
 
             {error && (
-              <p className="text-xs px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+              <p className="text-l px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
                 {error}
               </p>
             )}
@@ -318,7 +413,7 @@ function Section({
   return (
     <div className="space-y-3">
       <p
-        className="text-[10px] font-semibold tracking-widest uppercase"
+        className="text-[15px] font-semibold tracking-widest uppercase"
         style={{ color: "rgba(245,158,11,0.6)" }}
       >
         {title}

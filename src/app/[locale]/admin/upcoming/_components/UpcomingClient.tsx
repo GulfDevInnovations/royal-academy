@@ -40,6 +40,7 @@ import {
 } from "@/lib/actions/admin/content.actions";
 import { toggleWorkshopActive } from "@/lib/actions/admin/Workshops.actions";
 import ContentFormModal from "./ContentFormModal";
+import { useTranslations } from "next-intl";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -65,6 +66,9 @@ export type SerializedUpcoming = {
   workshopId: string | null; // non-null = this row belongs to a workshop
   createdAt: string;
   updatedAt: string;
+  title_ar?: string | null;
+  subtitle_ar?: string | null;
+  description_ar?: string | null;
 };
 
 type Modal =
@@ -94,6 +98,7 @@ export default function UpcomingClient({
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [isPending, startTransition] = useTransition();
   const { toasts, toast, remove } = useToast();
+  const t = useTranslations("admin");
 
   const reloadItems = useCallback(async () => {
     const fresh = await getUpcomingItems();
@@ -227,7 +232,7 @@ export default function UpcomingClient({
     .sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-8xl mx-auto">
       <ToastContainer toasts={toasts} onRemove={remove} />
 
       <AdminPageHeader
@@ -238,7 +243,7 @@ export default function UpcomingClient({
             variant="primary"
             onClick={() => setModal({ type: "create" })}
           >
-            <Plus size={14} /> New Upcoming
+            <Plus size={18} /> {t("newUpcoming")}
           </AdminButton>
         }
       />
@@ -246,25 +251,25 @@ export default function UpcomingClient({
       {/* Filters */}
       <AdminCard>
         <div className="flex items-center gap-3 flex-wrap">
-          <Filter size={13} style={{ color: adminColors.textMuted }} />
-          <span className="text-xs" style={{ color: adminColors.textMuted }}>
-            Filter:
+          <Filter size={16} style={{ color: adminColors.textMuted }} />
+          <span className="text-l" style={{ color: adminColors.textMuted }}>
+            {t("filter")}
           </span>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="text-xs rounded-lg border px-2.5 py-1.5 outline-none"
+            className="text-l rounded-lg border px-2.5 py-1.5 outline-none"
             style={{
               background: "rgba(255,255,255,0.04)",
               borderColor: adminColors.border,
               color: adminColors.textSecondary,
             }}
           >
-            <option value="ALL">All statuses</option>
-            <option value="ACTIVE">Active</option>
-            <option value="DRAFT">Draft</option>
-            <option value="EXPIRED">Expired</option>
-            <option value="ARCHIVED">Archived</option>
+            <option value="ALL">{t("allStatuses")}</option>
+            <option value="ACTIVE">{t("active")}</option>
+            <option value="DRAFT">{t("draft")}</option>
+            <option value="EXPIRED">{t("expired")}</option>
+            <option value="ARCHIVED">{t("archived")}</option>
           </select>
 
           {/* Legend */}
@@ -275,17 +280,17 @@ export default function UpcomingClient({
               border: "1px solid rgba(255,255,255,0.06)",
             }}
           >
-            <Wrench size={11} style={{ color: adminColors.accent }} />
+            <Wrench size={16} style={{ color: adminColors.accent }} />
             <span
-              className="text-[11px]"
+              className="text-[16px]"
               style={{ color: adminColors.textMuted }}
             >
-              Workshop — manage details from the Workshops page
+              {t("workshopNote")}
             </span>
           </div>
 
           <span
-            className="ml-auto text-xs"
+            className="ml-auto text-l"
             style={{ color: adminColors.textMuted }}
           >
             {filtered.length} item{filtered.length !== 1 ? "s" : ""}
@@ -304,7 +309,7 @@ export default function UpcomingClient({
                 variant="primary"
                 onClick={() => setModal({ type: "create" })}
               >
-                <Plus size={14} /> New Upcoming
+                <Plus size={18} /> {t("newUpcoming")}
               </AdminButton>
             }
           />
@@ -313,14 +318,14 @@ export default function UpcomingClient({
         <AdminCard noPadding>
           <AdminTable>
             <AdminThead>
-              <AdminTh>Thumbnail</AdminTh>
-              <AdminTh>Title</AdminTh>
-              <AdminTh>Type</AdminTh>
-              <AdminTh>Event Date</AdminTh>
-              <AdminTh>Status</AdminTh>
-              <AdminTh>Active</AdminTh>
-              <AdminTh>Sort</AdminTh>
-              <AdminTh className="text-right">Actions</AdminTh>
+              <AdminTh>{t("thumbnail")}</AdminTh>
+              <AdminTh>{t("name")}</AdminTh>
+              <AdminTh>{t("type")}</AdminTh>
+              <AdminTh>{t("eventDate")}</AdminTh>
+              <AdminTh>{t("status")}</AdminTh>
+              <AdminTh>{t("active")}</AdminTh>
+              <AdminTh>{t("sort")}</AdminTh>
+              <AdminTh className="text-right">{t("actions")}</AdminTh>
             </AdminThead>
             <AdminTbody>
               {filtered.map((item) => {
@@ -343,7 +348,7 @@ export default function UpcomingClient({
                           />
                         ) : (
                           <CalendarClock
-                            size={16}
+                            size={19}
                             style={{ color: adminColors.textMuted }}
                           />
                         )}
@@ -354,14 +359,14 @@ export default function UpcomingClient({
                     <AdminTd>
                       <div className="flex flex-col gap-0.5">
                         <span
-                          className="text-xs font-medium"
+                          className="text-l font-medium"
                           style={{ color: adminColors.textPrimary }}
                         >
                           {item.title}
                         </span>
                         {item.subtitle && (
                           <span
-                            className="text-[11px]"
+                            className="text-[16px]"
                             style={{ color: adminColors.textMuted }}
                           >
                             {item.subtitle}
@@ -375,11 +380,11 @@ export default function UpcomingClient({
                       {isWorkshop ? (
                         <div className="flex items-center gap-1.5">
                           <Wrench
-                            size={11}
+                            size={16}
                             style={{ color: adminColors.accent }}
                           />
                           <span
-                            className="text-[11px] font-medium"
+                            className="text-[16px] font-medium"
                             style={{ color: adminColors.accent }}
                           >
                             Workshop
@@ -387,7 +392,7 @@ export default function UpcomingClient({
                         </div>
                       ) : (
                         <span
-                          className="text-[11px]"
+                          className="text-[16px]"
                           style={{ color: adminColors.textMuted }}
                         >
                           Upcoming
@@ -398,7 +403,7 @@ export default function UpcomingClient({
                     {/* Event Date */}
                     <AdminTd>
                       <span
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textSecondary }}
                       >
                         {item.eventDate
@@ -425,7 +430,7 @@ export default function UpcomingClient({
                               e.target.value as SerializedUpcoming["status"],
                             )
                           }
-                          className="text-[11px] rounded-lg border px-2 py-1 outline-none transition-colors"
+                          className="text-[16px] rounded-lg border px-2 py-1 outline-none transition-colors"
                           style={{
                             background:
                               item.status === "ACTIVE"
@@ -448,8 +453,12 @@ export default function UpcomingClient({
                           }}
                         >
                           <option value="DRAFT">DRAFT</option>
-                          <option value="ACTIVE">ACTIVE</option>
-                          <option value="ARCHIVED">ARCHIVED</option>
+                          <option className="text-green-700" value="ACTIVE">
+                            ACTIVE
+                          </option>
+                          <option className="text-blue-700" value="ARCHIVED">
+                            ARCHIVED
+                          </option>
                         </select>
                       ) : (
                         <AdminBadge variant={STATUS_VARIANT[item.status]}>
@@ -474,9 +483,9 @@ export default function UpcomingClient({
                         }}
                       >
                         {item.isActive ? (
-                          <ToggleRight size={20} />
+                          <ToggleRight size={24} />
                         ) : (
-                          <ToggleLeft size={20} />
+                          <ToggleLeft size={24} />
                         )}
                       </button>
                     </AdminTd>
@@ -490,10 +499,10 @@ export default function UpcomingClient({
                           className="p-0.5 rounded hover:bg-white/[0.06] transition-colors"
                           style={{ color: adminColors.textMuted }}
                         >
-                          <ChevronUp size={13} />
+                          <ChevronUp size={18} />
                         </button>
                         <span
-                          className="text-[10px] text-center"
+                          className="text-[15px] text-center"
                           style={{ color: adminColors.textMuted }}
                         >
                           {item.sortOrder}
@@ -504,7 +513,7 @@ export default function UpcomingClient({
                           className="p-0.5 rounded hover:bg-white/[0.06] transition-colors"
                           style={{ color: adminColors.textMuted }}
                         >
-                          <ChevronDown size={13} />
+                          <ChevronDown size={18} />
                         </button>
                       </div>
                     </AdminTd>
@@ -513,10 +522,10 @@ export default function UpcomingClient({
                     <AdminTd className="text-right">
                       {isWorkshop ? (
                         <span
-                          className="text-[11px] italic"
+                          className="text-[16px] italic"
                           style={{ color: adminColors.textMuted }}
                         >
-                          Edit in Workshops
+                          {t("editInWorkshops")}
                         </span>
                       ) : (
                         <div className="flex items-center justify-end gap-1">
@@ -527,7 +536,7 @@ export default function UpcomingClient({
                               setModal({ type: "edit", data: item })
                             }
                           >
-                            <Pencil size={13} />
+                            <Pencil size={18} />
                           </AdminButton>
                           <AdminButton
                             variant="danger"
@@ -536,7 +545,7 @@ export default function UpcomingClient({
                               setModal({ type: "delete", data: item })
                             }
                           >
-                            <Trash2 size={13} />
+                            <Trash2 size={18} />
                           </AdminButton>
                         </div>
                       )}

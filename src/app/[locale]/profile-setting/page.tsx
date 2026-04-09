@@ -4,16 +4,17 @@ import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { saveProfileSettings } from "./actions";
-import TimedAlert from "./TimedAlert";
-import ScrollToMissingField from "./ScrollToMissingField";
-import InlineRequiredValidation from "./InlineRequiredValidation";
-import UnsavedChangesGuard from "./UnsavedChangesGuard";
-import MedicalConditionField from "./MedicalConditionField";
-import AvatarUploadField from "./AvatarUploadField";
-import TermsConsentField from "./TermsConsentField";
-import CountryCityFields from "./CountryCityFields";
-import GlassSelectField from "./GlassSelectField";
+import { saveProfileSettings } from "../../../lib/actions/profileSetting.actions";
+import TimedAlert from "./_components/TimedAlert";
+import ScrollToMissingField from "./_components/ScrollToMissingField";
+import InlineRequiredValidation from "./_components/InlineRequiredValidation";
+import UnsavedChangesGuard from "./_components/UnsavedChangesGuard";
+import MedicalConditionField from "./_components/MedicalConditionField";
+import AvatarUploadField from "./_components/AvatarUploadField";
+import TermsConsentField from "./_components/TermsConsentField";
+import CountryCityFields from "./_components/CountryCityFields";
+import GlassSelectField from "./_components/GlassSelectField";
+import DatePicker from "../../../components/date-time/DatePicker";
 
 const PROFILE_DRAFT_COOKIE = "profile_setting_draft";
 
@@ -263,6 +264,11 @@ export default async function ProfileSettingPage({
     "phone",
     "emergencyContactName",
     "emergencyContactPhone",
+    "emergencyRelationship",
+    "country",
+    "city",
+    "preferredTrack",
+    "experience",
     "agreePolicy",
   ];
   const missingFields = [...missingSet];
@@ -317,7 +323,7 @@ export default async function ProfileSettingPage({
     : "";
   const dateOfBirth = draft?.dateOfBirth ?? dbDateOfBirth;
   const gender = draft?.gender ?? dbUser?.studentProfile?.gender ?? "";
-  const address = draft?.address ?? dbUser?.studentProfile?.address ?? "";
+  const district = draft?.address ?? dbUser?.studentProfile?.address ?? "";
   const city = draft?.city ?? dbUser?.studentProfile?.city ?? "";
   const country = draft?.country ?? dbUser?.studentProfile?.country ?? "";
   const emergencyName =
@@ -335,6 +341,7 @@ export default async function ProfileSettingPage({
     "";
   const emergencyRelationshipValue =
     emergencyRelationship === "PARENT" ||
+    emergencyRelationship === "SIBLING" ||
     emergencyRelationship === "GUARDIAN" ||
     emergencyRelationship === "FRIEND" ||
     emergencyRelationship === "OTHER"
@@ -368,6 +375,11 @@ export default async function ProfileSettingPage({
     phone,
     emergencyName,
     emergencyPhone,
+    emergencyRelationship,
+    country,
+    city,
+    preferredTrack,
+    experience,
   };
   const requiredTotal = Object.keys(requiredFieldValues).length + 1;
   const requiredMissingCount =
@@ -409,7 +421,6 @@ export default async function ProfileSettingPage({
         phone: "رقم الهاتف",
         dob: "تاريخ الميلاد",
         gender: "الجنس",
-        address: "العنوان",
         country: "الدولة",
         city: "المدينة",
         countryPlaceholder: "ابحث عن الدولة",
@@ -421,8 +432,9 @@ export default async function ProfileSettingPage({
         emergencyName: "اسم جهة الطوارئ",
         emergencyPhone: "رقم جهة الطوارئ",
         relationship: "صلة القرابة",
-        selectRelationship: "اختر صلة القرابة (اختياري)",
+        selectRelationship: "اختر صلة القرابة",
         relationshipParent: "ولي أمر",
+        relationShipSiblings: "أخ أو أخت",
         relationshipGuardian: "وصي",
         relationshipFriend: "صديق",
         relationshipOther: "أخرى",
@@ -451,6 +463,8 @@ export default async function ProfileSettingPage({
         termsSections: termsSectionsAr,
         save: "حفظ البيانات",
         back: "العودة إلى الرئيسية",
+        address: "الحي",
+        addressPlaceholder: "انقر واختر حيتك",
       }
     : {
         title: "Profile Settings",
@@ -481,7 +495,6 @@ export default async function ProfileSettingPage({
         phone: "Phone Number",
         dob: "Date of Birth",
         gender: "Gender",
-        address: "Address",
         country: "Country",
         city: "City",
         countryPlaceholder: "Search country",
@@ -493,8 +506,9 @@ export default async function ProfileSettingPage({
         emergencyName: "Emergency Contact Name",
         emergencyPhone: "Emergency Contact Phone",
         relationship: "Relationship",
-        selectRelationship: "Select relationship (optional)",
+        selectRelationship: "Select relationship",
         relationshipParent: "Parent",
+        relationShipSiblings: "Sibling",
         relationshipGuardian: "Guardian",
         relationshipFriend: "Friend",
         relationshipOther: "Other",
@@ -525,6 +539,8 @@ export default async function ProfileSettingPage({
         termsSections: termsSectionsEn,
         save: "Save Profile",
         back: "Back to Home",
+        address: "District",
+        addressPlaceholder: "Click and select your district",
       };
 
   const genderA11y = getFieldA11y("gender");
@@ -537,6 +553,7 @@ export default async function ProfileSettingPage({
   const relationshipOptions = [
     { value: "", label: content.selectRelationship },
     { value: "PARENT", label: content.relationshipParent },
+    { value: "SIBLING", label: content.relationShipSiblings },
     { value: "GUARDIAN", label: content.relationshipGuardian },
     { value: "FRIEND", label: content.relationshipFriend },
     { value: "OTHER", label: content.relationshipOther },
@@ -566,7 +583,7 @@ export default async function ProfileSettingPage({
   return (
     <main
       className="min-h-screen px-4 py-14 md:py-16"
-      style={{ background: "#13161f" }}
+      style={{ background: "#227b81" }}
     >
       <div
         className="fixed inset-0 pointer-events-none"
@@ -574,7 +591,7 @@ export default async function ProfileSettingPage({
           backgroundImage: "url('/images/pattern.png')",
           backgroundRepeat: "repeat",
           backgroundSize: "1200px auto",
-          opacity: 0.02,
+          opacity: 0.009,
         }}
       />
 
@@ -708,20 +725,20 @@ export default async function ProfileSettingPage({
                 />
                 {renderRequiredMessage("lastName")}
               </label>
-              <label htmlFor="dateOfBirth" className="block">
-                <span className="text-sm">
-                  {content.dob} <span style={{ color: "#f87171" }}>*</span>
-                </span>
-                <input
-                  id="dateOfBirth"
-                  type="date"
-                  className={fieldClassName}
-                  style={inputStyle()}
-                  name="dateOfBirth"
-                  defaultValue={dateOfBirth}
-                  required
-                  {...getFieldA11y("dateOfBirth")}
-                />
+              <label className="block">
+                <div className="block">
+                  <DatePicker
+                    id="dateOfBirth"
+                    name="dateOfBirth"
+                    label={content.dob}
+                    defaultValue={dateOfBirth}
+                    locale={locale as "en" | "ar"}
+                    required
+                    fieldClassName={fieldClassName}
+                    inputStyle={inputStyle()}
+                  />
+                  {renderRequiredMessage("dateOfBirth")}
+                </div>
                 {renderRequiredMessage("dateOfBirth")}
               </label>
               <label htmlFor="genderDisplay" className="block">
@@ -794,31 +811,24 @@ export default async function ProfileSettingPage({
                 </div>
                 {renderRequiredMessage("phone")}
               </label>
-              <label htmlFor="address" className="block md:col-span-2">
-                <span className="text-sm">{content.address}</span>
-                <input
-                  id="address"
-                  className={fieldClassName}
-                  style={inputStyle()}
-                  name="address"
-                  defaultValue={address}
-                />
-              </label>
               <CountryCityFields
-                locale={locale}
+                locale={locale as "en" | "ar"}
                 countryLabel={content.country}
                 cityLabel={content.city}
+                districtLabel={content.address}
+                districtPlaceholder={content.addressPlaceholder}
                 countryPlaceholder={content.countryPlaceholder}
                 cityPlaceholder={content.cityPlaceholder}
                 noResultsText={content.noResults}
                 selectCountryFirstText={content.selectCountryFirst}
-                loadingText={content.loadingLocations}
-                loadErrorText={content.locationLoadError}
                 initialCountry={country}
                 initialCity={city}
+                initialDistrict={district}
                 inputClassName={fieldClassName}
                 inputStyle={inputStyle()}
               />
+              {renderRequiredMessage("country")}
+              {renderRequiredMessage("city")}
             </div>
           </MobileSection>
 
@@ -884,6 +894,7 @@ export default async function ProfileSettingPage({
                   inputClassName={fieldClassName}
                   inputStyle={inputStyle()}
                 />
+                {renderRequiredMessage("emergencyRelationship")}
               </label>
             </div>
           </MobileSection>
@@ -908,6 +919,7 @@ export default async function ProfileSettingPage({
                   inputClassName={fieldClassName}
                   inputStyle={inputStyle()}
                 />
+                {renderRequiredMessage("preferredTrack")}
               </label>
               <label htmlFor="experienceDisplay" className="block">
                 <span className="text-sm">{content.level}</span>
@@ -927,6 +939,7 @@ export default async function ProfileSettingPage({
                   inputClassName={fieldClassName}
                   inputStyle={inputStyle()}
                 />
+                {renderRequiredMessage("experience")}
               </label>
               <label htmlFor="notes" className="block md:col-span-2">
                 <span className="text-sm">{content.notes}</span>
@@ -965,6 +978,8 @@ export default async function ProfileSettingPage({
                 cancelText={content.termsCancel}
                 confirmText={content.termsConfirm}
                 acceptedHint={content.termsAccepted}
+                readTermsHint="Please read the terms and check the box at the end — this is required"
+                acceptText="Accept"
                 fieldA11y={getFieldA11y("agreePolicy")}
               />
               {renderRequiredMessage("agreePolicy")}

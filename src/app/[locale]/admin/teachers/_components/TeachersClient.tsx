@@ -44,6 +44,8 @@ import DeleteConfirmModal from "../../../../../components/admin/DeleteConfirmMod
 import SmsModal, {
   type SmsRecipient,
 } from "../../students/_components/SmsModal";
+import { useTranslations } from "next-intl";
+import { color } from "framer-motion";
 
 type Modal =
   | { type: "add" }
@@ -62,6 +64,7 @@ export default function TeachersClient({ initialTeachers, allClasses }: Props) {
   const [, startRefresh] = useTransition();
   const [modal, setModal] = useState<Modal | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const t = useTranslations("admin");
 
   // ── Helpers ──
   const handleSuccess = () => {
@@ -134,23 +137,24 @@ export default function TeachersClient({ initialTeachers, allClasses }: Props) {
   };
 
   return (
-    <div className="space-y-4 max-w-6xl mx-auto">
+    <div className="space-y-4 max-w-8xl mx-auto">
       <AdminPageHeader
         title="Teachers"
         subtitle={`${initialTeachers.length} teacher${initialTeachers.length !== 1 ? "s" : ""}`}
         action={
           <div className="flex items-center gap-2">
-            <AdminButton
-              variant="ghost"
+            <button
+              className="gap-1 flex items-center justify-center px-5 py-2 rounded-xl border cursor-pointer hover:bg-white/5 transition-colors"
+              style={{ color: adminColors.blueText }}
               onClick={() => exportToExcel(initialTeachers)}
             >
-              <Download size={14} /> Export all
-            </AdminButton>
+              <Download size={18} /> {t("export")}
+            </button>
             <AdminButton
               variant="primary"
               onClick={() => setModal({ type: "add" })}
             >
-              <Plus size={14} /> New Teacher
+              <Plus size={18} /> {t("newTeacher")}
             </AdminButton>
           </div>
         }
@@ -162,38 +166,38 @@ export default function TeachersClient({ initialTeachers, allClasses }: Props) {
           className="flex items-center gap-3 px-5 py-3 rounded-xl border shadow-xl"
           style={{ background: "#1e2130", borderColor: "rgba(245,158,11,0.3)" }}
         >
-          <span className="text-sm font-semibold" style={{ color: "#f59e0b" }}>
+          <span className="text-xl font-semibold" style={{ color: "#f59e0b" }}>
             {selected.size} selected
           </span>
           <div className="flex-1" />
           <button
             onClick={() => setModal({ type: "sms", ids: [...selected] })}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-l font-medium border transition-colors"
             style={{
               borderColor: "rgba(96,165,250,0.3)",
               color: "#60a5fa",
               background: "rgba(96,165,250,0.08)",
             }}
           >
-            <MessageSquare size={13} /> Send SMS
+            <MessageSquare size={16} /> Send SMS
           </button>
           <button
             onClick={() => exportToExcel(selectedTeachers)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-l font-medium border transition-colors"
             style={{
               borderColor: adminColors.border,
               color: adminColors.textSecondary,
               background: "rgba(255,255,255,0.04)",
             }}
           >
-            <Download size={13} /> Export selected
+            <Download size={16} /> {t("exportSelected")}
           </button>
           <button
             onClick={() => setSelected(new Set())}
             className="p-1.5 rounded-lg transition-colors"
             style={{ color: adminColors.textMuted }}
           >
-            <X size={14} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
       )}
@@ -209,7 +213,7 @@ export default function TeachersClient({ initialTeachers, allClasses }: Props) {
                 variant="primary"
                 onClick={() => setModal({ type: "add" })}
               >
-                <Plus size={14} /> New Teacher
+                <Plus size={16} /> {t("newTeacher")}
               </AdminButton>
             }
           />
@@ -222,18 +226,18 @@ export default function TeachersClient({ initialTeachers, allClasses }: Props) {
                   className="text-white/40 hover:text-white/70 transition-colors"
                 >
                   {allSelected ? (
-                    <CheckSquare size={15} />
+                    <CheckSquare size={19} />
                   ) : (
-                    <Square size={15} />
+                    <Square size={19} />
                   )}
                 </button>
               </AdminTh>
-              <AdminTh>Teacher</AdminTh>
-              <AdminTh>Sub-classes</AdminTh>
-              <AdminTh>Schedules</AdminTh>
-              <AdminTh>Availability</AdminTh>
-              <AdminTh>Status</AdminTh>
-              <AdminTh className="text-right">Actions</AdminTh>
+              <AdminTh>{t("teacher")}</AdminTh>
+              <AdminTh>{t("subClass")}</AdminTh>
+              <AdminTh>{t("schedule")}</AdminTh>
+              <AdminTh>{t("availability")}</AdminTh>
+              <AdminTh>{t("status")}</AdminTh>
+              <AdminTh className="text-right">{t("actions")}</AdminTh>
             </AdminThead>
             <AdminTbody>
               {initialTeachers.map((teacher) => {
@@ -252,9 +256,9 @@ export default function TeachersClient({ initialTeachers, allClasses }: Props) {
                         }}
                       >
                         {isSelected ? (
-                          <CheckSquare size={15} />
+                          <CheckSquare size={19} />
                         ) : (
-                          <Square size={15} />
+                          <Square size={19} />
                         )}
                       </button>
                     </AdminTd>
@@ -282,20 +286,20 @@ export default function TeachersClient({ initialTeachers, allClasses }: Props) {
                         )}
                         <div>
                           <p
-                            className="text-sm font-medium"
+                            className="text-xl font-medium"
                             style={{ color: adminColors.textPrimary }}
                           >
                             {teacher.firstName} {teacher.lastName}
                           </p>
                           <p
-                            className="text-xs"
+                            className="text-l"
                             style={{ color: adminColors.textMuted }}
                           >
                             {teacher.user?.phone ? (
                               teacher.user?.phone
                             ) : (
                               <span style={{ color: "rgba(248,113,113,0.6)" }}>
-                                No phone
+                                {t("noPhone")}
                               </span>
                             )}
                           </p>
@@ -331,17 +335,17 @@ export default function TeachersClient({ initialTeachers, allClasses }: Props) {
                     <AdminTd>
                       {teacher.isAvailable ? (
                         <span
-                          className="flex items-center gap-1.5 text-xs"
+                          className="flex items-center gap-1.5 text-l"
                           style={{ color: "#34d399" }}
                         >
-                          <CheckCircle2 size={13} /> Available
+                          <CheckCircle2 size={19} /> {t("available")}
                         </span>
                       ) : (
                         <span
-                          className="flex items-center gap-1.5 text-xs"
+                          className="flex items-center gap-1.5 text-l"
                           style={{ color: "#f87171" }}
                         >
-                          <XCircle size={13} /> Unavailable
+                          <XCircle size={19} /> {t("unavailable")}
                         </span>
                       )}
                     </AdminTd>
@@ -351,7 +355,7 @@ export default function TeachersClient({ initialTeachers, allClasses }: Props) {
                       <AdminBadge
                         variant={teacher.isActive ? "success" : "default"}
                       >
-                        {teacher.isActive ? "Active" : "Inactive"}
+                        {teacher.isActive ? t("active") : "Inactive"}
                       </AdminBadge>
                     </AdminTd>
 
@@ -362,28 +366,28 @@ export default function TeachersClient({ initialTeachers, allClasses }: Props) {
                           onClick={() =>
                             setModal({ type: "sms", ids: [teacher.id] })
                           }
-                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-blue-400 hover:bg-blue-500/[0.08]"
+                          className="p-1.5 rounded-lg transition-colors text-purple-600 hover:text-purple-400 hover:bg-blue-500/[0.08]"
                           title="Send SMS"
                         >
-                          <MessageSquare size={13} />
+                          <MessageSquare size={20} />
                         </button>
                         <button
                           onClick={() =>
                             setModal({ type: "edit", data: teacher })
                           }
-                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-white/70 hover:bg-white/[0.05]"
+                          className="p-1.5 rounded-lg transition-colors text-blue-400 hover:text-blue-600 hover:bg-white/5"
                           title="Edit"
                         >
-                          <Pencil size={13} />
+                          <Pencil size={20} />
                         </button>
                         <button
                           onClick={() =>
                             setModal({ type: "delete", data: teacher })
                           }
-                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/[0.08]"
+                          className="p-1.5 rounded-lg transition-colors text-red-800 hover:text-red-500 hover:bg-white/5"
                           title="Delete"
                         >
-                          <Trash2 size={13} />
+                          <Trash2 size={20} />
                         </button>
                       </div>
                     </AdminTd>

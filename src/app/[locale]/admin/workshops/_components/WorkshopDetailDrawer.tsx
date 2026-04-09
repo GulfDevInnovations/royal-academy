@@ -20,6 +20,7 @@ import {
 import { adminColors, AdminButton, AdminBadge } from "@/components/admin/ui";
 import type { SerializedWorkshop } from "../page";
 import EnrollStudentModal from "./EnrollStudentModal";
+import { useTranslations } from "next-intl";
 
 interface Props {
   workshop: SerializedWorkshop;
@@ -91,6 +92,7 @@ export default function WorkshopDetailDrawer({
   const [loading, setLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [showEnroll, setShowEnroll] = useState(false);
+  const t = useTranslations("admin");
 
   const loadBookings = () => {
     setLoading(true);
@@ -200,9 +202,9 @@ export default function WorkshopDetailDrawer({
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-white/30 hover:text-white/60 hover:bg-white/[0.05] transition-colors"
+              className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
             >
-              <X size={15} />
+              <X size={16} style={{ color: adminColors.pinkText }} />
             </button>
           </div>
 
@@ -212,14 +214,17 @@ export default function WorkshopDetailDrawer({
             style={{ borderColor: "rgba(255,255,255,0.05)" }}
           >
             <div className="flex justify-between text-xs mb-1.5">
-              <span style={{ color: adminColors.textSecondary }}>Capacity</span>
+              <span style={{ color: adminColors.textSecondary }}>
+                {t("capacity")}
+              </span>
               <span
                 style={{
                   color:
                     seatsLeft === 0 ? "#f87171" : adminColors.textSecondary,
                 }}
               >
-                {seatsLeft} seat{seatsLeft !== 1 ? "s" : ""} remaining
+                {seatsLeft} {t("seat")}
+                {seatsLeft !== 1 ? "s" : ""} {t("remaining")}
               </span>
             </div>
             <div
@@ -245,7 +250,7 @@ export default function WorkshopDetailDrawer({
               className="text-xs"
               style={{ color: adminColors.textSecondary }}
             >
-              Price per seat
+              {t("price")} per {t("seat")}
             </span>
             <span
               className="text-sm font-semibold"
@@ -283,13 +288,13 @@ export default function WorkshopDetailDrawer({
               <div className="flex flex-col items-center justify-center py-12 text-center px-6">
                 <Users size={28} className="mb-3 text-white/10" />
                 <p className="text-sm" style={{ color: adminColors.textMuted }}>
-                  No enrollments yet
+                  {t("noEnrollmentsYet")}
                 </p>
                 <p
                   className="text-xs mt-1"
                   style={{ color: adminColors.textMuted }}
                 >
-                  Use the button above to enroll a student
+                  {t("useButtonAbove")}
                 </p>
               </div>
             ) : (

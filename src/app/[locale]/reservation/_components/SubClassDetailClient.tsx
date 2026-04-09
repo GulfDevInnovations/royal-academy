@@ -61,12 +61,18 @@ const DAY_ORDER = [
 
 /** Find a teacher schedule matching a daySlotKey ("DAY|startTime|endTime"). */
 function scheduleForKey(
-  schedules: Array<{ dayOfWeek: string; startTime: string; endTime: string; endDate: string | null }>,
+  schedules: Array<{
+    dayOfWeek: string;
+    startTime: string;
+    endTime: string;
+    endDate: string | null;
+  }>,
   key: string,
 ) {
   const [day, startTime, endTime] = key.split("|");
   return schedules.find(
-    (s) => s.dayOfWeek === day && s.startTime === startTime && s.endTime === endTime,
+    (s) =>
+      s.dayOfWeek === day && s.startTime === startTime && s.endTime === endTime,
   );
 }
 
@@ -143,14 +149,16 @@ export function SubClassDetailClient({
 
   // Max months for ONCE — slot's own endDate relative to chosen start month
   const onceMaxMonths = useMemo(() => {
-    if (!selectedMonth || selectedSlotKeys.length < 1 || !selectedTeacher) return 12;
+    if (!selectedMonth || selectedSlotKeys.length < 1 || !selectedTeacher)
+      return 12;
     const s = scheduleForKey(selectedTeacher.schedules, selectedSlotKeys[0]);
     return computeMaxMonths(s?.endDate ?? null, selectedMonth);
   }, [selectedMonth, selectedSlotKeys, selectedTeacher]);
 
   // Max months for TWICE — min endDate across both selected slots + chosen start month
   const twiceMaxMonths = useMemo(() => {
-    if (!selectedMonth || selectedSlotKeys.length < 2 || !selectedTeacher) return 12;
+    if (!selectedMonth || selectedSlotKeys.length < 2 || !selectedTeacher)
+      return 12;
     const minEndDate = selectedSlotKeys.reduce<string | null>((min, key) => {
       const s = scheduleForKey(selectedTeacher.schedules, key);
       if (!s?.endDate) return min;
@@ -240,8 +248,10 @@ export function SubClassDetailClient({
   const canProceed = useMemo(() => {
     if (!selectedTeacher || !plan) return false;
     if (plan === "TRIAL") return !!selectedSlot;
-    if (plan === "ONCE") return !!selectedMonth && selectedSlotKeys.length === 1;
-    if (plan === "TWICE") return selectedSlotKeys.length === 2 && !!selectedMonth;
+    if (plan === "ONCE")
+      return !!selectedMonth && selectedSlotKeys.length === 1;
+    if (plan === "TWICE")
+      return selectedSlotKeys.length === 2 && !!selectedMonth;
     return false;
   }, [selectedTeacher, plan, selectedSlot, selectedSlotKeys, selectedMonth]);
 
@@ -339,19 +349,45 @@ export function SubClassDetailClient({
     if (plan === "ONCE") {
       if (!selectedMonth) return "Select Starting Month";
       if (selectedSlotKeys.length < 1) return "Choose Your Preferred Day";
-      return isMultiMonth ? `Enroll for ${totalMonths} Months` : "Proceed to Payment";
+      return isMultiMonth
+        ? `Enroll for ${totalMonths} Months`
+        : "Proceed to Payment";
     }
     if (plan === "TWICE") {
       if (selectedSlotKeys.length < 2)
         return `Choose ${2 - selectedSlotKeys.length} More Slot${2 - selectedSlotKeys.length > 1 ? "s" : ""}`;
       if (!selectedMonth) return "Select Starting Month";
-      return isMultiMonth ? `Enroll for ${totalMonths} Months` : "Proceed to Payment";
+      return isMultiMonth
+        ? `Enroll for ${totalMonths} Months`
+        : "Proceed to Payment";
     }
     return "Proceed to Payment";
-  }, [selectedTeacher, plan, selectedSlot, selectedMonth, selectedSlotKeys, isMultiMonth, totalMonths]);
+  }, [
+    selectedTeacher,
+    plan,
+    selectedSlot,
+    selectedMonth,
+    selectedSlotKeys,
+    isMultiMonth,
+    totalMonths,
+  ]);
 
   return (
-    <main className="min-h-screen pt-24 pb-20">
+    <main
+      className="min-h-screen pt-24 pb-20"
+      style={{ background: "#070208" }}
+    >
+      {/* Background pattern */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          backgroundImage: "url('/images/pattern.svg')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "1600px auto",
+          opacity: 0.005,
+          filter: "sepia(1) saturate(0.5) brightness(2)",
+        }}
+      />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back */}
         <button
@@ -872,8 +908,18 @@ export function SubClassDetailClient({
                                     className="py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200 border"
                                     style={
                                       isSel
-                                        ? { background: `${accent}20`, borderColor: accent, color: accent }
-                                        : { background: "rgba(255,255,255,0.02)", borderColor: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.5)" }
+                                        ? {
+                                            background: `${accent}20`,
+                                            borderColor: accent,
+                                            color: accent,
+                                          }
+                                        : {
+                                            background:
+                                              "rgba(255,255,255,0.02)",
+                                            borderColor:
+                                              "rgba(255,255,255,0.08)",
+                                            color: "rgba(255,255,255,0.5)",
+                                          }
                                     }
                                   >
                                     {format(month, "MMM yyyy")}
@@ -902,33 +948,53 @@ export function SubClassDetailClient({
                                       .filter(
                                         (slot) =>
                                           !slot.endDate ||
-                                          new Date(slot.endDate) >= selectedMonth,
+                                          new Date(slot.endDate) >=
+                                            selectedMonth,
                                       )
                                       .map((slot) => {
                                         const key = daySlotKey(slot);
-                                        const isSel = selectedSlotKeys.includes(key);
+                                        const isSel =
+                                          selectedSlotKeys.includes(key);
                                         return (
                                           <button
                                             key={key}
                                             onClick={() =>
-                                              setSelectedSlotKeys(isSel ? [] : [key])
+                                              setSelectedSlotKeys(
+                                                isSel ? [] : [key],
+                                              )
                                             }
                                             className="flex flex-col items-center px-3.5 py-2 rounded-xl transition-all duration-200 border"
                                             style={
                                               isSel
-                                                ? { background: `${accent}20`, borderColor: accent }
-                                                : { background: "rgba(255,255,255,0.02)", borderColor: "rgba(255,255,255,0.08)" }
+                                                ? {
+                                                    background: `${accent}20`,
+                                                    borderColor: accent,
+                                                  }
+                                                : {
+                                                    background:
+                                                      "rgba(255,255,255,0.02)",
+                                                    borderColor:
+                                                      "rgba(255,255,255,0.08)",
+                                                  }
                                             }
                                           >
                                             <span
                                               className="text-xs font-bold uppercase tracking-wider"
-                                              style={{ color: isSel ? accent : "rgba(255,255,255,0.4)" }}
+                                              style={{
+                                                color: isSel
+                                                  ? accent
+                                                  : "rgba(255,255,255,0.4)",
+                                              }}
                                             >
                                               {DAY_LABELS[slot.dayOfWeek]}
                                             </span>
                                             <span
                                               className="text-[9px] mt-0.5"
-                                              style={{ color: isSel ? `${accent}99` : "rgba(255,255,255,0.25)" }}
+                                              style={{
+                                                color: isSel
+                                                  ? `${accent}99`
+                                                  : "rgba(255,255,255,0.25)",
+                                              }}
                                             >
                                               {slot.startTime}–{slot.endTime}
                                             </span>
@@ -996,8 +1062,10 @@ export function SubClassDetailClient({
                                             borderColor: accent,
                                           }
                                         : {
-                                            background: "rgba(255,255,255,0.02)",
-                                            borderColor: "rgba(255,255,255,0.08)",
+                                            background:
+                                              "rgba(255,255,255,0.02)",
+                                            borderColor:
+                                              "rgba(255,255,255,0.08)",
                                           }
                                     }
                                   >
@@ -1063,7 +1131,8 @@ export function SubClassDetailClient({
                                                     "rgba(255,255,255,0.02)",
                                                   borderColor:
                                                     "rgba(255,255,255,0.08)",
-                                                  color: "rgba(255,255,255,0.5)",
+                                                  color:
+                                                    "rgba(255,255,255,0.5)",
                                                 }
                                           }
                                         >
@@ -1356,7 +1425,9 @@ function DurationPicker({
   onChange: (n: number) => void;
 }) {
   if (maxMonths <= 1) return null;
-  const lastMonth = selectedMonth ? addMonths(selectedMonth, maxMonths - 1) : null;
+  const lastMonth = selectedMonth
+    ? addMonths(selectedMonth, maxMonths - 1)
+    : null;
   return (
     <div className="mb-5">
       <div className="flex items-center justify-between mb-3">
@@ -1408,7 +1479,9 @@ function DurationPicker({
             {format(selectedMonth, "MMM yyyy")}
             {" → "}
             {format(addMonths(selectedMonth, totalMonths - 1), "MMM yyyy")}
-            <span className="text-royal-cream/40 ml-1">· {totalMonths} months</span>
+            <span className="text-royal-cream/40 ml-1">
+              · {totalMonths} months
+            </span>
           </p>
         </div>
       )}

@@ -144,8 +144,19 @@ export function ReservationCardsClient({
   return (
     <main
       className="min-h-screen pt-28 pb-24"
-      style={{ background: "#834550" }}
+      style={{ background: "#070208" }}
     >
+      {/* Background pattern */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          backgroundImage: "url('/images/pattern.svg')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "1600px auto",
+          opacity: 0.005,
+          filter: "sepia(1) saturate(0.5) brightness(2)",
+        }}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: -16 }}

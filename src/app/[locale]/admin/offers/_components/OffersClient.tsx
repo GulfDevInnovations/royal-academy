@@ -35,6 +35,7 @@ import {
   deleteOffer,
   toggleOfferActive,
 } from "@/lib/actions/admin/content.actions";
+import { useTranslations } from "next-intl";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -64,6 +65,9 @@ export type SerializedOffer = {
   promoCode: string | null;
   subClassIds: string[];
   classIds: string[];
+  title_ar?: string | null;
+  subtitle_ar?: string | null;
+  description_ar?: string | null;
 };
 
 type Modal =
@@ -101,6 +105,7 @@ export default function OffersClient({
   const router = useRouter();
   const [isRefreshing, startRefresh] = useTransition();
   const { toasts, toast, remove } = useToast();
+  const t = useTranslations("admin");
 
   const handleSuccess = () => {
     setModal(null);
@@ -129,14 +134,14 @@ export default function OffersClient({
   );
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-8xl mx-auto">
       {isRefreshing && (
         <div className="absolute inset-0 z-10 flex items-start justify-end pointer-events-none">
           <div
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs mt-1"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-2xl mt-1"
             style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b" }}
           >
-            <Loader2 size={12} className="animate-spin" />
+            <Loader2 size={16} className="animate-spin" />
             Updating...
           </div>
         </div>
@@ -150,7 +155,7 @@ export default function OffersClient({
             variant="primary"
             onClick={() => setModal({ type: "create" })}
           >
-            <Plus size={14} />
+            <Plus size={17} />
             New offer
           </AdminButton>
         }
@@ -159,28 +164,28 @@ export default function OffersClient({
       {/* Filters */}
       <AdminCard>
         <div className="flex items-center gap-3 flex-wrap">
-          <Filter size={13} style={{ color: adminColors.textMuted }} />
-          <span className="text-xs" style={{ color: adminColors.textMuted }}>
-            Filter:
+          <Filter size={15} style={{ color: adminColors.textMuted }} />
+          <span className="text-2xl" style={{ color: adminColors.textMuted }}>
+            {t("filter")}
           </span>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="text-xs rounded-lg border px-2.5 py-1.5 outline-none"
+            className="text-2xl rounded-lg border px-2.5 py-1.5 outline-none"
             style={{
               background: "rgba(255,255,255,0.04)",
               borderColor: adminColors.border,
               color: adminColors.textSecondary,
             }}
           >
-            <option value="ALL">All statuses</option>
-            <option value="ACTIVE">Active</option>
-            <option value="DRAFT">Draft</option>
-            <option value="EXPIRED">Expired</option>
-            <option value="ARCHIVED">Archived</option>
+            <option value="ALL">{t("allStatuses")}</option>
+            <option value="ACTIVE">{t("active")}</option>
+            <option value="DRAFT">{t("draft")}</option>
+            <option value="EXPIRED">{t("expired")}</option>
+            <option value="ARCHIVED">{t("archived")}</option>
           </select>
           <span
-            className="ml-auto text-xs"
+            className="ml-auto text-l"
             style={{ color: adminColors.textMuted }}
           >
             {filtered.length} item{filtered.length !== 1 ? "s" : ""}
@@ -199,7 +204,7 @@ export default function OffersClient({
                 variant="primary"
                 onClick={() => setModal({ type: "create" })}
               >
-                <Plus size={14} />
+                <Plus size={15} />
                 New Offer
               </AdminButton>
             }
@@ -209,16 +214,16 @@ export default function OffersClient({
         <AdminCard noPadding>
           <AdminTable>
             <AdminThead>
-              <AdminTh>Thumbnail</AdminTh>
-              <AdminTh>Title</AdminTh>
-              <AdminTh>Event Date</AdminTh>
-              <AdminTh>Discount</AdminTh>
-              <AdminTh>Promo Code</AdminTh>
-              <AdminTh>Publish Window</AdminTh>
-              <AdminTh>Status</AdminTh>
-              <AdminTh>Active</AdminTh>
-              <AdminTh>Sort</AdminTh>
-              <AdminTh className="text-right">Actions</AdminTh>
+              <AdminTh>{t("thumbnail")}</AdminTh>
+              <AdminTh>{t("name")}</AdminTh>
+              <AdminTh>{t("eventDate")}</AdminTh>
+              <AdminTh>{t("discount")}</AdminTh>
+              <AdminTh>{t("promoCode")}</AdminTh>
+              <AdminTh>{t("publishWindow")}</AdminTh>
+              <AdminTh>{t("status")}</AdminTh>
+              <AdminTh>{t("active")}</AdminTh>
+              <AdminTh>{t("sort")}</AdminTh>
+              <AdminTh className="text-right">{t("actions")}</AdminTh>
             </AdminThead>
             <AdminTbody>
               {filtered.map((item) => (
@@ -226,7 +231,7 @@ export default function OffersClient({
                   {/* Thumbnail */}
                   <AdminTd>
                     <div
-                      className="w-14 h-10 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0"
+                      className="w-14 h-10 rounded-lg overflow-hidden flex items-center justify-center shrink-0"
                       style={{ background: "rgba(255,255,255,0.04)" }}
                     >
                       {item.thumbnailUrl ? (
@@ -238,7 +243,7 @@ export default function OffersClient({
                         />
                       ) : (
                         <Tag
-                          size={16}
+                          size={18}
                           style={{ color: adminColors.textMuted }}
                         />
                       )}
@@ -249,14 +254,14 @@ export default function OffersClient({
                   <AdminTd>
                     <div className="flex flex-col gap-0.5">
                       <span
-                        className="text-xs font-medium"
+                        className="text-l font-medium"
                         style={{ color: adminColors.textPrimary }}
                       >
                         {item.title}
                       </span>
                       {item.subtitle && (
                         <span
-                          className="text-[11px]"
+                          className="text-[16px]"
                           style={{ color: adminColors.textMuted }}
                         >
                           {item.subtitle}
@@ -273,7 +278,7 @@ export default function OffersClient({
                   {/* Event Date */}
                   <AdminTd>
                     <span
-                      className="text-xs"
+                      className="text-l"
                       style={{ color: adminColors.textSecondary }}
                     >
                       {item.eventDate
@@ -290,7 +295,7 @@ export default function OffersClient({
                         </AdminBadge>
                         {item.discountValue && (
                           <span
-                            className="text-[11px]"
+                            className="text-[16px]"
                             style={{ color: adminColors.textMuted }}
                           >
                             {item.discountType === "PERCENTAGE"
@@ -306,7 +311,7 @@ export default function OffersClient({
 
                   <AdminTd>
                     <span
-                      className="text-xs font-mono"
+                      className="text-l font-mono"
                       style={{ color: adminColors.textMuted }}
                     >
                       {item.promoCode ?? "—"}
@@ -316,7 +321,7 @@ export default function OffersClient({
                   {/* Publish Window */}
                   <AdminTd>
                     <div
-                      className="flex flex-col gap-0.5 text-[11px]"
+                      className="flex flex-col gap-0.5 text-[16px]"
                       style={{ color: adminColors.textMuted }}
                     >
                       <span>
@@ -352,9 +357,9 @@ export default function OffersClient({
                       }}
                     >
                       {item.isActive ? (
-                        <ToggleRight size={20} />
+                        <ToggleRight size={19} />
                       ) : (
-                        <ToggleLeft size={20} />
+                        <ToggleLeft size={19} />
                       )}
                     </button>
                   </AdminTd>
@@ -362,7 +367,7 @@ export default function OffersClient({
                   {/* Sort order */}
                   <AdminTd>
                     <span
-                      className="text-xs"
+                      className="text-l"
                       style={{ color: adminColors.textMuted }}
                     >
                       {item.sortOrder}
@@ -377,14 +382,14 @@ export default function OffersClient({
                         size="sm"
                         onClick={() => setModal({ type: "edit", data: item })}
                       >
-                        <Pencil size={13} />
+                        <Pencil size={18} />
                       </AdminButton>
                       <AdminButton
                         variant="danger"
                         size="sm"
                         onClick={() => setModal({ type: "delete", data: item })}
                       >
-                        <Trash2 size={13} />
+                        <Trash2 size={18} />
                       </AdminButton>
                     </div>
                   </AdminTd>

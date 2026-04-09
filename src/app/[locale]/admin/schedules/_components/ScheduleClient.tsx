@@ -41,6 +41,7 @@ import {
 import ScheduleFormModal from "./ScheduleFormModal";
 import SessionsDrawer from "./SessionsDrawer";
 import DeleteConfirmModal from "../../../../../components/admin/DeleteConfirmModal";
+import { useTranslations } from "next-intl";
 
 // ─────────────────────────────────────────────
 // Types
@@ -230,6 +231,7 @@ function DayCellPopupPanel({
   onClose,
   onSelectSchedule,
 }: DayCellPopupProps) {
+  const t = useTranslations("admin");
   const dateLabel = popup.date.toLocaleDateString("en-GB", {
     weekday: "short",
     day: "2-digit",
@@ -260,7 +262,7 @@ function DayCellPopupPanel({
           style={{ borderColor: "rgba(255,255,255,0.07)" }}
         >
           <span
-            className="text-xs font-semibold"
+            className="text-l font-semibold"
             style={{ color: adminColors.textPrimary }}
           >
             {dateLabel}
@@ -274,9 +276,9 @@ function DayCellPopupPanel({
           </span>
           <button
             onClick={onClose}
-            className="p-0.5 rounded text-white/30 hover:text-white/70 transition-colors"
+            className="p-0.5 rounded hover:bg-white/5 transition-colors"
           >
-            <X size={13} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
 
@@ -301,7 +303,7 @@ function DayCellPopupPanel({
               >
                 <div className="flex items-center justify-between gap-2 mb-0.5">
                   <span
-                    className="text-xs font-semibold truncate"
+                    className="text-l font-semibold truncate"
                     style={{
                       color: cancelled ? adminColors.textMuted : color.text,
                     }}
@@ -309,14 +311,14 @@ function DayCellPopupPanel({
                     {schedule.subClass.name}
                   </span>
                   <span
-                    className="text-[10px] flex-shrink-0"
+                    className="text-[16px] flex-shrink-0"
                     style={{ color: adminColors.textMuted }}
                   >
                     {schedule.startTime}–{schedule.endTime}
                   </span>
                 </div>
                 <p
-                  className="text-[10px]"
+                  className="text-[16px]"
                   style={{ color: adminColors.textMuted }}
                 >
                   {schedule.teacher.firstName} {schedule.teacher.lastName}
@@ -324,17 +326,17 @@ function DayCellPopupPanel({
                 <div className="flex items-center gap-1.5 mt-1">
                   {schedule.subClass.isReschedulable && (
                     <span
-                      className="text-[9px] px-1.5 py-0.5 rounded font-medium"
+                      className="text-[15px] px-1.5 py-0.5 rounded font-medium"
                       style={{
                         background: "rgba(52,211,153,0.1)",
                         color: "#34d399",
                       }}
                     >
-                      Reschedulable
+                      {t("reschedulable")}
                     </span>
                   )}
                   <span
-                    className="text-[9px] px-1.5 py-0.5 rounded font-medium"
+                    className="text-[15px] px-1.5 py-0.5 rounded font-medium"
                     style={{
                       background: "rgba(255,255,255,0.06)",
                       color: adminColors.textMuted,
@@ -352,6 +354,57 @@ function DayCellPopupPanel({
   );
 }
 
+function resolveOverlaps(schedules: SerializedSchedule[]): {
+  schedule: SerializedSchedule;
+  column: number;
+  totalColumns: number;
+}[] {
+  if (schedules.length === 0) return [];
+
+  // Sort by start time
+  const sorted = [...schedules].sort(
+    (a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime),
+  );
+
+  // Group into clusters of overlapping schedules
+  const clusters: SerializedSchedule[][] = [];
+  let currentCluster: SerializedSchedule[] = [];
+  let clusterEnd = -1;
+
+  for (const s of sorted) {
+    const start = timeToMinutes(s.startTime);
+    const end = timeToMinutes(s.endTime);
+
+    if (start < clusterEnd) {
+      // Overlaps with current cluster
+      currentCluster.push(s);
+      clusterEnd = Math.max(clusterEnd, end);
+    } else {
+      // New cluster
+      if (currentCluster.length > 0) clusters.push(currentCluster);
+      currentCluster = [s];
+      clusterEnd = end;
+    }
+  }
+  if (currentCluster.length > 0) clusters.push(currentCluster);
+
+  // Assign columns within each cluster
+  const result: {
+    schedule: SerializedSchedule;
+    column: number;
+    totalColumns: number;
+  }[] = [];
+
+  for (const cluster of clusters) {
+    const totalColumns = cluster.length;
+    cluster.forEach((schedule, index) => {
+      result.push({ schedule, column: index, totalColumns });
+    });
+  }
+
+  return result;
+}
+
 // ─────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────
@@ -363,6 +416,7 @@ export default function SchedulesClient({
   const router = useRouter();
   const { toasts, toast, remove } = useToast();
   const [, startRefresh] = useTransition();
+  const t = useTranslations("admin");
 
   const [modal, setModal] = useState<Modal | null>(null);
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
@@ -503,11 +557,11 @@ export default function SchedulesClient({
             onClick={prevMonth}
             className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-white/70 hover:bg-white/[0.06]"
           >
-            <ChevronLeft size={15} />
+            <ChevronLeft size={19} />
           </button>
           <div className="flex items-center gap-3">
             <span
-              className="text-sm font-semibold"
+              className="text-l font-semibold"
               style={{ color: adminColors.textPrimary }}
             >
               {MONTH_NAMES[navMonth]} {navYear}
@@ -518,14 +572,14 @@ export default function SchedulesClient({
                   setNavYear(now.getFullYear());
                   setNavMonth(now.getMonth());
                 }}
-                className="text-[10px] px-2 py-0.5 rounded-full"
+                className="text-[15px] px-2 py-0.5 rounded-full"
                 style={{
                   background: "rgba(245,158,11,0.1)",
                   color: "#f59e0b",
                   border: "1px solid rgba(245,158,11,0.2)",
                 }}
               >
-                Today
+                {t("today")}
               </button>
             )}
           </div>
@@ -533,7 +587,7 @@ export default function SchedulesClient({
             onClick={nextMonth}
             className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-white/70 hover:bg-white/[0.06]"
           >
-            <ChevronRight size={15} />
+            <ChevronRight size={19} />
           </button>
         </div>
 
@@ -552,7 +606,7 @@ export default function SchedulesClient({
               style={{ borderColor: "rgba(255,255,255,0.04)" }}
             >
               <span
-                className="text-[10px] font-semibold tracking-widest uppercase"
+                className="text-[15px] font-semibold tracking-widest uppercase"
                 style={{ color: adminColors.textMuted }}
               >
                 {d}
@@ -575,13 +629,13 @@ export default function SchedulesClient({
               <div
                 key={idx}
                 onClick={(e) => date && handleCellClick(e, date, schedules)}
-                className="min-h-26 border-t border-l p-1.5"
+                className="min-h-100 border-t border-l p-1.5"
                 style={{
                   borderColor: "rgba(255,255,255,0.04)",
                   background: todayCell
-                    ? "rgba(245,158,11,0.04)"
+                    ? "rgba(245,158,11,0.1)"
                     : !date
-                      ? "rgba(0,0,0,0.15)"
+                      ? "rgba(0,0,0,0.5)"
                       : "transparent",
                   cursor: schedules.length > 0 ? "pointer" : "default",
                 }}
@@ -589,7 +643,7 @@ export default function SchedulesClient({
                 {date && (
                   <div className="flex items-center justify-between mb-1">
                     <span
-                      className="text-[11px] font-medium w-5 h-5 flex items-center justify-center rounded-full"
+                      className="text-[10px] font-medium w-5 h-5 flex items-center justify-center rounded-full"
                       style={{
                         background: todayCell
                           ? "rgba(245,158,11,0.15)"
@@ -605,7 +659,7 @@ export default function SchedulesClient({
                     </span>
                     {schedules.length > 0 && (
                       <span
-                        className="text-[9px]"
+                        className="text-[15px]"
                         style={{ color: adminColors.textMuted }}
                       >
                         {schedules.length > 2 ? `${schedules.length}` : ""}
@@ -621,7 +675,7 @@ export default function SchedulesClient({
                     return (
                       <div
                         key={schedule.id}
-                        className="rounded px-1.5 py-1 text-[9px] leading-tight"
+                        className="rounded px-1.5 py-1 text-[15px] leading-tight"
                         style={{
                           background: cancelled
                             ? "rgba(255,255,255,0.03)"
@@ -653,7 +707,7 @@ export default function SchedulesClient({
                   })}
                   {schedules.length > 2 && (
                     <div
-                      className="text-[9px] px-1.5 py-0.5 rounded text-center"
+                      className="text-[15px] px-1.5 py-0.5 rounded text-center"
                       style={{
                         background: "rgba(255,255,255,0.04)",
                         color: adminColors.textMuted,
@@ -703,13 +757,13 @@ export default function SchedulesClient({
                   }}
                 />
                 <span
-                  className="text-xs"
+                  className="text-l"
                   style={{ color: adminColors.textMuted }}
                 >
                   {c.name}
                 </span>
                 <span
-                  className="text-[10px] px-1.5 py-0.5 rounded"
+                  className="text-[15px] px-1.5 py-0.5 rounded"
                   style={{
                     background: "rgba(255,255,255,0.04)",
                     color: adminColors.textMuted,
@@ -743,11 +797,11 @@ export default function SchedulesClient({
     const GRID_START = 7 * 60;
     const GRID_END = 22 * 60;
     const GRID_MINUTES = GRID_END - GRID_START;
-    const SLOT_HEIGHT = 60;
+    const SLOT_HEIGHT = 150;
 
     return (
       <div
-        className="rounded-2xl border overflow-hidden"
+        className="rounded-2xl border overflow-hidden "
         style={{ borderColor: "rgba(255,255,255,0.07)", background: "#13161f" }}
       >
         <div
@@ -767,14 +821,14 @@ export default function SchedulesClient({
                 style={{ borderColor: "rgba(255,255,255,0.05)" }}
               >
                 <p
-                  className="text-xs font-semibold"
+                  className="text-l font-semibold"
                   style={{ color: adminColors.textSecondary }}
                 >
                   {DAY_SHORT[day]}
                 </p>
                 {count > 0 && (
                   <p
-                    className="text-[10px] mt-0.5"
+                    className="text-[16px] mt-0.5"
                     style={{ color: adminColors.textMuted }}
                   >
                     {count} class{count > 1 ? "es" : ""}
@@ -804,7 +858,7 @@ export default function SchedulesClient({
               >
                 <div className="w-14 shrink-0 px-2 -translate-y-2.5">
                   <span
-                    className="text-[10px]"
+                    className="text-[15px]"
                     style={{ color: adminColors.textMuted }}
                   >
                     {time}
@@ -814,7 +868,7 @@ export default function SchedulesClient({
             ))}
 
             <div
-              className="absolute inset-0 grid"
+              className="absolute inset-0 grid "
               style={{
                 gridTemplateColumns: "56px repeat(7, 1fr)",
                 pointerEvents: "none",
@@ -830,64 +884,71 @@ export default function SchedulesClient({
                     pointerEvents: "auto",
                   }}
                 >
-                  {byDay[day].map((schedule) => {
-                    const startMin =
-                      timeToMinutes(schedule.startTime) - GRID_START;
-                    const endMin = timeToMinutes(schedule.endTime) - GRID_START;
-                    const top = Math.max(0, (startMin / 60) * SLOT_HEIGHT);
-                    const height = Math.max(
-                      24,
-                      ((endMin - startMin) / 60) * SLOT_HEIGHT - 2,
-                    );
-                    const color = colorForClass(schedule.subClass.class.name);
-                    const isCancelled = schedule.status === "CANCELLED";
+                  {resolveOverlaps(byDay[day]).map(
+                    ({ schedule, column, totalColumns }) => {
+                      const startMin =
+                        timeToMinutes(schedule.startTime) - GRID_START;
+                      const endMin =
+                        timeToMinutes(schedule.endTime) - GRID_START;
+                      const top = Math.max(0, (startMin / 60) * SLOT_HEIGHT);
+                      const height = Math.max(
+                        24,
+                        ((endMin - startMin) / 60) * SLOT_HEIGHT - 2,
+                      );
+                      const color = colorForClass(schedule.subClass.class.name);
+                      const isCancelled = schedule.status === "CANCELLED";
 
-                    return (
-                      <div
-                        key={schedule.id}
-                        onClick={() => openSessions(schedule)}
-                        className="absolute left-1 right-1 rounded-lg px-2 py-1 cursor-pointer transition-all hover:brightness-125 overflow-hidden"
-                        style={{
-                          top: `${top}px`,
-                          height: `${height}px`,
-                          background: isCancelled
-                            ? "rgba(255,255,255,0.03)"
-                            : color.bg,
-                          border: `1px solid ${isCancelled ? "rgba(255,255,255,0.08)" : color.border}`,
-                          opacity: isCancelled ? 0.5 : 1,
-                        }}
-                      >
-                        <p
-                          className="text-[10px] font-semibold leading-tight truncate"
+                      const widthPct = 100 / totalColumns;
+                      const leftPct = widthPct * column;
+
+                      return (
+                        <div
+                          key={schedule.id}
+                          onClick={() => openSessions(schedule)}
+                          className="absolute rounded-lg px-2 py-1 cursor-pointer transition-all hover:brightness-125 overflow-hidden"
                           style={{
-                            color: isCancelled
-                              ? adminColors.textMuted
-                              : color.text,
+                            top: `${top}px`,
+                            height: `${height}px`,
+                            left: `calc(${leftPct}% + 2px)`,
+                            width: `calc(${widthPct}% - 4px)`,
+                            background: isCancelled
+                              ? "rgba(255,255,255,0.03)"
+                              : color.bg,
+                            border: `1px solid ${isCancelled ? "rgba(255,255,255,0.08)" : color.border}`,
+                            opacity: isCancelled ? 0.5 : 1,
                           }}
                         >
-                          {schedule.subClass.name} {schedule.teacher.firstName}{" "}
-                          {schedule.teacher.lastName}
-                        </p>
-                        {height > 30 && (
                           <p
-                            className="text-[9px] truncate mt-0.5"
-                            style={{ color: adminColors.textMuted }}
+                            className="text-[15px] font-semibold leading-tight truncate"
+                            style={{
+                              color: isCancelled
+                                ? adminColors.textMuted
+                                : color.text,
+                            }}
                           >
-                            {schedule.startTime}–{schedule.endTime}
+                            {schedule.subClass.name}
                           </p>
-                        )}
-                        {height > 46 && (
-                          <p
-                            className="text-[9px] truncate"
-                            style={{ color: adminColors.textMuted }}
-                          >
-                            {schedule.teacher.firstName}{" "}
-                            {schedule.teacher.lastName}
-                          </p>
-                        )}
-                      </div>
-                    );
-                  })}
+                          {height > 30 && (
+                            <p
+                              className="text-[15px] truncate mt-0.5"
+                              style={{ color: adminColors.textMuted }}
+                            >
+                              {schedule.startTime}–{schedule.endTime}
+                            </p>
+                          )}
+                          {height > 46 && (
+                            <p
+                              className="text-[15px] truncate"
+                              style={{ color: adminColors.textMuted }}
+                            >
+                              {schedule.teacher.firstName}{" "}
+                              {schedule.teacher.lastName}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    },
+                  )}
                 </div>
               ))}
             </div>
@@ -912,21 +973,21 @@ export default function SchedulesClient({
               variant="primary"
               onClick={() => setModal({ type: "add" })}
             >
-              <Plus size={14} /> New Schedule
+              <Plus size={19} /> New Schedule
             </AdminButton>
           }
         />
       ) : (
         <AdminTable>
           <AdminThead>
-            <AdminTh>Sub-class</AdminTh>
+            <AdminTh>{t("subClass")}</AdminTh>
             <AdminTh>Day & Time</AdminTh>
-            <AdminTh>Teacher</AdminTh>
+            <AdminTh>{t("teacher")}</AdminTh>
             <AdminTh>Term</AdminTh>
-            <AdminTh>Capacity</AdminTh>
-            <AdminTh>Sessions</AdminTh>
-            <AdminTh>Status</AdminTh>
-            <AdminTh className="text-right">Actions</AdminTh>
+            <AdminTh>{t("capacity")}</AdminTh>
+            <AdminTh>{t("sessions")}</AdminTh>
+            <AdminTh>{t("status")}</AdminTh>
+            <AdminTh className="text-right">{t("actions")}</AdminTh>
           </AdminThead>
           <AdminTbody>
             {displayed.map((schedule) => {
@@ -942,28 +1003,28 @@ export default function SchedulesClient({
                       />
                       <div>
                         <p
-                          className="text-sm font-medium"
+                          className="text-xl font-medium"
                           style={{ color: adminColors.textPrimary }}
                         >
                           {schedule.subClass.name}
                         </p>
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <p
-                            className="text-xs"
+                            className="text-l"
                             style={{ color: adminColors.textMuted }}
                           >
                             {schedule.subClass.class.name}
                           </p>
                           {schedule.subClass.isReschedulable && (
                             <span
-                              className="text-[9px] px-1.5 py-0.5 rounded font-medium"
+                              className="text-[15px] px-1.5 py-0.5 rounded font-medium"
                               style={{
                                 background: "rgba(52,211,153,0.1)",
                                 color: "#34d399",
                                 border: "1px solid rgba(52,211,153,0.2)",
                               }}
                             >
-                              Reschedulable
+                              {t("reschedulable")}
                             </span>
                           )}
                           {(() => {
@@ -973,7 +1034,7 @@ export default function SchedulesClient({
                             if (days.length > 1) {
                               return (
                                 <span
-                                  className="px-1.5 py-0.5 rounded text-[10px] font-medium"
+                                  className="px-1.5 py-0.5 rounded text-[15px] font-medium"
                                   style={{
                                     background: "rgba(245,158,11,0.1)",
                                     color: "#f59e0b",
@@ -995,13 +1056,13 @@ export default function SchedulesClient({
 
                   <AdminTd>
                     <p
-                      className="text-sm"
+                      className="text-xl"
                       style={{ color: adminColors.textSecondary }}
                     >
                       {DAY_SHORT[schedule.dayOfWeek]}
                     </p>
                     <p
-                      className="text-xs"
+                      className="text-l"
                       style={{ color: adminColors.textMuted }}
                     >
                       {schedule.startTime}–{schedule.endTime}
@@ -1016,7 +1077,7 @@ export default function SchedulesClient({
 
                   <AdminTd>
                     <p
-                      className="text-xs"
+                      className="text-l"
                       style={{ color: adminColors.textSecondary }}
                     >
                       {new Date(schedule.startDate).toLocaleDateString(
@@ -1026,7 +1087,7 @@ export default function SchedulesClient({
                     </p>
                     {schedule.endDate && (
                       <p
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textMuted }}
                       >
                         →{" "}
@@ -1041,11 +1102,11 @@ export default function SchedulesClient({
                   <AdminTd>
                     <div className="flex items-center gap-1.5">
                       <Users
-                        size={12}
+                        size={15}
                         style={{ color: adminColors.textMuted }}
                       />
                       <span
-                        className="text-sm"
+                        className="text-xl"
                         style={{ color: adminColors.textSecondary }}
                       >
                         {schedule.currentEnrolled}/{schedule.maxCapacity}
@@ -1056,10 +1117,10 @@ export default function SchedulesClient({
                   <AdminTd>
                     <button
                       onClick={() => openSessions(schedule)}
-                      className="flex items-center gap-1.5 text-xs transition-colors hover:text-amber-400"
+                      className="flex items-center gap-1.5 text-l transition-colors hover:text-amber-400"
                       style={{ color: adminColors.textSecondary }}
                     >
-                      <CalendarDays size={13} />
+                      <CalendarDays size={16} />
                       {schedule._count.sessions} sessions
                     </button>
                   </AdminTd>
@@ -1072,28 +1133,28 @@ export default function SchedulesClient({
                     <div className="flex items-center justify-end gap-1">
                       <button
                         onClick={() => openSessions(schedule)}
-                        className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-amber-400 hover:bg-amber-500/[0.08]"
+                        className="p-1.5 rounded-lg transition-colors text-purple-400 hover:text-purple-600 hover:bg-white/5 transition-colors"
                         title="View sessions"
                       >
-                        <Eye size={13} />
+                        <Eye size={16} />
                       </button>
                       <button
                         onClick={() =>
                           setModal({ type: "edit", data: schedule })
                         }
-                        className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-white/70 hover:bg-white/[0.05]"
+                        className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-white/5 transition-colors"
                         title="Edit"
                       >
-                        <Pencil size={13} />
+                        <Pencil size={16} />
                       </button>
                       <button
                         onClick={() =>
                           setModal({ type: "delete", data: schedule })
                         }
-                        className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/[0.08]"
+                        className="p-1.5 rounded-lg transition-colors text-red-800 hover:text-red-500 hover:bg-white/5"
                         title="Delete"
                       >
-                        <Trash2 size={13} />
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </AdminTd>
@@ -1111,7 +1172,7 @@ export default function SchedulesClient({
   // ─────────────────────────────────────────────
 
   return (
-    <div className="space-y-4 max-w-7xl mx-auto">
+    <div className="space-y-4 max-w-8xl mx-auto">
       <AdminPageHeader
         title="Schedules"
         subtitle={`${initialSchedules.length} schedule${initialSchedules.length !== 1 ? "s" : ""}`}
@@ -1135,7 +1196,7 @@ export default function SchedulesClient({
             <button
               key={mode}
               onClick={() => setViewMode(mode)}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 text-l font-medium transition-colors"
               style={{
                 background:
                   viewMode === mode
@@ -1145,9 +1206,9 @@ export default function SchedulesClient({
               }}
             >
               {mode === "calendar" ? (
-                <CalendarDays size={13} />
+                <CalendarDays size={16} />
               ) : (
-                <List size={13} />
+                <List size={16} />
               )}
               {mode.charAt(0).toUpperCase() + mode.slice(1)}
             </button>
@@ -1163,7 +1224,7 @@ export default function SchedulesClient({
               <button
                 key={sub}
                 onClick={() => setCalSub(sub)}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 text-l font-medium transition-colors"
                 style={{
                   background:
                     calSub === sub
@@ -1173,9 +1234,9 @@ export default function SchedulesClient({
                 }}
               >
                 {sub === "month" ? (
-                  <LayoutGrid size={13} />
+                  <LayoutGrid size={16} />
                 ) : (
-                  <Clock size={13} />
+                  <Clock size={16} />
                 )}
                 {sub.charAt(0).toUpperCase() + sub.slice(1)}
               </button>
@@ -1186,7 +1247,7 @@ export default function SchedulesClient({
         <select
           value={filterClass}
           onChange={(e) => setFilterClass(e.target.value)}
-          className="px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
+          className="px-3 py-2 rounded-lg text-xl border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
           style={{ borderColor: "rgba(255,255,255,0.08)" }}
         >
           <option className="text-black" value="">
@@ -1203,7 +1264,7 @@ export default function SchedulesClient({
           <select
             value={filterDay}
             onChange={(e) => setFilterDay(e.target.value)}
-            className="px-3 py-2 rounded-lg text-sm border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
+            className="px-3 py-2 rounded-lg text-xl border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
             style={{ borderColor: "rgba(255,255,255,0.08)" }}
           >
             <option className="text-black" value="">
@@ -1218,7 +1279,7 @@ export default function SchedulesClient({
         )}
 
         <span
-          className="text-xs ml-auto"
+          className="text-l ml-auto"
           style={{ color: adminColors.textMuted }}
         >
           {displayed.length} of {initialSchedules.length} schedules
@@ -1243,7 +1304,7 @@ export default function SchedulesClient({
                   }}
                 />
                 <span
-                  className="text-xs"
+                  className="text-l"
                   style={{ color: adminColors.textMuted }}
                 >
                   {c.name}

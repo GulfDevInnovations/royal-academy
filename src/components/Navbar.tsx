@@ -1179,10 +1179,10 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => router.push(`/${locale}/reservation`)}
-              className="liquid-glass-gold backdrop-blur-xs shimmer flex items-center justify-center gap-3 px-6 lg:px-8 py-3 lg:py-4 rounded-full transition-all duration-300 cursor-pointer"
+              className="liquid-glass-purple backdrop-blur-xs shimmer flex items-center justify-center gap-3 px-6 lg:px-8 py-3 lg:py-4 rounded-full transition-all duration-300 cursor-pointer"
             >
               <span
-                className={`text-royal-gold text-sm tracking-widest uppercase whitespace-nowrap inline-block ${isArabic ? "scale-150" : ""}`}
+                className={`text-auth-sand text-sm tracking-widest uppercase whitespace-nowrap inline-block ${isArabic ? "scale-150" : ""}`}
               >
                 {t("Enrollment")}
               </span>

@@ -24,7 +24,12 @@ const REQUIRED_FIELDS = [
   "phone",
   "emergencyContactName",
   "emergencyContactPhone",
-] as const;
+  "emergencyRelationship",
+  "country",
+  "city",
+  "preferredTrack",
+  "experience",
+];
 
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -48,25 +53,21 @@ const profileSchema = z.object({
   gender: z.enum([Gender.MALE, Gender.FEMALE, Gender.OTHER]),
   emergencyContactName: z.string().trim().min(1),
   emergencyContactPhone: z.string().regex(/^\d{8}$/),
-  emergencyRelationship: z.string().trim().optional(),
-  preferredTrack: z
-    .enum([ProfileTrack.DANCE, ProfileTrack.MUSIC, ProfileTrack.ART])
-    .optional(),
-  experience: z
-    .enum([
-      ProfileExperience.NO_EXPERIENCE,
-      ProfileExperience.LESS_THAN_ONE_YEAR,
-      ProfileExperience.MORE_THAN_ONE_YEAR,
-    ])
-    .optional(),
   address: z.string().trim().optional(),
-  city: z.string().trim().optional(),
-  country: z.string().trim().optional(),
   notes: z.string().trim().optional(),
   imageUrl: z.string().trim().optional(),
   hasMedicalCondition: z.boolean().default(false),
   medicalConditionDetails: z.string().trim().optional(),
   agreePolicy: z.literal(true),
+  emergencyRelationship: z.string().trim().min(1),   // was optional
+preferredTrack: z.enum([ProfileTrack.DANCE, ProfileTrack.MUSIC, ProfileTrack.ART]),  // remove .optional()
+experience: z.enum([
+  ProfileExperience.NO_EXPERIENCE,
+  ProfileExperience.LESS_THAN_ONE_YEAR,
+  ProfileExperience.MORE_THAN_ONE_YEAR,
+]),  // remove .optional()
+city: z.string().trim().min(1),      // was optional
+country: z.string().trim().min(1),   // was optional
 });
 
 export async function saveProfileSettings(formData: FormData) {
@@ -110,11 +111,11 @@ export async function saveProfileSettings(formData: FormData) {
   );
 
   const missingFields = REQUIRED_FIELDS.filter(
-    (field) => getString(formData, field).length === 0
-  );
-  if (formData.get("agreePolicy") !== "on") {
-    missingFields.push("agreePolicy");
-  }
+  (field) => getString(formData, field).length === 0,
+);
+if (formData.get("agreePolicy") !== "on") {
+  missingFields.push("agreePolicy");
+}
 
   if (missingFields.length > 0) {
     const missing = encodeURIComponent(missingFields.join(","));
