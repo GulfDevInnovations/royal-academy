@@ -13,6 +13,7 @@ import {
   updateGalleryPerson,
 } from "@/lib/actions/admin/gallery.actions";
 import type { SerializedPerson, Teacher } from "./GalleryClient";
+import { useTranslations } from "next-intl";
 
 interface Props {
   editing?: SerializedPerson;
@@ -32,6 +33,7 @@ export default function PersonModal({
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("admin");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,16 +65,16 @@ export default function PersonModal({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07]">
           <h2
-            className="text-sm font-semibold"
+            className="text-xl font-semibold"
             style={{ color: adminColors.textPrimary }}
           >
-            {editing ? "Edit Person" : "New Person"}
+            {editing ? "Edit Person" : t("newPerson")}
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <X size={15} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
 
@@ -122,7 +124,7 @@ export default function PersonModal({
           </AdminSelect>
 
           <div
-            className="text-xs px-3 py-2 rounded-lg"
+            className="text-l px-3 py-2 rounded-lg"
             style={{
               background: "rgba(255,255,255,0.03)",
               color: adminColors.textMuted,
@@ -133,7 +135,7 @@ export default function PersonModal({
           </div>
 
           {error && (
-            <p className="text-xs px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+            <p className="text-l px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
               {error}
             </p>
           )}
@@ -143,7 +145,7 @@ export default function PersonModal({
               Cancel
             </AdminButton>
             <AdminButton type="submit" variant="primary" disabled={isPending}>
-              {isPending && <Loader2 size={13} className="animate-spin" />}
+              {isPending && <Loader2 size={16} className="animate-spin" />}
               {editing ? "Save Changes" : "Create Person"}
             </AdminButton>
           </div>

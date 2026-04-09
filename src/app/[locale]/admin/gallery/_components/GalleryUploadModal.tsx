@@ -17,6 +17,7 @@ import {
 } from "@/components/admin/ui";
 import { uploadGalleryItem } from "@/lib/actions/admin/gallery.actions";
 import type { SerializedCategory, SerializedPerson } from "./GalleryClient";
+import { useTranslations } from "next-intl";
 
 interface Props {
   categories: SerializedCategory[];
@@ -52,12 +53,14 @@ export default function GalleryUploadModal({
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("admin");
 
   const [preview, setPreview] = useState<string | null>(null);
   const [isVideo, setIsVideo] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [langTab, setLangTab] = useState<"en" | "ar">("en");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const openFilePicker = () => fileInputRef.current?.click();
@@ -133,6 +136,12 @@ export default function GalleryUploadModal({
   // Today's date in YYYY-MM-DD for the date input default
   const todayValue = new Date().toISOString().split("T")[0];
 
+  const inputStyle = {
+    background: "rgba(255,255,255,0.04)",
+    borderColor: adminColors.border,
+    color: adminColors.textPrimary,
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
@@ -140,7 +149,7 @@ export default function GalleryUploadModal({
         onClick={onClose}
       />
       <div
-        className="relative w-full max-w-lg rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[90vh] overflow-y-auto"
+        className="relative w-full max-w-2xl rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[90vh] overflow-y-auto"
         style={{ background: "#1a1d27" }}
       >
         {/* Header */}
@@ -149,16 +158,16 @@ export default function GalleryUploadModal({
           style={{ background: "#1a1d27" }}
         >
           <h2
-            className="text-sm font-semibold"
+            className="text-xl font-semibold"
             style={{ color: adminColors.textPrimary }}
           >
-            Upload Media
+            {t("uploadMedia")}
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <X size={15} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
 
@@ -167,6 +176,30 @@ export default function GalleryUploadModal({
           onSubmit={handleSubmit}
           className="px-6 py-5 space-y-4"
         >
+          <div
+            className="flex items-center gap-1 p-1 rounded-lg w-fit"
+            style={{ background: "rgba(255,255,255,0.05)" }}
+          >
+            {(["en", "ar"] as const).map((lang) => (
+              <button
+                key={lang}
+                type="button"
+                onClick={() => setLangTab(lang)}
+                className="px-3 py-1 rounded-md text-xs font-medium transition-all"
+                style={{
+                  background:
+                    langTab === lang ? "rgba(251,191,36,0.15)" : "transparent",
+                  color: langTab === lang ? "#fbbf24" : adminColors.textMuted,
+                  border:
+                    langTab === lang
+                      ? "1px solid rgba(251,191,36,0.3)"
+                      : "1px solid transparent",
+                }}
+              >
+                {lang === "en" ? "🇬🇧 English" : "🇴🇲 Arabic"}
+              </button>
+            ))}
+          </div>
           {/* ── Drop zone ── */}
           {/* ONE input, always in the form, never duplicated */}
           <input
@@ -222,7 +255,7 @@ export default function GalleryUploadModal({
                     />
                   </svg>
                 </div>
-                <p className="text-xs font-medium" style={{ color: "#22c55e" }}>
+                <p className="text-l font-medium" style={{ color: "#22c55e" }}>
                   Uploaded successfully
                 </p>
               </div>
@@ -247,13 +280,13 @@ export default function GalleryUploadModal({
 
                   <div className="flex-1 min-w-0">
                     <p
-                      className="text-xs font-medium truncate"
+                      className="text-l font-medium truncate"
                       style={{ color: adminColors.textPrimary }}
                     >
                       {fileName}
                     </p>
                     <p
-                      className="text-[11px] mt-0.5"
+                      className="text-[16px] mt-0.5"
                       style={{ color: adminColors.textMuted }}
                     >
                       {isVideo ? "Video" : "Image"} · ready to upload
@@ -264,7 +297,7 @@ export default function GalleryUploadModal({
                   <button
                     type="button"
                     onClick={openFilePicker}
-                    className="shrink-0 text-[11px] px-2.5 py-1 rounded-lg border transition-colors hover:bg-white/5"
+                    className="shrink-0 text-[16px] px-2.5 py-1 rounded-lg border transition-colors hover:bg-white/5"
                     style={{
                       borderColor: "rgba(255,255,255,0.1)",
                       color: adminColors.textMuted,
@@ -288,13 +321,13 @@ export default function GalleryUploadModal({
                 </div>
                 <div className="text-center">
                   <p
-                    className="text-xs font-medium"
+                    className="text-l font-medium"
                     style={{ color: adminColors.textPrimary }}
                   >
                     Drop file here or click to browse
                   </p>
                   <p
-                    className="text-xs mt-0.5"
+                    className="text-l mt-0.5"
                     style={{ color: adminColors.textMuted }}
                   >
                     JPG, PNG, WebP, GIF · MP4, WebM, MOV · max 4 MB / 20 MB
@@ -305,12 +338,44 @@ export default function GalleryUploadModal({
           </div>
 
           {/* ── Title — auto-filled, editable ── */}
-          <AdminInput
-            label="Title"
-            name="title"
-            value={title}
-            onChange={handleTitleChange} // ← was inline setState before
-          />
+          <div className="space-y-1.5">
+            <label
+              className="text-l"
+              style={{ color: adminColors.textSecondary }}
+            >
+              Title <span className="text-red-400">*</span>
+              {langTab === "ar" && (
+                <span
+                  className="ml-1 text-[16px]"
+                  style={{ color: adminColors.textMuted }}
+                >
+                  (Arabic)
+                </span>
+              )}
+            </label>
+            <input
+              name="title"
+              defaultValue={""}
+              placeholder="e.g. Last event"
+              className="w-full text-l rounded-lg border px-3 py-2 outline-none"
+              style={{
+                ...inputStyle,
+                display: langTab === "en" ? "block" : "none",
+              }}
+            />
+            <input
+              name="title_ar"
+              defaultValue={""}
+              dir="rtl"
+              placeholder="مثال: آخر فعالية"
+              className="w-full text-l rounded-lg border px-3 py-2 outline-none"
+              style={{
+                ...inputStyle,
+                fontFamily: "var(--font-layla, sans-serif)",
+                display: langTab === "ar" ? "block" : "none",
+              }}
+            />
+          </div>
 
           {/* ── Category ── */}
           {categories.length > 0 && (
@@ -330,7 +395,7 @@ export default function GalleryUploadModal({
           {persons.length > 0 && (
             <div>
               <label
-                className="block text-xs font-medium mb-2"
+                className="block text-l font-medium mb-2"
                 style={{ color: adminColors.textSecondary }}
               >
                 Tag People
@@ -343,7 +408,7 @@ export default function GalleryUploadModal({
                       key={p.id}
                       type="button"
                       onClick={() => togglePerson(p.id)}
-                      className="px-2.5 py-1 rounded-full text-xs transition-all border"
+                      className="px-2.5 py-1 rounded-full text-l transition-all border"
                       style={{
                         borderColor: selected
                           ? "#f59e0b"
@@ -367,24 +432,54 @@ export default function GalleryUploadModal({
             <button
               type="button"
               onClick={() => setShowAdvanced((v) => !v)}
-              className="flex items-center gap-1.5 text-xs transition-colors"
+              className="flex items-center gap-1.5 text-l transition-colors"
               style={{ color: adminColors.textMuted }}
             >
               {showAdvanced ? (
-                <ChevronUp size={13} />
+                <ChevronUp size={16} />
               ) : (
-                <ChevronDown size={13} />
+                <ChevronDown size={16} />
               )}
               Advanced options
             </button>
 
             {showAdvanced && (
               <div className="mt-3 space-y-3 pl-1">
-                <AdminInput
-                  label="Description / Caption"
-                  name="description"
-                  placeholder="Optional caption..."
-                />
+                {/* Description */}
+                <div className="space-y-1.5">
+                  <label className="text-l">
+                    Description
+                    {langTab === "ar" && (
+                      <span
+                        className="ml-1 text-[16px]"
+                        style={{ color: adminColors.textMuted }}
+                      >
+                        (Arabic)
+                      </span>
+                    )}
+                  </label>
+                  <textarea
+                    name="description"
+                    rows={3}
+                    className="w-full text-l rounded-lg border px-3 py-2 outline-none resize-none"
+                    style={{
+                      ...inputStyle,
+                      display: langTab === "en" ? "block" : "none",
+                    }}
+                  />
+                  <textarea
+                    name="description_ar"
+                    rows={3}
+                    dir="rtl"
+                    placeholder="الوصف بالعربي"
+                    className="w-full text-l rounded-lg border px-3 py-2 outline-none resize-none"
+                    style={{
+                      ...inputStyle,
+                      fontFamily: "var(--font-layla, sans-serif)",
+                      display: langTab === "ar" ? "block" : "none",
+                    }}
+                  />
+                </div>
 
                 <div>
                   <AdminInput
@@ -398,7 +493,7 @@ export default function GalleryUploadModal({
                     placeholder="auto-filled from title"
                   />
                   <p
-                    className="text-[11px] mt-1 text-right"
+                    className="text-[16px] mt-1 text-right"
                     style={{
                       color:
                         altText.length > 110
@@ -459,19 +554,19 @@ export default function GalleryUploadModal({
                 {isVideo && (
                   <div>
                     <label
-                      className="block text-xs font-medium mb-1.5"
+                      className="block text-l font-medium mb-1.5"
                       style={{ color: adminColors.textSecondary }}
                     >
                       Video Thumbnail (optional)
                     </label>
                     <label
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer text-xs transition-colors hover:bg-white/3"
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer text-l transition-colors hover:bg-white/3"
                       style={{
                         borderColor: adminColors.border,
                         color: adminColors.textSecondary,
                       }}
                     >
-                      <Video size={13} />
+                      <Video size={16} />
                       Choose poster image
                       <input
                         name="thumbnail"
@@ -498,7 +593,7 @@ export default function GalleryUploadModal({
           )}
 
           {error && (
-            <p className="text-xs px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+            <p className="text-l px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
               {error}
             </p>
           )}
@@ -512,7 +607,7 @@ export default function GalleryUploadModal({
               variant="primary"
               disabled={isPending || !fileName}
             >
-              {isPending && <Loader2 size={13} className="animate-spin" />}
+              {isPending && <Loader2 size={16} className="animate-spin" />}
               Upload
             </AdminButton>
           </div>

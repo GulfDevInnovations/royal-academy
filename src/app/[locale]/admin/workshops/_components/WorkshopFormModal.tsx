@@ -16,6 +16,7 @@ import {
 } from "@/lib/actions/admin/Workshops.actions";
 import { adminColors, AdminButton } from "@/components/admin/ui";
 import type { SerializedWorkshop } from "../page";
+import { useTranslations } from "next-intl";
 
 interface Props {
   workshop?: SerializedWorkshop;
@@ -145,6 +146,8 @@ export default function WorkshopFormModal({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [isOnline, setIsOnline] = useState(workshop?.isOnline ?? false);
+  const [langTab, setLangTab] = useState<"en" | "ar">("en");
+  const t = useTranslations("admin");
 
   // ── Image state ──
   // existingImageUrls: URLs already saved (edit mode), user can remove them
@@ -251,6 +254,11 @@ export default function WorkshopFormModal({
   const totalImages = existingImageUrls.length + newImageFiles.length;
   const totalVideos = existingVideoUrls.length + newVideoFiles.length;
 
+  const inputStyle = {
+    background: "rgba(255,255,255,0.04)",
+    borderColor: adminColors.border,
+    color: adminColors.textPrimary,
+  };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
@@ -258,7 +266,7 @@ export default function WorkshopFormModal({
         onClick={onClose}
       />
       <div
-        className="relative w-full max-w-2xl rounded-2xl border border-white/[0.08] shadow-2xl z-10 max-h-[92vh] flex flex-col"
+        className="relative w-full max-w-4xl rounded-2xl border border-white/[0.08] shadow-2xl z-10 max-h-[92vh] flex flex-col"
         style={{ background: "#1a1d27" }}
       >
         {/* ── Header ── */}
@@ -268,13 +276,13 @@ export default function WorkshopFormModal({
         >
           <div>
             <h2
-              className="text-sm font-semibold"
+              className="text-xl font-semibold"
               style={{ color: adminColors.textPrimary }}
             >
               {isEdit ? "Edit Workshop" : "New Workshop"}
             </h2>
             <p
-              className="text-xs mt-0.5"
+              className="text-l mt-0.5"
               style={{ color: adminColors.textMuted }}
             >
               {isEdit
@@ -284,9 +292,9 @@ export default function WorkshopFormModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/[0.05] transition-colors"
           >
-            <X size={15} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
 
@@ -297,28 +305,106 @@ export default function WorkshopFormModal({
           onSubmit={handleSubmit}
           className="overflow-y-auto flex-1 px-6 py-5 space-y-5"
         >
-          {/* Title */}
-          <Field label="Title" required>
+          <div
+            className="flex items-center gap-1 p-1 rounded-lg w-fit"
+            style={{ background: "rgba(255,255,255,0.05)" }}
+          >
+            {(["en", "ar"] as const).map((lang) => (
+              <button
+                key={lang}
+                type="button"
+                onClick={() => setLangTab(lang)}
+                className="px-3 py-1 rounded-md text-xs font-medium transition-all"
+                style={{
+                  background:
+                    langTab === lang ? "rgba(251,191,36,0.15)" : "transparent",
+                  color: langTab === lang ? "#fbbf24" : adminColors.textMuted,
+                  border:
+                    langTab === lang
+                      ? "1px solid rgba(251,191,36,0.3)"
+                      : "1px solid transparent",
+                }}
+              >
+                {lang === "en" ? "🇬🇧 English" : "🇴🇲 Arabic"}
+              </button>
+            ))}
+          </div>
+          <div className="space-y-1.5">
+            <label
+              className="text-l"
+              style={{ color: adminColors.textSecondary }}
+            >
+              Class Name <span className="text-red-400">*</span>
+              {langTab === "ar" && (
+                <span
+                  className="ml-1 text-[16px]"
+                  style={{ color: adminColors.textMuted }}
+                >
+                  (Arabic)
+                </span>
+              )}
+            </label>
             <input
               name="title"
               defaultValue={workshop?.title ?? ""}
-              placeholder="e.g. Watercolour Basics"
-              className={inputCls}
-              style={inputStyle}
+              placeholder="e.g. Dance, Painting, Music"
+              className="w-full text-l rounded-lg border px-3 py-2 outline-none"
+              style={{
+                ...inputStyle,
+                display: langTab === "en" ? "block" : "none",
+              }}
             />
-          </Field>
+            <input
+              name="title_ar"
+              defaultValue={(workshop as any)?.title_ar ?? ""}
+              dir="rtl"
+              placeholder="مثال: رقص، رسم، موسيقى"
+              className="w-full text-l rounded-lg border px-3 py-2 outline-none"
+              style={{
+                ...inputStyle,
+                fontFamily: "var(--font-layla, sans-serif)",
+                display: langTab === "ar" ? "block" : "none",
+              }}
+            />
+          </div>
 
           {/* Description */}
-          <Field label="Description">
+          <div className="space-y-1.5">
+            <label className="text-l">
+              Description
+              {langTab === "ar" && (
+                <span
+                  className="ml-1 text-[16px]"
+                  style={{ color: adminColors.textMuted }}
+                >
+                  (Arabic)
+                </span>
+              )}
+            </label>
             <textarea
               name="description"
               defaultValue={workshop?.description ?? ""}
               rows={3}
-              placeholder="What will students learn or experience?"
-              className={inputCls + " resize-none"}
-              style={inputStyle}
+              className="w-full text-l rounded-lg border px-3 py-2 outline-none resize-none"
+              style={{
+                ...inputStyle,
+                display: langTab === "en" ? "block" : "none",
+              }}
             />
-          </Field>
+            <textarea
+              name="description_ar"
+              defaultValue={(workshop as any)?.description_ar ?? ""}
+              rows={3}
+              dir="rtl"
+              placeholder="الوصف بالعربي"
+              className="w-full text-l rounded-lg border px-3 py-2 outline-none resize-none"
+              style={{
+                ...inputStyle,
+                fontFamily: "var(--font-layla, sans-serif)",
+                display: langTab === "ar" ? "block" : "none",
+              }}
+            />
+          </div>
 
           {/* ── Images ──────────────────────────────────── */}
           <Field label="Images">
@@ -348,7 +434,7 @@ export default function WorkshopFormModal({
             <button
               type="button"
               onClick={() => imageInputRef.current?.click()}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-dashed text-xs transition-colors hover:border-amber-500/40"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-dashed text-l transition-colors hover:border-amber-500/40"
               style={{
                 borderColor: "rgba(255,255,255,0.12)",
                 color: adminColors.textMuted,
@@ -370,7 +456,7 @@ export default function WorkshopFormModal({
             />
             {totalImages > 0 && (
               <p
-                className="text-[11px] mt-1"
+                className="text-[16px] mt-1"
                 style={{ color: adminColors.textMuted }}
               >
                 First image is used as the cover. {totalImages} image
@@ -406,7 +492,7 @@ export default function WorkshopFormModal({
             <button
               type="button"
               onClick={() => videoInputRef.current?.click()}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-dashed text-xs transition-colors hover:border-amber-500/40"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-dashed text-l transition-colors hover:border-amber-500/40"
               style={{
                 borderColor: "rgba(255,255,255,0.12)",
                 color: adminColors.textMuted,
@@ -428,7 +514,7 @@ export default function WorkshopFormModal({
             />
             {totalVideos > 0 && (
               <p
-                className="text-[11px] mt-1"
+                className="text-[16px] mt-1"
                 style={{ color: adminColors.textMuted }}
               >
                 {totalVideos} video{totalVideos !== 1 ? "s" : ""} selected.
@@ -561,7 +647,7 @@ export default function WorkshopFormModal({
               />
             </button>
             <span
-              className="text-xs"
+              className="text-l"
               style={{ color: adminColors.textSecondary }}
             >
               Online workshop
@@ -595,7 +681,7 @@ export default function WorkshopFormModal({
                 style={{ color: adminColors.accent }}
               />
               <p
-                className="text-xs"
+                className="text-l"
                 style={{ color: adminColors.textSecondary }}
               >
                 A matching{" "}
@@ -607,7 +693,7 @@ export default function WorkshopFormModal({
           )}
 
           {error && (
-            <p className="text-xs px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+            <p className="text-l px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
               {error}
             </p>
           )}

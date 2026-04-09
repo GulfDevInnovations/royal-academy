@@ -21,6 +21,7 @@ import { AdminPageHeader, adminColors } from "@/components/admin/ui";
 import ComposeTab from "./ComposeTab";
 import HistoryTab from "./HistoryTab";
 import TicketsTab from "./TicketsTab";
+import { useTranslations } from "next-intl";
 
 // ─────────────────────────────────────────────
 // Types
@@ -89,6 +90,7 @@ export default function NotificationsClient({
   const [notifStats, setNotifStats] = useState(initialNotifStats);
   const [tickets, setTickets] = useState(initialTickets);
   const [ticketStats, setTicketStats] = useState(initialTicketStats);
+  const t = useTranslations("admin");
 
   // ── Refresh notifications ──
   const refreshNotifs = useCallback(async () => {
@@ -117,17 +119,17 @@ export default function NotificationsClient({
     icon: React.ReactNode;
     badge?: number;
   }[] = [
-    { key: "compose", label: "Compose", icon: <Send size={14} /> },
+    { key: "compose", label: t("compose"), icon: <Send size={18} /> },
     {
       key: "history",
-      label: "History",
-      icon: <History size={14} />,
+      label: t("history"),
+      icon: <History size={18} />,
       badge: pendingNotifCount,
     },
     {
       key: "tickets",
-      label: "Tickets",
-      icon: <MessageSquare size={14} />,
+      label: t("tickets"),
+      icon: <MessageSquare size={18} />,
       badge: openTicketCount,
     },
   ];
@@ -137,15 +139,15 @@ export default function NotificationsClient({
   // ─────────────────────────────────────────────
 
   return (
-    <div className="space-y-5 max-w-7xl mx-auto">
+    <div className="space-y-5 max-w-8xl mx-auto">
       <AdminPageHeader
         title="Notifications"
         subtitle="Compose messages, track delivery, manage support tickets"
         action={
           <div className="flex items-center gap-2">
-            <Bell size={14} style={{ color: adminColors.textMuted }} />
-            <span className="text-xs" style={{ color: adminColors.textMuted }}>
-              {notifStats.total} total notifications
+            <Bell size={18} style={{ color: adminColors.textMuted }} />
+            <span className="text-l" style={{ color: adminColors.textMuted }}>
+              {notifStats.total} {t("totalNotifications")}
             </span>
           </div>
         }
@@ -153,14 +155,14 @@ export default function NotificationsClient({
 
       {/* ── Tab bar ── */}
       <div
-        className="flex items-center gap-1 border-b"
+        className="flex items-center justify-center gap-1 border-b"
         style={{ borderColor: "rgba(255,255,255,0.07)" }}
       >
         {TABS.map(({ key, label, icon, badge }) => (
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className="relative flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2 -mb-px"
+            className="relative flex items-center gap-2 px-5 py-3 text-xl font-medium transition-colors border-b-2 -mb-px"
             style={{
               borderColor: activeTab === key ? "#f59e0b" : "transparent",
               color: activeTab === key ? "#f59e0b" : adminColors.textMuted,
@@ -170,7 +172,7 @@ export default function NotificationsClient({
             {label}
             {badge != null && badge > 0 && (
               <span
-                className="flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-bold"
+                className="flex items-center justify-center w-4 h-4 rounded-full text-[16px] font-bold"
                 style={{ background: "#f59e0b", color: "#0f1117" }}
               >
                 {badge > 99 ? "99+" : badge}

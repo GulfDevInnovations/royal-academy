@@ -8,6 +8,7 @@ import {
   getWorkshopsForSelect,
 } from "@/lib/actions/admin/Workshops.actions";
 import { adminColors, AdminButton } from "@/components/admin/ui";
+import { useTranslations } from "next-intl";
 
 // ── Types ─────────────────────────────────────────────────────
 interface Student {
@@ -45,7 +46,7 @@ type MethodValue = (typeof METHODS)[number]["value"];
 
 // ── Helpers ────────────────────────────────────────────────────
 const inputCls =
-  "w-full px-3 py-2 rounded-lg border bg-white/[0.03] text-sm focus:outline-none focus:border-amber-500/40 transition-colors placeholder:text-white/20";
+  "w-full px-3 py-2 rounded-lg border bg-white/[0.03] text-xl focus:outline-none focus:border-amber-500/40 transition-colors placeholder:text-white/20";
 const inputStyle = {
   borderColor: "rgba(255,255,255,0.08)",
   color: adminColors.textPrimary,
@@ -63,7 +64,7 @@ function Field({
   return (
     <div className="space-y-1.5">
       <label
-        className="block text-xs font-medium"
+        className="block text-l font-medium"
         style={{ color: adminColors.textSecondary }}
       >
         {label}
@@ -98,6 +99,7 @@ function SearchDropdown<T extends { id: string }>({
 }) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const t = useTranslations("admin");
 
   const filtered = query
     ? items.filter((i) => filterFn(i, query.toLowerCase()))
@@ -119,9 +121,9 @@ function SearchDropdown<T extends { id: string }>({
             onClear();
             setQuery("");
           }}
-          className="flex-shrink-0 text-white/30 hover:text-white/60 transition-colors"
+          className="flex-shrink-0 hover:bg-white/5 transition-colors"
         >
-          <X size={13} />
+          <X size={16} style={{ color: adminColors.pinkText }} />
         </button>
       </div>
     );
@@ -130,7 +132,7 @@ function SearchDropdown<T extends { id: string }>({
   return (
     <div className="relative">
       <Search
-        size={13}
+        size={16}
         className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
         style={{ color: "rgba(255,255,255,0.25)" }}
       />
@@ -156,7 +158,7 @@ function SearchDropdown<T extends { id: string }>({
         >
           {filtered.length === 0 ? (
             <p
-              className="px-3 py-3 text-xs"
+              className="px-3 py-3 text-l"
               style={{ color: adminColors.textMuted }}
             >
               {emptyText}
@@ -186,6 +188,7 @@ function SearchDropdown<T extends { id: string }>({
 
 // ── Main component ─────────────────────────────────────────────
 export default function EnrollModal({ onClose, onSuccess }: Props) {
+  const t = useTranslations("admin");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
 
@@ -287,23 +290,23 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
         >
           <div>
             <h2
-              className="text-sm font-semibold"
+              className="text-xl font-semibold"
               style={{ color: adminColors.textPrimary }}
             >
-              Enroll Student in Workshop
+              {t("enrollStudentWorkshop")}
             </h2>
             <p
-              className="text-xs mt-0.5"
+              className="text-l mt-0.5"
               style={{ color: adminColors.textMuted }}
             >
-              Manually enroll a student and record their payment
+              {t("manualEnroll")}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <X size={15} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
 
@@ -315,7 +318,7 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
               style={{ color: adminColors.textMuted }}
             >
               <Loader2 size={16} className="animate-spin" />
-              <span className="text-xs">Loading data…</span>
+              <span className="text-l">Loading data…</span>
             </div>
           ) : (
             <>
@@ -335,13 +338,13 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
                   renderItem={(s) => (
                     <div>
                       <p
-                        className="text-xs font-medium"
+                        className="text-l font-medium"
                         style={{ color: adminColors.textPrimary }}
                       >
                         {s.firstName} {s.lastName}
                       </p>
                       <p
-                        className="text-[11px]"
+                        className="text-[16px]"
                         style={{ color: adminColors.textMuted }}
                       >
                         {s.user.email}
@@ -351,13 +354,13 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
                   renderSelected={(s) => (
                     <div>
                       <p
-                        className="text-xs font-medium"
+                        className="text-l font-medium"
                         style={{ color: adminColors.textPrimary }}
                       >
                         {s.firstName} {s.lastName}
                       </p>
                       <p
-                        className="text-[11px]"
+                        className="text-[16px]"
                         style={{ color: adminColors.textMuted }}
                       >
                         {s.user.email}
@@ -384,13 +387,13 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <p
-                            className="text-xs font-medium"
+                            className="text-l font-medium"
                             style={{ color: adminColors.textPrimary }}
                           >
                             {w.title}
                           </p>
                           <p
-                            className="text-[11px]"
+                            className="text-[16px]"
                             style={{ color: adminColors.textMuted }}
                           >
                             {new Date(w.eventDate).toLocaleDateString("en-GB", {
@@ -401,7 +404,7 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
                           </p>
                         </div>
                         <span
-                          className="text-[11px] flex-shrink-0"
+                          className="text-[16px] flex-shrink-0"
                           style={{
                             color:
                               seats <= 0 ? "#f87171" : adminColors.textMuted,
@@ -418,13 +421,13 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
                     return (
                       <div>
                         <p
-                          className="text-xs font-medium"
+                          className="text-l font-medium"
                           style={{ color: adminColors.textPrimary }}
                         >
                           {w.title}
                         </p>
                         <p
-                          className="text-[11px]"
+                          className="text-[16px]"
                           style={{ color: adminColors.textMuted }}
                         >
                           {new Date(w.eventDate).toLocaleDateString("en-GB", {
@@ -452,14 +455,14 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
               </Field>
 
               {/* ── Payment method ── */}
-              <Field label="Payment Method" required>
+              <Field label={t("paymentMethod")} required>
                 <div className="grid grid-cols-2 gap-2">
                   {METHODS.map((m) => (
                     <button
                       key={m.value}
                       type="button"
                       onClick={() => setMethod(m.value)}
-                      className="px-3 py-2.5 rounded-lg border text-xs font-medium transition-all text-left"
+                      className="px-3 py-2.5 rounded-lg border text-l font-medium transition-all text-left"
                       style={{
                         borderColor:
                           method === m.value
@@ -540,7 +543,7 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
                   }}
                 >
                   <p
-                    className="text-[10px] font-semibold uppercase tracking-widest"
+                    className="text-[15px] font-semibold uppercase tracking-widest"
                     style={{ color: adminColors.textMuted }}
                   >
                     Summary
@@ -560,7 +563,7 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
                   ].map(({ label, value, highlight }) => (
                     <div
                       key={label}
-                      className="flex items-center justify-between text-xs"
+                      className="flex items-center justify-between text-l"
                     >
                       <span style={{ color: adminColors.textSecondary }}>
                         {label}
@@ -573,7 +576,7 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
                         }}
                       >
                         {highlight && (
-                          <CheckCircle2 size={11} className="inline mr-1" />
+                          <CheckCircle2 size={16} className="inline mr-1" />
                         )}
                         {value}
                       </span>
@@ -583,7 +586,7 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
               )}
 
               {error && (
-                <p className="text-xs px-3 py-2.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+                <p className="text-l px-3 py-2.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
                   {error}
                 </p>
               )}
@@ -604,7 +607,7 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
             onClick={handleSubmit}
             disabled={!canSubmit || loadingData}
           >
-            {isPending && <Loader2 size={13} className="animate-spin" />}
+            {isPending && <Loader2 size={16} className="animate-spin" />}
             Confirm Enrollment
           </AdminButton>
         </div>

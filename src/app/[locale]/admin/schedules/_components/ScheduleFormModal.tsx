@@ -13,6 +13,7 @@ import {
   AdminButton,
   adminColors,
 } from "@/components/admin/ui";
+import { useTranslations } from "next-intl";
 
 const DAYS = [
   "MONDAY",
@@ -74,6 +75,7 @@ export default function ScheduleFormModal({
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("admin");
 
   const [selectedSubClassId, setSelectedSubClassId] = useState<string>(
     editing?.subClassId ?? "",
@@ -118,7 +120,7 @@ export default function ScheduleFormModal({
         onClick={onClose}
       />
       <div
-        className="relative w-full max-w-lg rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[92vh] flex flex-col"
+        className="relative w-full max-w-2xl rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[92vh] flex flex-col"
         style={{ background: "#1a1d27" }}
       >
         {/* Header */}
@@ -141,9 +143,9 @@ export default function ScheduleFormModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <X size={15} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
 

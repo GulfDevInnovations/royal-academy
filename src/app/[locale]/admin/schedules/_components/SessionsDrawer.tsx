@@ -16,6 +16,7 @@ import {
 } from "@/lib/actions/admin/Schedules.actions";
 import { AdminButton, adminColors } from "@/components/admin/ui";
 import type { SerializedSchedule } from "../page";
+import { useTranslations } from "next-intl";
 
 export interface SessionRow {
   id: string;
@@ -56,6 +57,7 @@ export default function SessionsDrawer({
   const [isPending, startTransition] = useTransition();
   const [isRegenerating, startRegen] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations("admin");
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -135,7 +137,7 @@ export default function SessionsDrawer({
               className="text-sm font-semibold"
               style={{ color: adminColors.textPrimary }}
             >
-              Sessions
+              {t("sessions")}
             </h2>
             <p
               className="text-xs mt-0.5"
@@ -155,7 +157,7 @@ export default function SessionsDrawer({
                   className="text-[10px] font-medium"
                   style={{ color: "#f59e0b" }}
                 >
-                  Opened from {dateLabel}
+                  {t("openedFrom")} {dateLabel}
                 </span>
               </div>
             )}
@@ -177,13 +179,13 @@ export default function SessionsDrawer({
               ) : (
                 <RefreshCw size={12} />
               )}
-              Regenerate
+              {t("regenerate")}
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-white/30 hover:text-white/70 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
             >
-              <X size={15} />
+              <X size={16} style={{ color: adminColors.pinkText }} />
             </button>
           </div>
         </div>
@@ -294,13 +296,13 @@ export default function SessionsDrawer({
             <div className="flex flex-col items-center justify-center h-40 gap-2">
               <Clock size={24} style={{ color: adminColors.textMuted }} />
               <p className="text-sm" style={{ color: adminColors.textMuted }}>
-                No sessions generated yet.
+                {t("noSessionsYet")}
               </p>
               <p
                 className="text-xs text-center"
                 style={{ color: adminColors.textMuted }}
               >
-                Add an end date to the schedule and click Regenerate.
+                {t("addEndDate")}
               </p>
             </div>
           )}
@@ -339,6 +341,7 @@ function SessionCard({
   isPending,
   readOnly,
 }: CardProps) {
+  const t = useTranslations("admin");
   const colors = STATUS_COLORS[session.status] ?? STATUS_COLORS.ACTIVE;
   const isCancelling = cancellingId === session.id;
 
@@ -378,7 +381,7 @@ function SessionCard({
                   color: "#f59e0b",
                 }}
               >
-                selected
+                {t("selected")}
               </span>
             )}
           </div>
@@ -407,7 +410,7 @@ function SessionCard({
 
       {session.cancelledReason && (
         <p className="text-xs pl-4" style={{ color: "rgba(248,113,113,0.7)" }}>
-          Reason: {session.cancelledReason}
+          {t("reason")} {session.cancelledReason}
         </p>
       )}
 
@@ -438,7 +441,7 @@ function SessionCard({
               ) : (
                 <XCircle size={11} />
               )}
-              Confirm Cancel
+              {t("confirmCancel")}
             </button>
             <button
               onClick={() => {

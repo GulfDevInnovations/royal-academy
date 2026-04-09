@@ -43,6 +43,7 @@ import WorkshopDetailDrawer from "./WorkshopDetailDrawer";
 import EnrollModal from "./EnrollModal";
 import DeleteConfirmModal from "../../../../../components/admin/DeleteConfirmModal";
 import type { SerializedWorkshop } from "../page";
+import { useTranslations } from "next-intl";
 
 interface Props {
   initialWorkshops: SerializedWorkshop[];
@@ -80,6 +81,7 @@ export default function WorkshopsClient({
 }: Props) {
   const { toasts, toast, remove } = useToast();
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("admin");
 
   const [workshops, setWorkshops] = useState(initialWorkshops);
   const [search, setSearch] = useState("");
@@ -222,11 +224,11 @@ export default function WorkshopsClient({
         action={
           <div className="flex items-center gap-2">
             <AdminButton variant="primary" onClick={() => setShowEnroll(true)}>
-              <UserPlus size={14} />
+              <UserPlus size={18} />
               Enroll Student
             </AdminButton>
             <AdminButton variant="primary" onClick={() => setShowCreate(true)}>
-              <Plus size={14} />
+              <Plus size={18} />
               New Workshop
             </AdminButton>
           </div>
@@ -242,11 +244,11 @@ export default function WorkshopsClient({
           { label: "Total Enrolled", value: stats.totalEnrolled },
         ].map((s) => (
           <AdminCard key={s.label}>
-            <p className="text-xs" style={{ color: adminColors.textMuted }}>
+            <p className="text-l" style={{ color: adminColors.textMuted }}>
               {s.label}
             </p>
             <p
-              className="text-2xl font-semibold mt-1"
+              className="text-3xl font-semibold mt-1"
               style={{ color: adminColors.textPrimary }}
             >
               {s.value}
@@ -261,14 +263,14 @@ export default function WorkshopsClient({
           {/* Search */}
           <div className="relative flex-1 min-w-48">
             <Search
-              size={13}
+              size={18}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30"
             />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search title, teacher, room…"
-              className="w-full pl-8 pr-3 py-2 rounded-lg border bg-white/[0.03] text-sm focus:outline-none focus:border-amber-500/40 transition-colors"
+              className="w-full pl-8 pr-3 py-2 rounded-lg border bg-white/[0.03] text-xl focus:outline-none focus:border-amber-500/40 transition-colors"
               style={{
                 borderColor: "rgba(255,255,255,0.08)",
                 color: adminColors.textPrimary,
@@ -285,7 +287,7 @@ export default function WorkshopsClient({
               <button
                 key={v}
                 onClick={() => setFilterStatus(v)}
-                className="px-3 py-2 text-xs capitalize transition-colors"
+                className="px-3 py-2 text-l capitalize transition-colors"
                 style={{
                   background:
                     filterStatus === v ? adminColors.accent : "transparent",
@@ -307,7 +309,7 @@ export default function WorkshopsClient({
               <button
                 key={v}
                 onClick={() => setFilterTime(v)}
-                className="px-3 py-2 text-xs capitalize transition-colors"
+                className="px-3 py-2 text-l capitalize transition-colors"
                 style={{
                   background:
                     filterTime === v ? "rgba(245,158,11,0.15)" : "transparent",
@@ -330,13 +332,13 @@ export default function WorkshopsClient({
           <AdminThead>
             <AdminTh>Workshop</AdminTh>
             <AdminTh>Date & Time</AdminTh>
-            <AdminTh>Teacher</AdminTh>
-            <AdminTh>Room</AdminTh>
-            <AdminTh>Seats</AdminTh>
-            <AdminTh>Price</AdminTh>
-            <AdminTh>Status</AdminTh>
+            <AdminTh>{t("teacher")}</AdminTh>
+            <AdminTh>{t("room")}</AdminTh>
+            <AdminTh>{t("seat")}</AdminTh>
+            <AdminTh>{t("price")}</AdminTh>
+            <AdminTh>{t("status")}</AdminTh>
             <AdminTh>Enrollments</AdminTh>
-            <AdminTh className="text-right">Actions</AdminTh>
+            <AdminTh className="text-right">{t("actions")}</AdminTh>
           </AdminThead>
           <AdminTbody>
             {filtered.length === 0 ? (
@@ -353,10 +355,10 @@ export default function WorkshopsClient({
                       !search ? (
                         <AdminButton
                           variant="primary"
-                          size="sm"
+                          size="md"
                           onClick={() => setShowCreate(true)}
                         >
-                          <Plus size={12} /> New Workshop
+                          <Plus size={17} /> New Workshop
                         </AdminButton>
                       ) : undefined
                     }
@@ -378,17 +380,17 @@ export default function WorkshopsClient({
                       <div className="flex items-center gap-2">
                         <div>
                           <p
-                            className="text-xs font-medium"
+                            className="text-l font-medium"
                             style={{ color: adminColors.textPrimary }}
                           >
                             {w.title}
                           </p>
                           {w.isOnline && (
                             <span
-                              className="flex items-center gap-1 text-[10px] mt-0.5"
+                              className="flex items-center gap-1 text-[16px] mt-0.5"
                               style={{ color: "#60a5fa" }}
                             >
-                              <Wifi size={9} /> Online
+                              <Wifi size={14} /> Online
                             </span>
                           )}
                         </div>
@@ -399,17 +401,17 @@ export default function WorkshopsClient({
                     <AdminTd>
                       <div className="space-y-0.5">
                         <p
-                          className="text-xs flex items-center gap-1"
+                          className="text-l flex items-center gap-1"
                           style={{ color: adminColors.textPrimary }}
                         >
-                          <CalendarDays size={10} className="flex-shrink-0" />
+                          <CalendarDays size={15} className="flex-shrink-0" />
                           {fmtDate(w.eventDate)}
                         </p>
                         <p
-                          className="text-[11px] flex items-center gap-1"
+                          className="text-[16px] flex items-center gap-1"
                           style={{ color: adminColors.textMuted }}
                         >
-                          <Clock size={10} className="flex-shrink-0" />
+                          <Clock size={15} className="flex-shrink-0" />
                           {fmtTime(w.startTime)} – {fmtTime(w.endTime)}
                         </p>
                       </div>
@@ -419,14 +421,14 @@ export default function WorkshopsClient({
                     <AdminTd>
                       {teacher ? (
                         <p
-                          className="text-xs"
+                          className="text-l"
                           style={{ color: adminColors.textSecondary }}
                         >
                           {teacher.firstName} {teacher.lastName}
                         </p>
                       ) : (
                         <span
-                          className="text-xs"
+                          className="text-l"
                           style={{ color: adminColors.textMuted }}
                         >
                           —
@@ -438,15 +440,15 @@ export default function WorkshopsClient({
                     <AdminTd>
                       {room ? (
                         <p
-                          className="text-xs flex items-center gap-1"
+                          className="text-l flex items-center gap-1"
                           style={{ color: adminColors.textSecondary }}
                         >
-                          <MapPin size={10} />
+                          <MapPin size={15} />
                           {room.name}
                         </p>
                       ) : (
                         <span
-                          className="text-xs"
+                          className="text-l"
                           style={{ color: adminColors.textMuted }}
                         >
                           —
@@ -458,7 +460,7 @@ export default function WorkshopsClient({
                     <AdminTd>
                       <div className="space-y-1">
                         <p
-                          className="text-xs"
+                          className="text-l"
                           style={{
                             color: isFull
                               ? "#f87171"
@@ -487,7 +489,7 @@ export default function WorkshopsClient({
                     {/* Price */}
                     <AdminTd>
                       <p
-                        className="text-xs font-medium"
+                        className="text-l font-medium"
                         style={{ color: adminColors.accent }}
                       >
                         {w.currency} {w.price.toFixed(2)}
@@ -536,8 +538,8 @@ export default function WorkshopsClient({
                           ).style.borderColor = "rgba(245,158,11,0.15)";
                         }}
                       >
-                        <Eye size={15} />
-                        <span className="text-[11px] font-medium">
+                        <Eye size={20} />
+                        <span className="text-[16px] font-medium">
                           {w.enrolledCount}/{w.capacity}
                         </span>
                       </button>
@@ -566,7 +568,7 @@ export default function WorkshopsClient({
                             ).style.background = "rgba(96,165,250,0.08)";
                           }}
                         >
-                          <Pencil size={13} />
+                          <Pencil size={20} />
                         </button>
 
                         {/* Toggle active — green / grey */}
@@ -599,9 +601,9 @@ export default function WorkshopsClient({
                           }}
                         >
                           {w.isActive ? (
-                            <ToggleRight size={15} />
+                            <ToggleRight size={20} />
                           ) : (
-                            <ToggleLeft size={15} />
+                            <ToggleLeft size={20} />
                           )}
                         </button>
 
@@ -625,7 +627,7 @@ export default function WorkshopsClient({
                             ).style.background = "rgba(248,113,113,0.08)";
                           }}
                         >
-                          <Trash2 size={13} />
+                          <Trash2 size={20} />
                         </button>
                       </div>
                     </AdminTd>

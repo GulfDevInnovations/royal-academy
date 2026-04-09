@@ -9,6 +9,7 @@ import {
 import { adminColors, AdminButton } from "@/components/admin/ui";
 import { BookingStatus, PaymentMethod } from "@prisma/client";
 import type { SerializedWorkshop } from "../page";
+import { useTranslations } from "next-intl";
 
 interface Student {
   id: string;
@@ -31,7 +32,7 @@ const METHODS: { value: PaymentMethod; label: string }[] = [
 ];
 
 const inputCls =
-  "w-full px-3 py-2 rounded-lg border bg-white/[0.03] text-sm focus:outline-none focus:border-amber-500/40 transition-colors";
+  "w-full px-3 py-2 rounded-lg border bg-white/[0.03] text-xl focus:outline-none focus:border-amber-500/40 transition-colors";
 const inputStyle = {
   borderColor: "rgba(255,255,255,0.08)",
   color: adminColors.textPrimary,
@@ -47,7 +48,7 @@ function Field({
   return (
     <div className="space-y-1.5">
       <label
-        className="block text-xs font-medium"
+        className="block text-l font-medium"
         style={{ color: adminColors.textSecondary }}
       >
         {label}
@@ -64,6 +65,7 @@ export default function EnrollStudentModal({
 }: Props) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const t = useTranslations("admin");
 
   const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState("");
@@ -126,13 +128,13 @@ export default function EnrollStudentModal({
         >
           <div>
             <h2
-              className="text-sm font-semibold"
+              className="text-xl font-semibold"
               style={{ color: adminColors.textPrimary }}
             >
               Enroll Student
             </h2>
             <p
-              className="text-xs mt-0.5"
+              className="text-l mt-0.5"
               style={{ color: adminColors.textMuted }}
             >
               {workshop.title} — {availableSeats} seat
@@ -141,9 +143,9 @@ export default function EnrollStudentModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <X size={15} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
 
@@ -152,7 +154,7 @@ export default function EnrollStudentModal({
           <Field label="Select Student">
             <div className="relative">
               <Search
-                size={13}
+                size={16}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30"
               />
               <input
@@ -178,7 +180,7 @@ export default function EnrollStudentModal({
               >
                 {filtered.length === 0 ? (
                   <p
-                    className="px-3 py-2.5 text-xs"
+                    className="px-3 py-2.5 text-l"
                     style={{ color: adminColors.textMuted }}
                   >
                     No students found
@@ -196,13 +198,13 @@ export default function EnrollStudentModal({
                       style={{ borderColor: "rgba(255,255,255,0.05)" }}
                     >
                       <span
-                        className="text-xs font-medium"
+                        className="text-l font-medium"
                         style={{ color: adminColors.textPrimary }}
                       >
                         {s.firstName} {s.lastName}
                       </span>
                       <span
-                        className="text-[11px]"
+                        className="text-[16px]"
                         style={{ color: adminColors.textMuted }}
                       >
                         {s.user.email}
@@ -224,13 +226,13 @@ export default function EnrollStudentModal({
               >
                 <div className="flex-1">
                   <p
-                    className="text-xs font-medium"
+                    className="text-l font-medium"
                     style={{ color: adminColors.textPrimary }}
                   >
                     {selectedStudent.firstName} {selectedStudent.lastName}
                   </p>
                   <p
-                    className="text-[11px]"
+                    className="text-[16px]"
                     style={{ color: adminColors.textMuted }}
                   >
                     {selectedStudent.user.email}
@@ -244,21 +246,21 @@ export default function EnrollStudentModal({
                   }}
                   className="text-white/30 hover:text-white/60"
                 >
-                  <X size={13} />
+                  <X size={16} style={{ color: adminColors.pinkText }} />
                 </button>
               </div>
             )}
           </Field>
 
           {/* Payment method */}
-          <Field label="Payment Method">
+          <Field label={t("paymentMethod")}>
             <div className="grid grid-cols-2 gap-2">
               {METHODS.map((m) => (
                 <button
                   key={m.value}
                   type="button"
                   onClick={() => setMethod(m.value)}
-                  className="px-3 py-2 rounded-lg border text-xs font-medium transition-all"
+                  className="px-3 py-2 rounded-lg border text-l font-medium transition-all"
                   style={{
                     borderColor:
                       method === m.value
@@ -315,20 +317,20 @@ export default function EnrollStudentModal({
               }}
             >
               <p
-                className="text-[11px] font-medium uppercase tracking-wide"
+                className="text-[16px] font-medium uppercase tracking-wide"
                 style={{ color: adminColors.textMuted }}
               >
-                Summary
+                {t("summary")}
               </p>
-              <div className="flex justify-between text-xs">
+              <div className="flex justify-between text-l">
                 <span style={{ color: adminColors.textSecondary }}>
-                  Student
+                  {t("student")}
                 </span>
                 <span style={{ color: adminColors.textPrimary }}>
                   {selectedStudent.firstName} {selectedStudent.lastName}
                 </span>
               </div>
-              <div className="flex justify-between text-xs">
+              <div className="flex justify-between text-l">
                 <span style={{ color: adminColors.textSecondary }}>
                   Workshop
                 </span>
@@ -336,24 +338,28 @@ export default function EnrollStudentModal({
                   {workshop.title}
                 </span>
               </div>
-              <div className="flex justify-between text-xs">
+              <div className="flex justify-between text-l">
                 <span style={{ color: adminColors.textSecondary }}>
-                  Payment
+                  {t("payment")}
                 </span>
                 <span style={{ color: adminColors.accent }}>
                   {currency} {Number(amount).toFixed(2)} —{" "}
                   {method.replace("_", " ")}
                 </span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span style={{ color: adminColors.textSecondary }}>Status</span>
-                <span className="text-emerald-400">Confirmed immediately</span>
+              <div className="flex justify-between text-l">
+                <span style={{ color: adminColors.textSecondary }}>
+                  {t("status")}
+                </span>
+                <span className="text-emerald-400">
+                  {t("confirmedImmediately")}
+                </span>
               </div>
             </div>
           )}
 
           {error && (
-            <p className="text-xs px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+            <p className="text-l px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
               {error}
             </p>
           )}
@@ -372,7 +378,7 @@ export default function EnrollStudentModal({
             onClick={handleEnroll}
             disabled={isPending || !selectedStudent}
           >
-            {isPending && <Loader2 size={13} className="animate-spin" />}
+            {isPending && <Loader2 size={16} className="animate-spin" />}
             Confirm Enrollment
           </AdminButton>
         </div>

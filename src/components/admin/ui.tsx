@@ -16,6 +16,10 @@ export const adminColors = {
   textMuted: "rgba(255,255,255,0.20)",
   accent: "#f59e0b", // amber — primary action colour
   accentHover: "#d97706",
+  blueText: "#5190f5", // for reminders
+  redText: "#ff2929", // for warnings/errors
+  purpleText: "#9029ff", // for highlights
+  pinkText: "#e84f8a", // for highlights
 } as const;
 
 // ── Card ─────────────────────────────────────────────────────
@@ -46,7 +50,7 @@ interface PageHeaderProps {
 }
 export function AdminPageHeader({ title, subtitle, action }: PageHeaderProps) {
   return (
-    <div className="flex items-start justify-between gap-4">
+    <div className="flex items-center justify-between gap-4">
       <div>
         <h1
           className="text-xl font-semibold tracking-tight"
@@ -55,10 +59,7 @@ export function AdminPageHeader({ title, subtitle, action }: PageHeaderProps) {
           {title}
         </h1>
         {subtitle && (
-          <p
-            className="text-sm mt-0.5"
-            style={{ color: adminColors.textMuted }}
-          >
+          <p className="text-l mt-0.5" style={{ color: adminColors.textMuted }}>
             {subtitle}
           </p>
         )}
@@ -85,8 +86,8 @@ export function AdminButton({
     "inline-flex items-center gap-2 rounded-lg font-medium transition-all duration-150 disabled:opacity-40";
 
   const sizes = {
-    sm: "px-3 py-1.5 text-xs",
-    md: "px-4 py-2 text-sm",
+    sm: "px-3 py-1.5 text-l",
+    md: "px-4 py-2 text-xl",
   };
 
   const variants = {
@@ -146,7 +147,7 @@ export function AdminBadge({
   const s = badgeStyles[variant];
   return (
     <span
-      className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium"
+      className="inline-flex items-center px-2 py-0.5 rounded-md text-l font-medium"
       style={{ background: s.bg, color: s.color }}
     >
       {children}
@@ -158,7 +159,7 @@ export function AdminBadge({
 export function AdminTable({ children }: { children: ReactNode }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm border-collapse">{children}</table>
+      <table className="w-full text-xl border-collapse">{children}</table>
     </div>
   );
 }
@@ -180,7 +181,7 @@ export function AdminTh({
 }) {
   return (
     <th
-      className={`px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider ${className}`}
+      className={`px-4 py-3 text-left text-[16px] font-semibold uppercase tracking-wider ${className}`}
       style={{ color: adminColors.textMuted }}
     >
       {children}
@@ -249,14 +250,14 @@ export function AdminInput({
     <div className="space-y-1.5">
       {label && (
         <label
-          className="block text-xs font-medium"
+          className="block text-l font-medium"
           style={{ color: adminColors.textSecondary }}
         >
           {label}
         </label>
       )}
       <input
-        className={`w-full px-3 py-2 rounded-lg text-sm border
+        className={`w-full px-3 py-2 rounded-lg text-xl border
           bg-white/4 text-white/80 placeholder-white/20
           focus:outline-none focus:border-amber-500/50 focus:bg-white/6
           transition-all duration-150 ${className}`}
@@ -264,12 +265,12 @@ export function AdminInput({
         {...props}
       />
       {error && (
-        <p className="text-xs" style={{ color: "#f87171" }}>
+        <p className="text-l" style={{ color: "#f87171" }}>
           {error}
         </p>
       )}
       {helperText && !error && (
-        <p className="text-xs" style={{ color: adminColors.textMuted }}>
+        <p className="text-l" style={{ color: adminColors.textMuted }}>
           {helperText}
         </p>
       )}
@@ -293,7 +294,7 @@ export function AdminSelect({
     <div className="space-y-1.5">
       {label && (
         <label
-          className="block text-xs font-medium"
+          className="block text-l font-medium"
           style={{ color: adminColors.textSecondary }}
         >
           {label}
@@ -301,7 +302,7 @@ export function AdminSelect({
       )}
       <select
         className={`
-          w-full px-3 py-2 rounded-lg text-sm border
+          w-full px-3 py-2 rounded-lg text-l border
           bg-white/[0.04] text-white/80
           focus:outline-none focus:border-amber-500/50
           transition-all duration-150 ${className}
@@ -312,7 +313,7 @@ export function AdminSelect({
         {children}
       </select>
       {error && (
-        <p className="text-xs" style={{ color: "#f87171" }}>
+        <p className="text-l" style={{ color: "#f87171" }}>
           {error}
         </p>
       )}
@@ -336,7 +337,7 @@ export function AdminTextarea({
     <div className="space-y-1.5">
       {label && (
         <label
-          className="block text-xs font-medium"
+          className="block text-l font-medium"
           style={{ color: adminColors.textSecondary }}
         >
           {label}
@@ -344,7 +345,7 @@ export function AdminTextarea({
       )}
       <textarea
         className={`
-          w-full px-3 py-2 rounded-lg text-sm border
+          w-full px-3 py-2 rounded-lg text-xl border
           bg-white/[0.04] text-white/80 placeholder-white/20
           focus:outline-none focus:border-amber-500/50 focus:bg-white/[0.06]
           transition-all duration-150 resize-none ${className}
@@ -354,7 +355,7 @@ export function AdminTextarea({
         {...props}
       />
       {error && (
-        <p className="text-xs" style={{ color: "#f87171" }}>
+        <p className="text-l" style={{ color: "#f87171" }}>
           {error}
         </p>
       )}
@@ -375,13 +376,13 @@ export function AdminEmptyState({
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <p
-        className="text-sm font-medium"
+        className="text-xl font-medium"
         style={{ color: adminColors.textSecondary }}
       >
         {title}
       </p>
       {description && (
-        <p className="text-xs mt-1" style={{ color: adminColors.textMuted }}>
+        <p className="text-l mt-1" style={{ color: adminColors.textMuted }}>
           {description}
         </p>
       )}

@@ -46,6 +46,7 @@ import {
   deleteGalleryCategory,
   deleteGalleryPerson,
 } from "@/lib/actions/admin/gallery.actions";
+import { useTranslations } from "next-intl";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -146,6 +147,7 @@ export default function GalleryClient({
   const [filterVisibility, setFilterVisibility] = useState<string>("ALL");
   const [filterCategory, setFilterCategory] = useState<string>("ALL");
   const [filterType, setFilterType] = useState<string>("ALL");
+  const t = useTranslations("admin");
 
   const router = useRouter();
   const [isRefreshing, startRefresh] = useTransition();
@@ -233,31 +235,31 @@ export default function GalleryClient({
       key: "items",
       label: "Media",
       count: initialItems.length,
-      icon: <Images size={14} />,
+      icon: <Images size={18} />,
     },
     {
       key: "categories",
       label: "Categories",
       count: initialCategories.length,
-      icon: <FolderOpen size={14} />,
+      icon: <FolderOpen size={18} />,
     },
     {
       key: "persons",
       label: "People",
       count: initialPersons.length,
-      icon: <Tag size={14} />,
+      icon: <Tag size={18} />,
     },
   ];
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-8xl mx-auto">
       {isRefreshing && (
         <div className="absolute inset-0 z-10 flex items-start justify-end pointer-events-none">
           <div
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs mt-1"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-l mt-1"
             style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b" }}
           >
-            <Loader2 size={12} className="animate-spin" />
+            <Loader2 size={16} className="animate-spin" />
             Updating...
           </div>
         </div>
@@ -272,24 +274,24 @@ export default function GalleryClient({
               variant="primary"
               onClick={() => setModal({ type: "upload" })}
             >
-              <Plus size={14} />
-              Upload Media
+              <Plus size={18} />
+              {t("uploadMedia")}
             </AdminButton>
           ) : activeTab === "categories" ? (
             <AdminButton
               variant="primary"
               onClick={() => setModal({ type: "addCategory" })}
             >
-              <Plus size={14} />
-              New Category
+              <Plus size={18} />
+              {t("newCategory")}
             </AdminButton>
           ) : (
             <AdminButton
               variant="primary"
               onClick={() => setModal({ type: "addPerson" })}
             >
-              <Plus size={14} />
-              New Person
+              <Plus size={18} />
+              {t("newPerson")}
             </AdminButton>
           )
         }
@@ -304,7 +306,7 @@ export default function GalleryClient({
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className="flex items-center gap-2 px-4 py-2.5 text-xs font-medium border-b-2 transition-colors -mb-px"
+            className="flex items-center gap-2 px-4 py-2.5 text-l font-medium border-b-2 transition-colors -mb-px"
             style={{
               borderColor: activeTab === tab.key ? "#f59e0b" : "transparent",
               color:
@@ -314,7 +316,7 @@ export default function GalleryClient({
             {tab.icon}
             {tab.label}
             <span
-              className="px-1.5 py-0.5 rounded-full text-[10px]"
+              className="px-1.5 py-0.5 rounded-full text-[15px]"
               style={{
                 background:
                   activeTab === tab.key
@@ -336,59 +338,56 @@ export default function GalleryClient({
           {/* Filters */}
           <AdminCard>
             <div className="flex items-center gap-3 flex-wrap">
-              <Filter size={13} style={{ color: adminColors.textMuted }} />
-              <span
-                className="text-xs"
-                style={{ color: adminColors.textMuted }}
-              >
-                Filter:
+              <Filter size={16} style={{ color: adminColors.textMuted }} />
+              <span className="text-l" style={{ color: adminColors.textMuted }}>
+                {t("filter")}
               </span>
 
               {/* Visibility filter */}
               <select
                 value={filterVisibility}
                 onChange={(e) => setFilterVisibility(e.target.value)}
-                className="text-xs rounded-lg border px-2.5 py-1.5 outline-none"
+                className="text-l rounded-lg border px-2.5 py-1.5 outline-none"
                 style={{
                   background: "rgba(255,255,255,0.04)",
                   borderColor: adminColors.border,
                   color: adminColors.textSecondary,
                 }}
               >
-                <option value="ALL">All visibility</option>
-                <option value="PUBLISHED">Published</option>
-                <option value="DRAFT">Draft</option>
-                <option value="ARCHIVED">Archived</option>
+                <option value="ALL">{t("allVisibility")}</option>
+                <option value="PUBLISHED">{t("published")}</option>
+                <option value="DRAFT">{t("draft")}</option>
+                <option value="ARCHIVED">{t("archived")}</option>
               </select>
 
               {/* Type filter */}
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="text-xs rounded-lg border px-2.5 py-1.5 outline-none"
+                className="text-l rounded-lg border px-2.5 py-1.5 outline-none"
                 style={{
                   background: "rgba(255,255,255,0.04)",
                   borderColor: adminColors.border,
                   color: adminColors.textSecondary,
                 }}
               >
-                <option value="ALL">All types</option>
-                <option value="IMAGE">Images</option>
-                <option value="VIDEO">Videos</option>
+                <option value="ALL">{t("allTypes")}</option>
+                <option value="IMAGE">{t("images")}</option>
+                <option value="VIDEO">{t("videos")}</option>
               </select>
 
               {/* Category filter */}
               <select
                 value={filterCategory}
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="text-xs rounded-lg border px-2.5 py-1.5 outline-none"
+                className="text-l rounded-lg border px-2.5 py-1.5 outline-none"
                 style={{
                   background: "rgba(255,255,255,0.04)",
                   borderColor: adminColors.border,
                   color: adminColors.textSecondary,
                 }}
               >
-                <option value="ALL">All categories</option>
+                <option value="ALL">{t("allCategories")}</option>
                 {initialCategories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.name}
@@ -397,7 +396,7 @@ export default function GalleryClient({
               </select>
 
               <span
-                className="ml-auto text-xs"
+                className="ml-auto text-l"
                 style={{ color: adminColors.textMuted }}
               >
                 {filteredItems.length} item
@@ -417,8 +416,8 @@ export default function GalleryClient({
                     variant="primary"
                     onClick={() => setModal({ type: "upload" })}
                   >
-                    <Plus size={14} />
-                    Upload Media
+                    <Plus size={18} />
+                    {t("uploadMedia")}
                   </AdminButton>
                 }
               />
@@ -427,14 +426,14 @@ export default function GalleryClient({
             <AdminCard noPadding>
               <AdminTable>
                 <AdminThead>
-                  <AdminTh>Preview</AdminTh>
-                  <AdminTh>Title / Description</AdminTh>
-                  <AdminTh>Type</AdminTh>
-                  <AdminTh>Category</AdminTh>
-                  <AdminTh>People</AdminTh>
-                  <AdminTh>Visibility</AdminTh>
-                  <AdminTh>Featured</AdminTh>
-                  <AdminTh className="text-right">Actions</AdminTh>
+                  <AdminTh>{t("preview")}</AdminTh>
+                  <AdminTh>{t("titleDescription")}</AdminTh>
+                  <AdminTh>{t("type")}</AdminTh>
+                  <AdminTh>{t("category")}</AdminTh>
+                  <AdminTh>{t("people")}</AdminTh>
+                  <AdminTh>{t("visibility")}</AdminTh>
+                  <AdminTh>{t("featured")}</AdminTh>
+                  <AdminTh className="text-right">{t("actions")}</AdminTh>
                 </AdminThead>
                 <AdminTbody>
                   {filteredItems.map((item) => (
@@ -461,7 +460,7 @@ export default function GalleryClient({
                             />
                           ) : (
                             <Video
-                              size={16}
+                              size={19}
                               style={{ color: adminColors.textMuted }}
                             />
                           )}
@@ -472,7 +471,7 @@ export default function GalleryClient({
                       <AdminTd>
                         <div className="max-w-45">
                           <p
-                            className="text-xs font-medium truncate"
+                            className="text-l font-medium truncate"
                             style={{ color: adminColors.textPrimary }}
                           >
                             {item.title || (
@@ -483,7 +482,7 @@ export default function GalleryClient({
                           </p>
                           {item.description && (
                             <p
-                              className="text-xs truncate mt-0.5"
+                              className="text-l truncate mt-0.5"
                               style={{ color: adminColors.textMuted }}
                             >
                               {item.description}
@@ -499,11 +498,11 @@ export default function GalleryClient({
                           style={{ color: adminColors.textSecondary }}
                         >
                           {item.mediaType === "IMAGE" ? (
-                            <ImageIcon size={13} />
+                            <ImageIcon size={17} />
                           ) : (
-                            <Video size={13} />
+                            <Video size={17} />
                           )}
-                          <span className="text-xs">{item.mediaType}</span>
+                          <span className="text-l">{item.mediaType}</span>
                         </div>
                       </AdminTd>
 
@@ -527,7 +526,7 @@ export default function GalleryClient({
                             {item.persons.slice(0, 2).map((p) => (
                               <span
                                 key={p.person.id}
-                                className="text-[10px] px-1.5 py-0.5 rounded-full"
+                                className="text-[15px] px-1.5 py-0.5 rounded-full"
                                 style={{
                                   background: "rgba(255,255,255,0.06)",
                                   color: adminColors.textSecondary,
@@ -538,7 +537,7 @@ export default function GalleryClient({
                             ))}
                             {item.persons.length > 2 && (
                               <span
-                                className="text-[10px] px-1.5 py-0.5 rounded-full"
+                                className="text-[15px] px-1.5 py-0.5 rounded-full"
                                 style={{
                                   background: "rgba(255,255,255,0.04)",
                                   color: adminColors.textMuted,
@@ -576,9 +575,9 @@ export default function GalleryClient({
                             className="p-1 rounded text-white/20 hover:text-white/60 transition-colors"
                           >
                             {item.visibility === "PUBLISHED" ? (
-                              <EyeOff size={12} />
+                              <EyeOff size={16} />
                             ) : (
-                              <Eye size={12} />
+                              <Eye size={16} />
                             )}
                           </button>
                         </div>
@@ -601,9 +600,9 @@ export default function GalleryClient({
                           }
                         >
                           {item.isFeatured ? (
-                            <Star size={14} fill="currentColor" />
+                            <Star size={17} fill="currentColor" />
                           ) : (
-                            <StarOff size={14} />
+                            <StarOff size={17} />
                           )}
                         </button>
                       </AdminTd>
@@ -615,19 +614,19 @@ export default function GalleryClient({
                             onClick={() =>
                               setModal({ type: "editItem", data: item })
                             }
-                            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
+                            className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-white/5 transition-colors"
                             title="Edit"
                           >
-                            <Pencil size={13} />
+                            <Pencil size={20} />
                           </button>
                           <button
                             onClick={() =>
                               setModal({ type: "deleteItem", data: item })
                             }
-                            className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/8 transition-colors"
+                            className="p-1.5 rounded-lg text-red-800 hover:text-red-500 hover:bg-white/5 transition-colors"
                             title="Delete"
                           >
-                            <Trash2 size={13} />
+                            <Trash2 size={20} />
                           </button>
                         </div>
                       </AdminTd>
@@ -653,8 +652,8 @@ export default function GalleryClient({
                     variant="primary"
                     onClick={() => setModal({ type: "addCategory" })}
                   >
-                    <Plus size={14} />
-                    New Category
+                    <Plus size={17} />
+                    {t("newCategory")}
                   </AdminButton>
                 }
               />
@@ -663,19 +662,19 @@ export default function GalleryClient({
             <AdminCard noPadding>
               <AdminTable>
                 <AdminThead>
-                  <AdminTh>Name</AdminTh>
-                  <AdminTh>Slug</AdminTh>
+                  <AdminTh>{t("name")}</AdminTh>
+                  <AdminTh>{t("slug")}</AdminTh>
                   <AdminTh>Items</AdminTh>
-                  <AdminTh>Order</AdminTh>
-                  <AdminTh>Status</AdminTh>
-                  <AdminTh className="text-right">Actions</AdminTh>
+                  <AdminTh>{t("order")}</AdminTh>
+                  <AdminTh>{t("status")}</AdminTh>
+                  <AdminTh className="text-right">{t("actions")}</AdminTh>
                 </AdminThead>
                 <AdminTbody>
                   {initialCategories.map((cat) => (
                     <AdminTr key={cat.id}>
                       <AdminTd>
                         <span
-                          className="text-sm font-medium"
+                          className="text-xl font-medium"
                           style={{ color: adminColors.textPrimary }}
                         >
                           {cat.name}
@@ -683,7 +682,7 @@ export default function GalleryClient({
                       </AdminTd>
                       <AdminTd>
                         <code
-                          className="text-xs px-2 py-0.5 rounded"
+                          className="text-l px-2 py-0.5 rounded"
                           style={{
                             background: "rgba(255,255,255,0.04)",
                             color: adminColors.textSecondary,
@@ -706,7 +705,7 @@ export default function GalleryClient({
                         <AdminBadge
                           variant={cat.isActive ? "success" : "default"}
                         >
-                          {cat.isActive ? "Active" : "Inactive"}
+                          {cat.isActive ? t("active") : "Inactive"}
                         </AdminBadge>
                       </AdminTd>
                       <AdminTd className="text-right">
@@ -715,17 +714,17 @@ export default function GalleryClient({
                             onClick={() =>
                               setModal({ type: "editCategory", data: cat })
                             }
-                            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
+                            className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-white/5 transition-colors"
                           >
-                            <Pencil size={13} />
+                            <Pencil size={20} />
                           </button>
                           <button
                             onClick={() =>
                               setModal({ type: "deleteCategory", data: cat })
                             }
-                            className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/8 transition-colors"
+                            className="p-1.5 rounded-lg text-red-800 hover:text-red-500 hover:bg-white/5 transition-colors"
                           >
-                            <Trash2 size={13} />
+                            <Trash2 size={20} />
                           </button>
                         </div>
                       </AdminTd>
@@ -751,8 +750,8 @@ export default function GalleryClient({
                     variant="primary"
                     onClick={() => setModal({ type: "addPerson" })}
                   >
-                    <Plus size={14} />
-                    New Person
+                    <Plus size={17} />
+                    {t("newPerson")}
                   </AdminButton>
                 }
               />
@@ -761,17 +760,17 @@ export default function GalleryClient({
             <AdminCard noPadding>
               <AdminTable>
                 <AdminThead>
-                  <AdminTh>Name</AdminTh>
-                  <AdminTh>Role</AdminTh>
-                  <AdminTh>Linked Teacher</AdminTh>
-                  <AdminTh className="text-right">Actions</AdminTh>
+                  <AdminTh>{t("name")}</AdminTh>
+                  <AdminTh>{t("role")}</AdminTh>
+                  <AdminTh>{t("linkedTeacher")}</AdminTh>
+                  <AdminTh className="text-right">{t("actions")}</AdminTh>
                 </AdminThead>
                 <AdminTbody>
                   {initialPersons.map((person) => (
                     <AdminTr key={person.id}>
                       <AdminTd>
                         <span
-                          className="font-medium text-sm"
+                          className="font-medium text-xl"
                           style={{ color: adminColors.textPrimary }}
                         >
                           {person.displayName}
@@ -789,7 +788,7 @@ export default function GalleryClient({
                       <AdminTd>
                         {person.teacherId ? (
                           <span
-                            className="text-xs"
+                            className="text-l"
                             style={{ color: adminColors.textSecondary }}
                           >
                             Linked ✓
@@ -806,17 +805,17 @@ export default function GalleryClient({
                             onClick={() =>
                               setModal({ type: "editPerson", data: person })
                             }
-                            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
+                            className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-white/5 transition-colors"
                           >
-                            <Pencil size={13} />
+                            <Pencil size={20} />
                           </button>
                           <button
                             onClick={() =>
                               setModal({ type: "deletePerson", data: person })
                             }
-                            className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/8 transition-colors"
+                            className="p-1.5 rounded-lg text-red-800 hover:text-red-500 hover:bg-white/5 transition-colors"
                           >
-                            <Trash2 size={13} />
+                            <Trash2 size={20} />
                           </button>
                         </div>
                       </AdminTd>

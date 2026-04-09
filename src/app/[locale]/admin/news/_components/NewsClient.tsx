@@ -34,6 +34,7 @@ import {
   deleteNews,
   toggleNewsActive,
 } from "@/lib/actions/admin/content.actions";
+import { useTranslations } from "next-intl";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -58,6 +59,9 @@ export type SerializedNews = {
   createdAt: string;
   updatedAt: string;
   slug: string;
+  title_ar?: string | null;
+  subtitle_ar?: string | null;
+  description_ar?: string | null;
 };
 
 type Modal =
@@ -86,6 +90,7 @@ export default function NewsClient({
   const router = useRouter();
   const [isRefreshing, startRefresh] = useTransition();
   const { toasts, toast, remove } = useToast();
+  const t = useTranslations("admin");
 
   const handleSuccess = () => {
     setModal(null);
@@ -114,11 +119,11 @@ export default function NewsClient({
   );
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-8xl mx-auto">
       {isRefreshing && (
         <div className="absolute inset-0 z-10 flex items-start justify-end pointer-events-none">
           <div
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs mt-1"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-l mt-1"
             style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b" }}
           >
             <Loader2 size={12} className="animate-spin" />
@@ -134,9 +139,10 @@ export default function NewsClient({
           <AdminButton
             variant="primary"
             onClick={() => setModal({ type: "create" })}
+            className="px-5"
           >
             <Plus size={14} />
-            News
+            Add to News
           </AdminButton>
         }
       />
@@ -144,28 +150,38 @@ export default function NewsClient({
       {/* Filters */}
       <AdminCard>
         <div className="flex items-center gap-3 flex-wrap">
-          <Filter size={13} style={{ color: adminColors.textMuted }} />
-          <span className="text-xs" style={{ color: adminColors.textMuted }}>
-            Filter:
+          <Filter size={16} style={{ color: adminColors.textMuted }} />
+          <span className="text-xl" style={{ color: adminColors.textMuted }}>
+            {t("filter")}
           </span>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="text-xs rounded-lg border px-2.5 py-1.5 outline-none"
+            className="text-l rounded-lg border px-2.5 py-1.5 outline-none"
             style={{
               background: "rgba(255,255,255,0.04)",
               borderColor: adminColors.border,
               color: adminColors.textSecondary,
             }}
           >
-            <option value="ALL">All statuses</option>
-            <option value="ACTIVE">Active</option>
-            <option value="DRAFT">Draft</option>
-            <option value="EXPIRED">Expired</option>
-            <option value="ARCHIVED">Archived</option>
+            <option className="text-black" value="ALL">
+              {t("allStatuses")}
+            </option>
+            <option className="text-black" value="ACTIVE">
+              {t("active")}
+            </option>
+            <option className="text-black" value="DRAFT">
+              {t("draft")}
+            </option>
+            <option className="text-black" value="EXPIRED">
+              {t("expired")}
+            </option>
+            <option className="text-black" value="ARCHIVED">
+              {t("archived")}
+            </option>
           </select>
           <span
-            className="ml-auto text-xs"
+            className="ml-auto text-l"
             style={{ color: adminColors.textMuted }}
           >
             {filtered.length} item{filtered.length !== 1 ? "s" : ""}
@@ -185,7 +201,7 @@ export default function NewsClient({
                 onClick={() => setModal({ type: "create" })}
               >
                 <Plus size={14} />
-                New News!
+                {t("newNews")}
               </AdminButton>
             }
           />
@@ -194,14 +210,14 @@ export default function NewsClient({
         <AdminCard noPadding>
           <AdminTable>
             <AdminThead>
-              <AdminTh>Thumbnail</AdminTh>
-              <AdminTh>Title</AdminTh>
-              <AdminTh>Slug</AdminTh>
-              <AdminTh>Publish Window</AdminTh>
-              <AdminTh>Status</AdminTh>
-              <AdminTh>Active</AdminTh>
-              <AdminTh>Sort</AdminTh>
-              <AdminTh className="text-right">Actions</AdminTh>
+              <AdminTh>{t("thumbnail")}</AdminTh>
+              <AdminTh>{t("name")}</AdminTh>
+              <AdminTh>{t("slug")}</AdminTh>
+              <AdminTh>{t("publishWindow")}</AdminTh>
+              <AdminTh>{t("status")}</AdminTh>
+              <AdminTh>{t("active")}</AdminTh>
+              <AdminTh>{t("sort")}</AdminTh>
+              <AdminTh className="text-right">{t("actions")}</AdminTh>
             </AdminThead>
             <AdminTbody>
               {filtered.map((item) => (
@@ -232,14 +248,14 @@ export default function NewsClient({
                   <AdminTd>
                     <div className="flex flex-col gap-0.5">
                       <span
-                        className="text-xs font-medium"
+                        className="text-l font-medium"
                         style={{ color: adminColors.textPrimary }}
                       >
                         {item.title}
                       </span>
                       {item.subtitle && (
                         <span
-                          className="text-[11px]"
+                          className="text-[16px]"
                           style={{ color: adminColors.textMuted }}
                         >
                           {item.subtitle}
@@ -256,7 +272,7 @@ export default function NewsClient({
                   {/* slug Date */}
                   <AdminTd>
                     <span
-                      className="text-[11px] font-mono"
+                      className="text-[16px] font-mono"
                       style={{ color: adminColors.textMuted }}
                     >
                       {item.slug}
@@ -266,7 +282,7 @@ export default function NewsClient({
                   {/* Publish Window */}
                   <AdminTd>
                     <div
-                      className="flex flex-col gap-0.5 text-[11px]"
+                      className="flex flex-col gap-0.5 text-[16px]"
                       style={{ color: adminColors.textMuted }}
                     >
                       <span>
@@ -312,7 +328,7 @@ export default function NewsClient({
                   {/* Sort order */}
                   <AdminTd>
                     <span
-                      className="text-xs"
+                      className="text-l"
                       style={{ color: adminColors.textMuted }}
                     >
                       {item.sortOrder}
