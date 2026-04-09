@@ -155,11 +155,41 @@ export default function BodyFlexibilityPage({
   return (
     <main
       dir={isArabic ? "rtl" : "ltr"}
-      className="min-h-screen pt-20 md:pt-30 bg-royal-purple"
-      onWheelCapture={(event) => event.stopPropagation()}
-      onTouchMoveCapture={(event) => event.stopPropagation()}
+      className="min-h-full overflow-x-hidden bg-royal-purple pt-20 md:min-h-screen md:pt-30"
     >
       <section className="relative h-[44vh] min-h-88 overflow-hidden">
+        <div
+          className={`absolute left-6 top-8 z-10 hidden w-full max-w-[20rem] rounded-[1.2rem] border border-white/14 bg-[rgba(24,16,11,0.8)] p-5 text-[#fff6ec] shadow-[0_18px_36px_rgba(22,12,7,0.22)] backdrop-blur-sm md:left-[calc(50%-47.625rem)] md:top-1/2 md:block md:w-[26rem] md:max-w-[26rem] md:-translate-y-1/2 ${
+            isArabic ? "text-right" : "text-left"
+          }`}
+          dir={isArabic ? "rtl" : "ltr"}
+        >
+          <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-royal-gold/75">
+            {isArabic ? "الرقص والعافية" : "Dance & Wellness"}
+          </p>
+          <h1 className="mt-4 font-goudy text-[2.1rem] leading-[1.04] text-royal-cream">
+            {content.cards[0].title}
+          </h1>
+          <p className="mt-4 text-[0.9rem] leading-6 text-royal-cream/80">
+            {content.cards[0].description}
+          </p>
+
+          <div className="mt-6 flex flex-col gap-3">
+            <Link
+              href={`/${locale}/reservation?${new URLSearchParams({ dept: "dance", q: "Body & Flexibility" }).toString()}`}
+              className="liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-5 py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03]"
+            >
+              {content.enrollment}
+            </Link>
+            <Link
+              href={`/${locale}`}
+              className="text-[11px] font-medium uppercase tracking-[0.22em] text-royal-gold/70 underline decoration-royal-gold/40 underline-offset-4 hover:text-royal-gold"
+            >
+              {isArabic ? "العودة للرئيسية" : "Back to Home"}
+            </Link>
+          </div>
+        </div>
+
         <div className="absolute inset-0">
           {slideGroups.map((group, index) => (
             <div
@@ -172,7 +202,7 @@ export default function BodyFlexibilityPage({
                 className={`grid h-full px-4 py-10 md:py-20 sm:px-6 md:px-8 ${
                   isMobile
                     ? "mx-auto max-w-88 grid-cols-1 gap-3"
-                    : "mx-auto max-w-6xl grid-cols-3 gap-3"
+                    : "mx-auto max-w-6xl translate-x-[270px] grid-cols-3 gap-3"
                 }`}
               >
                 {group.map((slide, imageIndex) => (
@@ -200,7 +230,7 @@ export default function BodyFlexibilityPage({
 
         <div
           dir="ltr"
-          className="absolute left-1/2 top-75 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/10 px-3 py-2 backdrop-blur-sm md:top-5"
+          className="absolute left-1/2 top-75 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/10 px-3 py-2 backdrop-blur-sm md:left-[calc(50%+270px)] md:top-5"
         >
           <button
             type="button"
@@ -254,7 +284,7 @@ export default function BodyFlexibilityPage({
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-4 pb-10 pt-10 sm:px-6">
+      <section className="mx-auto w-full max-w-6xl px-4 pb-10 pt-10 sm:px-6 md:hidden">
         <div className={isArabic ? "text-right" : "text-left"}>
           <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-royal-gold/75">
             {isArabic ? "الرقص والعافية" : "Dance & Wellness"}
@@ -283,31 +313,31 @@ export default function BodyFlexibilityPage({
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 sm:px-6">
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-3 md:items-stretch">
+      <section className="mx-auto w-full max-w-6xl px-4 pb-16 pt-[10px] sm:px-6 xl:max-w-[90rem]">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3 md:items-stretch md:gap-3 lg:gap-4">
           {content.cards.map((card) => (
             <div
               key={card.title}
-              className="liquid-glass h-full rounded-2xl border border-royal-cream/10 p-6"
+              className="liquid-glass h-full rounded-2xl border border-royal-cream/10 p-4 lg:p-4.5"
             >
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-royal-gold/70">
                 {isArabic ? "نظرة عامة" : "Overview"}
               </p>
               <h2
-                className={`mt-3 font-goudy text-2xl leading-tight text-royal-cream ${
+                className={`mt-2.5 font-goudy text-2xl leading-tight text-royal-cream ${
                   isArabic ? "text-right" : "text-left"
                 }`}
               >
                 {card.title}
               </h2>
               <p
-                className={`mt-3 text-sm leading-7 text-royal-cream/85 sm:text-[15px] ${
+                className={`mt-2.5 text-sm leading-6 font-semibold text-royal-cream/85 sm:text-[15px] ${
                   isArabic ? "text-right" : "text-left"
                 }`}
               >
                 {card.description}
               </p>
-              <ul className="mt-4 space-y-2 text-sm text-royal-cream/85 sm:text-[15px]">
+              <ul className="mt-3 space-y-1.5 text-sm font-semibold text-royal-cream/85 sm:text-[15px]">
                 {card.bullets.map((bullet) => (
                   <li key={bullet} className="flex items-start gap-2">
                     <span className="mt-1.75 h-1 w-1 rotate-45 bg-royal-gold/70" />
@@ -317,7 +347,7 @@ export default function BodyFlexibilityPage({
               </ul>
               {card.footer && (
                 <p
-                  className={`mt-4 text-sm leading-7 text-royal-cream/70 ${
+                  className={`mt-3 text-sm leading-6 font-semibold text-royal-cream/70 ${
                     isArabic ? "text-right" : "text-left"
                   }`}
                 >
@@ -328,6 +358,7 @@ export default function BodyFlexibilityPage({
           ))}
         </div>
       </section>
+
     </main>
   );
 }

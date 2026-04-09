@@ -148,13 +148,13 @@ export default function ViolinPage() {
         paragraph:
           "نشأ الكمان في إيطاليا خلال القرن السادس عشر، وتطوّر من آلات وترية مقوّسة أقدم، ثم بلغ كماله على يد صنّاع بارعين مثل أنطونيو ستراديفاري، ليصبح واحداً من أكثر الآلات تعبيراً في الموسيقى الكلاسيكية. ومع مرور الوقت، أخذ مكانة محورية في الأوركسترا والعزف المنفرد، واشتهر بقدرته على نقل المشاعر العميقة. ومن أجمل الأمثلة على هذه القوة التعبيرية مقطوعة تأمل من أوبرا تاييس لجول ماسينيه، وهي من أكثر أعمال الكمان رومانسية، وتتميّز بلحنها الحالم الرقيق وطابعها العاطفي الشغوف الذي يجسّد أناقة الكمان وعمقه الوجداني. 🎻",
         reserveHelper: "احجز تجربتك مع الكمان",
-        reserveCta: "احجز الآن",
+        reserveCta: "التسجيل",
       }
     : {
         paragraph:
           "The Violin originated in 16th-century Italy, evolving from earlier bowed instruments, and was perfected by master makers like Antonio Stradivari, becoming one of the most expressive instruments in classical music. Over time, it took a central role in orchestras and solo performances, admired for its ability to convey deep emotion. A beautiful example of this expressive power is Meditation from Thaïs by Jules Massenet, one of the most romantic violin pieces ever written, known for its soft, dreamy melody and passionate character that captures the elegance and emotional depth of the violin. 🎻",
         reserveHelper: "Reserve your violin experience",
-        reserveCta: "Reserve Now",
+        reserveCta: "Enrollment",
       };
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -425,14 +425,14 @@ export default function ViolinPage() {
             </div>
           </div>
 
-          <div className="w-full max-w-[23.5rem] shrink-0 xl:max-w-[24.5rem]">
+          <div className="w-full max-w-[29.5rem] shrink-0 lg:translate-x-[100px] xl:max-w-[30.75rem]">
             <div
-              className="rounded-[1.65rem] border px-4.5 py-4.5 sm:px-5 sm:py-5"
+              className="rounded-[1.65rem] border px-6 py-6 sm:px-6.5 sm:py-6.5"
               style={GLASS_CARD_STYLE}
               dir={isArabic ? "rtl" : "ltr"}
             >
               <p
-                className={`${musicTypography.body} text-royal-cream/90 ${
+                className={`${musicTypography.body} text-[17.5px] leading-[1.9rem] text-royal-cream/90 sm:text-[18.5px] sm:leading-[2rem] ${
                   isArabic ? "text-right" : ""
                 }`}
               >
@@ -521,12 +521,12 @@ export default function ViolinPage() {
           </div>
 
           <div
-            className="w-full rounded-[1.65rem] border px-4.5 py-4.5"
+            className="w-full max-w-[27rem] rounded-[1.65rem] border px-6 py-6 sm:max-w-[29rem] sm:px-6.5 sm:py-6.5"
             style={GLASS_CARD_STYLE}
             dir={isArabic ? "rtl" : "ltr"}
           >
             <p
-              className={`${musicTypography.body} text-royal-cream/90 ${
+              className={`${musicTypography.body} text-[17.5px] leading-[1.9rem] text-royal-cream/90 sm:text-[18.5px] sm:leading-[2rem] ${
                 isArabic ? "text-right" : ""
               }`}
             >

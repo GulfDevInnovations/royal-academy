@@ -285,7 +285,7 @@ export default function SolfegePage() {
         paragraph:
           "السولفيج نظام لتعلم الموسيقى يساعد الموسيقيين على تمييز الدرجات الصوتية وغناء الألحان باستخدام مقاطع مثل دو، ري، مي، فا، صول، لا، تي. وقد طوّره المنظّر الموسيقي الإيطالي غويدو داريتسو في القرن الحادي عشر لمساعدة المنشدين على قراءة الموسيقى وتعلمها بسهولة أكبر. ومع مرور الوقت، تم تغيير المقطع Ut إلى Do، وأضيف Ti (أو Si) لتكوين السلم الموسيقي الحديث. 🎵",
         reserveHelper: "درّب أذنك في حصة حقيقية",
-        reserveCta: "احجز الآن",
+        reserveCta: "التسجيل",
       }
     : {
         centerText: "make your dreams come true",
@@ -294,7 +294,7 @@ export default function SolfegePage() {
         paragraph:
           "Solfege is a music-learning system that helps musicians recognize pitch and sing melodies using syllables like Do, Re, Mi, Fa, Sol, La, Ti. It was developed in the 11th century by the Italian music theorist Guido of Arezzo to help singers read and learn music more easily. Over time, the syllable Ut was changed to Do, and Ti (or Si) was added to form the modern musical scale. 🎵",
         reserveHelper: "Train your ear with a real class",
-        reserveCta: "Reserve Now",
+        reserveCta: "Enrollment",
       };
 
   return (
@@ -318,10 +318,10 @@ export default function SolfegePage() {
 
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_0%,rgba(0,0,0,0.18)_68%,rgba(0,0,0,0.36)_100%)]" />
 
-      <div className="absolute left-8 top-24 z-20 hidden lg:block lg:left-12 lg:top-28">
-        <div className="flex flex-col items-center gap-4">
+      <div className="absolute left-[50px] top-[170px] z-20 hidden lg:block">
+        <div className="flex flex-col items-center gap-5.5">
           <div
-            className={`group relative h-36 w-36 rounded-full border border-white/40 bg-[radial-gradient(circle_at_48%_42%,rgba(255,255,255,0.14)_0%,rgba(255,255,255,0.03)_18%,rgba(10,10,10,0.98)_34%,rgba(4,4,4,1)_68%,rgba(0,0,0,1)_100%)] shadow-[0_18px_36px_rgba(0,0,0,0.45)] sm:h-[10.4rem] sm:w-[10.4rem] ${
+            className={`group relative h-50 w-50 rounded-full border border-white/40 bg-[radial-gradient(circle_at_48%_42%,rgba(255,255,255,0.14)_0%,rgba(255,255,255,0.03)_18%,rgba(10,10,10,0.98)_34%,rgba(4,4,4,1)_68%,rgba(0,0,0,1)_100%)] shadow-[0_22px_44px_rgba(0,0,0,0.45)] ${
               isPlaying ? "animate-spin [animation-duration:8s]" : ""
             }`}
           >
@@ -335,20 +335,20 @@ export default function SolfegePage() {
             <div className="absolute inset-[31%] rounded-full border border-white/5" />
             <div className="absolute inset-[35%] rounded-full border border-white/5" />
             <div className="absolute left-1/2 top-1/2 flex h-[32%] w-[32%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#e7d5b4]/75 bg-[radial-gradient(circle_at_center,rgba(255,250,240,0.98)_0%,rgba(231,213,180,0.95)_72%,rgba(167,132,96,0.92)_100%)] px-3 text-center shadow-[inset_0_0_0_1px_rgba(82,56,30,0.12)]">
-              <span className="text-[8px] font-medium uppercase leading-[1.15] tracking-[0.08em] text-[#4a2d19] sm:text-[9px]">
+              <span className="text-[11px] font-medium uppercase leading-[1.15] tracking-[0.08em] text-[#4a2d19]">
                 {content.centerText}
               </span>
             </div>
             <div className="absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#5f422d]/45 bg-[#1b130f]" />
             <div className="absolute left-[18%] top-[12%] h-[36%] w-[10%] rotate-[18deg] rounded-full bg-[linear-gradient(180deg,rgba(255,255,255,0.14)_0%,rgba(255,255,255,0.02)_100%)] blur-[1px]" />
             <div className="pointer-events-none absolute inset-[12%] flex items-center justify-center rounded-full bg-[radial-gradient(circle_at_center,rgba(14,14,14,0.72)_0%,rgba(14,14,14,0.38)_46%,rgba(14,14,14,0)_78%)] px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-              <span className="text-[10px] font-medium tracking-[0.12em] text-[#f2e3c8] sm:text-[11px]">
+              <span className="text-[14px] font-medium tracking-[0.12em] text-[#f2e3c8]">
                 Lana Del Rey - Salvatore
               </span>
             </div>
           </div>
 
-          <div className="liquid-glass flex items-center gap-2 rounded-full px-3 py-2">
+          <div className="liquid-glass flex items-center gap-2.5 rounded-full px-4.5 py-3">
             <GlassControlButton label={content.playLabel} onClick={playAudio}>
               <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
             </GlassControlButton>
@@ -363,7 +363,7 @@ export default function SolfegePage() {
             </GlassControlButton>
           </div>
 
-          <div className="liquid-glass w-44 rounded-[1.1rem] px-3 py-2 sm:w-52">
+          <div className="liquid-glass w-64 rounded-[1.3rem] px-4 py-3">
             <input
               type="range"
               min={0}
@@ -399,9 +399,9 @@ export default function SolfegePage() {
         </div>
       </div>
 
-      <div className="absolute bottom-6 right-6 z-20 hidden w-56 lg:block lg:bottom-10 lg:right-10 lg:w-64">
+      <div className="absolute right-[80px] top-[170px] z-20 hidden w-[34rem] lg:block">
         <div
-          className="rounded-[1.5rem] border px-4 py-4 sm:px-5 sm:py-5"
+          className="rounded-[1.6rem] border px-5 py-5"
           style={{
             background:
               "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)",
@@ -411,7 +411,7 @@ export default function SolfegePage() {
             boxShadow: "0 18px 42px rgba(0,0,0,0.30)",
           }}
         >
-          <p className={`${musicTypography.body} text-royal-cream/90`}>
+          <p className="text-[1.3rem] leading-[1.8rem] text-royal-cream/90">
             <span
               style={{
                 background: "rgba(43,25,18,0.48)",
@@ -425,9 +425,9 @@ export default function SolfegePage() {
             </span>
           </p>
 
-          <div className="mt-4 flex flex-col items-start gap-3">
+          <div className="mt-3 flex flex-col items-start gap-2.5">
             <p
-              className={`${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
+              className={`text-[0.95rem] ${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
                 isArabic ? "text-right" : ""
               }`}
             >
@@ -445,7 +445,7 @@ export default function SolfegePage() {
             </p>
             <Link
               href={reservationHref}
-              className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+              className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-5 py-3 text-[0.95rem] ${musicCtaTextClass(
                 isArabic,
               )} text-[#2b1912] transition-transform duration-300 hover:scale-[1.03] ${
                 isArabic ? "text-right" : ""

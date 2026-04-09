@@ -289,7 +289,7 @@ export default function HandpanPage() {
         paragraph:
           "الهاندبان آلة إيقاعية لحنية حديثة صُنعت لأول مرة عام 2000 في برن، سويسرا، على يد فيليكس روهنر وسابينا شيرر. وقد قدمت آلتهما الأصلية، المعروفة باسم Hang، مزيجاً فريداً بين الإيقاع والهارموني مستلهماً من آلات مثل الستيل بان. وبفضل نغماتها الغنية والرنانة وطابعها الهادئ، أصبحت الهاندبان آلة مميزة تحظى بالإعجاب حول العالم بسبب صوتها الآسر والتأملي. 🎶",
         reserveHelper: "احجز جلسة هاندبان حقيقية",
-        reserveCta: "احجز الآن",
+        reserveCta: "التسجيل",
       }
     : {
         helper:
@@ -297,7 +297,7 @@ export default function HandpanPage() {
         paragraph:
           "The Handpan is a modern melodic percussion instrument first created in 2000 in Bern, Switzerland by Felix Rohner and Sabina Scharer. Their original instrument, known as the Hang, introduced a unique blend of rhythm and harmony inspired by instruments like the Steelpan. With its rich, resonant tones and serene character, the handpan has become a remarkable instrument admired around the world for its captivating and meditative sound. 🎶",
         reserveHelper: "Reserve a real handpan session",
-        reserveCta: "Reserve Now",
+        reserveCta: "Enrollment",
       };
 
   return (
@@ -305,7 +305,7 @@ export default function HandpanPage() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(122,92,58,0.28)_0%,rgba(12,19,24,0.82)_52%,rgba(5,9,12,1)_100%)]" />
       <div className="absolute inset-0 bg-[url('/images/pattern.svg')] opacity-[0.03] mix-blend-screen" />
 
-      <section className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-4 py-24 sm:px-6 sm:py-28 md:px-10">
+      <section className="relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] max-w-7xl flex-col justify-start px-4 pb-16 pt-[calc(4rem+30px)] sm:min-h-[calc(100svh-5rem)] sm:px-6 sm:pb-20 sm:pt-[calc(5rem+30px)] md:px-10">
         <div className="grid items-center gap-8 sm:gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:gap-12">
           <div className="order-1 lg:order-1">
             <div className="relative mx-auto aspect-square w-full max-w-[18.5rem] sm:max-w-[24rem] lg:max-w-[29.4rem]">
@@ -328,8 +328,8 @@ export default function HandpanPage() {
             </div>
           </div>
 
-          <div className="order-2 lg:order-2">
-            <div className="mx-auto flex w-full max-w-[24rem] flex-col gap-4 sm:max-w-[28rem] sm:gap-5 lg:mx-0 lg:max-w-none">
+          <div className="order-2 lg:order-2 lg:translate-x-[100px]">
+            <div className="mx-auto flex w-full max-w-[31rem] flex-col gap-4 sm:max-w-[36rem] sm:gap-5 lg:mx-0 lg:max-w-none">
               <div
                 className="hidden max-w-[22rem] rounded-[1.35rem] border px-4 py-[0.7rem] sm:max-w-[24rem] sm:px-5 sm:py-[0.85rem] lg:block"
                 style={{
@@ -347,7 +347,7 @@ export default function HandpanPage() {
               </div>
 
               <div
-                className="rounded-[1.6rem] border px-5 py-5 sm:rounded-[2rem] sm:px-6 sm:py-6 lg:px-7 lg:py-7"
+                className="rounded-[1.6rem] border px-6 py-6 sm:rounded-[2rem] sm:px-7 sm:py-7 lg:px-8 lg:py-8"
                 style={{
                   background:
                     "linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%)",
@@ -357,17 +357,17 @@ export default function HandpanPage() {
                   boxShadow: "0 28px 58px rgba(0,0,0,0.32)",
                 }}
               >
-                <p className="text-sm leading-7 text-[#eadfc9]/88 sm:text-[15px]">
+                <p className="text-[18px] leading-[2rem] text-[#eadfc9]/88 sm:text-[19px] sm:leading-[2.15rem]">
                   {content.paragraph}
                 </p>
 
                 <div className="mt-6 flex flex-col items-start gap-3 sm:mt-8">
-                  <p className="text-[11px] uppercase tracking-[0.28em] text-[#d8bc92]/68">
+                  <p className="text-[14px] uppercase tracking-[0.22em] text-[#d8bc92]/68 sm:text-[15px]">
                     {content.reserveHelper}
                   </p>
                   <Link
                     href={`/${locale}/reservation/sub-handpan`}
-                    className="liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-5 py-2.5 text-[11px] font-medium uppercase tracking-[0.22em] text-[#eadfc9]/88 transition-transform duration-300 hover:scale-[1.03]"
+                    className="liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-7 py-3 text-[14px] font-medium uppercase tracking-[0.18em] text-[#eadfc9]/88 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]"
                   >
                     {content.reserveCta}
                   </Link>
