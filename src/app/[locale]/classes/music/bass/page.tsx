@@ -173,13 +173,13 @@ export default function BassPage() {
         paragraph:
           "تطورت آلة الباص غيتار في أوائل القرن العشرين عندما سعى الموسيقيون إلى بديل أكثر قابلية للحمل والتضخيم من الكونترباص الكبير. وبينما تعود جذورها إلى آلة الكونترباص المستخدمة في الموسيقى الكلاسيكية والجاز، فقد اشتهر الباص الكهربائي الحديث في خمسينيات القرن الماضي على يد ليو فندر، الذي قدّم أول غيتار باص كهربائي يُنتج على نطاق واسع. وقد سمح هذا الابتكار بسماع عازفي الباص بوضوح أكبر داخل الفرق الموسيقية، وحوّل دور الباص إلى عنصر أساسي في الإيقاع والغرووف. واليوم يُعد الباص عنصراً محورياً في أنماط موسيقية متعددة، من الجاز والفانك إلى الروك والبوب، إذ يمنح الموسيقى العمق والانسجام والنبض الأساسي الذي يدفعها إلى الأمام. 🎸",
         reserveHelper: "احجز تجربتك مع الباص",
-        reserveCta: "احجز الآن",
+        reserveCta: "التسجيل",
       }
     : {
         paragraph:
           "The Bass guitar developed in the early 20th century as musicians sought a more portable and amplified alternative to the upright double bass. While its roots trace back to the double bass used in classical and jazz music, the modern electric bass was popularized in the 1950s by Leo Fender, who introduced the first mass-produced electric bass guitar. This innovation allowed bassists to be heard more clearly in bands and transformed the role of bass into a central element of rhythm and groove. Today, the bass is essential across genres-from jazz and funk to rock and pop-providing depth, harmony, and the foundational pulse that drives music forward. 🎸",
         reserveHelper: "Reserve your bass experience",
-        reserveCta: "Reserve Now",
+        reserveCta: "Enrollment",
       };
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -396,68 +396,16 @@ export default function BassPage() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_0%,rgba(0,0,0,0.18)_68%,rgba(0,0,0,0.38)_100%)]" />
       <BassLasers />
 
-      <section className="relative z-20 hidden min-h-screen px-6 pb-12 pt-24 lg:block xl:px-10 xl:pt-28">
-        <div className="mx-auto flex w-full max-w-7xl items-start justify-between gap-8 xl:gap-12">
-          <div
-            className="font-goudy flex w-[min(16rem,24vw)] min-w-[13.5rem] flex-col items-center gap-4 xl:w-[min(17rem,22vw)]"
-            dir="ltr"
-          >
-            <p
-              className={`max-w-[14rem] text-center ${musicTypography.captionCaps} text-royal-cream/88`}
-            >
-              Tame Impala-The Less I Know The Better
-            </p>
-
-            <div className="liquid-glass flex items-center gap-2 rounded-full px-3 py-2">
-              <GlassControlButton label="Play track" onClick={playAudio}>
-                <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
-              </GlassControlButton>
-              <GlassControlButton label="Pause track" onClick={pauseAudio}>
-                <Pause
-                  size={12}
-                  className={!isPlaying ? "text-royal-cream" : ""}
-                />
-              </GlassControlButton>
-            </div>
-
-            <div className="liquid-glass w-full max-w-[15rem] rounded-[1.1rem] px-3 py-2 xl:max-w-[16rem]">
-              <input
-                type="range"
-                min={0}
-                max={duration || 1}
-                step={0.1}
-                value={sliderValue}
-                onInput={(event) =>
-                  handleSeek(Number((event.target as HTMLInputElement).value))
-                }
-                onChange={(event) =>
-                  handleSeek(Number((event.target as HTMLInputElement).value))
-                }
-                className="solfege-slider h-1.5 w-full cursor-pointer appearance-none rounded-full accent-[#e2c392]"
-                style={{
-                  background: `linear-gradient(90deg, rgba(226,195,146,0.95) 0%, rgba(226,195,146,0.95) ${progress}%, rgba(255,255,255,0.18) ${progress}%, rgba(255,255,255,0.18) 100%)`,
-                }}
-                aria-label="Audio progress"
-              />
-              <AudioWaveform bars={waveformBars} />
-              <div
-                className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
-              >
-                <span>{formatTime(currentTime)}</span>
-                <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
-                <span>{formatTime(duration)}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="w-full max-w-[23.5rem] shrink-0 xl:max-w-[24.5rem]">
+      <section className="relative z-20 hidden min-h-screen px-6 pb-12 pt-[110px] lg:block xl:px-10 xl:pt-[110px]">
+        <div className="mx-auto relative w-full max-w-7xl min-h-[calc(100vh-160px)]">
+          <div className="w-full max-w-[30.5rem] shrink-0 lg:-translate-x-[200px] xl:max-w-[31.5rem]">
             <div
-              className="rounded-[1.65rem] border px-4.5 py-4.5 sm:px-5 sm:py-5"
+              className="rounded-[1.65rem] border px-6 py-6 sm:px-6.5 sm:py-6.5"
               style={GLASS_CARD_STYLE}
               dir={isArabic ? "rtl" : "ltr"}
             >
               <p
-                className={`${musicTypography.body} text-royal-cream/90 ${
+                className={`text-[1.18rem] leading-[2.1rem] text-royal-cream/90 sm:text-[1.24rem] sm:leading-[2.2rem] ${
                   isArabic ? "text-right" : ""
                 }`}
               >
@@ -489,12 +437,65 @@ export default function BassPage() {
               </div>
             </div>
           </div>
+
+          <div
+            className="font-goudy absolute bottom-[160px] right-[50px] translate-x-[300px] flex w-[min(20.8rem,31vw)] min-w-[17.5rem] flex-col items-center gap-5 rounded-[1.65rem] border px-5 py-5 xl:w-[min(22rem,28vw)]"
+            style={GLASS_CARD_STYLE}
+            dir="ltr"
+          >
+            <p
+              className={`max-w-[17rem] text-center ${musicTypography.captionCaps} text-royal-cream/88`}
+            >
+              Tame Impala-The Less I Know The Better
+            </p>
+
+            <div className="liquid-glass flex items-center gap-2 rounded-full px-3 py-2">
+              <GlassControlButton label="Play track" onClick={playAudio}>
+                <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
+              </GlassControlButton>
+              <GlassControlButton label="Pause track" onClick={pauseAudio}>
+                <Pause
+                  size={12}
+                  className={!isPlaying ? "text-royal-cream" : ""}
+                />
+              </GlassControlButton>
+            </div>
+
+            <div className="liquid-glass w-full max-w-[18.75rem] rounded-[1.1rem] px-3 py-2">
+              <input
+                type="range"
+                min={0}
+                max={duration || 1}
+                step={0.1}
+                value={sliderValue}
+                onInput={(event) =>
+                  handleSeek(Number((event.target as HTMLInputElement).value))
+                }
+                onChange={(event) =>
+                  handleSeek(Number((event.target as HTMLInputElement).value))
+                }
+                className="solfege-slider h-1.5 w-full cursor-pointer appearance-none rounded-full accent-[#e2c392]"
+                style={{
+                  background: `linear-gradient(90deg, rgba(226,195,146,0.95) 0%, rgba(226,195,146,0.95) ${progress}%, rgba(255,255,255,0.18) ${progress}%, rgba(255,255,255,0.18) 100%)`,
+                }}
+                aria-label="Audio progress"
+              />
+              <AudioWaveform bars={waveformBars} />
+              <div
+                className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
+              >
+                <span>{formatTime(currentTime)}</span>
+                <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
+                <span>{formatTime(duration)}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="relative z-20 flex min-h-screen flex-col items-center justify-center gap-6 px-4 py-24 sm:px-6 lg:hidden">
+      <section className="relative z-20 flex min-h-screen flex-col items-center justify-start gap-6 px-4 pb-12 pt-[94px] sm:px-6 sm:pt-[94px] lg:hidden">
         <div
-          className="font-goudy flex w-full max-w-[18rem] flex-col items-center gap-4 sm:max-w-[20rem]"
+          className="font-goudy flex w-full max-w-[23.5rem] flex-col items-center gap-4 sm:max-w-[26rem]"
           dir="ltr"
         >
           <p
@@ -545,12 +546,12 @@ export default function BassPage() {
           </div>
 
           <div
-            className="w-full rounded-[1.65rem] border px-4.5 py-4.5"
+            className="w-full rounded-[1.65rem] border px-6 py-6"
             style={GLASS_CARD_STYLE}
             dir={isArabic ? "rtl" : "ltr"}
           >
             <p
-              className={`${musicTypography.body} text-royal-cream/90 ${
+              className={`text-[1.05rem] leading-[1.9rem] text-royal-cream/90 sm:text-[1.12rem] sm:leading-[2rem] ${
                 isArabic ? "text-right" : ""
               }`}
             >

@@ -66,7 +66,7 @@ const BALLET_GROUND_SPARKLES = GROUND_SPARKLE_OFFSETS.flatMap((offset) =>
   BASE_BALLET_SPARKLES.map((sparkle, index) => ({
     id: `${sparkle.id}-ground-${offset}`,
     left: `${((index * 3.7 + offset * 8.9) % 96) + 2}%`,
-    top: `${89.8 + ((index + offset) % 5) * 0.45}%`,
+    top: `calc(${89.8 + ((index + offset) % 5) * 0.45}% - 100px)`,
     size:
       index % 5 === 0
         ? "0.22rem"
@@ -129,7 +129,7 @@ export default function BalletPage() {
         openTitle: "صف الباليه المفتوح",
         openDescription:
           "للطلاب المتحمسين والشغوفين الذين يرغبون في الاستمتاع بالباليه دون اتباع مسار الامتحانات أو الشهادات.",
-        reservationLabel: "الحجز",
+        reservationLabel: "التسجيل",
       }
     : {
         cardEyebrow: "Royal Academy of Dance",
@@ -152,12 +152,12 @@ export default function BalletPage() {
         openTitle: "Open Ballet Class",
         openDescription:
           "For enthusiastic and passionate students who wish to enjoy ballet without following an examination or certification track.",
-        reservationLabel: "Reservation",
+        reservationLabel: "Enrollment",
       };
 
   return (
     <main
-      className="relative min-h-screen overflow-x-hidden overflow-y-auto bg-[#111111] text-white sm:h-screen sm:overflow-y-hidden"
+      className="ballet-mobile-scroll relative min-h-screen overflow-x-hidden overflow-y-auto bg-[#111111] text-white sm:h-screen sm:overflow-y-hidden"
       style={{ direction: "ltr" }}
     >
       <div
@@ -213,16 +213,17 @@ export default function BalletPage() {
             <span className="ballet-violin-sparkle-cross" />
           </span>
         ))}
-        <div className="ballet-ground-sparkle-haze absolute inset-x-0 bottom-[30px] h-[8%]" />
+        <div className="ballet-ground-sparkle-haze absolute inset-x-0 bottom-[130px] h-[8%]" />
       </div>
 
       <div
         className="relative z-20 flex min-h-screen flex-col items-start px-4 pb-20 pt-[104px] sm:h-screen sm:min-h-0 sm:block sm:px-6 sm:pb-6 sm:pt-[96px] lg:px-10"
         style={{ direction: "ltr" }}
       >
+        <div className="w-full sm:absolute sm:left-6 sm:top-[116px] sm:max-w-[27rem] lg:left-10 lg:max-w-[28rem]">
         <article
           dir={isArabic ? "rtl" : "ltr"}
-          className="w-full max-w-[22rem] rounded-[1.6rem] border border-white/9 bg-[linear-gradient(180deg,rgba(26,26,26,0.195)_0%,rgba(17,17,17,0.17)_100%)] px-4 py-4 shadow-[0_24px_64px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.14)] backdrop-blur-xl sm:absolute sm:left-6 sm:bottom-7 sm:max-w-[27rem] sm:px-5 sm:py-4 lg:left-10 lg:max-w-[28rem] xl:ml-0"
+          className="w-full max-w-[22rem] rounded-[1.6rem] border border-white/9 bg-[linear-gradient(180deg,rgba(26,26,26,0.195)_0%,rgba(17,17,17,0.17)_100%)] px-4 py-4 shadow-[0_24px_64px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.14)] backdrop-blur-xl sm:max-w-[27rem] sm:px-5 sm:py-4 lg:max-w-[28rem] xl:ml-0"
         >
           <p
             className={`text-[0.62rem] text-white/55 ${
@@ -251,8 +252,8 @@ export default function BalletPage() {
           </div>
         </article>
 
-        <div className="relative z-20 mt-6 w-full sm:fixed sm:right-7 sm:bottom-7 sm:mt-0 sm:w-auto">
-          <div className="flex w-full flex-row items-center justify-between gap-2 sm:flex-col sm:items-end sm:justify-start sm:gap-3">
+        <div className="relative z-20 mt-5 w-full sm:mt-0 sm:w-auto">
+          <div className="flex w-full flex-row items-center justify-between gap-2 sm:flex-row sm:items-start sm:justify-start sm:gap-5">
           <div className="relative flex items-end justify-end">
             {isRadBalletOpen ? (
               <div
@@ -430,8 +431,24 @@ export default function BalletPage() {
             </button>
           </div>
         </div>
+        </div>
       </div>
       </div>
+
+      <style jsx>{`
+        @media (max-width: 639px) {
+          .ballet-mobile-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+
+          .ballet-mobile-scroll::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+          }
+        }
+      `}</style>
     </main>
   );
 }

@@ -156,14 +156,14 @@ export default function PianoPage() {
     ? {
         paragraph:
           "اختُرع البيانو حوالي عام 1700 على يد صانع الآلات الموسيقية الإيطالي بارتولوميو كريستوفوري. وعلى خلاف آلات المفاتيح الأقدم مثل الهاربسيكورد والكلافيكورد، كان البيانو قادراً على إصدار الأصوات الهادئة والقوية معاً، ولهذا جاء اسمه الأصلي gravicembalo col piano e forte أي «آلة مفاتيح ناعمة وقوية». وخلال القرنين الثامن عشر والتاسع عشر، ساهم مؤلفون مثل لودفيغ فان بيتهوفن وفريدريك شوبان وفرانز ليست في جعل البيانو واحداً من أهم الآلات في الموسيقى الكلاسيكية.",
-        reservationLabel: "الحجز",
+        reservationLabel: "التسجيل",
         rangeLabel: "Range",
         rangeValue: "C4 → B5",
       }
     : {
         paragraph:
           'The piano was invented around 1700 by the Italian instrument maker Bartolomeo Cristofori. Unlike earlier keyboard instruments like the Harpsichord and the Clavichord, the piano could play both soft and loud sounds, which is why its original name was gravicembalo col piano e forte ("soft and loud keyboard"). During the 18th and 19th centuries, composers such as Ludwig van Beethoven, Frederic Chopin, and Franz Liszt helped make the piano one of the most important instruments in classical music!',
-        reservationLabel: "Reservation",
+        reservationLabel: "Enrollment",
         rangeLabel: "Range",
         rangeValue: "C4 -> B5",
       };
@@ -356,19 +356,19 @@ export default function PianoPage() {
       <div className="absolute inset-0 bg-[linear-gradient(rgba(168,118,73,0.55)_1px,transparent_1px),linear-gradient(90deg,rgba(168,118,73,0.55)_1px,transparent_1px)] bg-size-[36px_36px] opacity-[0.08]" />
 
       <section
-        className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col justify-start px-4 pb-10 pt-27.5 sm:px-6 sm:pb-12 sm:pt-27.5 lg:px-10 lg:pb-14 lg:pt-27.5"
+        className="relative z-10 flex min-h-screen w-full flex-col justify-start px-4 pb-10 pt-27.5 sm:px-6 sm:pb-12 sm:pt-27.5 lg:px-[50px] lg:pb-14 lg:pt-27.5"
         style={{ direction: "ltr" }}
       >
-        <div className="flex w-full flex-col gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-12">
-          <div className="w-full max-w-108">
-            <div className="relative overflow-hidden rounded-[1.65rem] border border-[#2b2118]/66 bg-[linear-gradient(180deg,#5b3a24_0%,#2a170f_22%,#130a08_100%)] px-2.5 pb-2.5 pt-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_22px_52px_rgba(0,0,0,0.44)] sm:px-3">
-              <div className="mb-2.5 flex items-center justify-between gap-3 rounded-2xl border border-white/6 bg-black/14 px-3 py-2 text-[0.58rem] uppercase tracking-[0.18em] text-white/55">
+        <div className="flex w-full flex-col items-center gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
+          <div className="order-2 flex h-[32rem] w-full items-center justify-center overflow-visible sm:h-[38rem] lg:order-1 lg:h-auto lg:w-full lg:max-w-[54rem] lg:justify-start">
+            <div className="relative w-[52rem] max-w-none origin-center rotate-90 scale-[0.95] overflow-hidden rounded-[1.9rem] border border-[#2b2118]/66 bg-[linear-gradient(180deg,#5b3a24_0%,#2a170f_22%,#130a08_100%)] px-3.5 pb-3.5 pt-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_22px_52px_rgba(0,0,0,0.44)] sm:w-[62rem] sm:scale-100 sm:px-4 lg:w-full lg:max-w-none lg:rotate-0 lg:scale-100">
+              <div className="mb-3 flex items-center justify-between gap-3 rounded-2xl border border-white/6 bg-black/14 px-4 py-2.5 text-[0.72rem] uppercase tracking-[0.18em] text-white/55">
                 <span>{content.rangeLabel}</span>
                 <span className="text-[#f0dec0]">{content.rangeValue}</span>
               </div>
 
               <div
-                className="relative h-47 rounded-[1.3rem] border border-black/20 bg-[linear-gradient(180deg,rgba(17,10,8,0.92)_0%,rgba(36,23,17,0.95)_100%)] px-[2.2%] pb-[2.4%] pt-[1.6%] shadow-[inset_0_14px_24px_rgba(255,255,255,0.03)] sm:h-54"
+                className="relative h-72 rounded-[1.55rem] border border-black/20 bg-[linear-gradient(180deg,rgba(17,10,8,0.92)_0%,rgba(36,23,17,0.95)_100%)] px-[2.2%] pb-[2.4%] pt-[1.6%] shadow-[inset_0_14px_24px_rgba(255,255,255,0.03)] sm:h-84"
                 style={{ transform: "perspective(1400px) rotateX(180deg)", transformStyle: "preserve-3d" }}
               >
                 <div className="absolute inset-x-[2.2%] top-[4.6%] h-1.25 rounded-full bg-[linear-gradient(90deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.02)_18%,rgba(255,255,255,0.02)_82%,rgba(255,255,255,0.12)_100%)]" />
@@ -390,16 +390,16 @@ export default function PianoPage() {
 
           <article
             dir={isArabic ? "rtl" : "ltr"}
-            className="w-full self-start rounded-[1.7rem] border border-[#d9c29b]/14 bg-[linear-gradient(180deg,rgba(95,62,37,0.26)_0%,rgba(33,22,17,0.34)_100%)] px-4 py-3 text-[#f1e1c4]/88 shadow-[0_28px_64px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:px-5 sm:py-4 lg:ml-auto lg:max-w-90"
+            className="order-1 mx-auto w-full max-w-[19rem] self-center rounded-[1.7rem] border border-[#d9c29b]/14 bg-[linear-gradient(180deg,rgba(95,62,37,0.26)_0%,rgba(33,22,17,0.34)_100%)] px-4 py-3 text-[#f1e1c4]/88 shadow-[0_28px_64px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:max-w-[22rem] sm:px-5 sm:py-4 lg:order-2 lg:ml-auto lg:mr-[100px] lg:max-w-[34rem] lg:px-6 lg:py-5"
           >
             <p
-              className={`text-[0.85rem] leading-6 ${isArabic ? "font-layla text-right" : ""}`}
+              className={`text-[0.84rem] leading-6 sm:text-[0.95rem] sm:leading-7 lg:text-[1.28rem] lg:leading-[2.15rem] ${isArabic ? "font-layla text-right lg:text-right" : "text-center lg:text-left"}`}
             >
               {content.paragraph}
             </p>
             <Link
               href={`/${locale}/reservation`}
-              className="mt-4 inline-flex items-center rounded-full border border-[#d9c29b]/20 bg-[linear-gradient(180deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.05)_100%)] px-4 py-2 text-[0.72rem] uppercase tracking-[0.18em] text-[#f3dfbb] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-transform duration-200 hover:scale-[1.02] hover:bg-white/10"
+              className="mx-auto mt-4 inline-flex items-center rounded-full border border-[#d9c29b]/20 bg-[linear-gradient(180deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.05)_100%)] px-4 py-2 text-[0.76rem] uppercase tracking-[0.16em] text-[#f3dfbb] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-transform duration-200 hover:scale-[1.02] hover:bg-white/10 sm:px-5 sm:py-2.5 sm:text-[0.86rem] lg:mx-0 lg:mt-5 lg:px-6 lg:py-3 lg:text-[1.08rem]"
             >
               {content.reservationLabel}
             </Link>

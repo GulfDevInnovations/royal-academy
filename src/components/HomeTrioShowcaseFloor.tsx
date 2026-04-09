@@ -481,7 +481,7 @@ export default function HomeTrioShowcaseFloor({
           ar: "احجز حصة تجريبية هذا الربيع واكتشف آلتك مع أساتذتنا.",
         },
         date: "2026-03-28",
-        link: { href: "/reservation", label: { en: "Reserve", ar: "احجز" } },
+        link: { href: "/reservation", label: { en: "Enrollment", ar: "التسجيل" } },
         media: [
           { type: "image", src: "/images/piano.jpg", alt: "Piano room" },
           {

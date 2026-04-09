@@ -91,13 +91,13 @@ export default function DurbukaPage() {
         paragraph:
           "تُعد الدربوكة آلة إيقاع تقليدية تعود جذورها إلى آلاف السنين في بلاد ما بين النهرين ومصر القديمة، حيث صُنعت النماذج الأولى منها من الطين واستُخدمت في الطقوس والاحتفالات والحكايات الشعبية. ومع مرور الزمن انتشرت في الشرق الأوسط وشمال أفريقيا وأجزاء من أوروبا الشرقية، وتطورت في الشكل والخامات حتى وصلت إلى النماذج المعدنية والخزفية المستخدمة اليوم. وبفضل صوتيها المميزين «دم» العميق و«تك» الحاد، أصبحت الدربوكة آلة أساسية في التقاليد الموسيقية الشعبية والكلاسيكية، لما تمنحه من ثراء إيقاعي وتعبير أدائي. واليوم ما زالت رمزاً للتراث الثقافي وتُستخدم على نطاق واسع في الموسيقى الحديثة والعروض الحية حول العالم. 🥁",
         reserveHelper: "احجز تجربتك مع الدربوكة",
-        reserveCta: "احجز الآن",
+        reserveCta: "التسجيل",
       }
     : {
         paragraph:
           "The Darbuka is a traditional percussion instrument with roots dating back thousands of years to ancient Mesopotamia and Egypt, where early versions were made from clay and used in rituals, celebrations, and storytelling. Over time, it spread across the Middle East, North Africa, and parts of Eastern Europe, evolving in shape and materials into the metal and ceramic forms used today. Known for its distinctive “dum” (bass) and “tek” (sharp) sounds, the darbuka became a central instrument in folk and classical music traditions, valued for both rhythmic complexity and expressive performance. Today, it remains a symbol of cultural heritage and is widely used in modern music and live performances around the world. 🥁",
         reserveHelper: "Reserve your darbuka experience",
-        reserveCta: "Reserve Now",
+        reserveCta: "Enrollment",
       };
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -313,7 +313,7 @@ export default function DurbukaPage() {
 
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_0%,rgba(0,0,0,0.18)_68%,rgba(0,0,0,0.38)_100%)]" />
 
-      <section className="relative z-20 hidden min-h-screen px-5 pb-12 pt-20 lg:block lg:px-6 xl:px-10 xl:pt-28">
+      <section className="relative z-20 hidden min-h-[calc(100svh-4rem)] px-5 pb-12 pt-[calc(4rem+30px)] lg:block lg:px-6 lg:pt-[calc(5rem+30px)] xl:px-10">
         <div className="mx-auto flex w-full max-w-6xl items-start justify-between gap-6 xl:max-w-7xl xl:gap-12">
           <div
             className="font-goudy flex w-[min(15rem,28vw)] min-w-[12rem] flex-col items-center gap-4 xl:w-[min(17rem,22vw)]"
@@ -367,14 +367,14 @@ export default function DurbukaPage() {
             </div>
           </div>
 
-          <div className="w-full max-w-[20.5rem] shrink-0 lg:max-w-[21.5rem] xl:max-w-[24.5rem]">
+          <div className="w-full max-w-[29rem] shrink-0 lg:relative lg:left-[80px] lg:max-w-[31rem] xl:max-w-[34rem]">
             <div
-              className="rounded-[1.65rem] border px-4.5 py-4.5 sm:px-5 sm:py-5"
+              className="rounded-[1.65rem] border px-6 py-6 sm:px-7 sm:py-7"
               style={GLASS_CARD_STYLE}
               dir={isArabic ? "rtl" : "ltr"}
             >
               <p
-                className={`${musicTypography.body} text-royal-cream/90 ${
+                className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem] ${
                   isArabic ? "text-right" : ""
                 }`}
               >
@@ -387,7 +387,7 @@ export default function DurbukaPage() {
                 }`}
               >
                 <p
-                  className={`w-full ${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
+                  className={`w-full ${musicHelperTextClass(isArabic)} text-[14px] text-royal-gold/65 sm:text-[15px] ${
                     isArabic ? "text-right" : ""
                   }`}
                 >
@@ -395,9 +395,9 @@ export default function DurbukaPage() {
                 </p>
                 <Link
                   href={reservationHref}
-                  className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 ${musicCtaTextClass(
+                  className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-7 py-3 ${musicCtaTextClass(
                     isArabic,
-                  )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
+                  )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px] ${
                     isArabic ? "self-end text-right" : ""
                   }`}
                 >
@@ -409,7 +409,7 @@ export default function DurbukaPage() {
         </div>
       </section>
 
-      <section className="relative z-20 flex min-h-screen flex-col items-center justify-center gap-6 px-4 py-20 sm:px-6 sm:py-24 lg:hidden">
+      <section className="relative z-20 flex min-h-[calc(100svh-4rem)] flex-col items-center justify-start gap-6 px-4 pb-12 pt-[calc(4rem+30px)] sm:min-h-[calc(100svh-5rem)] sm:px-6 sm:pt-[calc(5rem+30px)] lg:hidden">
         <div
           className="font-goudy flex w-full max-w-[19rem] flex-col items-center gap-4 sm:max-w-[22rem]"
           dir="ltr"
@@ -462,12 +462,12 @@ export default function DurbukaPage() {
           </div>
 
           <div
-            className="w-full rounded-[1.65rem] border px-4.5 py-4.5"
+            className="w-full max-w-[26rem] rounded-[1.65rem] border px-6 py-6 sm:max-w-[28rem] sm:px-7 sm:py-7"
             style={GLASS_CARD_STYLE}
             dir={isArabic ? "rtl" : "ltr"}
           >
             <p
-              className={`${musicTypography.body} text-royal-cream/90 ${
+              className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem] ${
                 isArabic ? "text-right" : ""
               }`}
             >
@@ -480,7 +480,7 @@ export default function DurbukaPage() {
               }`}
             >
               <p
-                className={`w-full ${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
+                className={`w-full ${musicHelperTextClass(isArabic)} text-[14px] text-royal-gold/65 sm:text-[15px] ${
                   isArabic ? "text-right" : ""
                 }`}
               >
@@ -488,9 +488,9 @@ export default function DurbukaPage() {
               </p>
               <Link
                 href={reservationHref}
-                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 ${musicCtaTextClass(
+                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-7 py-3 ${musicCtaTextClass(
                   isArabic,
-                )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
+                )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px] ${
                   isArabic ? "self-end text-right" : ""
                 }`}
               >
