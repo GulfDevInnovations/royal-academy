@@ -15,6 +15,7 @@ import type {
   SerializedPerson,
 } from "./GalleryClient";
 import { useTranslations } from "next-intl";
+import DatePicker from "@/components/date-time/DatePicker";
 
 interface Props {
   item: SerializedGalleryItem;
@@ -78,7 +79,7 @@ export default function GalleryEditModal({
         onClick={onClose}
       />
       <div
-        className="relative w-full max-w-lg rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[90vh] overflow-y-auto"
+        className="relative w-full max-w-2xl rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[90vh] overflow-y-auto"
         style={{ background: "#1a1d27" }}
       >
         {/* Header */}
@@ -348,12 +349,14 @@ export default function GalleryEditModal({
                     defaultValue={item.sortOrder.toString()}
                   />
                 </div>
-
-                <AdminInput
-                  label="Date Taken"
+                <DatePicker
+                  id="takenAt"
                   name="takenAt"
-                  type="date"
+                  label="Date Taken"
                   defaultValue={takenAtValue}
+                  theme="dark"
+                  fieldClassName="w-full px-3 py-2 rounded-lg border bg-white/4 text-white/80..."
+                  inputStyle={{ borderColor: adminColors.border }}
                 />
               </div>
             )}

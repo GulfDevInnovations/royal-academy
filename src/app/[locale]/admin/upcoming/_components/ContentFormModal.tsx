@@ -16,6 +16,7 @@ import type { SerializedNews } from "../../news/_components/NewsClient";
 import type { SerializedOffer } from "../../offers/_components/OffersClient";
 import type { ClassWithSubClasses } from "../../offers/_components/OffersClient";
 import { useTranslations } from "next-intl";
+import { PublishDateTimeField } from "@/components/date-time/PublishDateTimeField";
 
 type Kind = "upcoming" | "news" | "offers";
 type AnyItem = SerializedUpcoming | SerializedNews | SerializedOffer;
@@ -731,23 +732,25 @@ export default function ContentFormModal({
           )}
 
           {/* Publish window — publishAt defaults to now on create */}
+          {/* Publish window */}
           <div className="grid grid-cols-2 gap-3">
+            {/* Publish At */}
             <div className="space-y-1.5">
               <label className="text-l" style={labelStyle}>
                 Publish At
               </label>
-              <input
-                type="datetime-local"
+              <PublishDateTimeField
                 name="publishAt"
                 defaultValue={
                   data?.publishAt
                     ? new Date(data.publishAt).toISOString().slice(0, 16)
                     : nowLocalDatetimeValue()
                 }
-                className="w-full text-l rounded-lg border px-3 py-2 outline-none"
-                style={inputStyle}
+                inputStyle={inputStyle}
               />
             </div>
+
+            {/* Expire At */}
             <div className="space-y-1.5">
               <label className="text-l" style={labelStyle}>
                 Expire At
@@ -758,16 +761,14 @@ export default function ContentFormModal({
                   (optional)
                 </span>
               </label>
-              <input
-                type="datetime-local"
+              <PublishDateTimeField
                 name="expireAt"
                 defaultValue={
                   data?.expireAt
                     ? new Date(data.expireAt).toISOString().slice(0, 16)
                     : ""
                 }
-                className="w-full text-l rounded-lg border px-3 py-2 outline-none"
-                style={inputStyle}
+                inputStyle={inputStyle}
               />
             </div>
           </div>

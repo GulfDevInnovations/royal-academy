@@ -18,6 +18,7 @@ import {
 import { uploadGalleryItem } from "@/lib/actions/admin/gallery.actions";
 import type { SerializedCategory, SerializedPerson } from "./GalleryClient";
 import { useTranslations } from "next-intl";
+import DatePicker from "@/components/date-time/DatePicker";
 
 interface Props {
   categories: SerializedCategory[];
@@ -543,11 +544,14 @@ export default function GalleryUploadModal({
                 </div>
 
                 {/* Date taken — defaults to today */}
-                <AdminInput
-                  label="Date Taken"
+                <DatePicker
+                  id="takenAt"
                   name="takenAt"
-                  type="date"
+                  label="Date Taken"
                   defaultValue={todayValue}
+                  theme="dark"
+                  fieldClassName="w-full px-3 py-2 rounded-lg border bg-white/4 text-white/80..."
+                  inputStyle={{ borderColor: adminColors.border }}
                 />
 
                 {/* Video thumbnail upload */}

@@ -237,7 +237,7 @@ export function AdminTd({
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
-  helperText?: string; // ← add this
+  helperText?: string;
 }
 export function AdminInput({
   label,

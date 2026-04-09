@@ -9,6 +9,8 @@ import {
 } from "@/lib/actions/admin/Workshops.actions";
 import { adminColors, AdminButton } from "@/components/admin/ui";
 import { useTranslations } from "next-intl";
+import DatePicker from "@/components/date-time/DatePicker";
+import TimePicker from "@/components/date-time/TimePicker";
 
 // ── Types ─────────────────────────────────────────────────────
 interface Student {
@@ -514,21 +516,25 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
               {/* ── Payment date + time ── */}
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Payment Date">
-                  <input
-                    type="date"
-                    value={paidDate}
-                    onChange={(e) => setPaidDate(e.target.value)}
-                    className={inputCls}
-                    style={inputStyle}
+                  <DatePicker
+                    id="paidDate"
+                    name="paidDate"
+                    defaultValue={paidDate}
+                    theme="dark"
+                    fieldClassName={inputCls}
+                    inputStyle={inputStyle}
+                    onChange={setPaidDate}
                   />
                 </Field>
                 <Field label="Payment Time">
-                  <input
-                    type="time"
-                    value={paidTime}
-                    onChange={(e) => setPaidTime(e.target.value)}
-                    className={inputCls}
-                    style={inputStyle}
+                  <TimePicker
+                    id="paidTime"
+                    name="paidTime"
+                    defaultValue={paidTime}
+                    theme="dark"
+                    fieldClassName={inputCls}
+                    inputStyle={inputStyle}
+                    onChange={setPaidTime}
                   />
                 </Field>
               </div>

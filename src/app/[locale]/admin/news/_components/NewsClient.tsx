@@ -343,14 +343,14 @@ export default function NewsClient({
                         size="sm"
                         onClick={() => setModal({ type: "edit", data: item })}
                       >
-                        <Pencil size={13} />
+                        <Pencil size={18} />
                       </AdminButton>
                       <AdminButton
                         variant="danger"
                         size="sm"
                         onClick={() => setModal({ type: "delete", data: item })}
                       >
-                        <Trash2 size={13} />
+                        <Trash2 size={18} />
                       </AdminButton>
                     </div>
                   </AdminTd>

@@ -17,6 +17,8 @@ import {
 import { adminColors, AdminButton } from "@/components/admin/ui";
 import type { SerializedWorkshop } from "../page";
 import { useTranslations } from "next-intl";
+import DatePicker from "@/components/date-time/DatePicker";
+import TimePicker from "@/components/date-time/TimePicker";
 
 interface Props {
   workshop?: SerializedWorkshop;
@@ -46,7 +48,7 @@ function Field({
   return (
     <div className="space-y-1.5">
       <label
-        className="block text-xs font-medium"
+        className="block text-l font-medium"
         style={{ color: adminColors.textSecondary }}
       >
         {label}{" "}
@@ -58,7 +60,7 @@ function Field({
 }
 
 const inputCls =
-  "w-full px-3 py-2 rounded-lg border bg-white/[0.03] text-sm focus:outline-none focus:border-amber-500/40 transition-colors";
+  "w-full px-3 py-2 rounded-lg border bg-white/[0.03] text-xl focus:outline-none focus:border-amber-500/40 transition-colors";
 const inputStyle = {
   borderColor: "rgba(255,255,255,0.08)",
   color: adminColors.textPrimary,
@@ -84,7 +86,7 @@ function ImagePreview({
           onClick={onRemove}
           className="p-1 rounded-full bg-red-500/80 text-white"
         >
-          <Trash2 size={11} />
+          <Trash2 size={18} />
         </button>
       </div>
     </div>
@@ -110,12 +112,12 @@ function VideoPreview({
       }}
     >
       <Film
-        size={13}
+        size={18}
         style={{ color: adminColors.textMuted }}
         className="flex-shrink-0"
       />
       <span
-        className="text-xs flex-1 truncate max-w-40"
+        className="text-l flex-1 truncate max-w-40"
         style={{ color: adminColors.textSecondary }}
       >
         {name}
@@ -125,7 +127,7 @@ function VideoPreview({
         onClick={onRemove}
         className="text-white/20 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
       >
-        <Trash2 size={11} />
+        <Trash2 size={18} />
       </button>
     </div>
   );
@@ -276,7 +278,7 @@ export default function WorkshopFormModal({
         >
           <div>
             <h2
-              className="text-xl font-semibold"
+              className="text-3xl font-semibold"
               style={{ color: adminColors.textPrimary }}
             >
               {isEdit ? "Edit Workshop" : "New Workshop"}
@@ -294,7 +296,7 @@ export default function WorkshopFormModal({
             onClick={onClose}
             className="p-1.5 rounded-lg hover:bg-white/[0.05] transition-colors"
           >
-            <X size={16} style={{ color: adminColors.pinkText }} />
+            <X size={20} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
 
@@ -314,7 +316,7 @@ export default function WorkshopFormModal({
                 key={lang}
                 type="button"
                 onClick={() => setLangTab(lang)}
-                className="px-3 py-1 rounded-md text-xs font-medium transition-all"
+                className="px-3 py-1 rounded-md text-l font-medium transition-all"
                 style={{
                   background:
                     langTab === lang ? "rgba(251,191,36,0.15)" : "transparent",
@@ -440,7 +442,7 @@ export default function WorkshopFormModal({
                 color: adminColors.textMuted,
               }}
             >
-              <ImagePlus size={14} />
+              <ImagePlus size={19} />
               {totalImages === 0 ? "Add images" : "Add more images"}
               <span className="ml-1" style={{ color: adminColors.textMuted }}>
                 (JPG, PNG, WebP)
@@ -498,7 +500,7 @@ export default function WorkshopFormModal({
                 color: adminColors.textMuted,
               }}
             >
-              <Film size={14} />
+              <Film size={19} />
               {totalVideos === 0 ? "Add videos" : "Add more videos"}
               <span className="ml-1" style={{ color: adminColors.textMuted }}>
                 (MP4, MOV, WebM)
@@ -559,33 +561,36 @@ export default function WorkshopFormModal({
 
           {/* Date + Times */}
           <div className="grid grid-cols-3 gap-4">
-            <Field label="Event Date" required>
-              <input
-                type="date"
-                name="eventDate"
-                defaultValue={defaultDate}
-                className={inputCls}
-                style={inputStyle}
-              />
-            </Field>
-            <Field label="Start Time" required>
-              <input
-                type="time"
-                name="startTime"
-                defaultValue={workshop?.startTime ?? ""}
-                className={inputCls}
-                style={inputStyle}
-              />
-            </Field>
-            <Field label="End Time" required>
-              <input
-                type="time"
-                name="endTime"
-                defaultValue={workshop?.endTime ?? ""}
-                className={inputCls}
-                style={inputStyle}
-              />
-            </Field>
+            <DatePicker
+              id="eventDate"
+              name="eventDate"
+              label="Event Date"
+              defaultValue={defaultDate}
+              required
+              theme="dark"
+              fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
+              inputStyle={{ borderColor: adminColors.border }}
+            />
+            <TimePicker
+              id="startTime"
+              name="startTime"
+              label="Start Time"
+              defaultValue={workshop?.startTime ?? ""}
+              required
+              theme="dark"
+              fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
+              inputStyle={{ borderColor: adminColors.border }}
+            />
+            <TimePicker
+              id="endTime"
+              name="endTime"
+              label="End Time"
+              defaultValue={workshop?.endTime ?? ""}
+              required
+              theme="dark"
+              fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
+              inputStyle={{ borderColor: adminColors.border }}
+            />
           </div>
 
           {/* Capacity + Price + Currency */}
@@ -676,7 +681,7 @@ export default function WorkshopFormModal({
               }}
             >
               <AlertCircle
-                size={13}
+                size={18}
                 className="flex-shrink-0 mt-0.5"
                 style={{ color: adminColors.accent }}
               />
@@ -713,7 +718,7 @@ export default function WorkshopFormModal({
             form="workshop-form"
             disabled={isPending}
           >
-            {isPending && <Loader2 size={13} className="animate-spin" />}
+            {isPending && <Loader2 size={18} className="animate-spin" />}
             {isEdit ? "Save Changes" : "Create Workshop"}
           </AdminButton>
         </div>

@@ -72,7 +72,7 @@ export default function AvatarUploadField({
   }
 
   return (
-    <div className="md:col-span-2 rounded-2xl p-4 liquid-glass">
+    <div className="md:col-span-2 rounded-2xl p-4 liquid-glass-gold">
       <input type="hidden" name={hiddenInputName} value={imageUrl} />
 
       <p className="text-sm mb-2">{label}</p>

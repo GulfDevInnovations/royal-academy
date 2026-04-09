@@ -680,10 +680,10 @@ export default function PaymentsClient({
                     <AdminTd className="text-right">
                       <button
                         onClick={() => setSelectedPayment(payment)}
-                        className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-amber-400 hover:bg-amber-500/8"
+                        className="p-1.5 rounded-lg transition-colors text-purple-600 hover:text-purple-400 hover:bg-amber-500/8"
                         title="View details"
                       >
-                        <Eye size={16} />
+                        <Eye size={20} />
                       </button>
                     </AdminTd>
                   </AdminTr>

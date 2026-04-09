@@ -14,6 +14,8 @@ import {
   adminColors,
 } from "@/components/admin/ui";
 import { useTranslations } from "next-intl";
+import DatePicker from "@/components/date-time/DatePicker";
+import TimePicker from "@/components/date-time/TimePicker";
 
 const DAYS = [
   "MONDAY",
@@ -300,37 +302,56 @@ export default function ScheduleFormModal({
               </AdminSelect>
 
               <div className="grid grid-cols-2 gap-3">
-                <AdminInput
-                  label="Start Time *"
+                <TimePicker
+                  id="startTime"
                   name="startTime"
-                  type="time"
+                  label="Start Time"
                   defaultValue={editing?.startTime ?? ""}
                   required
+                  theme="dark"
+                  fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
+                  inputStyle={{ borderColor: adminColors.border }}
                 />
-                <AdminInput
-                  label="End Time *"
+                <TimePicker
+                  id="endTime"
                   name="endTime"
-                  type="time"
+                  label="End Time"
                   defaultValue={editing?.endTime ?? ""}
                   required
+                  theme="dark"
+                  fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
+                  inputStyle={{ borderColor: adminColors.border }}
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <AdminInput
-                  label="Start Date *"
+                <DatePicker
+                  id="startDate"
                   name="startDate"
-                  type="date"
+                  label="Start Date"
                   defaultValue={startDateVal}
                   required
+                  theme="dark"
+                  fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
+                  inputStyle={{ borderColor: adminColors.border }}
                 />
-                <AdminInput
-                  label="End Date"
-                  name="endDate"
-                  type="date"
-                  defaultValue={endDateVal}
-                  helperText="Leave blank for open-ended"
-                />
+                <div className="space-y-1">
+                  <DatePicker
+                    id="endDate"
+                    name="endDate"
+                    label="End Date"
+                    defaultValue={endDateVal}
+                    theme="dark"
+                    fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
+                    inputStyle={{ borderColor: adminColors.border }}
+                  />
+                  <p
+                    className="text-l"
+                    style={{ color: adminColors.textMuted }}
+                  >
+                    Leave blank for open-ended
+                  </p>
+                </div>
               </div>
 
               {!editing && (
