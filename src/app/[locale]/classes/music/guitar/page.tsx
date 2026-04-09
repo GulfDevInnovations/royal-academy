@@ -361,14 +361,14 @@ export default function GuitarPage() {
         paragraph:
           "للجيتار تاريخ طويل يعود إلى أكثر من 4000 عام، إذ ظهرت أسلافه الأولى في حضارات قديمة مثل بلاد ما بين النهرين ومصر. وبدأ الجيتار الحديث يتشكل في إسبانيا خلال القرنين الخامس عشر والسادس عشر، متطوراً من آلات مثل العود الأوروبي. وفي القرن التاسع عشر، قام الصانع الإسباني أنطونيو توريس خورادو بتطوير تصميمه، ليمنحنا البنية التي نعرفها اليوم للجيتار الكلاسيكي.",
         reserveHelper: "اكتشف الجيتار في حصة حقيقية",
-        reserveCta: "احجز الآن",
+        reserveCta: "التسجيل",
         roomCta: "هل تريد رؤية غرفة الجيتار لدينا؟",
       }
     : {
         paragraph:
           "The Guitar has a long history that dates back over 4000 years, with early ancestors appearing in ancient civilizations such as Mesopotamia and Egypt. The modern guitar began to take shape in Spain during the 15th-16th centuries, evolving from instruments like the lute. By the 19th century, the Spanish maker Antonio Torres Jurado refined its design, creating the structure of the classical guitar we know today.",
         reserveHelper: "Discover the Guitar in a real class",
-        reserveCta: "Reserve Now",
+        reserveCta: "Enrollment",
         roomCta: "wanna see our Guitar room?",
       };
 
@@ -410,16 +410,16 @@ export default function GuitarPage() {
       <section className="relative z-20 hidden min-h-screen px-6 pb-12 pt-24 lg:block xl:px-10 xl:pt-28">
         <div className="mx-auto flex w-full max-w-7xl items-start justify-between gap-8 xl:gap-12">
           <div
-            className="font-goudy flex w-[min(18rem,24vw)] min-w-[15rem] flex-col items-center gap-4"
+            className="font-goudy flex w-[min(23.5rem,31vw)] min-w-[19rem] flex-col items-center gap-5"
             dir="ltr"
           >
             <p
-              className={`max-w-[14rem] text-center ${musicTypography.captionCaps} text-royal-cream/88`}
+              className={`max-w-[18rem] text-center text-[13px] uppercase tracking-[0.2em] leading-6 text-royal-cream/88 sm:text-[14px]`}
             >
               Sensational Spanish Guitar, Cover of Enrique Iglesias &quot;Bailando&quot;
             </p>
 
-            <div className="liquid-glass flex items-center gap-2 rounded-full px-3 py-2">
+            <div className="liquid-glass flex items-center gap-2.5 rounded-full px-4 py-2.5">
               <GlassControlButton label="Play track" onClick={playAudio}>
                 <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
               </GlassControlButton>
@@ -431,7 +431,7 @@ export default function GuitarPage() {
               </GlassControlButton>
             </div>
 
-            <div className="liquid-glass w-44 rounded-[1.1rem] px-3 py-2 sm:w-52">
+            <div className="liquid-glass w-56 rounded-[1.2rem] px-4 py-2.5 sm:w-68">
               <input
                 type="range"
                 min={0}
@@ -461,27 +461,27 @@ export default function GuitarPage() {
             </div>
           </div>
 
-          <div className="w-[min(30rem,44vw)] min-w-[24rem] xl:w-[min(34rem,42vw)]">
+          <div className="w-[min(39rem,57vw)] min-w-[31rem] lg:translate-x-[120px] xl:w-[min(44rem,55vw)]">
             <div
-              className="rounded-[1.5rem] border px-5 py-5 sm:px-6 sm:py-6"
+              className="rounded-[1.5rem] border px-6 py-6 sm:px-7 sm:py-7"
               style={GLASS_CARD_STYLE}
               dir={isArabic ? "rtl" : "ltr"}
             >
-              <p className={`${musicTypography.body} text-royal-cream/90`}>
+              <p className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem]`}>
                 <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
               </p>
 
               <div className="mt-4 flex flex-col items-start gap-3">
                 <p
-                  className={`${musicHelperTextClass(isArabic)} text-royal-gold/65`}
+                  className={`${musicHelperTextClass(isArabic)} text-[14px] text-royal-gold/65 sm:text-[15px]`}
                 >
                   {content.reserveHelper}
                 </p>
                 <Link
                   href={reservationHref}
-                  className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+                  className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
                     isArabic,
-                  )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03]`}
+                )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
                 >
                   {content.reserveCta}
                 </Link>
@@ -489,10 +489,10 @@ export default function GuitarPage() {
                   <button
                     type="button"
                     onClick={handleRoomPreview}
-                    className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+                    className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
                       isArabic,
                       "narrow",
-                    )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03]`}
+                    )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
                   >
                     {content.roomCta}
                   </button>
@@ -526,16 +526,16 @@ export default function GuitarPage() {
 
       <section className="relative z-20 flex min-h-screen flex-col items-center justify-start gap-6 px-4 pb-12 pt-24 sm:px-6 sm:pt-28 lg:hidden">
         <div
-          className="font-goudy flex w-full max-w-[18rem] flex-col items-center gap-4 sm:max-w-[20rem]"
+          className="font-goudy flex w-full max-w-[23rem] flex-col items-center gap-5 sm:max-w-[26rem]"
           dir="ltr"
         >
           <p
-            className={`max-w-[16rem] text-center ${musicTypography.captionCaps} text-royal-cream/88`}
+            className={`max-w-[18rem] text-center text-[13px] uppercase tracking-[0.2em] leading-6 text-royal-cream/88 sm:text-[14px]`}
           >
             Sensational Spanish Guitar, Cover of Enrique Iglesias &quot;Bailando&quot;
           </p>
 
-          <div className="liquid-glass flex items-center gap-2 rounded-full px-3 py-2">
+          <div className="liquid-glass flex items-center gap-2.5 rounded-full px-4 py-2.5">
             <GlassControlButton label="Play track" onClick={playAudio}>
               <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
             </GlassControlButton>
@@ -547,7 +547,7 @@ export default function GuitarPage() {
             </GlassControlButton>
           </div>
 
-          <div className="liquid-glass w-full rounded-[1.1rem] px-3 py-2">
+          <div className="liquid-glass w-full rounded-[1.2rem] px-4 py-2.5">
             <input
               type="range"
               min={0}
@@ -577,27 +577,27 @@ export default function GuitarPage() {
           </div>
         </div>
 
-        <div className="w-full max-w-[31rem] sm:max-w-[37rem]">
+        <div className="w-full max-w-[40rem] sm:max-w-[48rem]">
           <div
-            className="rounded-[1.5rem] border px-5 py-5 sm:px-6 sm:py-6"
+            className="rounded-[1.5rem] border px-6 py-6 sm:px-7 sm:py-7"
             style={GLASS_CARD_STYLE}
             dir={isArabic ? "rtl" : "ltr"}
           >
-            <p className={`${musicTypography.body} text-royal-cream/90`}>
+            <p className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem]`}>
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
             </p>
 
             <div className="mt-4 flex flex-col items-start gap-3">
               <p
-                className={`${musicHelperTextClass(isArabic)} text-royal-gold/65`}
+                className={`${musicHelperTextClass(isArabic)} text-[14px] text-royal-gold/65 sm:text-[15px]`}
               >
                 {content.reserveHelper}
               </p>
               <Link
                 href={reservationHref}
-                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
                   isArabic,
-                )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03]`}
+                )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
               >
                 {content.reserveCta}
               </Link>
@@ -605,10 +605,10 @@ export default function GuitarPage() {
                 <button
                   type="button"
                   onClick={handleRoomPreview}
-                  className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+                  className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
                     isArabic,
                     "narrow",
-                  )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03]`}
+                  )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
                 >
                   {content.roomCta}
                 </button>

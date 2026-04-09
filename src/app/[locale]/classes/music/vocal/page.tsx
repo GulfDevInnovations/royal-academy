@@ -71,7 +71,7 @@ export default function VocalPage() {
         paragraph:
           "انضم إلى صفوف الغناء لدينا، حيث نوجّه الطلاب لتطوير أصواتهم، وتقنياتهم، وثقتهم من خلال تدريب منظم وتمارين ممتعة. هنا ستتعلم التحكم في التنفس باستخدام الحجاب الحاجز، وتقوية الصوت عبر الإحماء والسلالم الموسيقية، وتحسين الطبقة والأذن الموسيقية. ومع التركيز على النبرة وتموضع الصوت، ستكتشف كيف تُنتج صوتًا واضحًا وغنيًا وتطبّق هذه المهارات على أغانٍ حقيقية. وإلى جانب التقنية، تركز حصصنا على التعبير والأداء لتساعدك على تقديم الإحساس والأسلوب والثقة في كل نغمة تغنيها. 🎤✨",
         reserveHelper: "احجز تجربتك الصوتية",
-        reserveCta: "اذهب إلى الحجز",
+        reserveCta: "التسجيل",
       }
     : {
         title: "Vocal Breathing Trainer",
@@ -86,7 +86,7 @@ export default function VocalPage() {
         paragraph:
           "Step into our vocal classes, where students are guided to develop their voice, technique, and confidence through structured practice and engaging exercises. Here, you will learn to control your breathing using the diaphragm, strengthen your voice through warm-ups and scales, and improve your pitch and musical ear. With a focus on tone and voice placement, you'll discover how to produce a clear, rich sound while applying these skills to real songs. Beyond technique, our classes emphasize expression and performance, helping you bring emotion, style, and confidence to every note you sing. 🎤✨",
         reserveHelper: "Reserve your vocal experience",
-        reserveCta: "Go to reservation",
+        reserveCta: "Enrollment",
       };
 
   const pointer = useMemo(
@@ -317,12 +317,12 @@ export default function VocalPage() {
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(255,240,214,0.18)_0%,rgba(40,21,14,0.88)_42%,rgba(10,8,14,1)_100%)] px-4 py-8 text-royal-cream sm:px-6 sm:py-10 lg:px-8 xl:px-10">
       <section
-        className={`mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-6xl flex-col items-center justify-center gap-6 lg:gap-8 lg:justify-between xl:gap-10 ${
+        className={`mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-6xl flex-col items-center justify-start gap-6 pt-[90px] lg:items-start lg:gap-8 xl:gap-10 ${
           isArabic ? "lg:flex-row-reverse" : "lg:flex-row"
         }`}
       >
         <div
-          className="order-2 w-full max-w-[22rem] rounded-[1.6rem] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.03)_100%)] px-4 py-5 shadow-[0_24px_80px_rgba(0,0,0,0.36)] backdrop-blur-xl sm:max-w-sm sm:px-5 sm:py-6 lg:order-1"
+          className="order-2 w-full max-w-[26.5rem] rounded-[1.6rem] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.03)_100%)] px-5 py-6 shadow-[0_24px_80px_rgba(0,0,0,0.36)] backdrop-blur-xl sm:max-w-[30rem] sm:px-6 sm:py-7 lg:order-1"
           dir={isArabic ? "rtl" : "ltr"}
         >
           <audio ref={ambientAudioRef} src="/images/vocal.mp3" preload="auto" />
@@ -372,7 +372,7 @@ export default function VocalPage() {
               {displayedCycle} {content.outOf} {TOTAL_CYCLES}
             </p>
 
-            <div className="-mt-[26px] w-full max-w-[15rem] sm:max-w-[18rem]">
+            <div className="-mt-[18px] w-full max-w-[18rem] sm:max-w-[21.5rem]">
               <svg
                 viewBox="0 0 100 84"
                 role="img"
@@ -438,14 +438,14 @@ export default function VocalPage() {
           </div>
         </div>
 
-        <div className="order-1 w-full max-w-[28rem] lg:order-2 lg:max-w-[31rem] xl:max-w-[36rem]">
+        <div className="order-1 w-full max-w-[33.5rem] lg:order-2 lg:max-w-[37rem] xl:max-w-[43rem]">
           <div
-            className="rounded-[1.65rem] border px-4 py-4 sm:px-5 sm:py-5"
+            className="rounded-[1.65rem] border px-5 py-5 sm:px-6 sm:py-6"
             style={GLASS_CARD_STYLE}
             dir={isArabic ? "rtl" : "ltr"}
           >
             <p
-              className={`text-[16px] leading-[1.8rem] text-royal-cream/90 sm:text-[18px] sm:leading-[2rem] ${
+              className={`text-[19px] leading-[2.1rem] text-royal-cream/90 sm:text-[21px] sm:leading-[2.35rem] ${
                 isArabic ? "text-right" : ""
               }`}
             >

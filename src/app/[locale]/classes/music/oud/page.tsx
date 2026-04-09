@@ -297,7 +297,7 @@ export default function OudPage() {
         paragraph:
           "هل تعلم أن العود يُعد من أقدم الآلات الوترية في العالم، إذ يعود تاريخه إلى أكثر من 3000 عام في بلاد ما بين النهرين القديمة؟ تطور العود من آلات أقدم وأصبح أكثر دقة وإتقاناً خلال العصر الذهبي الإسلامي. وكان يُعزف في القصور الملكية والمجالس الثقافية وتقاليد السرد والحكاية. وأسهم الموسيقي الشهير زرياب في تطوير أسلوبه وأضاف له وتراً خامساً. ثم انتقلت هذه الآلة إلى أوروبا وأثرت في نشأة آلة اللوت. وبفضل صوته الدافئ والعميق، أصبح العود محورياً في الموسيقى العربية والتركية والفارسية. ولا يزال اليوم رمزاً لتراث موسيقي عريق وأصيل. 🎶",
         reserveHelper: "اكتشف سحر العود في حصة حقيقية",
-        reserveCta: "احجز الآن",
+        reserveCta: "التسجيل",
       }
     : {
         playLabel: "Play track",
@@ -305,7 +305,7 @@ export default function OudPage() {
         paragraph:
           "Did you know the Oud is one of the oldest string instruments in the world, dating back over 3000 years to ancient Mesopotamia? It evolved from early instruments and became highly refined during the Islamic Golden Age. The oud was widely played in royal courts, cultural gatherings, and storytelling traditions. A famous musician, Ziryab, helped develop its style and added a fifth string. The instrument later traveled to Europe, influencing the creation of the lute. Its deep, warm sound made it central to Arabic, Turkish, and Persian music. Today, the oud remains a symbol of rich musical heritage and tradition. 🎶",
         reserveHelper: "Discover the oud in a real class",
-        reserveCta: "Reserve Now",
+        reserveCta: "Enrollment",
       };
 
   return (
@@ -339,11 +339,11 @@ export default function OudPage() {
       </div>
 
       <div
-        className="absolute left-8 top-24 z-20 hidden lg:block lg:left-12 lg:top-28"
+        className="absolute left-8 top-24 z-20 hidden lg:block lg:left-[9.25rem] lg:top-28"
         dir="ltr"
       >
         <div className="font-goudy flex flex-col items-center gap-4">
-          <div className="liquid-glass flex items-center gap-2 rounded-full px-3 py-2">
+          <div className="liquid-glass flex items-center gap-2.5 rounded-full px-4 py-2.5">
             <GlassControlButton label={content.playLabel} onClick={playAudio}>
               <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
             </GlassControlButton>
@@ -355,7 +355,7 @@ export default function OudPage() {
             </GlassControlButton>
           </div>
 
-          <div className="liquid-glass w-44 rounded-[1.1rem] px-3 py-2 sm:w-52">
+          <div className="liquid-glass w-56 rounded-[1.2rem] px-4 py-2.5 sm:w-64">
             <input
               type="range"
               min={0}
@@ -386,27 +386,27 @@ export default function OudPage() {
         </div>
       </div>
 
-      <div className="absolute right-6 top-24 z-20 hidden w-72 lg:block lg:right-10 lg:top-28 lg:w-80">
+      <div className="absolute right-6 top-24 z-20 hidden w-[23.5rem] lg:block lg:right-[8.5rem] lg:top-28 lg:w-[31rem]">
         <div
-          className="rounded-[1.5rem] border px-4 py-4 sm:px-5 sm:py-5"
+          className="rounded-[1.5rem] border px-6 py-6 sm:px-7 sm:py-7"
           style={GLASS_CARD_STYLE}
           dir={isArabic ? "rtl" : "ltr"}
         >
-          <p className={`${musicTypography.body} text-royal-cream/90`}>
+          <p className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem]`}>
             <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
           </p>
 
           <div className="mt-4 flex flex-col items-start gap-3">
             <p
-              className={`${musicHelperTextClass(isArabic)} text-royal-gold/65`}
+              className={`${musicHelperTextClass(isArabic)} text-[14px] text-royal-gold/65 sm:text-[15px]`}
             >
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
             </p>
             <Link
               href={reservationHref}
-              className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+              className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
                 isArabic,
-              )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03]`}
+              )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
             >
               {content.reserveCta}
             </Link>
@@ -461,27 +461,27 @@ export default function OudPage() {
           </div>
         </div>
 
-        <div className="w-full max-w-[22rem] sm:max-w-[26rem]">
+        <div className="w-full max-w-[28rem] sm:max-w-[33rem]">
           <div
-            className="rounded-[1.5rem] border px-4 py-4 sm:px-5 sm:py-5"
+            className="rounded-[1.5rem] border px-6 py-6 sm:px-7 sm:py-7"
             style={GLASS_CARD_STYLE}
             dir={isArabic ? "rtl" : "ltr"}
           >
-            <p className={`${musicTypography.body} text-royal-cream/90`}>
+            <p className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem]`}>
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
             </p>
 
             <div className="mt-4 flex flex-col items-start gap-3">
               <p
-                className={`${musicHelperTextClass(isArabic)} text-royal-gold/65`}
+                className={`${musicHelperTextClass(isArabic)} text-[14px] text-royal-gold/65 sm:text-[15px]`}
               >
                 <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
               </p>
               <Link
                 href={reservationHref}
-                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
                   isArabic,
-                )} text-[#2b1912] transition-transform duration-300 hover:scale-[1.03]`}
+                )} text-[14px] text-[#2b1912] transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
               >
                 {content.reserveCta}
               </Link>

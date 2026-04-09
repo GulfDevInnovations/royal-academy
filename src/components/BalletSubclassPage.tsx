@@ -77,7 +77,7 @@ export default function BalletSubclassPage({
                 href={reservationHref}
                 className="liquid-glass shimmer inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-royal-cream/85 transition-transform duration-300 hover:scale-[1.03] sm:w-auto sm:py-2.5"
               >
-                {isArabic ? "احجز الآن" : "Reserve"}
+                {isArabic ? "التسجيل" : "Enrollment"}
               </Link>
               <Link
                 href={contactHref}
