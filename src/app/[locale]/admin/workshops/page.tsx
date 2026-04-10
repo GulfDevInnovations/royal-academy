@@ -5,6 +5,7 @@ import {
   getRooms,
   getTeachersForSelect,
 } from "@/lib/actions/admin/Workshops.actions";
+import { parseJsonArray } from "@/utils/parseJson";
 import WorkshopsClient from "./_components/WorkshopClient";
 
 function serializeWorkshops(
@@ -12,6 +13,8 @@ function serializeWorkshops(
 ) {
   return workshops.map((w) => ({
     ...w,
+    imageUrls: parseJsonArray<string>(w.imageUrls),
+    videoUrls: parseJsonArray<string>(w.videoUrls),
     price: Number(w.price),
     eventDate:
       w.eventDate instanceof Date

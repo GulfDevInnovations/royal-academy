@@ -4,11 +4,13 @@ import {
   getTeachers,
   getSubClassesForAssignment,
 } from "@/lib/actions/admin/teachers.actions";
+import { parseJsonArray } from "@/utils/parseJson";
 import TeachersClient from "./_components/TeachersClient";
 
 function serializeTeachers(teachers: Awaited<ReturnType<typeof getTeachers>>) {
   return teachers.map((t) => ({
     ...t,
+    specialties: parseJsonArray<string>(t.specialties),
     createdAt: t.createdAt.toISOString(),
     updatedAt: t.updatedAt.toISOString(),
     user: t.user ? { ...t.user } : null,

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { News, Offer, Upcoming } from "@prisma/client";
+import { parseJsonArray } from "@/utils/parseJson";
 export const dynamic = "force-dynamic";
 import HomeWrapper from "@/components/layout-toggle/HomeWrapper"; // adjust path if needed
 
@@ -41,8 +42,10 @@ export default async function Home({
     expireAt?: Date | null;
   };
 
-  const serializeBase = <T extends WithBaseDates>(i: T) => ({
+  const serializeBase = <T extends WithBaseDates & { mediaUrls: unknown; videoUrls: unknown }>(i: T) => ({
     ...i,
+    mediaUrls: parseJsonArray<string>(i.mediaUrls),
+    videoUrls: parseJsonArray<string>(i.videoUrls),
     eventDate: i.eventDate?.toISOString() ?? null,
     publishAt: i.publishAt?.toISOString() ?? null,
     expireAt: i.expireAt?.toISOString() ?? null,

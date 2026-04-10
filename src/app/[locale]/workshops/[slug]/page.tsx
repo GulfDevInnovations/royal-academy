@@ -3,6 +3,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import WorkshopDetailClient from "./_components/WorkshopDetailClient";
+import { parseJsonArray } from "@/utils/parseJson";
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>;
@@ -57,8 +58,8 @@ export default async function WorkshopPage({ params }: Props) {
     title: workshop.title,
     description: workshop.description,
     coverUrl: workshop.coverUrl,
-    imageUrls: workshop.imageUrls,
-    videoUrls: workshop.videoUrls,
+    imageUrls: parseJsonArray<string>(workshop.imageUrls),
+    videoUrls: parseJsonArray<string>(workshop.videoUrls),
     startTime: workshop.startTime,
     endTime: workshop.endTime,
     eventDate: workshop.eventDate.toISOString(),
@@ -76,7 +77,7 @@ export default async function WorkshopPage({ params }: Props) {
           lastName: workshop.teacher.lastName,
           bio: workshop.teacher.bio ?? null,
           photoUrl: workshop.teacher.photoUrl ?? null,
-          specialties: workshop.teacher.specialties ?? [],
+          specialties: parseJsonArray<string>(workshop.teacher.specialties),
         }
       : null,
     room: workshop.room

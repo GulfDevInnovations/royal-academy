@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { parseJsonArray } from "@/utils/parseJson";
 import OffersClient from "./_components/OffersClient";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +24,10 @@ export default async function OffersAdminPage() {
 
   const serialized = items.map((item) => ({
     ...item,
+    mediaUrls: parseJsonArray<string>(item.mediaUrls),
+    videoUrls: parseJsonArray<string>(item.videoUrls),
+    classIds: parseJsonArray<string>(item.classIds),
+    subClassIds: parseJsonArray<string>(item.subClassIds),
     eventDate: null,
     discountValue: item.discountValue ? item.discountValue.toString() : null,
     publishAt: item.publishAt?.toISOString() ?? null,

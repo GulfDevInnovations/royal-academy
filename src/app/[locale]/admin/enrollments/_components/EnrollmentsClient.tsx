@@ -57,6 +57,7 @@ import EnrollmentFormModal from "./EnrollmentFormModal";
 import PaymentModal from "./PaymentModal";
 import DeleteConfirmModal from "../../../../../components/admin/DeleteConfirmModal";
 import { useTranslations } from "next-intl";
+import { parseJsonArray } from "@/utils/parseJson";
 
 // ─────────────────────────────────────────────
 // Constants
@@ -534,6 +535,7 @@ export default function EnrollmentsClient({
                                 </span>
                               )}
                             </div>
+
                             <p
                               className="text-[15px]"
                               style={{ color: adminColors.textMuted }}
@@ -541,14 +543,21 @@ export default function EnrollmentsClient({
                               {enrollment.frequency === "TWICE_PER_WEEK"
                                 ? "2×/wk"
                                 : "1×/wk"}
-                              {enrollment.preferredDays.length > 0 && (
-                                <span className="ml-1">
-                                  ·{" "}
-                                  {enrollment.preferredDays
-                                    .map((d: string) => DAY_SHORT[d] ?? d)
-                                    .join("+")}
-                                </span>
-                              )}
+                              {(() => {
+                                const days = parseJsonArray<string>(
+                                  enrollment.preferredDays,
+                                );
+                                return (
+                                  days.length > 0 && (
+                                    <span className="ml-1">
+                                      ·{" "}
+                                      {days
+                                        .map((d) => DAY_SHORT[d] ?? d)
+                                        .join("+")}
+                                    </span>
+                                  )
+                                );
+                              })()}
                             </p>
                           </div>
 
@@ -825,12 +834,12 @@ export default function EnrollmentsClient({
                         ? "2× / week"
                         : "1× / week"}
                     </p>
-                    {enrollment.preferredDays.length > 0 && (
+                    {parseJsonArray<string>(enrollment.preferredDays).length > 0 && (
                       <p
                         className="text-[15px]"
                         style={{ color: adminColors.textMuted }}
                       >
-                        {enrollment.preferredDays
+                        {parseJsonArray<string>(enrollment.preferredDays)
                           .map((d: string) => DAY_SHORT[d] ?? d)
                           .join(" + ")}
                       </p>

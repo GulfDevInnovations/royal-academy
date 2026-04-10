@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { MultiMonthPaymentClient } from "./_components/MultiMonthPaymentClient";
+import { parseJsonArray } from "@/utils/parseJson";
 
 export const metadata = { title: "Complete Payment | Royal Academy" };
 
@@ -45,7 +46,7 @@ export default async function MultiMonthPaymentPage({
 
   if (!enrollment) notFound();
 
-  const preferredDays = enrollment.preferredDays as string[];
+  const preferredDays = parseJsonArray<string>(enrollment.preferredDays);
   const teacher =
     enrollment.subClass.classSchedules.find((s) =>
       preferredDays.includes(s.dayOfWeek),
@@ -64,7 +65,7 @@ export default async function MultiMonthPaymentPage({
         endYear: enrollment.endYear,
         totalMonths: enrollment.totalMonths,
         frequency: enrollment.frequency,
-        preferredDays: enrollment.preferredDays,
+        preferredDays,
         monthlyPrice: Number(enrollment.totalAmount) / enrollment.totalMonths,
         totalAmount: Number(enrollment.totalAmount),
         currency: enrollment.currency,

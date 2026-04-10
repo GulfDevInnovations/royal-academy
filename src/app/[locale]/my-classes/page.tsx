@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import MyClassesClient from "./_components/MyClassesClient";
+import { parseJsonArray } from "@/utils/parseJson";
 import type {
   EnrolledClass,
   RescheduledSession,
@@ -202,7 +203,7 @@ export default async function MyClassesPage() {
         enrollmentType: "SINGLE",
         status: e.status,
         frequency: e.frequency,
-        preferredDays: e.preferredDays,
+        preferredDays: parseJsonArray<string>(e.preferredDays),
         month: e.month,
         year: e.year,
         startMonth: null,
@@ -215,8 +216,8 @@ export default async function MyClassesPage() {
         paymentStatus: e.payment?.status ?? null,
         paidAt: e.payment?.paidAt ?? null,
         resolvedSlots: resolveSlots(
-          e.scheduleIds ?? [],
-          e.preferredDays,
+          parseJsonArray<string>(e.scheduleIds),
+          parseJsonArray<string>(e.preferredDays),
           e.subClass.classSchedules,
         ),
         rescheduledSessions: reschedulesBySubClass.get(e.subClass.id) ?? [],
@@ -248,7 +249,7 @@ export default async function MyClassesPage() {
         enrollmentType: "MULTI",
         status: m.status,
         frequency: m.frequency,
-        preferredDays: m.preferredDays,
+        preferredDays: parseJsonArray<string>(m.preferredDays),
         month: null,
         year: null,
         startMonth: m.startMonth,
@@ -261,8 +262,8 @@ export default async function MyClassesPage() {
         paymentStatus: m.payment?.status ?? null,
         paidAt: m.payment?.paidAt ?? null,
         resolvedSlots: resolveSlots(
-          m.scheduleIds ?? [],
-          m.preferredDays,
+          parseJsonArray<string>(m.scheduleIds),
+          parseJsonArray<string>(m.preferredDays),
           m.subClass.classSchedules,
         ),
         rescheduledSessions: reschedulesBySubClass.get(m.subClass.id) ?? [],

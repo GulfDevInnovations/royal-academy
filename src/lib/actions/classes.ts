@@ -2,6 +2,7 @@
 "use server";
 
 import { PrismaClient } from "@prisma/client";
+import { parseJsonArray } from "@/utils/parseJson";
 
 const prisma = new PrismaClient();
 
@@ -89,7 +90,7 @@ export async function getSubClassCards(): Promise<SubClassCard[]> {
       lastName: t.teacher.lastName,
       photoUrl: t.teacher.photoUrl,
       bio: t.teacher.bio,
-      specialties: t.teacher.specialties,
+      specialties: parseJsonArray<string>(t.teacher.specialties),
       availableDays: [],
       schedules: [],
       maxBookableMonths: null,
@@ -194,7 +195,7 @@ export async function getSubClassDetail(
         lastName: t.teacher.lastName,
         photoUrl: t.teacher.photoUrl,
         bio: t.teacher.bio,
-        specialties: t.teacher.specialties,
+        specialties: parseJsonArray<string>(t.teacher.specialties),
         availableDays: [...new Set(teacherSchedules.map((cs) => cs.dayOfWeek))],
         schedules,
         maxBookableMonths,

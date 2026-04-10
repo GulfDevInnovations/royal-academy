@@ -387,7 +387,7 @@ export async function createEnrollment(formData: FormData) {
   for (const schedule of selectedSchedules) {
     const enrolled = await prisma.monthlyEnrollment.count({
       where: {
-        scheduleIds: { has: schedule.id },
+        scheduleIds: { array_contains: schedule.id },
         month,
         year,
         status: { in: ["CONFIRMED"] },
@@ -515,7 +515,7 @@ export async function createMultiMonthEnrollment(formData: FormData) {
     for (const schedule of selectedSchedules) {
       const enrolled = await prisma.monthlyEnrollment.count({
         where: {
-          scheduleIds: { has: schedule.id },
+          scheduleIds: { array_contains: schedule.id },
           month,
           year,
           status: { in: ["CONFIRMED"] },

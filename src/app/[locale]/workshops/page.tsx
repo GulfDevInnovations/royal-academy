@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import WorkshopsCalendarClient from "./_components/WorkshopsCalendarClient";
+import { parseJsonArray } from "@/utils/parseJson";
 
 export const metadata = { title: "Workshops | Royal Academy" };
 
@@ -22,8 +23,8 @@ export default async function WorkshopsPage() {
     title: w.title,
     description: w.description,
     coverUrl: w.coverUrl,
-    imageUrls: w.imageUrls,
-    videoUrls: w.videoUrls,
+    imageUrls: parseJsonArray<string>(w.imageUrls),
+    videoUrls: parseJsonArray<string>(w.videoUrls),
     eventDate: w.eventDate.toISOString(),
     startTime: w.startTime,
     endTime: w.endTime,
