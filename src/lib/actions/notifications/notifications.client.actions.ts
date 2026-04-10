@@ -1,9 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { sendTicketReplyEmail } from "@/lib/email";
-import { sendSms } from "@/lib/sms";
-
+import { sendTicketReplyEmail } from "@/lib/emails/email";
+import { dispatchSms } from "@/lib/sms/sms-dispatcher";
 // ─────────────────────────────────────────────
 // GET notifications for a logged-in user
 // Only returns INAPP notifications
@@ -153,7 +152,7 @@ export async function replyToTicket(
       `Royal Academy Support: Your ticket "${ticketSubject.slice(0, 40)}${ticketSubject.length > 40 ? "…" : ""}" has a new reply. ` +
       `Visit royalacademy.om/support to read it.`;
 
-    const smsResult = await sendSms({ to: owner.phone, body: smsBody });
+    const smsResult = await dispatchSms({ to: owner.phone, message: smsBody });
     if (!smsResult.success) {
       console.error("Ticket reply SMS failed:", smsResult.error);
     }

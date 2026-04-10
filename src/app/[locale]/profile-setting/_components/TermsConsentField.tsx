@@ -18,12 +18,12 @@ type TermsConsentFieldProps = {
   modalIntro: string;
   sections: TermsSection[];
   cancelText: string;
-  confirmText: string;
+  confirmLine: string;
   acceptedHint: string;
   inputId?: string;
   inputName?: string;
   fieldA11y?: {
-    "aria-invalid"?: true;
+    "aria-invalid"?: boolean;
     "aria-describedby"?: string;
   };
 };

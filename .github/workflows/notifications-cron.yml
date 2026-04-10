@@ -1,0 +1,17 @@
+name: Notification Cron
+
+on:
+  schedule:
+    - cron: "0 10 * * *" # 10:00 AM UTC daily
+    - cron: "0 22 * * *" # 10:00 PM UTC daily
+  workflow_dispatch: # lets you trigger manually from GitHub UI
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger notification cron
+        run: |
+          curl --fail -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://yourdomain.com/api/cron/notifications

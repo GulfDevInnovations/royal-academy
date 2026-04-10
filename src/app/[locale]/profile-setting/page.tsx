@@ -739,7 +739,6 @@ export default async function ProfileSettingPage({
                   />
                   {renderRequiredMessage("dateOfBirth")}
                 </div>
-                {renderRequiredMessage("dateOfBirth")}
               </label>
               <label htmlFor="genderDisplay" className="block">
                 <span className="text-sm">
@@ -976,7 +975,6 @@ export default async function ProfileSettingPage({
                 sections={content.termsSections}
                 confirmLine={content.termsConfirmLine}
                 cancelText={content.termsCancel}
-                confirmText={content.termsConfirm}
                 acceptedHint={content.termsAccepted}
                 readTermsHint="Please read the terms and check the box at the end — this is required"
                 acceptText="Accept"

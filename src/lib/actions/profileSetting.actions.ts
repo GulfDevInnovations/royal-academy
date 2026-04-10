@@ -71,6 +71,7 @@ country: z.string().trim().min(1),   // was optional
 });
 
 export async function saveProfileSettings(formData: FormData) {
+  console.log("DEBUG fields received:", Object.fromEntries(formData.entries()));
   const cookieStore = await cookies();
   const rawLocale = formData.get("locale");
   const locale = rawLocale === "ar" ? "ar" : "en";
@@ -135,8 +136,8 @@ if (formData.get("agreePolicy") !== "on") {
       getString(formData, "emergencyContactPhone"),
     ),
     emergencyRelationship: getString(formData, "emergencyRelationship"),
-    preferredTrack: getString(formData, "preferredTrack") || undefined,
-    experience: getString(formData, "experience") || undefined,
+    preferredTrack: getString(formData, "preferredTrack"),
+    experience: getString(formData, "experience"),
     address: getString(formData, "address"),
     city: getString(formData, "city"),
     country: getString(formData, "country"),

@@ -155,6 +155,11 @@ enum DiscountType {
   FREE_TRIAL
 }
 
+enum AutoNotificationType {
+  SESSION_REMINDER_24H
+  BIRTHDAY
+}
+
 // ─────────────────────────────────────────────
 // USER & PROFILES
 // ─────────────────────────────────────────────
@@ -170,6 +175,7 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   lastLoginAt  DateTime?
+  notificationLogs NotificationLog[]
 
   // NextAuth fields
   emailVerified DateTime?
@@ -1005,4 +1011,18 @@ model Room {
   workshops Workshop[]
 
   @@map("rooms")
+}
+
+model NotificationLog {
+  id         String               @id @default(cuid())
+  userId     String
+  type       AutoNotificationType
+  referenceId String              // sessionId for reminders, date string "YYYY-MM-DD" for birthdays
+  sentAt     DateTime             @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Prevent sending the same notification twice for the same event
+  @@unique([userId, type, referenceId])
+  @@map("notification_logs")
 }

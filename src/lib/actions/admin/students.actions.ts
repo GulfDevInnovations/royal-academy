@@ -122,18 +122,20 @@ export async function updateStudent(id: string, formData: FormData) {
 // ─────────────────────────────────────────────
 
 export async function setStudentsActive(ids: string[], isActive: boolean) {
-  const profiles = await prisma.studentProfile.findMany({
-    where: { id: { in: ids } },
-    select: { userId: true },
-  });
-  const userIds = profiles.map((p) => p.userId);
-
-  await prisma.user.updateMany({
-    where: { id: { in: userIds } },
-    data: { isActive },
-  });
-
-  return { success: true };
+  try {
+    const profiles = await prisma.studentProfile.findMany({
+      where: { id: { in: ids } },
+      select: { userId: true },
+    });
+    const userIds = profiles.map((p) => p.userId);
+    await prisma.user.updateMany({
+      where: { id: { in: userIds } },
+      data: { isActive },
+    });
+    return { success: true, error: null };
+  } catch {
+    return { success: false, error: "Failed to update student status. Please try again." };
+  }
 }
 
 // ─────────────────────────────────────────────

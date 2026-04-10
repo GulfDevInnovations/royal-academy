@@ -6,6 +6,7 @@ import {
   Search,
   SlidersHorizontal,
   Pencil,
+  Eye,
   MessageSquare,
   CheckSquare,
   Square,
@@ -36,12 +37,11 @@ import {
   adminColors,
 } from "@/components/admin/ui";
 import StudentEditModal from "./StudentEditModal";
+import StudentViewModal from "./StudentViewModal";
 import SmsModal from "./SmsModal";
 import { useTranslations } from "next-intl";
 
-// ─────────────────────────────────────────────
-// Types
-// ─────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type SortKey =
   | "name"
@@ -57,7 +57,7 @@ interface FilterState {
   classId: string;
   subClassId: string;
   dayOfWeek: string;
-  status: string; // "all" | "active" | "inactive"
+  status: string;
 }
 
 const DAYS = [
@@ -69,10 +69,6 @@ const DAYS = [
   "SATURDAY",
   "SUNDAY",
 ];
-
-// ─────────────────────────────────────────────
-// Props
-// ─────────────────────────────────────────────
 
 interface FilterOptions {
   classes: { id: string; name: string }[];
@@ -89,9 +85,7 @@ interface Props {
   filterOptions: FilterOptions;
 }
 
-// ─────────────────────────────────────────────
-// Component
-// ─────────────────────────────────────────────
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function StudentsClient({
   initialStudents,
@@ -104,6 +98,7 @@ export default function StudentsClient({
 
   // ── Modal state ──
   type Modal =
+    | { type: "view"; student: SerializedStudent }
     | { type: "edit"; student: SerializedStudent }
     | { type: "sms"; students: SerializedStudent[] };
   const [modal, setModal] = useState<Modal | null>(null);
@@ -128,14 +123,12 @@ export default function StudentsClient({
   const setFilter = (key: keyof FilterState, value: string) => {
     setFilters((prev) => {
       const next = { ...prev, [key]: value };
-      // Reset subClass when class changes
       if (key === "classId") next.subClassId = "";
       return next;
     });
-    setSelected(new Set()); // clear selection on filter change
+    setSelected(new Set());
   };
 
-  // ── Derived: filtered subclasses for selected class ──
   const filteredSubClasses = useMemo(
     () =>
       filters.classId
@@ -144,11 +137,9 @@ export default function StudentsClient({
     [filters.classId, filterOptions.subClasses],
   );
 
-  // ── Main filter + sort logic ──
   const displayedStudents = useMemo(() => {
     let list = [...initialStudents];
 
-    // Search
     if (filters.search) {
       const q = filters.search.toLowerCase();
       list = list.filter(
@@ -159,31 +150,26 @@ export default function StudentsClient({
       );
     }
 
-    // Status
     if (filters.status === "active") list = list.filter((s) => s.user.isActive);
     if (filters.status === "inactive")
       list = list.filter((s) => !s.user.isActive);
 
-    // Class filter
     if (filters.classId) {
       list = list.filter((s) =>
         s.monthlyEnrollments.some(
           (e) =>
-            e.subClass.class.name &&
             filterOptions.classes.find((c) => c.id === filters.classId)
               ?.name === e.subClass.class.name,
         ),
       );
     }
 
-    // SubClass filter
     if (filters.subClassId) {
       list = list.filter((s) =>
         s.monthlyEnrollments.some((e) => e.subClassId === filters.subClassId),
       );
     }
 
-    // Day of week filter
     if (filters.dayOfWeek) {
       list = list.filter((s) =>
         s.monthlyEnrollments.some((e) =>
@@ -194,7 +180,6 @@ export default function StudentsClient({
       );
     }
 
-    // Sort
     list.sort((a, b) => {
       let av: string | number = "";
       let bv: string | number = "";
@@ -230,7 +215,6 @@ export default function StudentsClient({
     return list;
   }, [initialStudents, filters, sortKey, sortDir, filterOptions.classes]);
 
-  // ── Sort toggle ──
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else {
@@ -250,7 +234,6 @@ export default function StudentsClient({
       <ChevronUp size={15} className="opacity-20" />
     );
 
-  // ── Selection helpers ──
   const allSelected =
     displayedStudents.length > 0 &&
     displayedStudents.every((s) => selected.has(s.id));
@@ -269,7 +252,6 @@ export default function StudentsClient({
     });
   };
 
-  // ── Refresh ──
   const handleSuccess = useCallback(() => {
     setModal(null);
     setSelected(new Set());
@@ -278,11 +260,11 @@ export default function StudentsClient({
     });
   }, [router]);
 
-  // ── Bulk activate/deactivate ──
+  // ── Bulk activate/deactivate — fixed: result always has error field now ──
   const handleBulkStatus = async (isActive: boolean) => {
     const result = await setStudentsActive([...selected], isActive);
     if (result.error) {
-      toast((result as { error: string }).error, "error");
+      toast(result.error, "error");
       return;
     }
     toast(
@@ -292,7 +274,6 @@ export default function StudentsClient({
     handleSuccess();
   };
 
-  // ── Excel export ──
   const exportToExcel = (studentsToExport: SerializedStudent[]) => {
     const rows = studentsToExport.map((s) => ({
       "First Name": s.firstName,
@@ -305,7 +286,7 @@ export default function StudentsClient({
         : "",
       City: s.city ?? "",
       Address: s.address ?? "",
-      "Emergency Contact": s.emergencyContact ?? "",
+      "Emergency Contact": s.emergencyContactName ?? "",
       Status: s.user.isActive ? "Active" : "Inactive",
       Verified: s.user.isVerified ? "Yes" : "No",
       Joined: new Date(s.user.createdAt).toLocaleDateString(),
@@ -320,7 +301,6 @@ export default function StudentsClient({
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Students");
 
-    // Auto column widths
     const colWidths = Object.keys(rows[0] ?? {}).map((k) => ({
       wch: Math.max(
         k.length,
@@ -349,9 +329,8 @@ export default function StudentsClient({
         subtitle={`${initialStudents.length} students total`}
       />
 
-      {/* ── Search + filter bar ── */}
+      {/* Search + filter bar */}
       <div className="flex items-center gap-3 flex-wrap">
-        {/* Search */}
         <div className="relative flex-1 min-w-55 max-w-sm">
           <Search
             size={17}
@@ -368,7 +347,6 @@ export default function StudentsClient({
           />
         </div>
 
-        {/* Filter toggle */}
         <button
           onClick={() => setShowFilters((v) => !v)}
           className="flex items-center gap-2 px-3 py-2 rounded-lg text-xl border transition-colors"
@@ -399,7 +377,6 @@ export default function StudentsClient({
           )}
         </button>
 
-        {/* Export all */}
         <button
           onClick={() => exportToExcel(displayedStudents)}
           className="gap-1 flex items-center justify-center px-5 py-2 rounded-xl border cursor-pointer hover:bg-white/5 transition-colors"
@@ -413,11 +390,10 @@ export default function StudentsClient({
         </button>
       </div>
 
-      {/* ── Filter panel ── */}
+      {/* Filter panel */}
       {showFilters && (
         <AdminCard className="!p-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {/* Class */}
             <div className="space-y-1.5">
               <label
                 className="text-l font-medium"
@@ -442,7 +418,6 @@ export default function StudentsClient({
               </select>
             </div>
 
-            {/* Sub-class */}
             <div className="space-y-1.5">
               <label
                 className="text-l font-medium"
@@ -467,7 +442,6 @@ export default function StudentsClient({
               </select>
             </div>
 
-            {/* Day of week */}
             <div className="space-y-1.5">
               <label
                 className="text-l font-medium"
@@ -492,7 +466,6 @@ export default function StudentsClient({
               </select>
             </div>
 
-            {/* Status */}
             <div className="space-y-1.5">
               <label
                 className="text-l font-medium"
@@ -532,10 +505,6 @@ export default function StudentsClient({
               }
               className="mt-3 flex items-center gap-1.5 text-l transition-colors"
               style={{ color: adminColors.redText }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#f87171")}
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = adminColors.redText)
-              }
             >
               <X size={16} /> {t("clearAllFilters")}
             </button>
@@ -543,7 +512,7 @@ export default function StudentsClient({
         </AdminCard>
       )}
 
-      {/* ── Floating bulk action bar ── */}
+      {/* Bulk action bar */}
       {someSelected && (
         <div
           className="sticky top-4 z-30 flex items-center gap-3 px-5 py-3 rounded-xl border shadow-2xl"
@@ -553,7 +522,6 @@ export default function StudentsClient({
             {selected.size} selected
           </span>
           <div className="flex-1" />
-
           <button
             onClick={() =>
               setModal({ type: "sms", students: selectedStudents })
@@ -567,7 +535,6 @@ export default function StudentsClient({
           >
             <MessageSquare size={16} /> Send SMS
           </button>
-
           <button
             onClick={() => handleBulkStatus(true)}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-l font-medium border transition-colors"
@@ -579,7 +546,6 @@ export default function StudentsClient({
           >
             <UserCheck size={16} /> {t("activate")}
           </button>
-
           <button
             onClick={() => handleBulkStatus(false)}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-l font-medium border transition-colors"
@@ -591,7 +557,6 @@ export default function StudentsClient({
           >
             <UserX size={16} /> {t("deactivate")}
           </button>
-
           <button
             onClick={() => exportToExcel(selectedStudents)}
             className="gap-1 flex items-center justify-center px-5 py-1.5 rounded-xl border cursor-pointer hover:bg-white/5 transition-colors"
@@ -599,7 +564,6 @@ export default function StudentsClient({
           >
             <Download size={16} /> {t("exportSelected")}
           </button>
-
           <button
             onClick={() => setSelected(new Set())}
             className="p-1.5 rounded-lg transition-colors"
@@ -610,7 +574,7 @@ export default function StudentsClient({
         </div>
       )}
 
-      {/* ── Table ── */}
+      {/* Table */}
       <AdminCard noPadding>
         {displayedStudents.length === 0 ? (
           <AdminEmptyState
@@ -620,7 +584,6 @@ export default function StudentsClient({
         ) : (
           <AdminTable>
             <AdminThead>
-              {/* Select all */}
               <AdminTh>
                 <button
                   onClick={toggleAll}
@@ -674,7 +637,6 @@ export default function StudentsClient({
                 const isSelected = selected.has(student.id);
                 return (
                   <AdminTr key={student.id}>
-                    {/* Checkbox */}
                     <AdminTd>
                       <button
                         onClick={() => toggleOne(student.id)}
@@ -693,7 +655,6 @@ export default function StudentsClient({
                       </button>
                     </AdminTd>
 
-                    {/* Name + email */}
                     <AdminTd>
                       <div className="flex items-center gap-3">
                         <div
@@ -723,7 +684,6 @@ export default function StudentsClient({
                       </div>
                     </AdminTd>
 
-                    {/* Phone */}
                     <AdminTd>
                       {student.user.phone ? (
                         <span style={{ color: adminColors.textSecondary }}>
@@ -734,7 +694,6 @@ export default function StudentsClient({
                       )}
                     </AdminTd>
 
-                    {/* Enrollments */}
                     <AdminTd>
                       {student.monthlyEnrollments.length === 0 ? (
                         <span style={{ color: adminColors.textMuted }}>
@@ -756,7 +715,6 @@ export default function StudentsClient({
                       )}
                     </AdminTd>
 
-                    {/* Schedule days */}
                     <AdminTd>
                       <div className="flex flex-wrap gap-1">
                         {[
@@ -787,7 +745,6 @@ export default function StudentsClient({
                       </div>
                     </AdminTd>
 
-                    {/* Status */}
                     <AdminTd>
                       <AdminBadge
                         variant={student.user.isActive ? "success" : "default"}
@@ -796,7 +753,6 @@ export default function StudentsClient({
                       </AdminBadge>
                     </AdminTd>
 
-                    {/* Joined */}
                     <AdminTd>
                       <span style={{ color: adminColors.textMuted }}>
                         {new Date(student.user.createdAt).toLocaleDateString(
@@ -810,21 +766,28 @@ export default function StudentsClient({
                       </span>
                     </AdminTd>
 
-                    {/* Actions */}
+                    {/* Actions — View + SMS + Edit */}
                     <AdminTd className="text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <button
+                          onClick={() => setModal({ type: "view", student })}
+                          className="p-1.5 rounded-lg transition-colors text-purple-400 hover:text-purple-300 hover:bg-purple-500/[0.08]"
+                          title="View details"
+                        >
+                          <Eye size={20} />
+                        </button>
                         <button
                           onClick={() =>
                             setModal({ type: "sms", students: [student] })
                           }
-                          className="p-1.5 rounded-lg transition-colors text-purple-600 hover:text-purple-400 hover:bg-blue-500/[0.08]"
+                          className="p-1.5 rounded-lg transition-colors text-blue-400 hover:text-blue-300 hover:bg-blue-500/[0.08]"
                           title="Send SMS"
                         >
                           <MessageSquare size={20} />
                         </button>
                         <button
                           onClick={() => setModal({ type: "edit", student })}
-                          className="p-1.5 rounded-lg transition-colors text-blue-400 hover:text-blue-600 hover:bg-white/5"
+                          className="p-1.5 rounded-lg transition-colors text-amber-400 hover:text-amber-300 hover:bg-amber-500/[0.08]"
                           title="Edit student"
                         >
                           <Pencil size={20} />
@@ -839,7 +802,6 @@ export default function StudentsClient({
         )}
       </AdminCard>
 
-      {/* Result count */}
       {displayedStudents.length !== initialStudents.length && (
         <p
           className="text-l text-center"
@@ -850,7 +812,13 @@ export default function StudentsClient({
         </p>
       )}
 
-      {/* ── Modals ── */}
+      {/* Modals */}
+      {modal?.type === "view" && (
+        <StudentViewModal
+          student={modal.student}
+          onClose={() => setModal(null)}
+        />
+      )}
       {modal?.type === "edit" && (
         <StudentEditModal
           student={modal.student}

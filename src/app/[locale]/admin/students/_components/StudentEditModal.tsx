@@ -11,7 +11,6 @@ import {
   AdminButton,
   adminColors,
 } from "@/components/admin/ui";
-import { useTranslations } from "next-intl";
 import DatePicker from "@/components/date-time/DatePicker";
 
 interface Props {
@@ -19,6 +18,15 @@ interface Props {
   onClose: () => void;
   onSuccess: () => void;
 }
+
+// ── Shared field styles ───────────────────────────────────────────────────────
+
+const pickerFieldClassName =
+  "w-full px-3 py-2 rounded-lg border bg-white/4 text-white/80 placeholder-white/20 focus:outline-none focus:border-amber-500/50 focus:bg-white/6 transition-all duration-150 text-l";
+
+const pickerInputStyle = { borderColor: adminColors.border };
+
+// ── Component ─────────────────────────────────────────────────────────────────
 
 export default function StudentEditModal({
   student,
@@ -28,12 +36,19 @@ export default function StudentEditModal({
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const t = useTranslations("admin");
+
+  // Medical condition controlled state
+  const [hasMedical, setHasMedical] = useState(
+    student.hasMedicalCondition ?? false,
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     const fd = new FormData(formRef.current!);
+    // Checkboxes not submitted when unchecked — normalise manually
+    if (!fd.get("hasMedicalCondition")) fd.set("hasMedicalCondition", "off");
+    if (!fd.get("agreePolicy")) fd.set("agreePolicy", "off");
     startTransition(async () => {
       const result = await updateStudent(student.id, fd);
       if (result.error) setError(result.error);
@@ -55,6 +70,7 @@ export default function StudentEditModal({
         className="relative w-full max-w-3xl rounded-2xl border border-white/[0.08] shadow-2xl z-10 max-h-[90vh] flex flex-col"
         style={{ background: "#1a1d27" }}
       >
+        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] flex-shrink-0">
           <div>
             <h2
@@ -78,12 +94,14 @@ export default function StudentEditModal({
           </button>
         </div>
 
+        {/* Body */}
         <div className="overflow-y-auto flex-1">
           <form
             ref={formRef}
             onSubmit={handleSubmit}
             className="px-6 py-5 space-y-5"
           >
+            {/* ── Personal Info ─────────────────────────────────────────── */}
             <Section title="Personal Info">
               <div className="grid grid-cols-2 gap-3">
                 <AdminInput
@@ -106,8 +124,8 @@ export default function StudentEditModal({
                   label="Date of Birth"
                   defaultValue={dob}
                   theme="dark"
-                  fieldClassName="w-full px-3 py-2 rounded-lg border bg-white/4 text-white/80..."
-                  inputStyle={{ borderColor: adminColors.border }}
+                  fieldClassName={pickerFieldClassName}
+                  inputStyle={pickerInputStyle}
                 />
                 <AdminSelect
                   label="Gender"
@@ -137,27 +155,30 @@ export default function StudentEditModal({
               />
             </Section>
 
+            {/* ── Address ───────────────────────────────────────────────── */}
             <Section title="Address">
               <div className="grid grid-cols-2 gap-3">
-                <AdminInput
-                  label="City"
-                  name="city"
-                  defaultValue={student.city ?? ""}
-                />
                 <AdminInput
                   label="Country"
                   name="country"
                   defaultValue={student.country ?? ""}
                 />
+                <AdminInput
+                  label="City"
+                  name="city"
+                  defaultValue={student.city ?? ""}
+                />
               </div>
               <AdminInput
-                label="Address"
+                label="District / Address"
                 name="address"
+                placeholder="Neighbourhood or district"
                 defaultValue={student.address ?? ""}
               />
             </Section>
 
-            <Section title="Emergency & Notes">
+            {/* ── Emergency Contact ─────────────────────────────────────── */}
+            <Section title="Emergency Contact">
               <div className="grid grid-cols-2 gap-3">
                 <AdminInput
                   label="Contact Name"
@@ -172,18 +193,125 @@ export default function StudentEditModal({
                   defaultValue={student.emergencyContactPhone ?? ""}
                 />
               </div>
-              <AdminInput
+              <AdminSelect
                 label="Relationship"
                 name="emergencyRelationship"
-                placeholder="e.g. Mother, Father, Sibling"
                 defaultValue={student.emergencyRelationship ?? ""}
-              />
+              >
+                <option className="text-black" value="">
+                  Not specified
+                </option>
+                <option className="text-black" value="PARENT">
+                  Parent
+                </option>
+                <option className="text-black" value="SIBLING">
+                  Sibling
+                </option>
+                <option className="text-black" value="GUARDIAN">
+                  Guardian
+                </option>
+                <option className="text-black" value="FRIEND">
+                  Friend
+                </option>
+                <option className="text-black" value="OTHER">
+                  Other
+                </option>
+              </AdminSelect>
+            </Section>
+
+            {/* ── Learning Details ──────────────────────────────────────── */}
+            <Section title="Learning Details">
+              <div className="grid grid-cols-2 gap-3">
+                <AdminSelect
+                  label="Preferred Track"
+                  name="preferredTrack"
+                  defaultValue={student.preferredTrack ?? ""}
+                >
+                  <option className="text-black" value="">
+                    Not specified
+                  </option>
+                  <option className="text-black" value="DANCE">
+                    Dance
+                  </option>
+                  <option className="text-black" value="MUSIC">
+                    Music
+                  </option>
+                  <option className="text-black" value="ART">
+                    Art
+                  </option>
+                </AdminSelect>
+                <AdminSelect
+                  label="Experience Level"
+                  name="experience"
+                  defaultValue={student.experience ?? ""}
+                >
+                  <option className="text-black" value="">
+                    Not specified
+                  </option>
+                  <option className="text-black" value="NO_EXPERIENCE">
+                    No experience
+                  </option>
+                  <option className="text-black" value="LESS_THAN_ONE_YEAR">
+                    Less than a year
+                  </option>
+                  <option className="text-black" value="MORE_THAN_ONE_YEAR">
+                    More than a year
+                  </option>
+                </AdminSelect>
+              </div>
+            </Section>
+
+            {/* ── Medical ───────────────────────────────────────────────── */}
+            <Section title="Medical">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="hasMedicalCondition"
+                  value="on"
+                  checked={hasMedical}
+                  onChange={(e) => setHasMedical(e.target.checked)}
+                  className="w-4 h-4 rounded accent-amber-500 cursor-pointer"
+                />
+                <span
+                  className="text-l"
+                  style={{ color: adminColors.textSecondary }}
+                >
+                  Student has a medical condition the academy should know about
+                </span>
+              </label>
+              {hasMedical && (
+                <AdminTextarea
+                  label="Medical Condition Details"
+                  name="medicalConditionDetails"
+                  placeholder="Describe the condition or any important notes…"
+                  defaultValue={student.medicalConditionDetails ?? ""}
+                />
+              )}
+            </Section>
+
+            {/* ── Notes & Consent ───────────────────────────────────────── */}
+            <Section title="Notes & Consent">
               <AdminTextarea
                 label="Internal Notes"
                 name="notes"
                 placeholder="Visible to admin only…"
                 defaultValue={student.notes ?? ""}
               />
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="agreePolicy"
+                  value="on"
+                  defaultChecked={student.agreePolicy ?? false}
+                  className="w-4 h-4 rounded accent-amber-500 cursor-pointer"
+                />
+                <span
+                  className="text-l"
+                  style={{ color: adminColors.textSecondary }}
+                >
+                  Student has agreed to the academy privacy policy and terms
+                </span>
+              </label>
             </Section>
 
             {error && (
