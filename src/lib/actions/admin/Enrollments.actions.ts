@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { BookingStatus, PaymentStatus, PaymentMethod, FrequencyType } from "@prisma/client";
+import { jsonToStringArray } from "@/utils/prisma-json";
 
 // ─────────────────────────────────────────────
 // HELPERS
@@ -384,15 +385,24 @@ export async function createEnrollment(formData: FormData) {
   }
 
   // Capacity check — per exact slot ID
+  const enrollmentsForCapacity = await prisma.monthlyEnrollment.findMany({
+    where: {
+      month,
+      year,
+      status: { in: ["CONFIRMED"] },
+    },
+    select: { scheduleIds: true },
+  });
+
+  const countByScheduleId = new Map<string, number>();
+  for (const e of enrollmentsForCapacity) {
+    for (const scheduleId of jsonToStringArray(e.scheduleIds as any)) {
+      countByScheduleId.set(scheduleId, (countByScheduleId.get(scheduleId) ?? 0) + 1);
+    }
+  }
+
   for (const schedule of selectedSchedules) {
-    const enrolled = await prisma.monthlyEnrollment.count({
-      where: {
-        scheduleIds: { array_contains: schedule.id },
-        month,
-        year,
-        status: { in: ["CONFIRMED"] },
-      },
-    });
+    const enrolled = countByScheduleId.get(schedule.id) ?? 0;
     if (enrolled >= schedule.maxCapacity) {
       const day = schedule.dayOfWeek.charAt(0) + schedule.dayOfWeek.slice(1).toLowerCase();
       return { error: `The ${day} ${schedule.startTime}–${schedule.endTime} slot is full for this month (${enrolled}/${schedule.maxCapacity}).` };
@@ -512,15 +522,24 @@ export async function createMultiMonthEnrollment(formData: FormData) {
 
   // Capacity check — per exact slot ID, per month
   for (const { month, year } of months) {
+    const enrollmentsForCapacity = await prisma.monthlyEnrollment.findMany({
+      where: {
+        month,
+        year,
+        status: { in: ["CONFIRMED"] },
+      },
+      select: { scheduleIds: true },
+    });
+
+    const countByScheduleId = new Map<string, number>();
+    for (const e of enrollmentsForCapacity) {
+      for (const scheduleId of jsonToStringArray(e.scheduleIds as any)) {
+        countByScheduleId.set(scheduleId, (countByScheduleId.get(scheduleId) ?? 0) + 1);
+      }
+    }
+
     for (const schedule of selectedSchedules) {
-      const enrolled = await prisma.monthlyEnrollment.count({
-        where: {
-          scheduleIds: { array_contains: schedule.id },
-          month,
-          year,
-          status: { in: ["CONFIRMED"] },
-        },
-      });
+      const enrolled = countByScheduleId.get(schedule.id) ?? 0;
       if (enrolled >= schedule.maxCapacity) {
         const label = new Date(year, month - 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
         const day = schedule.dayOfWeek.charAt(0) + schedule.dayOfWeek.slice(1).toLowerCase();
