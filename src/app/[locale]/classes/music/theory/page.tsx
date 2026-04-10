@@ -133,7 +133,7 @@ export default function TheoryPage() {
         closing:
           "ابدأ رحلتك اليوم، وتعلّم ليس فقط أن تعزف الموسيقى، بل أن تفهمها حقًا.",
         reserveHelper: "احجز حصتك في النظرية الموسيقية",
-        reserveCta: "اذهب إلى الحجز",
+        reserveCta: "التسجيل",
       }
     : {
         cardTitle: "Welcome to Music Theory",
@@ -176,7 +176,7 @@ export default function TheoryPage() {
         closing:
           "Start your journey today, learn not just to play music, but to truly understand it.",
         reserveHelper: "Reserve your theory class",
-        reserveCta: "Go to reservation",
+        reserveCta: "Enrollment",
       };
 
   useEffect(() => {
@@ -256,9 +256,9 @@ export default function TheoryPage() {
   };
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,rgba(255,240,214,0.18)_0%,rgba(40,21,14,0.88)_42%,rgba(10,8,14,1)_100%)] px-4 pb-5 pt-24 text-royal-cream sm:px-6 sm:pb-6 sm:pt-28 lg:px-8 lg:pt-32 xl:px-10">
-      <section className="-mt-[40px] mx-auto max-w-7xl px-0 py-3 sm:px-4 sm:py-4 lg:px-8 lg:py-4.5">
-        <div className="mt-[35px]">
+    <main className="min-h-full overflow-hidden bg-[radial-gradient(circle_at_top,rgba(255,240,214,0.18)_0%,rgba(40,21,14,0.88)_42%,rgba(10,8,14,1)_100%)] px-4 pb-12 pt-24 text-royal-cream sm:px-6 sm:pb-14 sm:pt-28 lg:px-8 lg:pb-14 lg:pt-32 xl:px-10">
+      <section className="-mt-[40px] mx-auto max-w-[104rem] px-0 pt-3 pb-10 sm:px-4 sm:pt-4 sm:pb-10 lg:px-6 lg:pt-4.5 lg:pb-10">
+        <div className="relative top-[-30px] mt-[35px]">
           <div
             className="mb-3 mt-[10px] flex flex-wrap items-center justify-between gap-3 sm:mb-4"
             dir="ltr"
@@ -291,7 +291,7 @@ export default function TheoryPage() {
           </div>
 
           <div
-            className="relative overflow-hidden rounded-[1.3rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.09)_0%,rgba(255,255,255,0.04)_100%)] py-3 sm:rounded-[1.6rem] sm:py-4"
+            className="relative overflow-hidden rounded-[1.2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.09)_0%,rgba(255,255,255,0.04)_100%)] py-2.5 sm:rounded-[1.45rem] sm:py-3.5"
             dir="ltr"
           >
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-[linear-gradient(90deg,rgba(33,20,18,0.96)_0%,rgba(33,20,18,0)_100%)] sm:w-20" />
@@ -299,7 +299,7 @@ export default function TheoryPage() {
 
             <div
               ref={marqueeRef}
-              className="theory-marquee flex w-max gap-3 sm:gap-5"
+              className="theory-marquee flex w-max gap-2.5 sm:gap-4.5"
               dir="ltr"
               style={{ transform: `translate3d(${translateX}px, 0, 0)` }}
             >
@@ -313,7 +313,7 @@ export default function TheoryPage() {
                     )
                   }
                   aria-pressed={selectedKey === item.key}
-                className={`flex h-[7.65rem] w-[7.65rem] shrink-0 flex-col items-center justify-center rounded-full border border-white/10 px-3 py-3 text-center shadow-[0_16px_34px_rgba(8,6,9,0.24)] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-royal-gold/70 sm:h-[11.25rem] sm:w-[11.25rem] sm:px-5 sm:py-6 ${
+                className={`flex h-[6.9rem] w-[6.9rem] shrink-0 flex-col items-center justify-center rounded-full border border-white/10 px-2.5 py-2.5 text-center shadow-[0_16px_34px_rgba(8,6,9,0.24)] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-royal-gold/70 sm:h-[10.15rem] sm:w-[10.15rem] sm:px-4.5 sm:py-5 ${
                   selectedKey === item.key
                     ? "scale-[1.12] border-royal-gold/40 bg-[linear-gradient(160deg,rgba(196,168,130,0.28)_0%,rgba(255,255,255,0.08)_100%)] brightness-125 shadow-[0_18px_46px_rgba(8,6,9,0.34),0_0_26px_rgba(228,194,138,0.26)]"
                     : index % 3 === 0
@@ -321,19 +321,19 @@ export default function TheoryPage() {
                       : "bg-[linear-gradient(160deg,rgba(255,255,255,0.11)_0%,rgba(255,255,255,0.03)_100%)]"
                 }`}
                 >
-                  <div className="flex h-14 items-center justify-center sm:h-24">
+                  <div className="flex h-12 items-center justify-center sm:h-[5.4rem]">
                     <Image
                       src={item.imageSrc}
                       alt={isArabic ? item.labelAr : item.label}
                       width={96}
                       height={96}
-                      className="h-12 w-12 object-contain sm:h-24 sm:w-24"
+                      className="h-11 w-11 object-contain sm:h-[5.4rem] sm:w-[5.4rem]"
                       unoptimized
                     />
                   </div>
                   <p
                     dir="ltr"
-                    className="w-full px-1 text-center text-[0.7rem] font-semibold uppercase leading-tight tracking-[0.06em] text-royal-cream sm:text-[0.95rem] sm:tracking-[0.08em]"
+                    className="w-full px-1 text-center text-[0.64rem] font-semibold uppercase leading-tight tracking-[0.06em] text-royal-cream sm:text-[0.86rem] sm:tracking-[0.08em]"
                     style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif' }}
                   >
                     {item.label}
@@ -345,7 +345,7 @@ export default function TheoryPage() {
         </div>
 
         <div
-          className="mt-5 w-full rounded-[1.35rem] border px-4 py-4 sm:rounded-[1.65rem] sm:px-5 sm:py-5"
+          className="relative -top-[30px] mt-5 mb-10 w-full rounded-[1.35rem] border px-4 py-4 sm:rounded-[1.65rem] sm:px-5 sm:py-5"
           style={GLASS_CARD_STYLE}
           dir={isArabic ? "rtl" : "ltr"}
         >

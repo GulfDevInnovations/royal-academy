@@ -17,7 +17,7 @@ export default function MusicAwakeningPage() {
         title: "صحوة الموسيقى (الأعمار 4-6)",
         body:
           "في صف صحوة الموسيقى يكتشف الأطفال الصغار متعة الموسيقى من خلال أنشطة مرحة وجذابة مصممة خصيصًا لأعمارهم. من خلال الغناء والحركة وألعاب الإيقاع والآلات البسيطة مثل الطبول والخشخيشات، يطوّر الطلاب إحساسًا طبيعيًا بالنبض والإيقاع ودرجات الصوت والتناسق الحركي، مع التعبير عن أنفسهم بطريقة إبداعية. وبإرشاد معلمة محبة وفي بيئة ممتعة وملونة، يبني الأطفال الثقة ومهارات الاستماع وحب الموسيقى، بينما يتعلمون الأسس التي ستدعم رحلتهم الموسيقية في المستقبل.",
-        reserveCta: "اذهب إلى الحجز",
+        reserveCta: "التسجيل",
       }
     : {
         trigger: "What is Music Awakening?",
@@ -25,7 +25,7 @@ export default function MusicAwakeningPage() {
         title: "Music Awakening (Ages 4-6)",
         body:
           "In our Music Awakening class, young children discover the joy of music through playful, engaging activities designed just for their age. Through singing, movement, rhythm games, and simple instruments like drums and shakers, students develop a natural sense of beat, pitch, and coordination while expressing themselves creatively. Guided by a caring teacher in a fun and colorful environment, children build confidence, listening skills, and a love for music, all while learning the foundations that will support their future musical journey.",
-        reserveCta: "Go to reservation",
+        reserveCta: "Enrollment",
       };
 
   return (

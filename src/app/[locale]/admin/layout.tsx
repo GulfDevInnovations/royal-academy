@@ -33,9 +33,21 @@ export default async function AdminLayout({
 
   return (
     <div
+      dir="ltr"
       className="flex h-screen overflow-hidden"
       style={{ background: "#13161f" }}
     >
+      {/* Background pattern */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          backgroundImage: "url('/images/pattern.svg')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "1600px auto",
+          opacity: 0.01,
+          filter: "sepia(1) saturate(0.5) brightness(2)",
+        }}
+      />
       <AdminSidebar />
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">

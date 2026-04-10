@@ -25,6 +25,7 @@ import {
   AdminEmptyState,
   adminColors,
 } from "@/components/admin/ui";
+import { useTranslations } from "next-intl";
 
 // ─────────────────────────────────────────────
 // Constants
@@ -42,25 +43,25 @@ const STATUS_CONFIG: Record<
   OPEN: {
     label: "Open",
     variant: "warning",
-    icon: <Clock size={11} />,
+    icon: <Clock size={15} />,
     color: "#f59e0b",
   },
   IN_PROGRESS: {
     label: "In Progress",
     variant: "info",
-    icon: <Zap size={11} />,
+    icon: <Zap size={15} />,
     color: "#60a5fa",
   },
   RESOLVED: {
     label: "Resolved",
     variant: "success",
-    icon: <CheckCircle2 size={11} />,
+    icon: <CheckCircle2 size={15} />,
     color: "#34d399",
   },
   CLOSED: {
     label: "Closed",
     variant: "default",
-    icon: <XCircle size={11} />,
+    icon: <XCircle size={15} />,
     color: "#94a3b8",
   },
 };
@@ -98,6 +99,7 @@ export default function TicketsTab({
   const [selectedTicket, setSelectedTicket] = useState<SerializedTicket | null>(
     null,
   );
+  const t = useTranslations("admin");
 
   const displayed = tickets.filter((t) => {
     if (filterStatus && t.status !== filterStatus) return false;
@@ -124,9 +126,9 @@ export default function TicketsTab({
     });
 
   return (
-    <div className="flex gap-4 h-[calc(100vh-280px)] min-h-[500px]">
+    <div className="flex gap-4 h-[calc(100vh-280px)] min-h-125">
       {/* ── Ticket list ── */}
-      <div className="flex flex-col w-80 flex-shrink-0">
+      <div className="flex flex-col w-1/2 shrink-0">
         {/* Stats */}
         <div className="grid grid-cols-3 gap-2 mb-3">
           {[
@@ -142,11 +144,11 @@ export default function TicketsTab({
                 background: "#1a1d27",
               }}
             >
-              <p className="text-lg font-bold" style={{ color }}>
+              <p className="text-2xl font-bold" style={{ color }}>
                 {value}
               </p>
               <p
-                className="text-[10px]"
+                className="text-[15px]"
                 style={{ color: adminColors.textMuted }}
               >
                 {label}
@@ -160,11 +162,11 @@ export default function TicketsTab({
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="flex-1 px-2 py-1.5 rounded-lg text-xs border bg-white/[0.04] text-white/70 focus:outline-none"
+            className="flex-1 px-2 py-1.5 rounded-lg text-l border bg-white/4 text-white/70 focus:outline-none"
             style={{ borderColor: "rgba(255,255,255,0.08)" }}
           >
             <option className="text-black" value="">
-              All statuses
+              {t("allStatuses")}
             </option>
             {Object.entries(STATUS_CONFIG).map(([v, c]) => (
               <option className="text-black" key={v} value={v}>
@@ -175,7 +177,7 @@ export default function TicketsTab({
           <select
             value={filterPriority}
             onChange={(e) => setFilterPriority(e.target.value)}
-            className="flex-1 px-2 py-1.5 rounded-lg text-xs border bg-white/[0.04] text-white/70 focus:outline-none"
+            className="flex-1 px-2 py-1.5 rounded-lg text-l border bg-white/4 text-white/70 focus:outline-none"
             style={{ borderColor: "rgba(255,255,255,0.08)" }}
           >
             <option className="text-black" value="">
@@ -194,11 +196,11 @@ export default function TicketsTab({
           {displayed.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-40 gap-2">
               <MessageSquare
-                size={24}
+                size={28}
                 style={{ color: adminColors.textMuted }}
               />
               <p
-                className="text-xs text-center"
+                className="text-l text-center"
                 style={{ color: adminColors.textMuted }}
               >
                 No tickets found
@@ -230,31 +232,31 @@ export default function TicketsTab({
                   <div className="flex items-start gap-2">
                     {/* Priority dot */}
                     <div
-                      className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
+                      className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
                       style={{ background: priorityConf.color }}
                     />
                     <div className="flex-1 min-w-0">
                       <p
-                        className="text-xs font-semibold truncate"
+                        className="text-l font-semibold truncate"
                         style={{ color: adminColors.textPrimary }}
                       >
                         {ticket.subject}
                       </p>
                       <p
-                        className="text-[10px] mt-0.5 truncate"
-                        style={{ color: adminColors.textMuted }}
+                        className="text-[15px] mt-0.5 truncate"
+                        style={{ color: "#fff1c9" }}
                       >
                         {getUserName(ticket)}
                       </p>
                       <p
-                        className="text-[10px] line-clamp-1 mt-1"
-                        style={{ color: adminColors.textMuted }}
+                        className="text-[15px] line-clamp-1 mt-1"
+                        style={{ color: "#cab8cf" }}
                       >
                         {ticket.body}
                       </p>
                       <div className="flex items-center gap-2 mt-1.5">
                         <span
-                          className="text-[10px]"
+                          className="text-[15px]"
                           style={{ color: statusConf.color }}
                         >
                           {statusConf.label}
@@ -273,7 +275,7 @@ export default function TicketsTab({
                         </span>
                         {unread > 0 && (
                           <span
-                            className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full"
+                            className="ml-auto text-[15px] px-1.5 py-0.5 rounded-full"
                             style={{
                               background: "rgba(245,158,11,0.15)",
                               color: "#f59e0b",
@@ -285,7 +287,7 @@ export default function TicketsTab({
                       </div>
                     </div>
                     <ChevronRight
-                      size={12}
+                      size={5}
                       style={{ color: adminColors.textMuted, flexShrink: 0 }}
                     />
                   </div>
@@ -303,8 +305,8 @@ export default function TicketsTab({
       >
         {!selectedTicket ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-3">
-            <MessageSquare size={32} style={{ color: adminColors.textMuted }} />
-            <p className="text-sm" style={{ color: adminColors.textMuted }}>
+            <MessageSquare size={36} style={{ color: adminColors.textMuted }} />
+            <p className="text-xl" style={{ color: adminColors.textMuted }}>
               Select a ticket to view and reply
             </p>
           </div>
@@ -388,30 +390,27 @@ function TicketDetail({
     <>
       {/* Header */}
       <div
-        className="flex items-start justify-between px-5 py-4 border-b flex-shrink-0"
+        className="flex items-start justify-between px-5 py-4 border-b shrink-0"
         style={{ borderColor: "rgba(255,255,255,0.07)" }}
       >
         <div className="flex-1 min-w-0 pr-4">
           <p
-            className="text-sm font-semibold"
+            className="text-xl font-semibold"
             style={{ color: adminColors.textPrimary }}
           >
             {ticket.subject}
           </p>
-          <p
-            className="text-xs mt-0.5"
-            style={{ color: adminColors.textMuted }}
-          >
+          <p className="text-l mt-0.5" style={{ color: adminColors.textMuted }}>
             {getUserName(ticket)} · {fmtDate(ticket.createdAt)}
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {/* Status selector */}
           <select
             value={ticket.status}
             onChange={(e) => handleStatusChange(e.target.value)}
             disabled={isUpdating}
-            className="px-2 py-1 rounded-lg text-xs border bg-white/[0.04] focus:outline-none"
+            className="px-2 py-1 rounded-lg text-l border bg-white/4 focus:outline-none"
             style={{
               borderColor: "rgba(255,255,255,0.08)",
               color: statusConf.color,
@@ -428,7 +427,7 @@ function TicketDetail({
             value={ticket.priority}
             onChange={(e) => handlePriorityChange(e.target.value)}
             disabled={isUpdating}
-            className="px-2 py-1 rounded-lg text-xs border bg-white/[0.04] focus:outline-none"
+            className="px-2 py-1 rounded-lg text-l border bg-white/4 focus:outline-none"
             style={{
               borderColor: "rgba(255,255,255,0.08)",
               color: priorityConf.color,
@@ -442,9 +441,9 @@ function TicketDetail({
           </select>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <X size={14} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
       </div>
@@ -454,7 +453,7 @@ function TicketDetail({
         {/* Original message */}
         <div className="flex gap-3">
           <div
-            className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-semibold"
+            className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[15px] font-semibold"
             style={{ background: "rgba(96,165,250,0.15)", color: "#60a5fa" }}
           >
             {getUserName(ticket)
@@ -466,19 +465,19 @@ function TicketDetail({
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <p
-                className="text-xs font-semibold"
+                className="text-l font-semibold"
                 style={{ color: adminColors.textPrimary }}
               >
                 {getUserName(ticket)}
               </p>
               <span
-                className="text-[10px] px-1.5 py-0.5 rounded"
+                className="text-[15px] px-1.5 py-0.5 rounded"
                 style={{ background: "rgba(96,165,250,0.1)", color: "#60a5fa" }}
               >
                 Student
               </span>
               <p
-                className="text-[10px]"
+                className="text-[15px]"
                 style={{ color: adminColors.textMuted }}
               >
                 {fmtDate(ticket.createdAt)}
@@ -492,7 +491,7 @@ function TicketDetail({
               }}
             >
               <p
-                className="text-sm whitespace-pre-wrap"
+                className="text-xl whitespace-pre-wrap"
                 style={{ color: adminColors.textSecondary }}
               >
                 {ticket.body}
@@ -518,7 +517,7 @@ function TicketDetail({
               className={`flex gap-3 ${isAdmin ? "flex-row-reverse" : ""}`}
             >
               <div
-                className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-semibold"
+                className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[15px] font-semibold"
                 style={{
                   background: isAdmin
                     ? "rgba(245,158,11,0.15)"
@@ -537,13 +536,13 @@ function TicketDetail({
                   className={`flex items-center gap-2 mb-1 ${isAdmin ? "flex-row-reverse" : ""}`}
                 >
                   <p
-                    className="text-xs font-semibold"
+                    className="text-l font-semibold"
                     style={{ color: adminColors.textPrimary }}
                   >
                     {replyName}
                   </p>
                   <span
-                    className="text-[10px] px-1.5 py-0.5 rounded"
+                    className="text-[15px] px-1.5 py-0.5 rounded"
                     style={{
                       background: isAdmin
                         ? "rgba(245,158,11,0.1)"
@@ -570,7 +569,7 @@ function TicketDetail({
                   }}
                 >
                   <p
-                    className="text-sm whitespace-pre-wrap"
+                    className="text-xl whitespace-pre-wrap"
                     style={{ color: adminColors.textSecondary }}
                   >
                     {reply.body}
@@ -585,7 +584,7 @@ function TicketDetail({
       {/* Reply box */}
       {ticket.status !== "CLOSED" && (
         <div
-          className="px-5 py-4 border-t flex-shrink-0"
+          className="px-5 py-4 border-t shrink-0"
           style={{ borderColor: "rgba(255,255,255,0.07)" }}
         >
           <div className="flex gap-3">
@@ -598,7 +597,7 @@ function TicketDetail({
               }}
               placeholder="Type your reply… (Ctrl+Enter to send)"
               rows={3}
-              className="flex-1 px-3 py-2.5 rounded-xl border bg-white/[0.03] text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-amber-500/40 resize-none"
+              className="flex-1 px-3 py-2.5 rounded-xl border bg-white/3 text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-amber-500/40 resize-none"
               style={{ borderColor: "rgba(255,255,255,0.07)" }}
             />
             <AdminButton
@@ -607,9 +606,9 @@ function TicketDetail({
               disabled={isPending || !replyBody.trim()}
             >
               {isPending ? (
-                <Loader2 size={13} className="animate-spin" />
+                <Loader2 size={16} className="animate-spin" />
               ) : (
-                <Send size={13} />
+                <Send size={16} />
               )}
             </AdminButton>
           </div>

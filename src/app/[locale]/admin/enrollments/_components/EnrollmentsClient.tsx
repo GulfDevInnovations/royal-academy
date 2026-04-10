@@ -17,11 +17,9 @@ import {
   ChevronLeft,
   ChevronRight,
   CheckCircle2,
-  Clock,
   Ban,
   MoreHorizontal,
   Trash2,
-  CalendarDays,
   Layers,
 } from "lucide-react";
 import {
@@ -58,6 +56,8 @@ import {
 import EnrollmentFormModal from "./EnrollmentFormModal";
 import PaymentModal from "./PaymentModal";
 import DeleteConfirmModal from "../../../../../components/admin/DeleteConfirmModal";
+import { useTranslations } from "next-intl";
+import { parseJsonArray } from "@/utils/parseJson";
 
 // ─────────────────────────────────────────────
 // Constants
@@ -114,7 +114,6 @@ const STATUS_CONFIG: Record<
     variant: "success",
     icon: <CheckCircle2 size={11} />,
   },
-  PENDING: { label: "Pending", variant: "warning", icon: <Clock size={11} /> },
   CANCELLED: {
     label: "Cancelled",
     variant: "default",
@@ -129,7 +128,6 @@ const STATUS_CONFIG: Record<
 
 const PAYMENT_CONFIG: Record<string, { label: string; color: string }> = {
   PAID: { label: "Paid", color: "#34d399" },
-  PENDING: { label: "Unpaid", color: "#f59e0b" },
   FAILED: { label: "Failed", color: "#f87171" },
   REFUNDED: { label: "Refunded", color: "#60a5fa" },
 };
@@ -177,6 +175,7 @@ export default function EnrollmentsClient({
 }: Props) {
   const { toasts, toast, remove } = useToast();
   const [, startRefresh] = useTransition();
+  const t = useTranslations("admin");
 
   // View
   const [viewMode, setViewMode] = useState<"month" | "list" | "multi">("month");
@@ -319,7 +318,6 @@ export default function EnrollmentsClient({
     () => ({
       total: enrollments.length,
       confirmed: enrollments.filter((e) => e.status === "CONFIRMED").length,
-      pending: enrollments.filter((e) => e.status === "PENDING").length,
       revenue: enrollments
         .filter((e) => e.payment?.status === "PAID")
         .reduce((sum, e) => sum + (e.payment?.amount ?? 0), 0),
@@ -354,17 +352,17 @@ export default function EnrollmentsClient({
             }}
           >
             <AlertTriangle
-              size={15}
+              size={19}
               className="shrink-0 mt-0.5"
               style={{ color: "#f87171" }}
             />
             <div>
-              <p className="text-sm font-medium" style={{ color: "#f87171" }}>
+              <p className="text-xl font-medium" style={{ color: "#f87171" }}>
                 {fullSubClasses.length} sub-class
                 {fullSubClasses.length > 1 ? "es are" : " is"} full
               </p>
               <p
-                className="text-xs mt-0.5"
+                className="text-l mt-0.5"
                 style={{ color: adminColors.textMuted }}
               >
                 {fullSubClasses.map((sc) => sc.name).join(", ")}
@@ -376,14 +374,14 @@ export default function EnrollmentsClient({
         {activeSubClasses.length === 0 && (
           <AdminCard>
             <AdminEmptyState
-              title="No enrollments this month"
+              title={t("newEnrollment")}
               description="No students have enrolled for this period yet."
               action={
                 <AdminButton
                   variant="primary"
                   onClick={() => setModal({ type: "add" })}
                 >
-                  <Plus size={14} /> New Enrollment
+                  <Plus size={18} /> {t("newEnrollment")}
                 </AdminButton>
               }
             />
@@ -396,7 +394,6 @@ export default function EnrollmentsClient({
               (e) => e.status !== "CANCELLED",
             );
             const confirmed = active.filter((e) => e.status === "CONFIRMED");
-            const pending = active.filter((e) => e.status === "PENDING");
             const paid = active.filter((e) => e.payment?.status === "PAID");
             const colors = capacityColor(active.length, sc.capacity);
             const pct =
@@ -425,13 +422,13 @@ export default function EnrollmentsClient({
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <p
-                        className="text-sm font-semibold"
+                        className="text-xl font-semibold"
                         style={{ color: adminColors.textPrimary }}
                       >
                         {sc.name}
                       </p>
                       <p
-                        className="text-xs mt-0.5"
+                        className="text-l mt-0.5"
                         style={{ color: adminColors.textMuted }}
                       >
                         {sc.class.name}
@@ -442,15 +439,15 @@ export default function EnrollmentsClient({
                         )}
                       </p>
                     </div>
-                    <div className="text-right shrink-0">
+                    <div className="text-center shrink-0">
                       <p
-                        className="text-sm font-bold"
+                        className="text-xl font-bold"
                         style={{ color: colors.text }}
                       >
                         {active.length}/{sc.capacity}
                       </p>
                       <p
-                        className="text-[10px]"
+                        className="text-[15px]"
                         style={{ color: adminColors.textMuted }}
                       >
                         enrolled
@@ -469,19 +466,12 @@ export default function EnrollmentsClient({
                   </div>
 
                   <div className="flex items-center gap-4 mt-2.5">
-                    <span className="text-[11px]" style={{ color: "#34d399" }}>
+                    <span className="text-[16px]" style={{ color: "#34d399" }}>
                       ✓ {confirmed.length} confirmed
                     </span>
-                    {pending.length > 0 && (
-                      <span
-                        className="text-[11px]"
-                        style={{ color: "#f59e0b" }}
-                      >
-                        ⏳ {pending.length} pending
-                      </span>
-                    )}
+
                     <span
-                      className="text-[11px] ml-auto"
+                      className="text-[16px] ml-auto"
                       style={{ color: adminColors.textMuted }}
                     >
                       {revenue.toFixed(3)} OMR collected
@@ -492,16 +482,16 @@ export default function EnrollmentsClient({
                 <div className="divide-y divide-white/4">
                   {active.length === 0 ? (
                     <p
-                      className="px-4 py-3 text-xs"
+                      className="px-4 py-3 text-l"
                       style={{ color: adminColors.textMuted }}
                     >
                       No active enrollments
                     </p>
                   ) : (
                     active.map((enrollment) => {
-                      const payStatus = enrollment.payment?.status ?? "PENDING";
+                      const payStatus = enrollment.payment?.status ?? "FAILED";
                       const payConf =
-                        PAYMENT_CONFIG[payStatus] ?? PAYMENT_CONFIG.PENDING;
+                        PAYMENT_CONFIG[payStatus] ?? PAYMENT_CONFIG.FAILED;
                       // Find matching full enrollment to get multiMonthEnrollment link
                       const full = enrollments.find(
                         (e) => e.id === enrollment.id,
@@ -514,7 +504,7 @@ export default function EnrollmentsClient({
                           className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/1 transition-colors"
                         >
                           <div
-                            className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[11px] font-semibold"
+                            className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[16px] font-semibold"
                             style={{
                               background: "rgba(245,158,11,0.12)",
                               color: "#f59e0b",
@@ -527,7 +517,7 @@ export default function EnrollmentsClient({
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5">
                               <p
-                                className="text-xs font-medium truncate"
+                                className="text-l font-medium truncate"
                                 style={{ color: adminColors.textPrimary }}
                               >
                                 {enrollment.student.firstName}{" "}
@@ -535,36 +525,44 @@ export default function EnrollmentsClient({
                               </p>
                               {isMultiChild && (
                                 <span
-                                  className="text-[9px] px-1.5 py-0.5 rounded-full shrink-0 flex items-center gap-0.5"
+                                  className="text-[14px] px-1.5 py-0.5 rounded-full shrink-0 flex items-center gap-0.5"
                                   style={{
                                     background: "rgba(96,165,250,0.1)",
                                     color: "#60a5fa",
                                   }}
                                 >
-                                  <Layers size={8} /> Multi
+                                  <Layers size={12} /> Multi
                                 </span>
                               )}
                             </div>
+
                             <p
-                              className="text-[10px]"
+                              className="text-[15px]"
                               style={{ color: adminColors.textMuted }}
                             >
                               {enrollment.frequency === "TWICE_PER_WEEK"
                                 ? "2×/wk"
                                 : "1×/wk"}
-                              {enrollment.preferredDays.length > 0 && (
-                                <span className="ml-1">
-                                  ·{" "}
-                                  {enrollment.preferredDays
-                                    .map((d: string) => DAY_SHORT[d] ?? d)
-                                    .join("+")}
-                                </span>
-                              )}
+                              {(() => {
+                                const days = parseJsonArray<string>(
+                                  enrollment.preferredDays,
+                                );
+                                return (
+                                  days.length > 0 && (
+                                    <span className="ml-1">
+                                      ·{" "}
+                                      {days
+                                        .map((d) => DAY_SHORT[d] ?? d)
+                                        .join("+")}
+                                    </span>
+                                  )
+                                );
+                              })()}
                             </p>
                           </div>
 
                           <span
-                            className="text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0"
+                            className="text-[15px] font-medium px-2 py-0.5 rounded-full shrink-0"
                             style={{
                               background: `${payConf.color}18`,
                               color: payConf.color,
@@ -584,7 +582,7 @@ export default function EnrollmentsClient({
                               }
                               className="p-1 rounded-lg transition-colors text-white/20 hover:text-white/60 hover:bg-white/5"
                             >
-                              <MoreHorizontal size={13} />
+                              <MoreHorizontal size={17} />
                             </button>
                             {openMenuId === enrollment.id && (
                               <div
@@ -600,7 +598,7 @@ export default function EnrollmentsClient({
                                     {full.multiMonthEnrollment.payment
                                       ?.status !== "PAID" && (
                                       <MenuBtn
-                                        icon={<CreditCard size={12} />}
+                                        icon={<CreditCard size={16} />}
                                         label="Pay Multi-plan"
                                         color="#34d399"
                                         onClick={() => {
@@ -621,7 +619,7 @@ export default function EnrollmentsClient({
                                       />
                                     )}
                                     <MenuBtn
-                                      icon={<XCircle size={12} />}
+                                      icon={<XCircle size={16} />}
                                       label="Cancel Multi-plan"
                                       color="#f87171"
                                       onClick={() => {
@@ -643,7 +641,7 @@ export default function EnrollmentsClient({
                                   <>
                                     {payStatus !== "PAID" && (
                                       <MenuBtn
-                                        icon={<CreditCard size={12} />}
+                                        icon={<CreditCard size={16} />}
                                         label="Record Payment"
                                         color="#34d399"
                                         onClick={() => {
@@ -657,7 +655,7 @@ export default function EnrollmentsClient({
                                     )}
                                     {enrollment.status !== "CANCELLED" && (
                                       <MenuBtn
-                                        icon={<XCircle size={12} />}
+                                        icon={<XCircle size={16} />}
                                         label="Cancel"
                                         color="#f87171"
                                         onClick={() => {
@@ -671,7 +669,7 @@ export default function EnrollmentsClient({
                                     )}
                                     {payStatus !== "PAID" && (
                                       <MenuBtn
-                                        icon={<Trash2 size={12} />}
+                                        icon={<Trash2 size={16} />}
                                         label="Delete"
                                         color="#f87171"
                                         onClick={() => {
@@ -709,38 +707,38 @@ export default function EnrollmentsClient({
     <AdminCard noPadding>
       {filteredEnrollments.length === 0 ? (
         <AdminEmptyState
-          title="No enrollments found"
+          title={t("newEnrollment")}
           description="Try adjusting your filters or create a new enrollment."
           action={
             <AdminButton
               variant="primary"
               onClick={() => setModal({ type: "add" })}
             >
-              <Plus size={14} /> New Enrollment
+              <Plus size={18} /> {t("newEnrollment")}
             </AdminButton>
           }
         />
       ) : (
         <AdminTable>
           <AdminThead>
-            <AdminTh>Student</AdminTh>
-            <AdminTh>Sub-class</AdminTh>
-            <AdminTh>Period</AdminTh>
-            <AdminTh>Frequency</AdminTh>
-            <AdminTh>Teacher</AdminTh>
-            <AdminTh>Schedule</AdminTh>
-            <AdminTh>Amount</AdminTh>
-            <AdminTh>Payment</AdminTh>
-            <AdminTh>Status</AdminTh>
-            <AdminTh className="text-right">Actions</AdminTh>
+            <AdminTh>{t("student")}</AdminTh>
+            <AdminTh>{t("subClass")}</AdminTh>
+            <AdminTh>{t("period")}</AdminTh>
+            <AdminTh>{t("frequency")}</AdminTh>
+            <AdminTh>{t("teacher")}</AdminTh>
+            <AdminTh>{t("schedule")}</AdminTh>
+            <AdminTh>{t("amount")}</AdminTh>
+            <AdminTh>{t("payment")}</AdminTh>
+            <AdminTh>{t("status")}</AdminTh>
+            <AdminTh className="text-center">{t("actions")}</AdminTh>
           </AdminThead>
           <AdminTbody>
             {filteredEnrollments.map((enrollment) => {
-              const payStatus = enrollment.payment?.status ?? "PENDING";
+              const payStatus = enrollment.payment?.status ?? "FAILED";
               const payConf =
-                PAYMENT_CONFIG[payStatus] ?? PAYMENT_CONFIG.PENDING;
+                PAYMENT_CONFIG[payStatus] ?? PAYMENT_CONFIG.FAILED;
               const statusConf =
-                STATUS_CONFIG[enrollment.status] ?? STATUS_CONFIG.PENDING;
+                STATUS_CONFIG[enrollment.status] ?? STATUS_CONFIG.FAILED;
               const isMultiChild = !!enrollment.multiMonthEnrollment;
 
               return (
@@ -748,7 +746,7 @@ export default function EnrollmentsClient({
                   <AdminTd>
                     <div className="flex items-center gap-2">
                       <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[10px] font-semibold"
+                        className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[15px] font-semibold"
                         style={{
                           background: "rgba(245,158,11,0.1)",
                           color: "#f59e0b",
@@ -759,14 +757,14 @@ export default function EnrollmentsClient({
                       </div>
                       <div>
                         <p
-                          className="text-sm font-medium"
+                          className="text-xl font-medium"
                           style={{ color: adminColors.textPrimary }}
                         >
                           {enrollment.student.firstName}{" "}
                           {enrollment.student.lastName}
                         </p>
                         <p
-                          className="text-xs"
+                          className="text-l"
                           style={{ color: adminColors.textMuted }}
                         >
                           {enrollment.student.user.phone ??
@@ -779,13 +777,13 @@ export default function EnrollmentsClient({
 
                   <AdminTd>
                     <p
-                      className="text-sm"
+                      className="text-xl"
                       style={{ color: adminColors.textSecondary }}
                     >
                       {enrollment.subClass.name}
                     </p>
                     <p
-                      className="text-xs"
+                      className="text-l"
                       style={{ color: adminColors.textMuted }}
                     >
                       {enrollment.subClass.class.name}
@@ -795,20 +793,20 @@ export default function EnrollmentsClient({
                   <AdminTd>
                     <div className="flex items-center gap-1.5">
                       <p
-                        className="text-sm"
+                        className="text-xl"
                         style={{ color: adminColors.textSecondary }}
                       >
                         {MONTHS_SHORT[enrollment.month - 1]} {enrollment.year}
                       </p>
                       {isMultiChild && (
                         <span
-                          className="text-[9px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5"
+                          className="text-[14px] px-1.5 py-0.5 rounded-full flex items-center gap-0.5"
                           style={{
                             background: "rgba(96,165,250,0.1)",
                             color: "#60a5fa",
                           }}
                         >
-                          <Layers size={8} />
+                          <Layers size={12} />
                           {
                             MONTHS_SHORT[
                               enrollment.multiMonthEnrollment!.startMonth - 1
@@ -829,19 +827,19 @@ export default function EnrollmentsClient({
 
                   <AdminTd>
                     <p
-                      className="text-xs"
+                      className="text-l"
                       style={{ color: adminColors.textSecondary }}
                     >
                       {enrollment.frequency === "TWICE_PER_WEEK"
                         ? "2× / week"
                         : "1× / week"}
                     </p>
-                    {enrollment.preferredDays.length > 0 && (
+                    {parseJsonArray<string>(enrollment.preferredDays).length > 0 && (
                       <p
-                        className="text-[10px]"
+                        className="text-[15px]"
                         style={{ color: adminColors.textMuted }}
                       >
-                        {enrollment.preferredDays
+                        {parseJsonArray<string>(enrollment.preferredDays)
                           .map((d: string) => DAY_SHORT[d] ?? d)
                           .join(" + ")}
                       </p>
@@ -852,7 +850,7 @@ export default function EnrollmentsClient({
                   <AdminTd>
                     {(enrollment.resolvedSlots ?? []).length === 0 ? (
                       <span
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textMuted }}
                       >
                         —
@@ -862,7 +860,7 @@ export default function EnrollmentsClient({
                         {enrollment.resolvedSlots.map((slot, i) => (
                           <p
                             key={i}
-                            className="text-xs font-medium"
+                            className="text-l font-medium"
                             style={{ color: adminColors.textSecondary }}
                           >
                             {slot.teacher
@@ -878,7 +876,7 @@ export default function EnrollmentsClient({
                   <AdminTd>
                     {(enrollment.resolvedSlots ?? []).length === 0 ? (
                       <span
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textMuted }}
                       >
                         —
@@ -888,13 +886,13 @@ export default function EnrollmentsClient({
                         {enrollment.resolvedSlots.map((slot, i) => (
                           <div key={i}>
                             <p
-                              className="text-xs font-medium"
+                              className="text-l font-medium"
                               style={{ color: adminColors.textSecondary }}
                             >
                               {DAY_SHORT[slot.dayOfWeek] ?? slot.dayOfWeek}
                             </p>
                             <p
-                              className="text-[10px]"
+                              className="text-[15px]"
                               style={{ color: adminColors.textMuted }}
                             >
                               {slot.startTime}–{slot.endTime}
@@ -907,13 +905,13 @@ export default function EnrollmentsClient({
 
                   <AdminTd>
                     <p
-                      className="text-sm font-medium"
+                      className="text-xl font-medium"
                       style={{ color: adminColors.textPrimary }}
                     >
                       {enrollment.totalAmount.toFixed(3)}
                     </p>
                     <p
-                      className="text-xs"
+                      className="text-l"
                       style={{ color: adminColors.textMuted }}
                     >
                       OMR
@@ -926,16 +924,13 @@ export default function EnrollmentsClient({
                         className="w-1.5 h-1.5 rounded-full shrink-0"
                         style={{ background: payConf.color }}
                       />
-                      <span
-                        className="text-xs"
-                        style={{ color: payConf.color }}
-                      >
+                      <span className="text-l" style={{ color: payConf.color }}>
                         {payConf.label}
                       </span>
                     </div>
                     {enrollment.payment?.paidAt && (
                       <p
-                        className="text-[10px] mt-0.5"
+                        className="text-[15px] mt-0.5"
                         style={{ color: adminColors.textMuted }}
                       >
                         {new Date(enrollment.payment.paidAt).toLocaleDateString(
@@ -954,7 +949,7 @@ export default function EnrollmentsClient({
                     </AdminBadge>
                   </AdminTd>
 
-                  <AdminTd className="text-right">
+                  <AdminTd className="text-center">
                     <div className="flex items-center justify-end gap-1">
                       {isMultiChild ? (
                         // Multi-child rows: actions operate on the parent plan
@@ -977,7 +972,7 @@ export default function EnrollmentsClient({
                               className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-green-400 hover:bg-green-500/8"
                               title="Pay multi-month plan"
                             >
-                              <CreditCard size={13} />
+                              <CreditCard size={16} />
                             </button>
                           )}
                           {enrollment.status !== "CANCELLED" && (
@@ -994,7 +989,7 @@ export default function EnrollmentsClient({
                               className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
                               title="Cancel multi-month plan"
                             >
-                              <XCircle size={13} />
+                              <XCircle size={16} />
                             </button>
                           )}
                         </>
@@ -1012,7 +1007,7 @@ export default function EnrollmentsClient({
                               className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-green-400 hover:bg-green-500/8"
                               title="Record payment"
                             >
-                              <CreditCard size={13} />
+                              <CreditCard size={16} />
                             </button>
                           )}
                           {enrollment.status !== "CANCELLED" && (
@@ -1026,7 +1021,7 @@ export default function EnrollmentsClient({
                               className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
                               title="Cancel enrollment"
                             >
-                              <XCircle size={13} />
+                              <XCircle size={16} />
                             </button>
                           )}
                           {payStatus !== "PAID" && (
@@ -1040,7 +1035,7 @@ export default function EnrollmentsClient({
                               className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
                               title="Delete enrollment"
                             >
-                              <Trash2 size={13} />
+                              <Trash2 size={16} />
                             </button>
                           )}
                         </>
@@ -1079,7 +1074,7 @@ export default function EnrollmentsClient({
                 variant="primary"
                 onClick={() => setModal({ type: "add" })}
               >
-                <Plus size={14} /> New Enrollment
+                <Plus size={18} /> {t("newEnrollment")}
               </AdminButton>
             }
           />
@@ -1091,23 +1086,23 @@ export default function EnrollmentsClient({
       <AdminCard noPadding>
         <AdminTable>
           <AdminThead>
-            <AdminTh>Student</AdminTh>
-            <AdminTh>Sub-class</AdminTh>
-            <AdminTh>Period</AdminTh>
-            <AdminTh>Teacher</AdminTh>
-            <AdminTh>Schedule</AdminTh>
+            <AdminTh>{t("student")}</AdminTh>
+            <AdminTh>{t("subClass")}</AdminTh>
+            <AdminTh>{t("period")}</AdminTh>
+            <AdminTh>{t("teacher")}</AdminTh>
+            <AdminTh>{t("schedule")}</AdminTh>
             <AdminTh>Total</AdminTh>
-            <AdminTh>Payment</AdminTh>
-            <AdminTh>Status</AdminTh>
-            <AdminTh className="text-right">Actions</AdminTh>
+            <AdminTh>{t("payment")}</AdminTh>
+            <AdminTh>{t("status")}</AdminTh>
+            <AdminTh className="text-center">{t("actions")}</AdminTh>
           </AdminThead>
           <AdminTbody>
             {multiMonthEnrollments.map((m) => {
-              const payStatus = m.payment?.status ?? "PENDING";
+              const payStatus = m.payment?.status ?? "FAILED";
               const payConf =
-                PAYMENT_CONFIG[payStatus] ?? PAYMENT_CONFIG.PENDING;
+                PAYMENT_CONFIG[payStatus] ?? PAYMENT_CONFIG.FAILED;
               const statusConf =
-                STATUS_CONFIG[m.status] ?? STATUS_CONFIG.PENDING;
+                STATUS_CONFIG[m.status] ?? STATUS_CONFIG.FAILED;
               const confirmedMonths = m.monthlyEnrollments.filter(
                 (me) => me.status === "CONFIRMED",
               ).length;
@@ -1123,7 +1118,7 @@ export default function EnrollmentsClient({
                   <AdminTd>
                     <div className="flex items-center gap-2">
                       <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[10px] font-semibold"
+                        className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[15px] font-semibold"
                         style={{
                           background: "rgba(96,165,250,0.12)",
                           color: "#60a5fa",
@@ -1134,13 +1129,13 @@ export default function EnrollmentsClient({
                       </div>
                       <div>
                         <p
-                          className="text-sm font-medium"
+                          className="text-xl font-medium"
                           style={{ color: adminColors.textPrimary }}
                         >
                           {m.student.firstName} {m.student.lastName}
                         </p>
                         <p
-                          className="text-xs"
+                          className="text-l"
                           style={{ color: adminColors.textMuted }}
                         >
                           {m.student.user.phone ?? m.student.user.email ?? "—"}
@@ -1151,13 +1146,13 @@ export default function EnrollmentsClient({
 
                   <AdminTd>
                     <p
-                      className="text-sm"
+                      className="text-xl"
                       style={{ color: adminColors.textSecondary }}
                     >
                       {m.subClass.name}
                     </p>
                     <p
-                      className="text-xs"
+                      className="text-l"
                       style={{ color: adminColors.textMuted }}
                     >
                       {m.subClass.class.name}
@@ -1165,32 +1160,32 @@ export default function EnrollmentsClient({
                   </AdminTd>
 
                   <AdminTd>
-                    <p className="text-xs" style={{ color: "#60a5fa" }}>
+                    <p className="text-l" style={{ color: "#60a5fa" }}>
                       {MONTHS_SHORT[m.startMonth - 1]} {m.startYear}
                       {" → "}
                       {MONTHS_SHORT[m.endMonth - 1]} {m.endYear}
                     </p>
                     <p
-                      className="text-sm text-[10px]"
+                      className="text-xl text-[15px]"
                       style={{ color: adminColors.textPrimary }}
                     >
                       {m.totalMonths} months
                     </p>
                     <p
-                      className="text-[10px]"
+                      className="text-[15px]"
                       style={{ color: adminColors.textMuted }}
                     >
                       {confirmedMonths} confirmed
                       {cancelledMonths > 0 && `, ${cancelledMonths} cancelled`}
                     </p>
-                    {/* <CalendarDays size={11} style={{ color: "#60a5fa" }} /> */}
+                    {/* <CalendarDays size={15} style={{ color: "#60a5fa" }} /> */}
                   </AdminTd>
 
                   {/* Teacher column */}
                   <AdminTd>
                     {resolvedSlots.length === 0 ? (
                       <span
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textMuted }}
                       >
                         —
@@ -1200,7 +1195,7 @@ export default function EnrollmentsClient({
                         {resolvedSlots.map((slot, i) => (
                           <p
                             key={i}
-                            className="text-xs font-medium"
+                            className="text-l font-medium"
                             style={{ color: adminColors.textSecondary }}
                           >
                             {slot.teacher
@@ -1216,7 +1211,7 @@ export default function EnrollmentsClient({
                   <AdminTd>
                     {resolvedSlots.length === 0 ? (
                       <span
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textMuted }}
                       >
                         —
@@ -1226,13 +1221,13 @@ export default function EnrollmentsClient({
                         {resolvedSlots.map((slot, i) => (
                           <div key={i}>
                             <p
-                              className="text-xs font-medium"
+                              className="text-l font-medium"
                               style={{ color: adminColors.textSecondary }}
                             >
                               {DAY_SHORT[slot.dayOfWeek] ?? slot.dayOfWeek}
                             </p>
                             <p
-                              className="text-[10px]"
+                              className="text-[15px]"
                               style={{ color: adminColors.textMuted }}
                             >
                               {slot.startTime}–{slot.endTime}
@@ -1245,13 +1240,13 @@ export default function EnrollmentsClient({
 
                   <AdminTd>
                     <p
-                      className="text-sm font-medium"
+                      className="text-xl font-medium"
                       style={{ color: adminColors.textPrimary }}
                     >
                       {Number(m.totalAmount).toFixed(3)}
                     </p>
                     <p
-                      className="text-xs"
+                      className="text-l"
                       style={{ color: adminColors.textMuted }}
                     >
                       OMR
@@ -1264,16 +1259,13 @@ export default function EnrollmentsClient({
                         className="w-1.5 h-1.5 rounded-full shrink-0"
                         style={{ background: payConf.color }}
                       />
-                      <span
-                        className="text-xs"
-                        style={{ color: payConf.color }}
-                      >
+                      <span className="text-l" style={{ color: payConf.color }}>
                         {payConf.label}
                       </span>
                     </div>
                     {m.payment?.paidAt && (
                       <p
-                        className="text-[10px] mt-0.5"
+                        className="text-[15px] mt-0.5"
                         style={{ color: adminColors.textMuted }}
                       >
                         {new Date(m.payment.paidAt).toLocaleDateString(
@@ -1292,7 +1284,7 @@ export default function EnrollmentsClient({
                     </AdminBadge>
                   </AdminTd>
 
-                  <AdminTd className="text-right">
+                  <AdminTd className="text-center">
                     <div className="flex items-center justify-end gap-1">
                       {payStatus !== "PAID" && (
                         <button
@@ -1313,7 +1305,7 @@ export default function EnrollmentsClient({
                           className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
                           title="Cancel plan"
                         >
-                          <XCircle size={13} />
+                          <XCircle size={16} />
                         </button>
                       )}
                       {payStatus !== "PAID" && (
@@ -1324,7 +1316,7 @@ export default function EnrollmentsClient({
                           className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
                           title="Delete plan"
                         >
-                          <Trash2 size={13} />
+                          <Trash2 size={16} />
                         </button>
                       )}
                     </div>
@@ -1344,7 +1336,7 @@ export default function EnrollmentsClient({
 
   return (
     <div
-      className="space-y-4 max-w-7xl mx-auto"
+      className="space-y-4 max-w-8xl mx-auto"
       onClick={() => setOpenMenuId(null)}
     >
       <AdminPageHeader
@@ -1355,7 +1347,7 @@ export default function EnrollmentsClient({
             variant="primary"
             onClick={() => setModal({ type: "add" })}
           >
-            <Plus size={14} /> New Enrollment
+            <Plus size={18} /> {t("newEnrollment")}
           </AdminButton>
         }
       />
@@ -1369,7 +1361,6 @@ export default function EnrollmentsClient({
             color: adminColors.textPrimary,
           },
           { label: "Confirmed", value: stats.confirmed, color: "#34d399" },
-          { label: "Pending", value: stats.pending, color: "#f59e0b" },
           { label: "Multi-plans", value: stats.multiPlans, color: "#60a5fa" },
           {
             label: "Revenue",
@@ -1385,11 +1376,11 @@ export default function EnrollmentsClient({
               background: "#1a1d27",
             }}
           >
-            <p className="text-lg font-bold" style={{ color }}>
+            <p className="text-2xl font-bold" style={{ color }}>
               {value}
             </p>
             <p
-              className="text-xs mt-0.5"
+              className="text-l mt-0.5"
               style={{ color: adminColors.textMuted }}
             >
               {label}
@@ -1409,17 +1400,17 @@ export default function EnrollmentsClient({
             [
               {
                 mode: "month",
-                icon: <Users size={13} />,
+                icon: <Users size={16} />,
                 label: "By Sub-class",
               },
               {
                 mode: "list",
-                icon: <List size={13} />,
+                icon: <List size={16} />,
                 label: "All Enrollments",
               },
               {
                 mode: "multi",
-                icon: <Layers size={13} />,
+                icon: <Layers size={16} />,
                 label: "Multi-month",
               },
             ] as const
@@ -1427,7 +1418,7 @@ export default function EnrollmentsClient({
             <button
               key={mode}
               onClick={() => setViewMode(mode)}
-              className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 text-l font-medium transition-colors"
               style={{
                 background:
                   viewMode === mode
@@ -1439,7 +1430,7 @@ export default function EnrollmentsClient({
               {icon} {label}
               {mode === "multi" && stats.multiPlans > 0 && (
                 <span
-                  className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold"
+                  className="ml-1 px-1.5 py-0.5 rounded-full text-[14px] font-bold"
                   style={{
                     background: "rgba(96,165,250,0.15)",
                     color: "#60a5fa",
@@ -1462,10 +1453,10 @@ export default function EnrollmentsClient({
               onClick={() => navigateMonth(-1)}
               className="p-1.5 rounded-md transition-colors text-white/40 hover:text-white/80"
             >
-              <ChevronLeft size={14} />
+              <ChevronLeft size={18} />
             </button>
             <span
-              className="text-sm px-2 font-medium"
+              className="text-xl px-2 font-medium"
               style={{ color: adminColors.textSecondary }}
             >
               {MONTHS_SHORT[month - 1]} {year}
@@ -1474,7 +1465,7 @@ export default function EnrollmentsClient({
               onClick={() => navigateMonth(1)}
               className="p-1.5 rounded-md transition-colors text-white/40 hover:text-white/80"
             >
-              <ChevronRight size={14} />
+              <ChevronRight size={18} />
             </button>
           </div>
         )}
@@ -1488,7 +1479,7 @@ export default function EnrollmentsClient({
                 setFilterClass(e.target.value);
                 setFilterSubClass("");
               }}
-              className="px-3 py-2 rounded-lg text-sm border bg-white/4 text-white/70 focus:outline-none"
+              className="px-3 py-2 rounded-lg text-xl border bg-white/4 text-white/70 focus:outline-none"
               style={{ borderColor: "rgba(255,255,255,0.08)" }}
             >
               <option className="text-black" value="">
@@ -1504,7 +1495,7 @@ export default function EnrollmentsClient({
             <select
               value={filterSubClass}
               onChange={(e) => setFilterSubClass(e.target.value)}
-              className="px-3 py-2 rounded-lg text-sm border bg-white/4 text-white/70 focus:outline-none"
+              className="px-3 py-2 rounded-lg text-xl border bg-white/4 text-white/70 focus:outline-none"
               style={{ borderColor: "rgba(255,255,255,0.08)" }}
             >
               <option className="text-black" value="">
@@ -1520,11 +1511,11 @@ export default function EnrollmentsClient({
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2 rounded-lg text-sm border bg-white/4 text-white/70 focus:outline-none"
+              className="px-3 py-2 rounded-lg text-xl border bg-white/4 text-white/70 focus:outline-none"
               style={{ borderColor: "rgba(255,255,255,0.08)" }}
             >
               <option className="text-black" value="">
-                All statuses
+                {t("allStatuses")}
               </option>
               {Object.entries(STATUS_CONFIG).map(([v, c]) => (
                 <option className="text-black" key={v} value={v}>
@@ -1536,7 +1527,7 @@ export default function EnrollmentsClient({
         )}
 
         <span
-          className="text-xs ml-auto"
+          className="text-l ml-auto"
           style={{ color: adminColors.textMuted }}
         >
           {viewMode === "list"
@@ -1649,7 +1640,7 @@ function MenuBtn({
         e.stopPropagation();
         onClick();
       }}
-      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs transition-colors hover:bg-white/4"
+      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-l transition-colors hover:bg-white/4"
       style={{ color }}
     >
       {icon} {label}

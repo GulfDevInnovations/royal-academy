@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { BookingStatus, PaymentStatus, PaymentMethod, FrequencyType } from "@prisma/client";
-import { jsonToStringArray } from "@/lib/prisma-json";
+import { jsonToStringArray } from "@/utils/prisma-json";
 
 // ─────────────────────────────────────────────
 // HELPERS
@@ -250,7 +250,7 @@ export async function getCapacitySummary(month: number, year: number) {
         },
       },
       monthlyEnrollments: {
-        where: { month, year, status: { in: ["CONFIRMED", "PENDING"] } },
+        where: { month, year, status: { in: ["CONFIRMED"] } },
         include: {
           student: { select: { id: true, firstName: true, lastName: true } },
           payment: { select: { status: true, amount: true, paidAt: true } },
@@ -389,7 +389,7 @@ export async function createEnrollment(formData: FormData) {
     where: {
       month,
       year,
-      status: { in: ["CONFIRMED", "PENDING"] },
+      status: { in: ["CONFIRMED"] },
     },
     select: { scheduleIds: true },
   });
@@ -413,7 +413,7 @@ export async function createEnrollment(formData: FormData) {
     ? Number(subClass.twicePriceMonthly ?? 0)
     : Number(subClass.oncePriceMonthly  ?? 0);
 
-  const status: BookingStatus = payNow && payAmount ? "CONFIRMED" : "PENDING";
+  const status: BookingStatus = payNow && payAmount ? "CONFIRMED" : "CANCELLED";
 
   const enrollment = await prisma.$transaction(async (tx) => {
     const newEnrollment = await tx.monthlyEnrollment.create({
@@ -496,7 +496,7 @@ export async function createMultiMonthEnrollment(formData: FormData) {
       studentId,
       subClassId,
       OR: months.map(({ month, year }) => ({ month, year })),
-      status: { in: ["CONFIRMED", "PENDING"] },
+      status: { in: ["CONFIRMED"] },
     },
     select: { month: true, year: true },
   });
@@ -526,7 +526,7 @@ export async function createMultiMonthEnrollment(formData: FormData) {
       where: {
         month,
         year,
-        status: { in: ["CONFIRMED", "PENDING"] },
+        status: { in: ["CONFIRMED"] },
       },
       select: { scheduleIds: true },
     });
@@ -561,7 +561,7 @@ export async function createMultiMonthEnrollment(formData: FormData) {
   }
 
   const selectedScheduleIds = selectedSchedules.map((s) => s.id);
-  const status: BookingStatus = payNow && payAmount ? "CONFIRMED" : "PENDING";
+  const status: BookingStatus = payNow && payAmount ? "CONFIRMED" : "CANCELLED";
 
   await prisma.$transaction(async (tx) => {
     // 1. Create parent

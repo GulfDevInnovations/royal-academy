@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
-  Send,
   Loader2,
   Filter,
 } from "lucide-react";
@@ -27,18 +26,19 @@ import {
   AdminEmptyState,
   adminColors,
 } from "@/components/admin/ui";
+import { useTranslations } from "next-intl";
 
 const STATUS_CONFIG: Record<
   string,
   {
     label: string;
-    variant: "success" | "warning" | "error" | "default";
+    variant: "success" | "warning" | "danger" | "default";
     icon: React.ReactNode;
   }
 > = {
-  SENT: { label: "Sent", variant: "success", icon: <CheckCircle2 size={11} /> },
-  PENDING: { label: "Pending", variant: "warning", icon: <Clock size={11} /> },
-  FAILED: { label: "Failed", variant: "error", icon: <XCircle size={11} /> },
+  SENT: { label: "Sent", variant: "success", icon: <CheckCircle2 size={16} /> },
+  PENDING: { label: "Pending", variant: "warning", icon: <Clock size={16} /> },
+  FAILED: { label: "Failed", variant: "danger", icon: <XCircle size={16} /> },
 };
 
 const TYPE_COLORS: Record<string, string> = {
@@ -58,6 +58,7 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
   const [filterType, setFilterType] = useState("");
   const [isPending, startTransition] = useTransition();
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const t = useTranslations("admin");
 
   const displayed = useMemo(() => {
     let list = notifications;
@@ -121,11 +122,11 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
               background: "#1a1d27",
             }}
           >
-            <p className="text-xl font-bold" style={{ color }}>
+            <p className="text-3xl font-bold" style={{ color }}>
               {value}
             </p>
             <p
-              className="text-xs mt-0.5"
+              className="text-l mt-0.5"
               style={{ color: adminColors.textMuted }}
             >
               {label}
@@ -136,15 +137,15 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
 
       {/* ── Filters ── */}
       <div className="flex items-center gap-3 flex-wrap">
-        <Filter size={13} style={{ color: adminColors.textMuted }} />
+        <Filter size={16} style={{ color: adminColors.textMuted }} />
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-3 py-1.5 rounded-lg text-xs border bg-white/[0.04] text-white/70 focus:outline-none"
+          className="px-3 py-1.5 rounded-lg text-l border bg-white/4 text-white/70 focus:outline-none"
           style={{ borderColor: "rgba(255,255,255,0.08)" }}
         >
           <option className="text-black" value="">
-            All statuses
+            {t("allStatuses")}
           </option>
           <option className="text-black" value="SENT">
             Sent
@@ -159,11 +160,11 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
-          className="px-3 py-1.5 rounded-lg text-xs border bg-white/[0.04] text-white/70 focus:outline-none"
+          className="px-3 py-1.5 rounded-lg text-l border bg-white/4 text-white/70 focus:outline-none"
           style={{ borderColor: "rgba(255,255,255,0.08)" }}
         >
           <option className="text-black" value="">
-            All types
+            {t("allTypes")}
           </option>
           <option className="text-black" value="SMS">
             SMS
@@ -176,7 +177,7 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
           </option>
         </select>
         <span
-          className="text-xs ml-auto"
+          className="text-l ml-auto"
           style={{ color: adminColors.textMuted }}
         >
           {displayed.length} of {notifications.length}
@@ -196,13 +197,13 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
         ) : (
           <AdminTable>
             <AdminThead>
-              <AdminTh>Recipient</AdminTh>
-              <AdminTh>Type</AdminTh>
-              <AdminTh>Message</AdminTh>
-              <AdminTh>Status</AdminTh>
-              <AdminTh>Scheduled</AdminTh>
-              <AdminTh>Sent At</AdminTh>
-              <AdminTh className="text-right">Actions</AdminTh>
+              <AdminTh>{t("recipient")}</AdminTh>
+              <AdminTh>{t("type")}</AdminTh>
+              <AdminTh>{t("message")}</AdminTh>
+              <AdminTh>{t("status")}</AdminTh>
+              <AdminTh>{t("scheduled")}</AdminTh>
+              <AdminTh>{t("date")}</AdminTh>
+              <AdminTh className="text-right">{t("actions")}</AdminTh>
             </AdminThead>
             <AdminTbody>
               {displayed.map((n) => {
@@ -213,13 +214,13 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
                   <AdminTr key={n.id}>
                     <AdminTd>
                       <p
-                        className="text-sm font-medium"
+                        className="text-xl font-medium"
                         style={{ color: adminColors.textPrimary }}
                       >
                         {getUserName(n)}
                       </p>
                       <p
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textMuted }}
                       >
                         {n.user.phone ?? n.user.email ?? "—"}
@@ -228,7 +229,7 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
 
                     <AdminTd>
                       <span
-                        className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                        className="text-l font-semibold px-2 py-0.5 rounded-full"
                         style={{
                           background: `${TYPE_COLORS[n.type] ?? "#94a3b8"}18`,
                           color: TYPE_COLORS[n.type] ?? "#94a3b8",
@@ -241,7 +242,7 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
                     <AdminTd>
                       {n.subject && (
                         <p
-                          className="text-xs font-medium"
+                          className="text-l font-medium"
                           style={{ color: adminColors.textSecondary }}
                         >
                           {n.subject}
@@ -263,7 +264,7 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
                       </AdminBadge>
                       {n.failReason && (
                         <p
-                          className="text-[10px] mt-0.5"
+                          className="text-[15px] mt-0.5"
                           style={{ color: "#f87171" }}
                         >
                           {n.failReason}
@@ -273,7 +274,7 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
 
                     <AdminTd>
                       <p
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textMuted }}
                       >
                         {n.scheduledFor ? fmtDate(n.scheduledFor) : "Immediate"}
@@ -282,7 +283,7 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
 
                     <AdminTd>
                       <p
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textMuted }}
                       >
                         {fmtDate(n.sentAt)}
@@ -295,26 +296,26 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
                           <button
                             onClick={() => handleRetry(n.id)}
                             disabled={isLoading}
-                            className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-amber-400 hover:bg-amber-500/[0.08]"
+                            className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-amber-400 hover:bg-amber-500/8"
                             title="Retry"
                           >
                             {isLoading ? (
-                              <Loader2 size={12} className="animate-spin" />
+                              <Loader2 size={16} className="animate-spin" />
                             ) : (
-                              <RefreshCw size={12} />
+                              <RefreshCw size={16} />
                             )}
                           </button>
                         )}
                         <button
                           onClick={() => handleDelete(n.id)}
                           disabled={isLoading}
-                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/[0.08]"
+                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
                           title="Delete"
                         >
                           {isLoading ? (
-                            <Loader2 size={12} className="animate-spin" />
+                            <Loader2 size={16} className="animate-spin" />
                           ) : (
-                            <Trash2 size={12} />
+                            <Trash2 size={16} />
                           )}
                         </button>
                       </div>

@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
+import type { News, Offer, Upcoming } from "@prisma/client";
+import { parseJsonArray } from "@/utils/parseJson";
 export const dynamic = "force-dynamic";
 import HomeWrapper from "@/components/layout-toggle/HomeWrapper"; // adjust path if needed
+
 
 export default async function Home({
   params,
@@ -14,11 +17,22 @@ export default async function Home({
     isActive: true,
   };
 
-  const [upcoming, news, offers] = await Promise.all([
-    prisma.upcoming.findMany({ where, orderBy: { sortOrder: "asc" } }),
-    prisma.news.findMany({ where, orderBy: { sortOrder: "asc" } }),
-    prisma.offer.findMany({ where, orderBy: { sortOrder: "asc" } }),
-  ]);
+  let upcoming: Upcoming[] = [];
+  let news: News[] = [];
+  let offers: Offer[] = [];
+
+  try {
+    [upcoming, news, offers] = await Promise.all([
+      prisma.upcoming.findMany({ where, orderBy: { sortOrder: "asc" } }),
+      prisma.news.findMany({ where, orderBy: { sortOrder: "asc" } }),
+      prisma.offer.findMany({ where, orderBy: { sortOrder: "asc" } }),
+    ]);
+  } catch (error) {
+    // Dev convenience: allow the homepage to render even if Postgres isn't up locally.
+    // In production we still want to fail fast so we notice DB outages.
+    if (process.env.NODE_ENV === "production") throw error;
+    console.error("[home] Failed to load content from DB; rendering empty lists.", error);
+  }
 
   type WithBaseDates = {
     createdAt: Date;
@@ -28,8 +42,10 @@ export default async function Home({
     expireAt?: Date | null;
   };
 
-  const serializeBase = <T extends WithBaseDates>(i: T) => ({
+  const serializeBase = <T extends WithBaseDates & { mediaUrls: unknown; videoUrls: unknown }>(i: T) => ({
     ...i,
+    mediaUrls: parseJsonArray<string>(i.mediaUrls),
+    videoUrls: parseJsonArray<string>(i.videoUrls),
     eventDate: i.eventDate?.toISOString() ?? null,
     publishAt: i.publishAt?.toISOString() ?? null,
     expireAt: i.expireAt?.toISOString() ?? null,
@@ -48,7 +64,7 @@ export default async function Home({
           discountValue: i.discountValue?.toString() ?? null,
         })),
       }}
-      logoUrl="/images/logo/logo-color.png"
+      logoUrl="/images/logo/Logo-Color.png"
       backgroundImageUrl="/images/rooms/initial-room4.png"
     />
   );

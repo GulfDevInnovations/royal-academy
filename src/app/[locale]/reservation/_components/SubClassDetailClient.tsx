@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { SubClassDetail, SubClassTeacherInfo } from "@/lib/actions/classes";
@@ -27,7 +27,6 @@ import {
   AlertCircle,
   Loader2,
   ChevronRight,
-  Layers,
 } from "lucide-react";
 import { format, addMonths, startOfMonth } from "date-fns";
 
@@ -60,6 +59,39 @@ const DAY_ORDER = [
   "SUNDAY",
 ];
 
+/** Find a teacher schedule matching a daySlotKey ("DAY|startTime|endTime"). */
+function scheduleForKey(
+  schedules: Array<{
+    dayOfWeek: string;
+    startTime: string;
+    endTime: string;
+    endDate: string | null;
+  }>,
+  key: string,
+) {
+  const [day, startTime, endTime] = key.split("|");
+  return schedules.find(
+    (s) =>
+      s.dayOfWeek === day && s.startTime === startTime && s.endTime === endTime,
+  );
+}
+
+/**
+ * How many months can be booked starting from startMonth given a schedule endDate?
+ * Returns the count of months in [startMonth … endDate-month] inclusive, capped at 12.
+ * If endDate is null (indefinite) returns 12.
+ * This correctly shrinks when startMonth is later (e.g. May → July = 3, April → July = 4).
+ */
+function computeMaxMonths(endDate: string | null, startMonth: Date): number {
+  if (!endDate) return 12;
+  const end = new Date(endDate);
+  const diff =
+    (end.getFullYear() - startMonth.getFullYear()) * 12 +
+    (end.getMonth() - startMonth.getMonth()) +
+    1;
+  return Math.max(1, Math.min(diff, 12));
+}
+
 type Plan = "TRIAL" | "ONCE" | "TWICE";
 
 export function SubClassDetailClient({
@@ -88,20 +120,60 @@ export function SubClassDetailClient({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Available months — always start from current month
-  const availableMonths = useMemo(() => {
+  // Candidate months window — 4 months ahead from today
+  const candidateMonths = useMemo(() => {
     const now = new Date();
     return [0, 1, 2, 3].map((i) => addMonths(startOfMonth(now), i));
   }, []);
 
-  // Max months the student can book with the selected teacher
-  // Capped by the teacher's schedule endDate and by how far out we show months
-  const maxMonths = useMemo(() => {
-    if (!selectedTeacher) return 1;
-    // Use teacher's schedule endDate cap directly — not the display window.
-    // Fall back to 12 if schedules run indefinitely.
-    return selectedTeacher.maxBookableMonths ?? 12;
-  }, [selectedTeacher]);
+  // ONCE: only show months where at least one teacher slot is still active
+  const availableMonthsForOnce = useMemo(() => {
+    if (!selectedTeacher) return candidateMonths;
+    return candidateMonths.filter((month) =>
+      selectedTeacher.schedules.some(
+        (s) => !s.endDate || new Date(s.endDate) >= month,
+      ),
+    );
+  }, [candidateMonths, selectedTeacher]);
+
+  // TWICE: only show months where BOTH selected slots are still active
+  const availableMonthsForTwice = useMemo(() => {
+    if (!selectedTeacher || selectedSlotKeys.length < 2) return candidateMonths;
+    return candidateMonths.filter((month) =>
+      selectedSlotKeys.every((key) => {
+        const s = scheduleForKey(selectedTeacher.schedules, key);
+        return !s?.endDate || new Date(s.endDate) >= month;
+      }),
+    );
+  }, [candidateMonths, selectedTeacher, selectedSlotKeys]);
+
+  // Max months for ONCE — slot's own endDate relative to chosen start month
+  const onceMaxMonths = useMemo(() => {
+    if (!selectedMonth || selectedSlotKeys.length < 1 || !selectedTeacher)
+      return 12;
+    const s = scheduleForKey(selectedTeacher.schedules, selectedSlotKeys[0]);
+    return computeMaxMonths(s?.endDate ?? null, selectedMonth);
+  }, [selectedMonth, selectedSlotKeys, selectedTeacher]);
+
+  // Max months for TWICE — min endDate across both selected slots + chosen start month
+  const twiceMaxMonths = useMemo(() => {
+    if (!selectedMonth || selectedSlotKeys.length < 2 || !selectedTeacher)
+      return 12;
+    const minEndDate = selectedSlotKeys.reduce<string | null>((min, key) => {
+      const s = scheduleForKey(selectedTeacher.schedules, key);
+      if (!s?.endDate) return min;
+      return min === null || s.endDate < min ? s.endDate : min;
+    }, null);
+    return computeMaxMonths(minEndDate, selectedMonth);
+  }, [selectedMonth, selectedSlotKeys, selectedTeacher]);
+
+  const maxMonths =
+    plan === "ONCE" ? onceMaxMonths : plan === "TWICE" ? twiceMaxMonths : 12;
+
+  // Cap totalMonths whenever the effective limit shrinks
+  useEffect(() => {
+    if (totalMonths > maxMonths) setTotalMonths(maxMonths);
+  }, [maxMonths, totalMonths]);
 
   // All schedule slots sorted by day then startTime
   const availableSlots = useMemo(() => {
@@ -114,7 +186,7 @@ export function SubClassDetailClient({
     });
   }, [selectedTeacher]);
 
-  const slotKey = (s: {
+  const daySlotKey = (s: {
     dayOfWeek: string;
     startTime: string;
     endTime: string;
@@ -174,21 +246,14 @@ export function SubClassDetailClient({
   const isMultiMonth = plan !== "TRIAL" && totalMonths > 1;
 
   const canProceed = useMemo(() => {
-    if (!selectedTeacher) return false;
-    if (!selectedSlot) return false; // must pick a date+time first
-    if (!plan) return false;
-    if (plan === "TRIAL") return true;
-    if (!selectedMonth) return false;
-    if (selectedSlotKeys.length !== requiredDays) return false;
-    return true;
-  }, [
-    selectedTeacher,
-    selectedSlot,
-    plan,
-    selectedMonth,
-    selectedSlotKeys,
-    requiredDays,
-  ]);
+    if (!selectedTeacher || !plan) return false;
+    if (plan === "TRIAL") return !!selectedSlot;
+    if (plan === "ONCE")
+      return !!selectedMonth && selectedSlotKeys.length === 1;
+    if (plan === "TWICE")
+      return selectedSlotKeys.length === 2 && !!selectedMonth;
+    return false;
+  }, [selectedTeacher, plan, selectedSlot, selectedSlotKeys, selectedMonth]);
 
   const handleSelectTeacher = (teacher: SubClassTeacherInfo) => {
     setSelectedTeacher(teacher);
@@ -278,26 +343,51 @@ export function SubClassDetailClient({
 
   const ctaLabel = useMemo(() => {
     if (!selectedTeacher) return "Select an Instructor";
-    if (!selectedSlot) return "Pick a Session Date";
     if (!plan) return "Select a Plan";
-    if (plan === "TRIAL") return "Book Trial Session";
-    if (!selectedMonth) return "Select a Month";
-    if (selectedSlotKeys.length < requiredDays)
-      return `Choose ${requiredDays - selectedSlotKeys.length} More Slot${requiredDays - selectedSlotKeys.length > 1 ? "s" : ""}`;
-    if (isMultiMonth) return `Enroll for ${totalMonths} Months`;
+    if (plan === "TRIAL")
+      return selectedSlot ? "Book Trial Session" : "Pick a Session Date";
+    if (plan === "ONCE") {
+      if (!selectedMonth) return "Select Starting Month";
+      if (selectedSlotKeys.length < 1) return "Choose Your Preferred Day";
+      return isMultiMonth
+        ? `Enroll for ${totalMonths} Months`
+        : "Proceed to Payment";
+    }
+    if (plan === "TWICE") {
+      if (selectedSlotKeys.length < 2)
+        return `Choose ${2 - selectedSlotKeys.length} More Slot${2 - selectedSlotKeys.length > 1 ? "s" : ""}`;
+      if (!selectedMonth) return "Select Starting Month";
+      return isMultiMonth
+        ? `Enroll for ${totalMonths} Months`
+        : "Proceed to Payment";
+    }
     return "Proceed to Payment";
   }, [
     selectedTeacher,
     plan,
+    selectedSlot,
     selectedMonth,
     selectedSlotKeys,
-    requiredDays,
     isMultiMonth,
     totalMonths,
   ]);
 
   return (
-    <main className="min-h-screen pt-24 pb-20">
+    <main
+      className="min-h-screen pt-24 pb-20"
+      style={{ background: "#070208" }}
+    >
+      {/* Background pattern */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          backgroundImage: "url('/images/pattern.svg')",
+          backgroundRepeat: "repeat",
+          backgroundSize: "1600px auto",
+          opacity: 0.005,
+          filter: "sepia(1) saturate(0.5) brightness(2)",
+        }}
+      />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back */}
         <button
@@ -675,6 +765,8 @@ export function SubClassDetailClient({
                               setSelectedMonth(null);
                               setTotalMonths(1);
                               setSelectedSlotKeys([]);
+                              setSelectedSlot(null);
+                              setSelectedSlotPickerKey(null);
                             }}
                             className="text-[10px] text-royal-cream/30 hover:text-royal-cream/60 transition-colors flex-shrink-0"
                           >
@@ -686,7 +778,7 @@ export function SubClassDetailClient({
                   )}
                 </AnimatePresence>
 
-                {/* Plan selector */}
+                {/* ── STEP 1: Plan selection ── */}
                 <AnimatePresence>
                   {selectedTeacher && (
                     <motion.div
@@ -695,15 +787,87 @@ export function SubClassDetailClient({
                       exit={{ opacity: 0, height: 0 }}
                       className="overflow-hidden"
                     >
-                      {/* ── Availability calendar (shown after teacher selected) ── */}
-                      <AnimatePresence>
-                        {selectedTeacher && (
+                      <div className="flex items-center gap-3 mb-4">
+                        <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 whitespace-nowrap">
+                          Choose Plan
+                        </p>
+                        <div className="h-px flex-1 bg-white/[0.06]" />
+                      </div>
+                      <div className="space-y-3 mb-6">
+                        {subClass.isTrialAvailable && (
+                          <PlanOption
+                            selected={plan === "TRIAL"}
+                            onClick={() => {
+                              setPlan("TRIAL");
+                              setSelectedSlotKeys([]);
+                              setSelectedMonth(null);
+                              setTotalMonths(1);
+                              setSelectedSlot(null);
+                              setSelectedSlotPickerKey(null);
+                            }}
+                            accent={accent}
+                            icon={<Sparkles className="w-4 h-4" />}
+                            title="Trial Session"
+                            subtitle="One-time taster class"
+                            price={`${subClass.trialPrice} ${subClass.currency}`}
+                            badge="One-time"
+                          />
+                        )}
+                        {subClass.oncePriceMonthly && (
+                          <PlanOption
+                            selected={plan === "ONCE"}
+                            onClick={() => {
+                              setPlan("ONCE");
+                              setSelectedSlotKeys([]);
+                              setSelectedMonth(null);
+                              setSelectedSlot(null);
+                              setSelectedSlotPickerKey(null);
+                            }}
+                            accent={accent}
+                            icon={<Calendar className="w-4 h-4" />}
+                            title="Once a Week"
+                            subtitle="4 sessions per month"
+                            price={`${subClass.oncePriceMonthly} ${subClass.currency}/mo`}
+                          />
+                        )}
+                        {subClass.twicePriceMonthly && (
+                          <PlanOption
+                            selected={plan === "TWICE"}
+                            onClick={() => {
+                              setPlan("TWICE");
+                              setSelectedSlotKeys([]);
+                              setSelectedMonth(null);
+                              setTotalMonths(1);
+                              setSelectedSlot(null);
+                              setSelectedSlotPickerKey(null);
+                            }}
+                            accent={accent}
+                            icon={<Crown className="w-4 h-4" />}
+                            title="Twice a Week"
+                            subtitle="8 sessions per month"
+                            price={`${subClass.twicePriceMonthly} ${subClass.currency}/mo`}
+                            badge="Best value"
+                          />
+                        )}
+                      </div>
+
+                      {/* ── STEP 2: Plan-specific selections ── */}
+                      <AnimatePresence mode="wait">
+                        {/* TRIAL — calendar picker */}
+                        {plan === "TRIAL" && (
                           <motion.div
+                            key="trial"
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="overflow-hidden mb-6"
+                            className="overflow-hidden mb-5"
                           >
+                            <div className="flex items-center gap-3 mb-4">
+                              <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 whitespace-nowrap">
+                                Pick Your Session
+                              </p>
+                              <div className="h-px flex-1 bg-white/[0.06]" />
+                            </div>
                             <TeacherAvailabilityPicker
                               teacher={selectedTeacher}
                               accent={accent}
@@ -711,323 +875,292 @@ export function SubClassDetailClient({
                               onSelect={(slot) => {
                                 setSelectedSlot(slot);
                                 setSelectedSlotPickerKey(slotKey(slot));
-                                // Auto-populate the slot picker with the chosen day
-                                // so the student doesn't have to pick day twice
-                                const key = `${slot.dayOfWeek}|${slot.startTime}|${slot.endTime}`;
-                                setSelectedSlotKeys([key]);
-                                // Reset plan/month when changing slot
-                                setPlan(null);
-                                setSelectedMonth(null);
-                                setTotalMonths(1);
                               }}
                             />
                           </motion.div>
                         )}
-                      </AnimatePresence>
 
-                      {/* ── Plan options (shown after slot selected) ── */}
-                      <AnimatePresence>
-                        {selectedSlot && (
+                        {/* ONCE — start month → filtered slot → duration */}
+                        {plan === "ONCE" && (
                           <motion.div
+                            key="once"
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="overflow-hidden"
+                            className="overflow-hidden mb-5"
                           >
-                            <div className="flex items-center gap-3 mb-4">
-                              <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 whitespace-nowrap">
-                                Choose Plan
-                              </p>
-                              <div className="h-px flex-1 bg-white/[0.06]" />
-                            </div>
-                            <div className="space-y-3 mb-6">
-                              {subClass.isTrialAvailable && (
-                                <PlanOption
-                                  selected={plan === "TRIAL"}
-                                  onClick={() => {
-                                    setPlan("TRIAL");
-                                    setSelectedMonth(null);
-                                    setTotalMonths(
-                                      1,
-                                    ); /* keep selectedSlotKeys — calendar pick stays */
-                                  }}
-                                  accent={accent}
-                                  icon={<Sparkles className="w-4 h-4" />}
-                                  title="Trial Session"
-                                  subtitle="One-time taster class"
-                                  price={`${subClass.trialPrice} ${subClass.currency}`}
-                                  badge="One-time"
-                                />
-                              )}
-                              {subClass.oncePriceMonthly && (
-                                <PlanOption
-                                  selected={plan === "ONCE"}
-                                  onClick={() => {
-                                    setPlan(
-                                      "ONCE",
-                                    ); /* keep selectedSlotKeys from calendar pick */
-                                  }}
-                                  accent={accent}
-                                  icon={<Calendar className="w-4 h-4" />}
-                                  title="Once a Week"
-                                  subtitle="4 sessions per month"
-                                  price={`${subClass.oncePriceMonthly} ${subClass.currency}/mo`}
-                                />
-                              )}
-                              {subClass.twicePriceMonthly && (
-                                <PlanOption
-                                  selected={plan === "TWICE"}
-                                  onClick={() => {
-                                    setPlan("TWICE");
-                                    setSelectedSlotKeys([]);
-                                  }}
-                                  accent={accent}
-                                  icon={<Crown className="w-4 h-4" />}
-                                  title="Twice a Week"
-                                  subtitle="8 sessions per month"
-                                  price={`${subClass.twicePriceMonthly} ${subClass.currency}/mo`}
-                                  badge="Best value"
-                                />
-                              )}
+                            {/* Step 1: Starting month */}
+                            <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 mb-3">
+                              Starting Month
+                            </p>
+                            <div className="grid grid-cols-2 gap-2 mb-5">
+                              {availableMonthsForOnce.map((month) => {
+                                const isSel =
+                                  selectedMonth?.getTime() === month.getTime();
+                                return (
+                                  <button
+                                    key={month.toISOString()}
+                                    onClick={() => {
+                                      setSelectedMonth(month);
+                                      setSelectedSlotKeys([]);
+                                      setTotalMonths(1);
+                                    }}
+                                    className="py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200 border"
+                                    style={
+                                      isSel
+                                        ? {
+                                            background: `${accent}20`,
+                                            borderColor: accent,
+                                            color: accent,
+                                          }
+                                        : {
+                                            background:
+                                              "rgba(255,255,255,0.02)",
+                                            borderColor:
+                                              "rgba(255,255,255,0.08)",
+                                            color: "rgba(255,255,255,0.5)",
+                                          }
+                                    }
+                                  >
+                                    {format(month, "MMM yyyy")}
+                                  </button>
+                                );
+                              })}
                             </div>
 
-                            {/* Month, duration, and day pickers */}
+                            {/* Step 2: Slot picker (only slots active in selected month) */}
                             <AnimatePresence>
-                              {plan && plan !== "TRIAL" && (
+                              {selectedMonth && (
                                 <motion.div
                                   initial={{ opacity: 0, height: 0 }}
                                   animate={{ opacity: 1, height: "auto" }}
                                   exit={{ opacity: 0, height: 0 }}
                                   className="overflow-hidden"
                                 >
-                                  {/* Start month picker */}
-                                  <div className="mb-5">
-                                    <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 mb-3">
-                                      Start Month
+                                  <div className="flex items-center gap-3 mb-3">
+                                    <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 whitespace-nowrap">
+                                      Preferred Day &amp; Time
                                     </p>
-                                    <div className="grid grid-cols-2 gap-2">
-                                      {availableMonths.map((month) => {
-                                        const isSelected =
-                                          selectedMonth?.getTime() ===
-                                          month.getTime();
+                                    <div className="h-px flex-1 bg-white/[0.06]" />
+                                  </div>
+                                  <div className="flex flex-wrap gap-2 mb-5">
+                                    {availableSlots
+                                      .filter(
+                                        (slot) =>
+                                          !slot.endDate ||
+                                          new Date(slot.endDate) >=
+                                            selectedMonth,
+                                      )
+                                      .map((slot) => {
+                                        const key = daySlotKey(slot);
+                                        const isSel =
+                                          selectedSlotKeys.includes(key);
                                         return (
                                           <button
-                                            key={month.toISOString()}
-                                            onClick={() => {
-                                              setSelectedMonth(month);
-                                              setTotalMonths(
-                                                1,
-                                              ); /* keep selectedSlotKeys */
-                                            }}
-                                            className="py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200 border"
+                                            key={key}
+                                            onClick={() =>
+                                              setSelectedSlotKeys(
+                                                isSel ? [] : [key],
+                                              )
+                                            }
+                                            className="flex flex-col items-center px-3.5 py-2 rounded-xl transition-all duration-200 border"
                                             style={
-                                              isSelected
+                                              isSel
                                                 ? {
                                                     background: `${accent}20`,
                                                     borderColor: accent,
-                                                    color: accent,
                                                   }
                                                 : {
                                                     background:
                                                       "rgba(255,255,255,0.02)",
                                                     borderColor:
                                                       "rgba(255,255,255,0.08)",
-                                                    color:
-                                                      "rgba(255,255,255,0.5)",
                                                   }
                                             }
                                           >
-                                            {format(month, "MMM yyyy")}
+                                            <span
+                                              className="text-xs font-bold uppercase tracking-wider"
+                                              style={{
+                                                color: isSel
+                                                  ? accent
+                                                  : "rgba(255,255,255,0.4)",
+                                              }}
+                                            >
+                                              {DAY_LABELS[slot.dayOfWeek]}
+                                            </span>
+                                            <span
+                                              className="text-[9px] mt-0.5"
+                                              style={{
+                                                color: isSel
+                                                  ? `${accent}99`
+                                                  : "rgba(255,255,255,0.25)",
+                                              }}
+                                            >
+                                              {slot.startTime}–{slot.endTime}
+                                            </span>
                                           </button>
                                         );
                                       })}
-                                    </div>
                                   </div>
 
-                                  {/* Number of months — only shown after start month selected */}
+                                  {/* Step 3: Duration (revealed once slot picked) */}
                                   <AnimatePresence>
-                                    {selectedMonth && maxMonths > 1 && (
+                                    {selectedSlotKeys.length === 1 && (
                                       <motion.div
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: "auto" }}
                                         exit={{ opacity: 0, height: 0 }}
-                                        className="overflow-hidden mb-5"
+                                        className="overflow-hidden"
                                       >
-                                        <div className="flex items-center justify-between mb-3">
-                                          <div>
-                                            <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50">
-                                              Duration
-                                            </p>
-                                            <p className="text-[10px] text-royal-cream/30 mt-0.5">
-                                              How many months? (max {maxMonths})
-                                            </p>
-                                          </div>
-                                          <div
-                                            className="flex items-center gap-1 px-1 rounded-xl border"
-                                            style={{
-                                              borderColor:
-                                                "rgba(255,255,255,0.08)",
-                                              background:
-                                                "rgba(255,255,255,0.02)",
-                                            }}
-                                          >
-                                            <button
-                                              onClick={() =>
-                                                setTotalMonths((n) =>
-                                                  Math.max(1, n - 1),
-                                                )
-                                              }
-                                              disabled={totalMonths <= 1}
-                                              className="w-8 h-8 rounded-lg flex items-center justify-center text-royal-cream/40 hover:text-royal-cream disabled:opacity-20 transition-colors"
-                                            >
-                                              −
-                                            </button>
-                                            <span
-                                              className="w-8 text-center text-sm font-bold"
-                                              style={{ color: accent }}
-                                            >
-                                              {totalMonths}
-                                            </span>
-                                            <button
-                                              onClick={() =>
-                                                setTotalMonths((n) =>
-                                                  Math.min(maxMonths, n + 1),
-                                                )
-                                              }
-                                              disabled={
-                                                totalMonths >= maxMonths
-                                              }
-                                              className="w-8 h-8 rounded-lg flex items-center justify-center text-royal-cream/40 hover:text-royal-cream disabled:opacity-20 transition-colors"
-                                            >
-                                              +
-                                            </button>
-                                          </div>
-                                        </div>
-
-                                        {/* Month range preview */}
-                                        {totalMonths > 1 && (
-                                          <div
-                                            className="flex items-center gap-2 px-3 py-2 rounded-xl border"
-                                            style={{
-                                              background: `${accent}08`,
-                                              borderColor: `${accent}20`,
-                                            }}
-                                          >
-                                            <Layers
-                                              className="w-3.5 h-3.5 flex-shrink-0"
-                                              style={{ color: accent }}
-                                            />
-                                            <p
-                                              className="text-xs"
-                                              style={{ color: accent }}
-                                            >
-                                              {format(
-                                                selectedMonth,
-                                                "MMM yyyy",
-                                              )}
-                                              {" → "}
-                                              {format(
-                                                addMonths(
-                                                  selectedMonth,
-                                                  totalMonths - 1,
-                                                ),
-                                                "MMM yyyy",
-                                              )}
-                                              <span className="text-royal-cream/40 ml-1">
-                                                · {totalMonths} months
-                                              </span>
-                                            </p>
-                                          </div>
-                                        )}
-
-                                        {/* Schedule limit warning */}
-                                        {selectedTeacher?.maxBookableMonths !=
-                                          null &&
-                                          totalMonths >=
-                                            selectedTeacher.maxBookableMonths && (
-                                            <p
-                                              className="text-[10px] mt-2"
-                                              style={{ color: "#f59e0b" }}
-                                            >
-                                              This instructor's schedule ends
-                                              after{" "}
-                                              {
-                                                selectedTeacher.maxBookableMonths
-                                              }{" "}
-                                              month
-                                              {selectedTeacher.maxBookableMonths !==
-                                              1
-                                                ? "s"
-                                                : ""}{" "}
-                                              from now.
-                                            </p>
-                                          )}
+                                        <DurationPicker
+                                          totalMonths={totalMonths}
+                                          maxMonths={onceMaxMonths}
+                                          accent={accent}
+                                          selectedMonth={selectedMonth}
+                                          onChange={setTotalMonths}
+                                        />
                                       </motion.div>
                                     )}
                                   </AnimatePresence>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </motion.div>
+                        )}
 
-                                  {/* Slot picker — one button per schedule slot */}
-                                  {availableSlots.length > 0 && (
-                                    <div className="mb-5">
-                                      <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 mb-1">
-                                        Preferred Slot
-                                        {requiredDays > 1 ? "s" : ""}
-                                      </p>
-                                      <p className="text-[10px] text-royal-cream/30 mb-3">
-                                        {requiredDays === 1
-                                          ? "Choose 1 slot"
-                                          : "Choose 2 slots"}
-                                      </p>
-                                      <div className="flex flex-wrap gap-2">
-                                        {availableSlots.map((slot) => {
-                                          const key = slotKey(slot);
-                                          const isSelected =
-                                            selectedSlotKeys.includes(key);
-                                          return (
-                                            <button
-                                              key={key}
-                                              onClick={() => toggleSlot(key)}
-                                              className="flex flex-col items-center px-3.5 py-2 rounded-xl transition-all duration-200 border"
-                                              style={
-                                                isSelected
-                                                  ? {
-                                                      background: `${accent}20`,
-                                                      borderColor: accent,
-                                                    }
-                                                  : {
-                                                      background:
-                                                        "rgba(255,255,255,0.02)",
-                                                      borderColor:
-                                                        "rgba(255,255,255,0.08)",
-                                                    }
-                                              }
-                                            >
-                                              <span
-                                                className="text-xs font-bold uppercase tracking-wider"
-                                                style={{
-                                                  color: isSelected
-                                                    ? accent
-                                                    : "rgba(255,255,255,0.4)",
-                                                }}
-                                              >
-                                                {DAY_LABELS[slot.dayOfWeek]}
-                                              </span>
-                                              <span
-                                                className="text-[9px] mt-0.5"
-                                                style={{
-                                                  color: isSelected
-                                                    ? `${accent}99`
-                                                    : "rgba(255,255,255,0.25)",
-                                                }}
-                                              >
-                                                {slot.startTime}–{slot.endTime}
-                                              </span>
-                                            </button>
-                                          );
-                                        })}
-                                      </div>
-                                    </div>
-                                  )}
+                        {/* TWICE — pick 2 slots, then starting month, then duration */}
+                        {plan === "TWICE" && (
+                          <motion.div
+                            key="twice"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="overflow-hidden mb-5"
+                          >
+                            <div className="flex items-center gap-3 mb-3">
+                              <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 whitespace-nowrap">
+                                Choose Two Sessions
+                              </p>
+                              <div className="h-px flex-1 bg-white/[0.06]" />
+                            </div>
+                            <p className="text-[11px] text-royal-cream/35 mb-3">
+                              Select two weekly slots from all available times.
+                            </p>
+                            <div className="flex flex-wrap gap-2 mb-5">
+                              {availableSlots.map((slot) => {
+                                const key = daySlotKey(slot);
+                                const isSel = selectedSlotKeys.includes(key);
+                                return (
+                                  <button
+                                    key={key}
+                                    onClick={() => toggleSlot(key)}
+                                    className="flex flex-col items-center px-3.5 py-2 rounded-xl transition-all duration-200 border"
+                                    style={
+                                      isSel
+                                        ? {
+                                            background: `${accent}20`,
+                                            borderColor: accent,
+                                          }
+                                        : {
+                                            background:
+                                              "rgba(255,255,255,0.02)",
+                                            borderColor:
+                                              "rgba(255,255,255,0.08)",
+                                          }
+                                    }
+                                  >
+                                    <span
+                                      className="text-xs font-bold uppercase tracking-wider"
+                                      style={{
+                                        color: isSel
+                                          ? accent
+                                          : "rgba(255,255,255,0.4)",
+                                      }}
+                                    >
+                                      {DAY_LABELS[slot.dayOfWeek]}
+                                    </span>
+                                    <span
+                                      className="text-[9px] mt-0.5"
+                                      style={{
+                                        color: isSel
+                                          ? `${accent}99`
+                                          : "rgba(255,255,255,0.25)",
+                                      }}
+                                    >
+                                      {slot.startTime}–{slot.endTime}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            {/* Starting month — revealed once 2 slots picked */}
+                            <AnimatePresence>
+                              {selectedSlotKeys.length === 2 && (
+                                <motion.div
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: "auto" }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  className="overflow-hidden"
+                                >
+                                  <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 mb-3">
+                                    Starting Month
+                                  </p>
+                                  <div className="grid grid-cols-2 gap-2 mb-5">
+                                    {availableMonthsForTwice.map((month) => {
+                                      const isSel =
+                                        selectedMonth?.getTime() ===
+                                        month.getTime();
+                                      return (
+                                        <button
+                                          key={month.toISOString()}
+                                          onClick={() => {
+                                            setSelectedMonth(month);
+                                            setTotalMonths(1);
+                                          }}
+                                          className="py-2.5 px-3 rounded-xl text-sm font-semibold transition-all duration-200 border"
+                                          style={
+                                            isSel
+                                              ? {
+                                                  background: `${accent}20`,
+                                                  borderColor: accent,
+                                                  color: accent,
+                                                }
+                                              : {
+                                                  background:
+                                                    "rgba(255,255,255,0.02)",
+                                                  borderColor:
+                                                    "rgba(255,255,255,0.08)",
+                                                  color:
+                                                    "rgba(255,255,255,0.5)",
+                                                }
+                                          }
+                                        >
+                                          {format(month, "MMM yyyy")}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+
+                                  {/* Duration — revealed once month picked */}
+                                  <AnimatePresence>
+                                    {selectedMonth && (
+                                      <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: "auto" }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="overflow-hidden"
+                                      >
+                                        <DurationPicker
+                                          totalMonths={totalMonths}
+                                          maxMonths={twiceMaxMonths}
+                                          accent={accent}
+                                          selectedMonth={selectedMonth}
+                                          onChange={setTotalMonths}
+                                        />
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
                                 </motion.div>
                               )}
                             </AnimatePresence>
@@ -1275,5 +1408,83 @@ function PlanOption({
         </div>
       )}
     </button>
+  );
+}
+
+function DurationPicker({
+  totalMonths,
+  maxMonths,
+  accent,
+  selectedMonth,
+  onChange,
+}: {
+  totalMonths: number;
+  maxMonths: number;
+  accent: string;
+  selectedMonth: Date | null;
+  onChange: (n: number) => void;
+}) {
+  if (maxMonths <= 1) return null;
+  const lastMonth = selectedMonth
+    ? addMonths(selectedMonth, maxMonths - 1)
+    : null;
+  return (
+    <div className="mb-5">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50">
+            Duration
+          </p>
+          <p className="text-[10px] text-royal-cream/30 mt-0.5">
+            Up to {maxMonths} month{maxMonths !== 1 ? "s" : ""}
+            {lastMonth ? ` · ends ${format(lastMonth, "MMM yyyy")}` : ""}
+          </p>
+        </div>
+        <div
+          className="flex items-center gap-1 px-1 rounded-xl border"
+          style={{
+            borderColor: "rgba(255,255,255,0.08)",
+            background: "rgba(255,255,255,0.02)",
+          }}
+        >
+          <button
+            onClick={() => onChange(Math.max(1, totalMonths - 1))}
+            disabled={totalMonths <= 1}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-royal-cream/40 hover:text-royal-cream disabled:opacity-20 transition-colors"
+          >
+            −
+          </button>
+          <span
+            className="w-8 text-center text-sm font-bold"
+            style={{ color: accent }}
+          >
+            {totalMonths}
+          </span>
+          <button
+            onClick={() => onChange(Math.min(maxMonths, totalMonths + 1))}
+            disabled={totalMonths >= maxMonths}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-royal-cream/40 hover:text-royal-cream disabled:opacity-20 transition-colors"
+          >
+            +
+          </button>
+        </div>
+      </div>
+
+      {totalMonths > 1 && selectedMonth && (
+        <div
+          className="flex items-center gap-2 px-3 py-2 rounded-xl border mb-2"
+          style={{ background: `${accent}08`, borderColor: `${accent}20` }}
+        >
+          <p className="text-xs" style={{ color: accent }}>
+            {format(selectedMonth, "MMM yyyy")}
+            {" → "}
+            {format(addMonths(selectedMonth, totalMonths - 1), "MMM yyyy")}
+            <span className="text-royal-cream/40 ml-1">
+              · {totalMonths} months
+            </span>
+          </p>
+        </div>
+      )}
+    </div>
   );
 }

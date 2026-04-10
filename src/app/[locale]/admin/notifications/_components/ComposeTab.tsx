@@ -12,7 +12,6 @@ import {
   AlertCircle,
   Loader2,
   CheckCircle2,
-  X,
 } from "lucide-react";
 import { sendNotification } from "@/lib/actions/admin/Notifications.actions";
 import type { AudienceOptions } from "../page";
@@ -22,6 +21,7 @@ import {
   AdminInput,
   adminColors,
 } from "@/components/admin/ui";
+import { useTranslations } from "next-intl";
 
 // ─────────────────────────────────────────────
 // Built-in templates
@@ -61,19 +61,19 @@ const TEMPLATES = [
 ];
 
 const AUDIENCE_OPTIONS = [
-  { value: "ALL_STUDENTS", label: "All Students", icon: <Users size={13} /> },
-  { value: "ALL_TEACHERS", label: "All Teachers", icon: <Users size={13} /> },
+  { value: "ALL_STUDENTS", label: "All Students", icon: <Users size={16} /> },
+  { value: "ALL_TEACHERS", label: "All Teachers", icon: <Users size={16} /> },
   {
     value: "SUBCLASS_STUDENTS",
     label: "Students in a Sub-class",
-    icon: <BookOpen size={13} />,
+    icon: <BookOpen size={16} />,
   },
   {
     value: "UNPAID_STUDENTS",
     label: "Students with Unpaid Enrollment",
-    icon: <AlertCircle size={13} />,
+    icon: <AlertCircle size={16} />,
   },
-  { value: "CUSTOM", label: "Custom Selection", icon: <User size={13} /> },
+  { value: "CUSTOM", label: "Custom Selection", icon: <User size={16} /> },
 ];
 
 const MONTHS = [
@@ -116,6 +116,7 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("admin");
 
   const smsLimit = 160;
 
@@ -190,7 +191,11 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
   ];
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="space-y-5 max-w-2xl">
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      className="space-y-5 mx-auto max-w-6xl"
+    >
       {/* ── Templates ── */}
       <div
         className="rounded-xl border overflow-hidden"
@@ -199,11 +204,11 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
         <button
           type="button"
           onClick={() => setShowTemplates((v) => !v)}
-          className="w-full flex items-center justify-between px-4 py-3 text-sm transition-colors hover:bg-white/[0.02]"
+          className="w-full flex items-center justify-between px-4 py-3 text-xl transition-colors hover:bg-white/2"
           style={{ color: adminColors.textSecondary }}
         >
           <span className="font-medium">Message Templates</span>
-          {showTemplates ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          {showTemplates ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
         </button>
         {showTemplates && (
           <div
@@ -215,21 +220,21 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
                 key={t.id}
                 type="button"
                 onClick={() => applyTemplate(t)}
-                className="flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.02]"
+                className="flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-white/2"
               >
                 <div
-                  className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
+                  className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
                   style={{ background: "#f59e0b" }}
                 />
                 <div>
                   <p
-                    className="text-xs font-medium"
+                    className="text-l font-medium"
                     style={{ color: adminColors.textPrimary }}
                   >
                     {t.label}
                   </p>
                   <p
-                    className="text-xs mt-0.5 line-clamp-1"
+                    className="text-l mt-0.5 line-clamp-1"
                     style={{ color: adminColors.textMuted }}
                   >
                     {t.body}
@@ -270,7 +275,7 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
                 {opt.icon}
               </span>
               <span
-                className="text-xs font-medium"
+                className="text-l font-medium"
                 style={{
                   color:
                     target === opt.value
@@ -346,7 +351,7 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
         {/* Custom selection */}
         {target === "CUSTOM" && (
           <div className="mt-3 space-y-2">
-            <p className="text-xs" style={{ color: adminColors.textMuted }}>
+            <p className="text-l" style={{ color: adminColors.textMuted }}>
               Select recipients ({customIds.length} selected)
             </p>
             <div
@@ -358,7 +363,7 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
                 return (
                   <label
                     key={person.userId}
-                    className="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02] border-b"
+                    className="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors hover:bg-white/2 border-b"
                     style={{ borderColor: "rgba(255,255,255,0.04)" }}
                   >
                     <input
@@ -369,13 +374,13 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
                     />
                     <div className="flex-1 min-w-0">
                       <p
-                        className="text-xs font-medium truncate"
+                        className="text-l font-medium truncate"
                         style={{ color: adminColors.textPrimary }}
                       >
                         {person.name}
                       </p>
                       <p
-                        className="text-[10px]"
+                        className="text-[16px]"
                         style={{ color: adminColors.textMuted }}
                       >
                         {person.role} · {person.contact || "No contact"}
@@ -383,7 +388,7 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
                     </div>
                     {isSelected && (
                       <div
-                        className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
                         style={{ background: "#f59e0b" }}
                       />
                     )}
@@ -433,22 +438,22 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
 
         <div className="space-y-1.5">
           <label
-            className="text-xs font-medium"
+            className="text-l font-medium"
             style={{ color: adminColors.textSecondary }}
           >
-            Message Body *
+            {t("messageBody")}
           </label>
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={5}
             placeholder="Type your message here…"
-            className="w-full px-3 py-2.5 rounded-xl border bg-white/[0.03] text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-amber-500/40 resize-none transition-colors"
+            className="w-full px-3 py-2.5 rounded-xl border bg-white/3 text-xl text-white/80 placeholder-white/20 focus:outline-none focus:border-amber-500/40 resize-none transition-colors"
             style={{ borderColor: "rgba(255,255,255,0.07)" }}
             required
           />
           <div className="flex items-center justify-between">
-            <p className="text-[10px]" style={{ color: adminColors.textMuted }}>
+            <p className="text-[16px]" style={{ color: adminColors.textMuted }}>
               {notifType === "SMS" || notifType === "BOTH"
                 ? `${body.length} chars · ${Math.ceil(body.length / smsLimit) || 1} SMS segment${Math.ceil(body.length / smsLimit) > 1 ? "s" : ""}`
                 : `${body.length} chars`}
@@ -481,11 +486,10 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
                   }}
                 >
                   <p
-                    className="text-xs"
+                    className="text-l"
                     style={{ color: "rgba(245,158,11,0.8)" }}
                   >
-                    In-app notifications appear in the student's notification
-                    bell on the website. Link opens in a new tab when clicked.
+                    {t("inAppNotice")}
                   </p>
                 </div>
               </div>
@@ -493,8 +497,9 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
             {notifType !== "EMAIL" &&
               notifType !== "INAPP" &&
               body.length > smsLimit && (
-                <p className="text-[10px]" style={{ color: "#f59e0b" }}>
-                  Splits into {Math.ceil(body.length / smsLimit)} SMS messages
+                <p className="text-[16px]" style={{ color: "#f59e0b" }}>
+                  {t("splitsInto")} {Math.ceil(body.length / smsLimit)}{" "}
+                  {t("smsMessages")}
                 </p>
               )}
           </div>
@@ -507,7 +512,7 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
           <label className="flex items-center gap-3 cursor-pointer">
             <div
               onClick={() => setScheduled((v) => !v)}
-              className="w-9 h-5 rounded-full relative transition-colors flex-shrink-0"
+              className="w-9 h-5 rounded-full relative transition-colors shrink-0"
               style={{
                 background: scheduled ? "#f59e0b" : "rgba(255,255,255,0.1)",
               }}
@@ -519,13 +524,13 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
             </div>
             <div>
               <p
-                className="text-sm"
+                className="text-xl"
                 style={{ color: adminColors.textSecondary }}
               >
-                Schedule for later
+                {t("scheduleForLater")}
               </p>
-              <p className="text-xs" style={{ color: adminColors.textMuted }}>
-                Send immediately if off, or pick a future date/time
+              <p className="text-l" style={{ color: adminColors.textMuted }}>
+                {t("sendImmediately")}
               </p>
             </div>
           </label>
@@ -551,10 +556,9 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
                 border: "1px solid rgba(96,165,250,0.12)",
               }}
             >
-              <Send size={12} style={{ color: "#60a5fa" }} />
-              <p className="text-xs" style={{ color: "rgba(96,165,250,0.8)" }}>
-                Notification will be queued immediately for your SMS/email
-                worker.
+              <Send size={15} style={{ color: "#60a5fa" }} />
+              <p className="text-l" style={{ color: "rgba(96,165,250,0.8)" }}>
+                {t("notificationQueued")}
               </p>
             </div>
           )}
@@ -564,22 +568,19 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
       {/* ── Feedback ── */}
       {error && (
         <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20">
-          <AlertCircle
-            size={13}
-            className="flex-shrink-0 mt-0.5 text-red-400"
-          />
-          <p className="text-xs text-red-400">{error}</p>
+          <AlertCircle size={16} className="shrink-0 mt-0.5 text-red-400" />
+          <p className="text-l text-red-400">{error}</p>
         </div>
       )}
       {success && (
         <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-green-500/10 border border-green-500/20">
-          <CheckCircle2 size={13} className="text-green-400" />
-          <p className="text-xs text-green-400">{success}</p>
+          <CheckCircle2 size={16} className="text-green-400" />
+          <p className="text-l text-green-400">{success}</p>
         </div>
       )}
 
       <div className="flex items-center justify-between pt-1">
-        <p className="text-xs" style={{ color: adminColors.textMuted }}>
+        <p className="text-l" style={{ color: adminColors.textMuted }}>
           {scheduled && scheduledFor
             ? `Scheduled for ${new Date(scheduledFor).toLocaleString("en-GB")}`
             : "Will send immediately"}
@@ -590,11 +591,11 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
           disabled={isPending || !body.trim()}
         >
           {isPending ? (
-            <Loader2 size={13} className="animate-spin" />
+            <Loader2 size={16} className="animate-spin" />
           ) : scheduled ? (
-            <Clock size={13} />
+            <Clock size={16} />
           ) : (
-            <Send size={13} />
+            <Send size={16} />
           )}
           {scheduled ? "Schedule" : "Send Now"}
         </AdminButton>
@@ -613,7 +614,7 @@ function Section({
   return (
     <div className="space-y-3">
       <p
-        className="text-[10px] font-semibold tracking-widest uppercase"
+        className="text-[16px] font-semibold tracking-widest uppercase"
         style={{ color: "rgba(245,158,11,0.6)" }}
       >
         {title}

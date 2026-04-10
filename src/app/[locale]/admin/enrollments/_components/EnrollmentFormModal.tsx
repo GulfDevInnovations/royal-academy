@@ -19,6 +19,7 @@ import {
   AdminButton,
   adminColors,
 } from "@/components/admin/ui";
+import { useTranslations } from "next-intl";
 
 // ─────────────────────────────────────────────
 // Constants
@@ -51,15 +52,6 @@ const MONTHS_SHORT = [
   "Oct",
   "Nov",
   "Dec",
-];
-const DAYS_ORDER = [
-  "MONDAY",
-  "TUESDAY",
-  "WEDNESDAY",
-  "THURSDAY",
-  "FRIDAY",
-  "SATURDAY",
-  "SUNDAY",
 ];
 const DAY_SHORT: Record<string, string> = {
   MONDAY: "Mon",
@@ -105,6 +97,7 @@ export default function EnrollmentFormModal({
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("admin");
 
   // ── Type toggle ──
   const [enrollType, setEnrollType] = useState<EnrollmentType>("single");
@@ -279,20 +272,20 @@ export default function EnrollmentFormModal({
         onClick={onClose}
       />
       <div
-        className="relative w-full max-w-lg rounded-2xl border border-white/[0.08] shadow-2xl z-10 max-h-[92vh] flex flex-col"
+        className="relative w-full max-w-xl rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[92vh] flex flex-col"
         style={{ background: "#1a1d27" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] shrink-0">
           <div>
             <h2
-              className="text-sm font-semibold"
+              className="text-xl font-semibold"
               style={{ color: adminColors.textPrimary }}
             >
-              New Enrollment
+              {t("newEnrollment")}
             </h2>
             <p
-              className="text-xs mt-0.5"
+              className="text-l mt-0.5"
               style={{ color: adminColors.textMuted }}
             >
               Enroll a student on their behalf
@@ -300,9 +293,9 @@ export default function EnrollmentFormModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <X size={15} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
 
@@ -345,7 +338,7 @@ export default function EnrollmentFormModal({
                   }}
                 >
                   <span
-                    className="text-xs font-semibold"
+                    className="text-l font-semibold"
                     style={{
                       color:
                         enrollType === opt.value
@@ -356,7 +349,7 @@ export default function EnrollmentFormModal({
                     {opt.label}
                   </span>
                   <span
-                    className="text-[10px] mt-0.5"
+                    className="text-[15px] mt-0.5"
                     style={{ color: adminColors.textMuted }}
                   >
                     {opt.desc}
@@ -480,13 +473,13 @@ export default function EnrollmentFormModal({
                     </AdminSelect>
                     <div className="space-y-1">
                       <label
-                        className="text-xs font-medium"
+                        className="text-l font-medium"
                         style={{ color: adminColors.textSecondary }}
                       >
                         Months *
                         {maxBookableMonths < 12 && (
                           <span
-                            className="ml-1.5 text-[10px]"
+                            className="ml-1.5 text-[15px]"
                             style={{ color: "#f59e0b" }}
                           >
                             max {maxBookableMonths}
@@ -512,7 +505,7 @@ export default function EnrollmentFormModal({
                           −
                         </button>
                         <span
-                          className="flex-1 text-center text-sm font-bold"
+                          className="flex-1 text-center text-xl font-bold"
                           style={{ color: "#f59e0b" }}
                         >
                           {totalMonths}
@@ -550,9 +543,9 @@ export default function EnrollmentFormModal({
                       }}
                     >
                       <div className="flex items-center gap-2 mb-2">
-                        <CalendarDays size={12} style={{ color: "#60a5fa" }} />
+                        <CalendarDays size={16} style={{ color: "#60a5fa" }} />
                         <span
-                          className="text-[10px] font-semibold"
+                          className="text-[15px] font-semibold"
                           style={{ color: "#60a5fa" }}
                         >
                           {MONTHS_SHORT[startMonth - 1]} {startYear}
@@ -567,7 +560,7 @@ export default function EnrollmentFormModal({
                         {monthRange.map(({ month, year }, i) => (
                           <span
                             key={i}
-                            className="text-[10px] px-2 py-0.5 rounded-full"
+                            className="text-[15px] px-2 py-0.5 rounded-full"
                             style={{
                               background: "rgba(96,165,250,0.1)",
                               color: "#60a5fa",
@@ -603,10 +596,10 @@ export default function EnrollmentFormModal({
                           }}
                         >
                           <AlertTriangle
-                            size={12}
+                            size={16}
                             style={{ color: "#f59e0b" }}
                           />
-                          <p className="text-xs" style={{ color: "#f59e0b" }}>
+                          <p className="text-l" style={{ color: "#f59e0b" }}>
                             Schedule ends in {endLabel}. Enrollment cannot go
                             beyond this month.
                           </p>
@@ -623,7 +616,7 @@ export default function EnrollmentFormModal({
                 {/* Frequency */}
                 <div className="space-y-1.5">
                   <label
-                    className="text-xs font-medium"
+                    className="text-l font-medium"
                     style={{ color: adminColors.textSecondary }}
                   >
                     Frequency *
@@ -663,7 +656,7 @@ export default function EnrollmentFormModal({
                         }}
                       >
                         <span
-                          className="text-xs font-semibold"
+                          className="text-l font-semibold"
                           style={{
                             color:
                               frequency === opt.value
@@ -675,14 +668,14 @@ export default function EnrollmentFormModal({
                         </span>
                         {opt.price != null ? (
                           <span
-                            className="text-xs mt-0.5"
+                            className="text-l mt-0.5"
                             style={{ color: adminColors.textMuted }}
                           >
                             {opt.price} OMR/month
                           </span>
                         ) : (
                           <span
-                            className="text-xs mt-0.5"
+                            className="text-l mt-0.5"
                             style={{ color: "rgba(248,113,113,0.6)" }}
                           >
                             No price set
@@ -696,7 +689,7 @@ export default function EnrollmentFormModal({
                 {/* Preferred slots */}
                 <div className="space-y-1.5">
                   <label
-                    className="text-xs font-medium"
+                    className="text-l font-medium"
                     style={{ color: adminColors.textSecondary }}
                   >
                     Preferred Slot
@@ -713,8 +706,8 @@ export default function EnrollmentFormModal({
                         border: "1px solid rgba(248,113,113,0.15)",
                       }}
                     >
-                      <AlertTriangle size={12} style={{ color: "#f87171" }} />
-                      <p className="text-xs" style={{ color: "#f87171" }}>
+                      <AlertTriangle size={16} style={{ color: "#f87171" }} />
+                      <p className="text-l" style={{ color: "#f87171" }}>
                         This sub-class has no active schedules. Add schedules
                         first.
                       </p>
@@ -742,7 +735,7 @@ export default function EnrollmentFormModal({
                             }}
                           >
                             <span
-                              className="text-xs font-semibold"
+                              className="text-l font-semibold"
                               style={{
                                 color: isSelected
                                   ? "#f59e0b"
@@ -752,14 +745,14 @@ export default function EnrollmentFormModal({
                               {DAY_SHORT[slot.dayOfWeek]}
                             </span>
                             <span
-                              className="text-[10px] mt-0.5"
+                              className="text-[15px] mt-0.5"
                               style={{ color: adminColors.textMuted }}
                             >
                               {slot.startTime}–{slot.endTime}
                             </span>
                             {teacherName && (
                               <span
-                                className="text-[10px]"
+                                className="text-[15px]"
                                 style={{
                                   color: isSelected
                                     ? "rgba(245,158,11,0.7)"
@@ -789,13 +782,13 @@ export default function EnrollmentFormModal({
                       <div className="flex items-center justify-between">
                         <div>
                           <p
-                            className="text-xs font-medium"
+                            className="text-l font-medium"
                             style={{ color: "#34d399" }}
                           >
                             Total for this month
                           </p>
                           <p
-                            className="text-xs mt-0.5"
+                            className="text-l mt-0.5"
                             style={{ color: adminColors.textMuted }}
                           >
                             {frequency === "TWICE_PER_WEEK"
@@ -813,39 +806,39 @@ export default function EnrollmentFormModal({
                           </p>
                         </div>
                         <p
-                          className="text-lg font-bold"
+                          className="text-2xl font-bold"
                           style={{ color: "#34d399" }}
                         >
                           {monthlyPrice}{" "}
-                          <span className="text-sm font-normal">OMR</span>
+                          <span className="text-xl font-normal">OMR</span>
                         </p>
                       </div>
                     ) : (
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
                           <p
-                            className="text-xs font-medium"
+                            className="text-l font-medium"
                             style={{ color: "#34d399" }}
                           >
                             Total for {totalMonths} months
                           </p>
                           <p
-                            className="text-lg font-bold"
+                            className="text-2xl font-bold"
                             style={{ color: "#34d399" }}
                           >
                             {(totalPrice ?? 0).toFixed(3)}{" "}
-                            <span className="text-sm font-normal">OMR</span>
+                            <span className="text-xl font-normal">OMR</span>
                           </p>
                         </div>
                         <div className="flex items-center justify-between">
                           <p
-                            className="text-xs"
+                            className="text-l"
                             style={{ color: adminColors.textMuted }}
                           >
                             {monthlyPrice} OMR/month × {totalMonths} months
                           </p>
                           <p
-                            className="text-xs"
+                            className="text-l"
                             style={{ color: adminColors.textMuted }}
                           >
                             {frequency === "TWICE_PER_WEEK"
@@ -865,7 +858,7 @@ export default function EnrollmentFormModal({
               <label className="flex items-center gap-3 cursor-pointer">
                 <div
                   onClick={() => setPayNow((v) => !v)}
-                  className="w-9 h-5 rounded-full relative transition-colors flex-shrink-0"
+                  className="w-9 h-5 rounded-full relative transition-colors shrink-0"
                   style={{
                     background: payNow ? "#f59e0b" : "rgba(255,255,255,0.1)",
                   }}
@@ -876,7 +869,7 @@ export default function EnrollmentFormModal({
                   />
                 </div>
                 <span
-                  className="text-sm"
+                  className="text-xl"
                   style={{ color: adminColors.textSecondary }}
                 >
                   Record payment now
@@ -927,8 +920,8 @@ export default function EnrollmentFormModal({
                       border: "1px solid rgba(52,211,153,0.12)",
                     }}
                   >
-                    <CheckCircle2 size={12} style={{ color: "#34d399" }} />
-                    <p className="text-xs" style={{ color: "#34d399" }}>
+                    <CheckCircle2 size={16} style={{ color: "#34d399" }} />
+                    <p className="text-l" style={{ color: "#34d399" }}>
                       Enrollment will be auto-confirmed when payment is
                       recorded.
                     </p>
@@ -937,7 +930,7 @@ export default function EnrollmentFormModal({
               )}
 
               {!payNow && (
-                <p className="text-xs" style={{ color: adminColors.textMuted }}>
+                <p className="text-l" style={{ color: adminColors.textMuted }}>
                   Enrollment will be saved as{" "}
                   <strong style={{ color: "#f59e0b" }}>Pending</strong> until
                   payment is recorded.
@@ -948,10 +941,10 @@ export default function EnrollmentFormModal({
             {error && (
               <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-red-500/10 border border-red-500/20">
                 <AlertTriangle
-                  size={13}
-                  className="flex-shrink-0 mt-0.5 text-red-400"
+                  size={17}
+                  className="shrink-0 mt-0.5 text-red-400"
                 />
-                <p className="text-xs text-red-400">{error}</p>
+                <p className="text-l text-red-400">{error}</p>
               </div>
             )}
 
@@ -960,7 +953,7 @@ export default function EnrollmentFormModal({
                 Cancel
               </AdminButton>
               <AdminButton type="submit" variant="primary" disabled={isPending}>
-                {isPending && <Loader2 size={13} className="animate-spin" />}
+                {isPending && <Loader2 size={17} className="animate-spin" />}
                 {enrollType === "multi"
                   ? `Enroll for ${totalMonths} Months`
                   : "Create Enrollment"}
@@ -983,7 +976,7 @@ function Section({
   return (
     <div className="space-y-3">
       <p
-        className="text-[10px] font-semibold tracking-widest uppercase"
+        className="text-[15px] font-semibold tracking-widest uppercase"
         style={{ color: "rgba(245,158,11,0.6)" }}
       >
         {title}

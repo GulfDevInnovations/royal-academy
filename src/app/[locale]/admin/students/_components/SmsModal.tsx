@@ -79,9 +79,9 @@ export default function SmsModal({ students, onClose, onSuccess }: Props) {
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <X size={15} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
 

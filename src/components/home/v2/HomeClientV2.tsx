@@ -9,6 +9,7 @@ import { usePreloader } from "@/context/PreloaderContext";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import RoyalCombinedIntroHeroV2 from "@/components/home/v2/RoyalCombinedIntroHeroV2Section";
 import { useLocale } from "next-intl";
+import MobileHomePageV2 from "@/components/home/v2/MobileHomePageV2";
 
 // Floor layout:
 //   0 → Offers / News / Upcomings
@@ -20,6 +21,8 @@ export default function HomeClientV2() {
   const { setNavSolid } = useNavbarState();
   const { markDone } = usePreloader();
   const [floor, setFloor] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [viewportResolved, setViewportResolved] = useState(false);
   const isAnimating = useRef(false);
   const elevatorRef = useRef<HTMLDivElement>(null);
 
@@ -35,10 +38,54 @@ export default function HomeClientV2() {
     markDone();
   }, [markDone]);
 
+  // ── Detect mobile (match v1 home breakpoint) ────────────────────────────
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+
+    const computeIsMobile = () => {
+      const isTouchCapable =
+        (typeof navigator !== "undefined" && navigator.maxTouchPoints > 0) ||
+        "ontouchstart" in window;
+      return mq.matches || isTouchCapable;
+    };
+
+    const update = () => {
+      setIsMobile(computeIsMobile());
+      setViewportResolved(true);
+    };
+    update();
+
+    const onResize = () => update();
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
+
+    // Safari < 14 uses addListener/removeListener
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", update);
+      return () => {
+        mq.removeEventListener("change", update);
+        window.removeEventListener("resize", onResize);
+        window.removeEventListener("orientationchange", onResize);
+      };
+    }
+
+    mq.addListener(update);
+    return () => {
+      mq.removeListener(update);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onResize);
+    };
+  }, []);
+
   // Keep navbar style aligned with current floor (hero wants transparent)
   useEffect(() => {
+    // On mobile we allow natural page scroll; keep navbar solid.
+    if (isMobile) {
+      setNavSolid(true);
+      return;
+    }
     setNavSolid(floor !== 1);
-  }, [floor, setNavSolid]);
+  }, [floor, isMobile, setNavSolid]);
 
   const slideTo = useCallback(
     (targetFloor: number) => {
@@ -68,6 +115,7 @@ export default function HomeClientV2() {
 
   // ── Wheel + keyboard navigation ──────────────────────────────────────────
   useEffect(() => {
+    if (isMobile) return;
     const wheelOptions: AddEventListenerOptions = { passive: false };
 
     const onWheel = (e: WheelEvent) => {
@@ -100,14 +148,21 @@ export default function HomeClientV2() {
       window.removeEventListener("wheel", onWheel, wheelOptions);
       window.removeEventListener("keydown", onKey);
     };
-  }, [floor, slideTo]);
+  }, [floor, isMobile, slideTo]);
 
   // ── Navbar context requests ───────────────────────────────────────────────
   useEffect(() => {
     if (requestedFloor === null) return;
+    if (isMobile) {
+      // Mobile v2 is a freely scrollable page (v1-style).
+      // Ignore floor requests to avoid programmatic section jumps.
+      clearRequest();
+      return;
+    }
+
     slideTo(requestedFloor);
     clearRequest();
-  }, [requestedFloor, slideTo, clearRequest]);
+  }, [requestedFloor, slideTo, clearRequest, isMobile]);
 
   // ── ?floor= query param (navigating from another page) ───────────────────
   useEffect(() => {
@@ -117,12 +172,28 @@ export default function HomeClientV2() {
     if (isNaN(targetFloor)) return;
 
     const timer = window.setTimeout(() => {
+      if (isMobile) {
+        // See note above: mobile v2 ignores floor jumps.
+        router.replace(pathname, { scroll: true });
+        return;
+      }
       slideTo(targetFloor);
       router.replace(pathname, { scroll: false });
     }, 100);
 
     return () => window.clearTimeout(timer);
-  }, [pathname, router, searchParams, slideTo]);
+  }, [isMobile, pathname, router, searchParams, slideTo]);
+
+  const scrollTo = (targetFloor: number) => {
+    const el = document.getElementById(`home-v2-floor-${targetFloor}`);
+    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  if (!viewportResolved) return null;
+
+  if (isMobile) {
+    return <MobileHomePageV2 />;
+  }
 
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden" }}>

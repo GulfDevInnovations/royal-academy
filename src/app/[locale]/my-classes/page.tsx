@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import MyClassesClient from "./_components/MyClassesClient";
+import { parseJsonArray } from "@/utils/parseJson";
 import type {
   EnrolledClass,
   RescheduledSession,
@@ -60,7 +61,7 @@ export default async function MyClassesPage() {
 
   const studentId = studentProfile.id;
 
-  const [singles, multis, rescheduleLogs] = await Promise.all([
+  const [singles, multis, rescheduleLogs, workshopBookings] = await Promise.all([
     prisma.monthlyEnrollment.findMany({
       where: {
         studentId,
@@ -151,9 +152,24 @@ export default async function MyClassesPage() {
         },
       },
     }),
+
+    // Workshop bookings for this student
+    prisma.workshopBooking.findMany({
+      where: { studentId, status: "CONFIRMED" },
+      orderBy: { bookedAt: "desc" },
+      include: {
+        workshop: {
+          include: {
+            teacher: { select: { firstName: true, lastName: true } },
+          },
+        },
+        payment: { select: { status: true, amount: true, paidAt: true } },
+      },
+    }),
   ]);
 
   const p = plain({ singles, multis, rescheduleLogs });
+  const plainWorkshops: any[] = plain(workshopBookings);
 
   // Build a map: subClassId → reschedule logs
   // so each enrollment card can show its own history
@@ -187,7 +203,7 @@ export default async function MyClassesPage() {
         enrollmentType: "SINGLE",
         status: e.status,
         frequency: e.frequency,
-        preferredDays: e.preferredDays,
+        preferredDays: parseJsonArray<string>(e.preferredDays),
         month: e.month,
         year: e.year,
         startMonth: null,
@@ -200,8 +216,8 @@ export default async function MyClassesPage() {
         paymentStatus: e.payment?.status ?? null,
         paidAt: e.payment?.paidAt ?? null,
         resolvedSlots: resolveSlots(
-          e.scheduleIds ?? [],
-          e.preferredDays,
+          parseJsonArray<string>(e.scheduleIds),
+          parseJsonArray<string>(e.preferredDays),
           e.subClass.classSchedules,
         ),
         rescheduledSessions: reschedulesBySubClass.get(e.subClass.id) ?? [],
@@ -233,7 +249,7 @@ export default async function MyClassesPage() {
         enrollmentType: "MULTI",
         status: m.status,
         frequency: m.frequency,
-        preferredDays: m.preferredDays,
+        preferredDays: parseJsonArray<string>(m.preferredDays),
         month: null,
         year: null,
         startMonth: m.startMonth,
@@ -246,8 +262,8 @@ export default async function MyClassesPage() {
         paymentStatus: m.payment?.status ?? null,
         paidAt: m.payment?.paidAt ?? null,
         resolvedSlots: resolveSlots(
-          m.scheduleIds ?? [],
-          m.preferredDays,
+          parseJsonArray<string>(m.scheduleIds),
+          parseJsonArray<string>(m.preferredDays),
           m.subClass.classSchedules,
         ),
         rescheduledSessions: reschedulesBySubClass.get(m.subClass.id) ?? [],
@@ -269,6 +285,49 @@ export default async function MyClassesPage() {
               ? Number(m.subClass.twicePriceMonthly)
               : null,
           class: m.subClass.class,
+        },
+      }),
+    ),
+
+    ...plainWorkshops.map(
+      (wb: any): EnrolledClass => ({
+        enrollmentId: wb.id,
+        enrollmentType: "WORKSHOP",
+        status: wb.status,
+        frequency: "",
+        preferredDays: [],
+        month: null,
+        year: null,
+        startMonth: null,
+        startYear: null,
+        endMonth: null,
+        endYear: null,
+        totalMonths: null,
+        totalAmount: Number(wb.workshop.price),
+        currency: wb.workshop.currency,
+        paymentStatus: wb.payment?.status ?? null,
+        paidAt: wb.payment?.paidAt ?? null,
+        resolvedSlots: [],
+        rescheduledSessions: [],
+        workshopSlug: wb.workshop.slug,
+        workshopEventDate: wb.workshop.eventDate,
+        workshopStartTime: wb.workshop.startTime,
+        workshopEndTime: wb.workshop.endTime,
+        workshopTeacherName: wb.workshop.teacher
+          ? `${wb.workshop.teacher.firstName} ${wb.workshop.teacher.lastName}`
+          : null,
+        subClass: {
+          id: wb.workshop.id,
+          name: wb.workshop.title,
+          description: wb.workshop.description,
+          coverUrl: wb.workshop.coverUrl,
+          durationMinutes: 0,
+          level: null,
+          ageGroup: null,
+          isReschedulable: false,
+          oncePriceMonthly: null,
+          twicePriceMonthly: null,
+          class: { id: wb.workshop.id, name: "Workshop", iconUrl: null },
         },
       }),
     ),

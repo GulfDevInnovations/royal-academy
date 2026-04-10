@@ -36,7 +36,7 @@ export interface Props {
 export interface Section {
   id: string;
   label: string;
-  subclasses: { label: string; href: string }[];
+  subclasses: { label: string; href: string; image?: string }[];
   image: string;
 }
 
@@ -45,9 +45,21 @@ export const SECTIONS: Section[] = [
     id: "ballet",
     label: "Ballet",
     subclasses: [
-      { label: "Baby Ballet", href: "/baby-ballet" },
-      { label: "RAD Ballet", href: "/rad-ballet" },
-      { label: "Open Ballet", href: "/open-ballet" },
+      {
+        label: "Baby Ballet",
+        href: "/classes/ballet/baby-ballet",
+        image: "/images/babyballet.png",
+      },
+      {
+        label: "RAD Ballet",
+        href: "/classes/ballet/rad-ballet",
+        image: "/images/ballet.png",
+      },
+      {
+        label: "Open Ballet",
+        href: "/classes/ballet/open-ballet",
+        image: "/images/ballet-hero.jpg",
+      },
     ],
     image: "/images/HeroSection/balletGold.png",
   },
@@ -55,20 +67,76 @@ export const SECTIONS: Section[] = [
     id: "dance-wellness",
     label: "Dance & Wellness",
     subclasses: [
-      { label: "Hip Hop", href: "/contemporary-dance" },
-      { label: "Aerial Hoop", href: "/yoga-movement" },
-      { label: "Zumba", href: "/Zumba" },
-      { label: "Salsa", href: "/Salsa" },
-      { label: "Yoga", href: "/Yoga" },
-      { label: "Breath & Balance", href: "/Breath" },
-      { label: "Wellness & Mindful Movement", href: "/Wellness" },
-      { label: "Mindfulness", href: "/Mindfulness" },
-      { label: "Gymnastics for kids", href: "/Gymnastics" },
-      { label: "Body Flexibility", href: "/Flexibility" },
-      { label: "Stretch & conditioning", href: "/Stretch" },
-      { label: "Posture & Mobility", href: "/Posture" },
-      { label: "Timeless Movement", href: "/Timeless" },
-      { label: "Movement Retreats", href: "/Movement" },
+      {
+        label: "Hip Hop",
+        href: "/classes/dance/contemporary-dance",
+        image: "/images/hiphop01.png",
+      },
+      {
+        label: "Aerial Hoop",
+        href: "/classes/dance/aerial-hoop",
+        image: "/images/contemporarydance.png",
+      },
+      {
+        label: "Zumba",
+        href: "/classes/dance/zumba",
+        image: "/images/jazzdance.png",
+      },
+      {
+        label: "Salsa",
+        href: "/classes/dance/salsa",
+        image: "/images/jazzdance01.png",
+      },
+      {
+        label: "Yoga",
+        href: "/classes/dance",
+        image: "/images/movement01.png",
+      },
+      {
+        label: "Breath & Balance",
+        href: "/classes/dance",
+        image: "/images/movement02.png",
+      },
+      {
+        label: "Wellness & Mindful Movement",
+        href: "/classes/dance",
+        image: "/images/movement03.png",
+      },
+      {
+        label: "Mindfulness",
+        href: "/classes/dance",
+        image: "/images/movement04.png",
+      },
+      {
+        label: "Gymnastics for kids",
+        href: "/classes/dance/kids-movements",
+        image: "/images/babygymnastics.png",
+      },
+      {
+        label: "Body Flexibility",
+        href: "/classes/dance/body&flexibility",
+        image: "/images/movement05.png",
+      },
+      {
+        label: "Stretch & conditioning",
+        href: "/classes/dance",
+        image: "/images/movement06.png",
+      },
+      {
+        label: "Posture & Mobility",
+        href: "/classes/dance",
+        image: "/images/movement07.png",
+      },
+      {
+        label: "Timeless Movement",
+        href: "/classes/dance",
+        image: "/images/movement08.png",
+      },
+      {
+        label: "Movement Retreats",
+        href: "/classes/dance",
+        image: "/images/movement09.png",
+      },
     ],
     image: "/images/HeroSection/dance&wellnessGold.png",
   },
@@ -76,22 +144,78 @@ export const SECTIONS: Section[] = [
     id: "music",
     label: "Music",
     subclasses: [
-      { label: "Piano-Academic Learning", href: "/piano-academic" },
-      { label: "Piano-Ear Learning", href: "/piano-Ear-learning" },
-      { label: "Piano-Freelance", href: "/vocal-training" },
-      { label: "Guitar", href: "/guitar" },
-      { label: "Violin", href: "/violin" },
-      { label: "Oud", href: "/oud" },
-      { label: "Drums", href: "/drums" },
-      { label: "Handpan", href: "/handpan" },
-      { label: "Percussion", href: "/percussion" },
-      { label: "Darbuka", href: "/darbuka" },
-      { label: "Bass", href: "/bass" },
-      { label: "Vocal", href: "/vocal" },
-      { label: "Theory", href: "/theory" },
-      { label: "Sight Reading", href: "/sight-Reading" },
-      { label: "Solfège", href: "/solfège" },
-      { label: "Music Awakening", href: "/music-awakening" },
+      {
+        label: "Piano-Academic Learning",
+        href: "/classes/music/piano",
+        image: "/images/piano.jpg",
+      },
+      {
+        label: "Piano-Ear Learning",
+        href: "/classes/music/piano",
+        image: "/images/piano.jpg",
+      },
+      {
+        label: "Piano-Freelance",
+        href: "/classes/music/piano",
+        image: "/images/piano.jpg",
+      },
+      {
+        label: "Guitar",
+        href: "/classes/music/guitar",
+        image: "/images/guitar.png",
+      },
+      {
+        label: "Violin",
+        href: "/classes/music/violin",
+        image: "/images/violin.png",
+      },
+      { label: "Oud", href: "/classes/music/oud", image: "/images/oud.png" },
+      {
+        label: "Drums",
+        href: "/classes/music/drumsandpercussion",
+        image: "/images/drums.png",
+      },
+      {
+        label: "Handpan",
+        href: "/classes/music/handpan",
+        image: "/images/music-hero.jpg",
+      },
+      {
+        label: "Percussion",
+        href: "/classes/music/drumsandpercussion",
+        image: "/images/drums.png",
+      },
+      {
+        label: "Darbuka",
+        href: "/classes/music/durbuka",
+        image: "/images/durbuka.png",
+      },
+      { label: "Bass", href: "/classes/music/bass", image: "/images/bass.png" },
+      {
+        label: "Vocal",
+        href: "/classes/music/vocal",
+        image: "/images/music-hero.jpg",
+      },
+      {
+        label: "Theory",
+        href: "/classes/music/theory",
+        image: "/images/stave.png",
+      },
+      {
+        label: "Sight Reading",
+        href: "/classes/music/sightreading",
+        image: "/images/stave.png",
+      },
+      {
+        label: "Solfège",
+        href: "/classes/music/solfege",
+        image: "/images/stave.png",
+      },
+      {
+        label: "Music Awakening",
+        href: "/classes/music/musicawakening",
+        image: "/images/musicawakening.png",
+      },
     ],
     image: "/images/HeroSection/musicGold.png",
   },
@@ -99,23 +223,91 @@ export const SECTIONS: Section[] = [
     id: "art",
     label: "Art",
     subclasses: [
-      { label: "Drawing I Basic to Advance", href: "/drawing-painting" },
-      { label: "Shading & Color Techniques", href: "/sculpture" },
-      { label: "Portrait & Caricature", href: "/digital-art" },
-      { label: "Mandala Dotting art", href: "/Mandala" },
-      { label: "Colored Pencil Drawing", href: "/Colored" },
-      { label: "Calligraphy", href: "/Calligraphy" },
-      { label: "Acrylic", href: "/Acrylic" },
-      { label: "Oil painting", href: "/Oil" },
-      { label: "WaterColor", href: "/WaterColor" },
-      { label: "Mixed Media", href: "/Mixed" },
-      { label: "Arts & Crafts(kids)", href: "/Arts" },
-      { label: "Drawing I Basic to Advance(kids)", href: "/Drawing" },
-      { label: "Shading & Color Techniques(kids)", href: "/Shading" },
-      { label: "Portrait & Caricature(kids)", href: "/Portrait" },
-      { label: "Animation Drawing(kids)", href: "/Animation" },
-      { label: "Paper Art(kids)", href: "/Paper" },
-      { label: "Collage(kids)", href: "/Collage" },
+      {
+        label: "Drawing I Basic to Advance",
+        href: "/classes/art",
+        image: "/images/drawingsample.png",
+      },
+      {
+        label: "Shading & Color Techniques",
+        href: "/classes/art",
+        image: "/images/shadingsmaple.png",
+      },
+      {
+        label: "Portrait & Caricature",
+        href: "/classes/art",
+        image: "/images/portrait&caricaturesample.png",
+      },
+      {
+        label: "Mandala Dotting art",
+        href: "/classes/art",
+        image: "/images/mandala&dottingartsample.png",
+      },
+      {
+        label: "Colored Pencil Drawing",
+        href: "/classes/art",
+        image: "/images/coloredpencildrawingsample.png",
+      },
+      {
+        label: "Calligraphy",
+        href: "/classes/art",
+        image: "/images/calligraphysample.png",
+      },
+      {
+        label: "Acrylic",
+        href: "/classes/art",
+        image: "/images/acrylicsample.png",
+      },
+      {
+        label: "Oil painting",
+        href: "/classes/art",
+        image: "/images/oilpaintingsample.png",
+      },
+      {
+        label: "WaterColor",
+        href: "/classes/art",
+        image: "/images/watercolorsample.png",
+      },
+      {
+        label: "Mixed Media",
+        href: "/classes/art",
+        image: "/images/mixedmediasample.png",
+      },
+      {
+        label: "Arts & Crafts(kids)",
+        href: "/classes/art",
+        image: "/images/arts&crafts.png",
+      },
+      {
+        label: "Drawing I Basic to Advance(kids)",
+        href: "/classes/art",
+        image: "/images/animationdrawing.png",
+      },
+      {
+        label: "Shading & Color Techniques(kids)",
+        href: "/classes/art",
+        image: "/images/shadingsmaple.png",
+      },
+      {
+        label: "Portrait & Caricature(kids)",
+        href: "/classes/art",
+        image: "/images/portrait&caricaturesample.png",
+      },
+      {
+        label: "Animation Drawing(kids)",
+        href: "/classes/art",
+        image: "/images/animationdrawing.png",
+      },
+      {
+        label: "Paper Art(kids)",
+        href: "/classes/art",
+        image: "/images/paperartsample.png",
+      },
+      {
+        label: "Collage(kids)",
+        href: "/classes/art",
+        image: "/images/collagesample.png",
+      },
     ],
     image: "/images/HeroSection/artGold.png",
   },

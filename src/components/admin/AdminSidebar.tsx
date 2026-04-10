@@ -20,7 +20,9 @@ import {
   CalendarClock,
   Newspaper,
   Tag,
+  BriefcaseBusiness,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const navGroups = [
   {
@@ -48,6 +50,7 @@ const navGroups = [
     label: "Scheduling",
     items: [
       { label: "Schedules", href: "/admin/schedules", icon: CalendarDays },
+      { label: "Workshops", href: "/admin/workshops", icon: BriefcaseBusiness },
     ],
   },
   {
@@ -64,6 +67,7 @@ export default function AdminSidebar() {
   const locale = useLocale(); // ✅ from next-intl, no prop needed
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const t = useTranslations("admin");
 
   const isActive = (href: string) => {
     const fullPath = `/${locale}${href}`;
@@ -117,8 +121,8 @@ export default function AdminSidebar() {
           <div key={group.label}>
             {/* Group label */}
             {!collapsed ? (
-              <p className="px-2 mb-1.5 text-[10px] font-semibold tracking-widest uppercase text-white/20">
-                {group.label}
+              <p className="px-2 mb-1.5 text-[20px] font-semibold tracking-widest uppercase text-white/80">
+                {t(`groups.${group.label}`)}
               </p>
             ) : (
               <div className="mx-auto w-5 border-t border-white/[0.07] mb-2 mt-1" />
@@ -128,6 +132,7 @@ export default function AdminSidebar() {
               {group.items.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.href);
+                const label = t(`items.${item.label}`);
 
                 return (
                   <Link
@@ -140,8 +145,8 @@ export default function AdminSidebar() {
                       ${collapsed ? "px-0 py-2.5 justify-center" : "px-3 py-2"}
                       ${
                         active
-                          ? "text-amber-400"
-                          : "text-white/40 hover:text-white/75 hover:bg-white/3"
+                          ? "text-amber-300"
+                          : "text-white/50 hover:text-white/75 hover:bg-white/3"
                       }
                     `}
                   >
@@ -171,8 +176,8 @@ export default function AdminSidebar() {
                     />
 
                     {!collapsed && (
-                      <span className="whitespace-nowrap relative z-10">
-                        {item.label}
+                      <span className="whitespace-nowrap text-[20px] relative z-10">
+                        {label}
                       </span>
                     )}
 
@@ -214,7 +219,7 @@ export default function AdminSidebar() {
           ) : (
             <>
               <PanelLeftClose size={15} />
-              <span>Collapse</span>
+              <span>{t("collapse")}</span>
             </>
           )}
         </button>

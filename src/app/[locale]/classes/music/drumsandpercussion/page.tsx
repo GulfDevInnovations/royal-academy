@@ -407,14 +407,14 @@ export default function DrumsPage() {
         paragraph:
           "هل تعلم أن آلات الإيقاع تُعد من أقدم أشكال الموسيقى، إذ تعود إلى آلاف السنين حين استخدم الإنسان الأول يديه والحجارة والأشياء الطبيعية لصنع الإيقاع؟ ومع مرور الزمن تطورت هذه الوسائل إلى آلات مثل الأجراس والصنوج والزيلوفون. ومن بينها أصبحت الطبول من أهم الآلات، إذ ظهرت الطبول الأولى في أفريقيا وآسيا القديمة لأغراض التواصل والطقوس والاحتفالات. وبينما تشمل آلات الإيقاع مجموعة واسعة من الآلات التي تُضرَب أو تُهَز، فإن الطبول تُعد نوعاً محدداً ضمن هذه العائلة، وتشتهر بإيقاعاتها القوية الشبيهة بنبض القلب. ومعاً تشكل هذه الآلات أساس الموسيقى في مختلف الثقافات، وتمنح كل أداء طاقة وتوقيتاً وحياة. 🥁",
         reserveHelper: "احجز تجربتك مع الطبول والإيقاع",
-        reserveCta: "احجز الآن",
+        reserveCta: "التسجيل",
         roomCta: "هل تريد رؤية غرفة الطبول لدينا؟",
       }
     : {
         paragraph:
           "Did you know that Percussion instruments are among the oldest forms of music, dating back thousands of years when early humans used their hands, stones, and natural objects to create rhythm? Over time, these evolved into instruments like bells, cymbals, and xylophones. Among them, the Drum became one of the most important, with early drums appearing in ancient Africa and Asia for communication, rituals, and celebrations. While percussion includes a wide variety of instruments that are struck or shaken, drums are a specific type within this family, known for their powerful, heartbeat-like rhythms. Together, they form the foundation of music across cultures, bringing energy, timing, and life to every performance. 🥁",
         reserveHelper: "Reserve your drums/percussion experience",
-        reserveCta: "Reserve Now",
+        reserveCta: "Enrollment",
         roomCta: "wanna see our drums room?",
       };
 
@@ -624,22 +624,22 @@ export default function DrumsPage() {
     >
       <div className="pointer-events-none absolute inset-0 bg-gray-200/20" />
 
-      <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+      <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center gap-5 lg:flex-row lg:items-start lg:justify-between">
         <section
-          className="order-2 font-goudy w-full max-w-[40rem] px-1 py-1 sm:px-2 sm:py-2 lg:order-1"
+          className="order-2 font-goudy w-full max-w-[21rem] self-center px-1 py-1 sm:max-w-[37rem] sm:px-2 sm:py-2 lg:order-1 lg:max-w-[48rem] lg:self-auto"
           dir="ltr"
         >
           <div>
-            <p className="text-center text-[20px] uppercase tracking-[0.22em] text-royal-gold/65 sm:text-[22px]">
+            <p className="text-center text-[18px] uppercase tracking-[0.2em] text-royal-gold/65 sm:text-[26px]">
               <span style={TABLE_HELPER_HIGHLIGHT_STYLE}>Tap the drum set</span>
             </p>
-            <p className="mt-2 text-center text-[10px] uppercase tracking-[0.16em] text-royal-cream/80 sm:text-[11px]">
+            <p className="mt-2 text-center text-[10px] uppercase tracking-[0.14em] text-royal-cream/80 sm:text-[13px]">
               <span style={TABLE_HELPER_HIGHLIGHT_STYLE}>
                 key hints on each pad show the keyboard trigger
               </span>
             </p>
 
-            <div className="mx-auto mt-3 grid max-w-[28rem] grid-cols-3 gap-2 sm:max-w-[31rem] sm:grid-cols-4 sm:gap-3">
+            <div className="mx-auto mt-3.5 grid max-w-[20rem] grid-cols-3 gap-2 sm:mt-4 sm:max-w-[37rem] sm:grid-cols-4 sm:gap-3.5">
               {DRUM_PADS.map((pad) => {
                 const isActive = activePadId === pad.id;
 
@@ -648,7 +648,7 @@ export default function DrumsPage() {
                     key={pad.id}
                     type="button"
                     onClick={() => void playDrumPad(pad)}
-                    className={`aspect-square rounded-[1.1rem] border p-2 text-center transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e9c997] ${
+                    className={`aspect-square rounded-[1rem] border p-2 text-center transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e9c997] sm:rounded-[1.2rem] sm:p-2.5 ${
                       isActive ? "scale-[1.02]" : "hover:scale-[1.01]"
                     }`}
                     style={{
@@ -661,14 +661,14 @@ export default function DrumsPage() {
                         : "0 14px 28px rgba(0,0,0,0.22)",
                     }}
                   >
-                    <span className="flex h-full flex-col items-center justify-center rounded-[0.9rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.09),rgba(255,255,255,0.02)_58%,rgba(28,18,15,0.18)_100%)] px-2">
-                      <span className="mb-1 rounded-full border border-[#b7e6ff]/35 bg-[#74c8ff]/10 px-2 py-[2px] text-[9px] font-semibold uppercase tracking-[0.12em] text-[#9fdfff] shadow-[0_0_14px_rgba(116,200,255,0.12)] sm:text-[10px]">
+                    <span className="flex h-full flex-col items-center justify-center rounded-[0.85rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.09),rgba(255,255,255,0.02)_58%,rgba(28,18,15,0.18)_100%)] px-2 sm:rounded-[1rem] sm:px-2.5">
+                      <span className="mb-1 rounded-full border border-[#b7e6ff]/35 bg-[#74c8ff]/10 px-2 py-[2px] text-[9px] font-semibold uppercase tracking-[0.12em] text-[#9fdfff] shadow-[0_0_14px_rgba(116,200,255,0.12)] sm:px-2.5 sm:py-[3px] sm:text-[11px]">
                         {pad.shortcut}
                       </span>
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#3b2418] sm:text-xs">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#3b2418] sm:text-[13px]">
                         {pad.label}
                       </span>
-                    <span className="mt-1 text-[9px] uppercase tracking-[0.16em] text-royal-cream/80 sm:text-[10px]">
+                    <span className="mt-1 text-[8px] uppercase tracking-[0.14em] text-royal-cream/80 sm:text-[11px]">
                       <span style={PAD_SUBLABEL_HIGHLIGHT_STYLE}>
                         {pad.family}
                       </span>
@@ -682,22 +682,22 @@ export default function DrumsPage() {
         </section>
 
         <aside
-          className="order-1 mt-3 flex w-full max-w-sm self-center flex-col rounded-[1.5rem] border px-3 py-2.5 sm:mt-4 sm:max-w-md sm:px-4 sm:py-3 lg:order-2 lg:mt-6 lg:max-w-[22rem] lg:self-auto lg:sticky lg:top-32 lg:px-5 lg:py-4"
+          className="order-1 mt-3 flex w-full max-w-[19rem] self-center flex-col rounded-[1.35rem] border px-3 py-2.5 sm:mt-4 sm:max-w-[30rem] sm:rounded-[1.5rem] sm:px-5 sm:py-4 lg:order-2 lg:mt-6 lg:max-w-[28.5rem] lg:self-auto lg:sticky lg:top-32 lg:translate-x-[200px] lg:px-6 lg:py-5"
           style={GLASS_CARD_STYLE}
           dir={isArabic ? "rtl" : "ltr"}
         >
-          <p className="mx-auto max-w-[16rem] text-center text-[12px] leading-[1.45rem] text-royal-cream/90 sm:max-w-[19rem] sm:text-[14px] sm:leading-6 lg:max-w-[20rem]">
+          <p className="mx-auto max-w-[15rem] text-center text-[13px] font-semibold leading-[1.5rem] text-royal-cream/90 sm:max-w-[23rem] sm:text-[18px] sm:leading-[2.2rem] lg:max-w-[24rem]">
             <span style={TEXT_HIGHLIGHT_STYLE}>
               {content.paragraph}
             </span>
           </p>
 
-          <div className="mt-4 flex flex-col items-center gap-2.5">
+          <div className="mt-3 flex flex-col items-center gap-2 sm:mt-4 sm:gap-2.5">
             <div className="relative">
               <button
                 type="button"
                 onClick={handleRoomPreview}
-                className="inline-flex items-center justify-center rounded-full border border-[#d9c0a1]/30 bg-[linear-gradient(135deg,rgba(255,255,255,0.14)_0%,rgba(255,255,255,0.04)_100%)] px-4 py-2 text-[10px] font-medium uppercase tracking-[0.2em] text-[#3b2418] transition-transform duration-300 hover:scale-[1.03]"
+                className="inline-flex items-center justify-center rounded-full border border-[#d9c0a1]/30 bg-[linear-gradient(135deg,rgba(255,255,255,0.14)_0%,rgba(255,255,255,0.04)_100%)] px-4 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-[#3b2418] transition-transform duration-300 hover:scale-[1.03] sm:px-5 sm:py-2.5 sm:text-[12px]"
               >
                 {content.roomCta}
               </button>
@@ -725,14 +725,14 @@ export default function DrumsPage() {
             </div>
 
             <p
-              className={`text-center ${musicHelperTextClass(isArabic)} text-royal-gold/65`}
+              className={`text-center text-[0.92em] ${musicHelperTextClass(isArabic)} text-royal-gold/65 sm:text-[1.02em]`}
             >
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
             </p>
 
             <Link
               href={reservationHref}
-              className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
+              className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 text-[0.92em] sm:px-5 sm:py-2.5 sm:text-[1.02em] ${musicCtaTextClass(
                 isArabic,
               )} text-[#3b2418] transition-transform duration-300 hover:scale-[1.03]`}
             >

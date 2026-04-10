@@ -138,7 +138,7 @@ export default function SightReadingPage() {
   const content = isArabic
     ? {
         title: "مرحبًا بكم في صف القراءة الموسيقية!",
-        reserveCta: "اذهب إلى الحجز",
+        reserveCta: "التسجيل",
         sections: [
           {
             title: "ما هي القراءة الموسيقية؟",
@@ -248,7 +248,7 @@ export default function SightReadingPage() {
       }
     : {
         title: "Welcome to Sight Reading Class!",
-        reserveCta: "Go to reservation",
+        reserveCta: "Enrollment",
         sections: LESSON_SECTIONS,
       };
 
@@ -305,18 +305,18 @@ export default function SightReadingPage() {
       </div>
 
       <section
-        className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1440px] flex-col px-4 pb-10 pt-24 sm:px-6 sm:pt-28 lg:px-8 lg:pb-12 xl:h-full xl:pb-4 xl:pt-[112px]"
+        className="relative z-10 mx-auto flex min-h-full w-full max-w-[1440px] flex-col px-4 pb-10 pt-[170px] sm:px-6 sm:pt-[170px] lg:px-8 lg:pb-12 xl:h-full xl:pb-4 xl:pt-[170px]"
         dir={isArabic ? "rtl" : "ltr"}
       >
-        <p className="text-center font-goudy text-[1.1rem] leading-tight text-[#f4dec5] sm:text-[1.25rem] lg:text-[1.4rem]">
+        <p className="-mt-[50px] text-center font-goudy text-[1.43rem] leading-tight text-[#f4dec5] sm:text-[1.62rem] lg:text-[1.82rem]">
           {content.title}
         </p>
 
-        <div className="mt-3 flex-1 columns-1 gap-4 overflow-visible sm:columns-2 lg:columns-4 lg:gap-5 lg:overflow-hidden">
+        <div className="mt-8 flex-1 columns-1 gap-4 overflow-visible sm:columns-2 lg:columns-4 lg:gap-5 lg:overflow-hidden">
           {content.sections.map((section) => (
             <div key={section.title} className="mb-3 break-inside-avoid space-y-2">
               <p
-                className={`font-goudy text-[1.15rem] leading-tight text-[#f1c89d] sm:text-[1.22rem] lg:text-[1.32rem] ${
+                className={`font-goudy text-[1.5rem] leading-tight text-[#f1c89d] sm:text-[1.58rem] lg:text-[1.72rem] ${
                   isArabic ? "text-right" : ""
                 }`}
               >
@@ -325,7 +325,7 @@ export default function SightReadingPage() {
 
               {section.highlighted ? (
                 <div
-                  className={`space-y-1 text-[14.3px] leading-[1.45rem] text-[#f4dec5]/92 sm:text-[15px] sm:leading-[1.55rem] ${
+                  className={`space-y-1 text-[18.6px] leading-[1.9rem] text-[#f4dec5]/92 sm:text-[19.5px] sm:leading-[2rem] ${
                     isArabic ? "text-right" : ""
                   }`}
                 >
@@ -335,7 +335,7 @@ export default function SightReadingPage() {
                 </div>
               ) : (
                 <div
-                  className={`space-y-1 text-[14.3px] leading-[1.45rem] text-[#f4dec5]/92 sm:text-[15px] sm:leading-[1.55rem] ${
+                  className={`space-y-1 text-[18.6px] leading-[1.9rem] text-[#f4dec5]/92 sm:text-[19.5px] sm:leading-[2rem] ${
                     isArabic ? "text-right" : ""
                   }`}
                 >

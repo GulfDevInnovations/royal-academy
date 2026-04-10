@@ -11,6 +11,7 @@
     "prestart": "node scripts/prisma-migrate-deploy-if-env.cjs",
     "start": "next start",
     "lint": "eslint",
+    "deploy": "bash deploy.sh",
     "prisma:generate": "prisma generate",
     "prisma:db:push": "prisma db push",
     "prisma:migrate:dev": "prisma migrate dev",
@@ -18,6 +19,10 @@
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  },
+  "overrides": {
+    "@react-email/render": "1.1.2",
+    "prettier": "3.8.1"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.2.0",

@@ -3,7 +3,8 @@
 import { Bell, Search, ChevronDown, LogOut, User } from "lucide-react";
 import { useState } from "react";
 import { signOut } from "@/lib/actions/auth.actions";
-
+import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 interface AdminHeaderProps {
   adminName?: string;
   locale: string;
@@ -14,6 +15,34 @@ export default function AdminHeader({
   locale,
 }: AdminHeaderProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const t = useTranslations("admin");
+  const router = useRouter();
+  const pathname = usePathname();
+  const isArabic = locale === "ar";
+  const [active, setActive] = useState<"en" | "ar">(isArabic ? "ar" : "en");
+
+  const switchLanguage = () => {
+    const newLocale = isArabic ? "en" : "ar";
+    const pathWithoutLocale = pathname.replace(`/${locale}`, "") || "/";
+    router.push(`/${newLocale}${pathWithoutLocale}`);
+  };
+
+  const activeStyle = {
+    background: "rgba(251,191,36,0.15)",
+    color: "#fbbf24",
+    border: "0.5px solid rgba(251,191,36,0.35)",
+  } as const;
+
+  const inactiveStyle = {
+    background: "transparent",
+    color: "rgba(255,255,255,0.45)",
+    border: "0.5px solid transparent",
+  } as const;
+
+  const handleSelect = (lang: "en" | "ar") => {
+    setActive(lang);
+    switchLanguage(); // your existing function
+  };
 
   return (
     <header
@@ -28,7 +57,7 @@ export default function AdminHeader({
         />
         <input
           type="text"
-          placeholder="Search..."
+          placeholder={t("search")}
           className="
             w-full pl-9 pr-4 py-1.5 text-sm rounded-lg
             border border-white/[0.07] bg-white/4
@@ -37,6 +66,56 @@ export default function AdminHeader({
             transition-all duration-150
           "
         />
+      </div>
+      {/* Language switcher */}
+      <div
+        className="flex items-center gap-1 p-1 rounded-xl"
+        style={{
+          background: "rgba(255,255,255,0.06)",
+          border: "0.5px solid rgba(255,255,255,0.1)",
+        }}
+      >
+        <button
+          onClick={() => handleSelect("en")}
+          className="flex items-center gap-2 px-4 py-2 rounded-[9px] text-sm font-medium transition-all duration-200"
+          style={active === "en" ? activeStyle : inactiveStyle}
+        >
+          <svg
+            width="20"
+            height="14"
+            viewBox="0 0 60 40"
+            style={{ borderRadius: 3, flexShrink: 0 }}
+          >
+            <rect width="60" height="40" fill="#012169" />
+            <path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" strokeWidth="8" />
+            <path
+              d="M0,0 L60,40 M60,0 L0,40"
+              stroke="#C8102E"
+              strokeWidth="5"
+            />
+            <path d="M30,0 V40 M0,20 H60" stroke="#fff" strokeWidth="12" />
+            <path d="M30,0 V40 M0,20 H60" stroke="#C8102E" strokeWidth="7" />
+          </svg>
+          EN
+        </button>
+
+        <button
+          onClick={() => handleSelect("ar")}
+          className="flex items-center gap-2 px-4 py-2 rounded-[9px] text-sm font-medium transition-all duration-200"
+          style={active === "ar" ? activeStyle : inactiveStyle}
+        >
+          <svg
+            width="20"
+            height="14"
+            viewBox="0 0 900 600"
+            style={{ borderRadius: 3, flexShrink: 0 }}
+          >
+            <rect width="900" height="600" fill="#DB161B" />
+            <rect width="300" height="600" fill="#fff" />
+            <rect width="300" height="600" x="300" fill="#009A44" />
+          </svg>
+          عربي
+        </button>
       </div>
 
       {/* ── Right side ── */}
@@ -84,7 +163,7 @@ export default function AdminHeader({
               >
                 <button className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-white/50 hover:text-white/80 hover:bg-white/[0.05] transition-colors">
                   <User size={14} className="text-white/30" />
-                  Profile
+                  {t("profile")}
                 </button>
                 <div className="my-1 border-t border-white/[0.06]" />
                 {/* Server action — needs a form to pass locale */}
@@ -108,7 +187,7 @@ export default function AdminHeader({
                     }}
                   >
                     <LogOut size={14} />
-                    Sign out
+                    {t("signOut")}
                   </button>
                 </form>
               </div>

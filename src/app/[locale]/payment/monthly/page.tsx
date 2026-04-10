@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { MonthlyPaymentClient } from "./_components/MonthlyPaymentClient";
+import { parseJsonArray } from "@/utils/parseJson";
 
 export const metadata = { title: "Complete Payment | Royal Academy" };
 
@@ -54,7 +55,7 @@ export default async function MonthlyPaymentPage({
         month: enrollment.month,
         year: enrollment.year,
         frequency: enrollment.frequency,
-        preferredDays: enrollment.preferredDays,
+        preferredDays: parseJsonArray<string>(enrollment.preferredDays),
         amount: Number(enrollment.totalAmount),
         currency: enrollment.currency,
         subClass: {

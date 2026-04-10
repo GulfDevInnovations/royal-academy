@@ -1,7 +1,7 @@
-//@ts-ignore
+// @ts-ignore
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
@@ -98,10 +98,10 @@ enum DayOfWeek {
 }
 
 enum SessionType {
-  PUBLIC // Art, Dance, Ballet, Music Awakening — fixed monthly schedule
-  TRIAL // One-time 10 OMR taster
-  WORKSHOP // One-off event
-  PRIVATE // Private classes (future)
+  PUBLIC
+  TRIAL
+  WORKSHOP
+  PRIVATE
 }
 
 enum BookingType {
@@ -173,7 +173,7 @@ model User {
 
   // NextAuth fields
   emailVerified DateTime?
-  image         String?
+  image         String?   @db.Text
 
   // Relations
   studentProfile StudentProfile?
@@ -195,7 +195,7 @@ model StudentProfile {
   lastName                String
   dateOfBirth             DateTime?
   gender                  Gender?
-  address                 String?
+  address                 String?            @db.Text
   city                    String?
   country                 String?
   emergencyContact        String?
@@ -203,11 +203,11 @@ model StudentProfile {
   emergencyContactPhone   String?
   emergencyRelationship   String?
   hasMedicalCondition     Boolean            @default(false)
-  medicalConditionDetails String?
+  medicalConditionDetails String?            @db.Text
   agreePolicy             Boolean            @default(false)
   preferredTrack          ProfileTrack?
   experience              ProfileExperience?
-  notes                   String?
+  notes                   String?            @db.Text
   createdAt               DateTime           @default(now())
   updatedAt               DateTime           @updatedAt
 
@@ -217,7 +217,6 @@ model StudentProfile {
   trialBookings         TrialBooking[]
   workshopBookings      WorkshopBooking[]
   rescheduleLogs        RescheduleLog[]
-  // ── NEW ──
   multiMonthEnrollments MultiMonthEnrollment[]
 
   @@map("student_profiles")
@@ -228,8 +227,10 @@ model TeacherProfile {
   userId      String?  @unique
   firstName   String
   lastName    String
-  bio         String?
-  specialties Json
+  bio         String?  @db.Text
+  bio_ar      String?  @db.Text
+  // MySQL does not support String[] arrays — stored as JSON
+  specialties Json     @default("[]")
   photoUrl    String?
   cvUrl       String?
   isAvailable Boolean  @default(true)
@@ -269,12 +270,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?
-  access_token      String?
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?
+  id_token          String? @db.Text
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -299,7 +300,8 @@ model VerificationToken {
   token      String   @unique
   expires    DateTime
 
-  @@unique([identifier, token])
+  // MySQL requires a composite primary key for this table
+  @@id([identifier, token])
   @@map("verification_tokens")
 }
 
@@ -308,15 +310,17 @@ model VerificationToken {
 // ─────────────────────────────────────────────
 
 model Class {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  iconUrl     String?
-  coverUrl    String?
-  isActive    Boolean  @default(true)
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String   @id @default(cuid())
+  name           String
+  name_ar        String?
+  description    String?  @db.Text
+  description_ar String?  @db.Text
+  iconUrl        String?
+  coverUrl       String?
+  isActive       Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   subClasses SubClass[]
 
@@ -326,8 +330,10 @@ model Class {
 model SubClass {
   id                String      @id @default(cuid())
   classId           String
-  name              String // e.g. "Violin", "Ballet for Kids", "Ballet"
-  description       String?
+  name              String
+  name_ar           String?
+  description       String?     @db.Text
+  description_ar    String?     @db.Text
   coverUrl          String?
   capacity          Int         @default(10)
   durationMinutes   Int         @default(60)
@@ -341,10 +347,6 @@ model SubClass {
   twicePriceMonthly Decimal?    @db.Decimal(10, 2)
   trialPrice        Decimal     @default(10) @db.Decimal(10, 2)
   isTrialAvailable  Boolean     @default(true)
-  // ── NEW ──
-  // Controls whether students can reschedule individual sessions.
-  // Set true for private/instrument classes (Piano, Oud, etc.)
-  // Set false for group/public classes (Hip-Hop, Ballet, Art, etc.)
   isReschedulable   Boolean     @default(false)
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
@@ -354,7 +356,6 @@ model SubClass {
   trialBookings         TrialBooking[]
   teachers              SubClassTeacher[]
   monthlyEnrollments    MonthlyEnrollment[]
-  // ── NEW ──
   multiMonthEnrollments MultiMonthEnrollment[]
 
   @@map("sub_classes")
@@ -384,8 +385,8 @@ model ClassSchedule {
   subClassId      String
   teacherId       String
   dayOfWeek       DayOfWeek
-  startTime       String // "10:00"
-  endTime         String // "11:00"
+  startTime       String
+  endTime         String
   startDate       DateTime
   endDate         DateTime?
   maxCapacity     Int
@@ -407,24 +408,18 @@ model ClassSession {
   id              String      @id @default(cuid())
   scheduleId      String
   sessionDate     DateTime
-  // ── NEW ──
-  // Combines sessionDate + startTime into one indexed DateTime for fast
-  // 24-hour gate checks and free-slot queries. Set this whenever you
-  // create or update a ClassSession. Example:
-  //   sessionDatetime = new Date(`${sessionDate.toISOString().slice(0,10)}T${startTime}:00`)
   sessionDatetime DateTime
   startTime       String
   endTime         String
   status          ClassStatus @default(ACTIVE)
   cancelledReason String?
-  notes           String?
+  notes           String?     @db.Text
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
   schedule            ClassSchedule   @relation(fields: [scheduleId], references: [id])
   bookings            Booking[]
   trialBookings       TrialBooking[]
-  // ── NEW ──
   rescheduledFromLogs RescheduleLog[] @relation("OldSession")
   rescheduledToLogs   RescheduleLog[] @relation("NewSession")
 
@@ -433,7 +428,7 @@ model ClassSession {
 }
 
 // ─────────────────────────────────────────────
-// BOOKINGS (regular single-session)
+// BOOKINGS
 // ─────────────────────────────────────────────
 
 model Booking {
@@ -444,11 +439,9 @@ model Booking {
   bookedAt        DateTime      @default(now())
   cancelledAt     DateTime?
   cancelledReason String?
-  // rescheduledFrom kept as String? for a lightweight back-reference.
-  // The full audit trail lives in RescheduleLog.
   rescheduledFrom String?
   canCancel       Boolean       @default(true)
-  notes           String?
+  notes           String?       @db.Text
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
@@ -456,7 +449,6 @@ model Booking {
   session             ClassSession    @relation(fields: [sessionId], references: [id])
   payment             Payment?
   notifications       Notification[]
-  // ── NEW ──
   rescheduledFromLogs RescheduleLog[] @relation("OldBooking")
   rescheduledToLogs   RescheduleLog[] @relation("NewBooking")
 
@@ -465,22 +457,19 @@ model Booking {
 }
 
 // ─────────────────────────────────────────────
-// RESCHEDULE LOG  ← NEW MODEL
+// RESCHEDULE LOG
 // ─────────────────────────────────────────────
 
-// One row per reschedule request. Covers both the success path
-// (wasLost = false, newBookingId is set) and the "session lost"
-// path (wasLost = true, newBookingId is null).
 model RescheduleLog {
   id           String   @id @default(cuid())
   studentId    String
-  oldBookingId String // the booking being replaced
-  newBookingId String? // null when no free slot found
+  oldBookingId String
+  newBookingId String?
   oldSessionId String
-  newSessionId String? // null when no free slot found
+  newSessionId String?
   requestedAt  DateTime @default(now())
-  wasLost      Boolean  @default(false) // true = session lost, no slot available
-  lostReason   String? // e.g. "No available sessions this month"
+  wasLost      Boolean  @default(false)
+  lostReason   String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -506,13 +495,13 @@ model MonthlyEnrollment {
   month                  Int
   year                   Int
   frequency              FrequencyType
-  preferredDays          Json // DayOfWeek[] stored as JSON
-  scheduleIds            Json // string[] of exact ClassSchedule IDs enrolled
+  // MySQL does not support native arrays — stored as JSON
+  preferredDays          Json          @default("[]")
+  scheduleIds            Json          @default("[]")
   status                 BookingStatus @default(CONFIRMED)
   totalAmount            Decimal       @db.Decimal(10, 2)
   currency               String        @default("OMR")
   bookedAt               DateTime      @default(now())
-  // Null when booked month-by-month; set when part of a multi-month commitment.
   multiMonthEnrollmentId String?
   createdAt              DateTime      @default(now())
   updatedAt              DateTime      @updatedAt
@@ -520,7 +509,6 @@ model MonthlyEnrollment {
   student              StudentProfile        @relation(fields: [studentId], references: [id])
   subClass             SubClass              @relation(fields: [subClassId], references: [id])
   payment              MonthlyPayment?
-  // ── NEW ──
   multiMonthEnrollment MultiMonthEnrollment? @relation(fields: [multiMonthEnrollmentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, subClassId, month, year])
@@ -545,28 +533,22 @@ model MonthlyPayment {
 }
 
 // ─────────────────────────────────────────────
-// MULTI-MONTH ENROLLMENT  ← NEW MODEL
+// MULTI-MONTH ENROLLMENT
 // ─────────────────────────────────────────────
 
-// Groups 2+ MonthlyEnrollment rows under a single parent booking
-// so a student can commit (and pay) for several months at once.
-// Example: student books Piano every Wednesday 10:00 for Jan + Feb + Mar.
-// → One MultiMonthEnrollment (3 months, one payment)
-// → Three MonthlyEnrollment rows, each with multiMonthEnrollmentId set
-// → One MultiMonthPayment covering the full amount
 model MultiMonthEnrollment {
   id            String        @id @default(cuid())
   studentId     String
   subClassId    String
   frequency     FrequencyType
-  preferredDays Json // DayOfWeek[] stored as JSON
-  scheduleIds   Json // string[] of exact ClassSchedule IDs enrolled
-  // The calendar months covered, e.g. [{month:1,year:2026},{month:2,year:2026}]
+  // MySQL does not support native arrays — stored as JSON
+  preferredDays Json          @default("[]")
+  scheduleIds   Json          @default("[]")
   startMonth    Int
   startYear     Int
   endMonth      Int
   endYear       Int
-  totalMonths   Int // convenience count, e.g. 3
+  totalMonths   Int
   totalAmount   Decimal       @db.Decimal(10, 2)
   currency      String        @default("OMR")
   status        BookingStatus @default(CONFIRMED)
@@ -576,15 +558,13 @@ model MultiMonthEnrollment {
 
   student            StudentProfile      @relation(fields: [studentId], references: [id])
   subClass           SubClass            @relation(fields: [subClassId], references: [id])
-  monthlyEnrollments MonthlyEnrollment[] // the individual month rows
+  monthlyEnrollments MonthlyEnrollment[]
   payment            MultiMonthPayment?
 
   @@index([studentId])
   @@map("multi_month_enrollments")
 }
 
-// Single payment record for the entire multi-month commitment.
-// MonthlyPayment is NOT used here — each month does not get its own payment.
 model MultiMonthPayment {
   id                     String         @id @default(cuid())
   multiMonthEnrollmentId String         @unique
@@ -630,22 +610,34 @@ model TrialBooking {
 // ─────────────────────────────────────────────
 
 model Workshop {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  coverUrl    String?
-  teacherId   String?
-  eventDate   DateTime
-  startTime   String
-  endTime     String
-  capacity    Int
-  price       Decimal  @db.Decimal(10, 2)
-  currency    String   @default("OMR")
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String   @id @default(cuid())
+  title          String
+  title_ar       String?
+  description    String?  @db.Text
+  description_ar String?  @db.Text
+  coverUrl       String?
+  // MySQL does not support native arrays — stored as JSON
+  imageUrls      Json     @default("[]")
+  videoUrls      Json     @default("[]")
+  teacherId      String?
+  roomId         String?
+  eventDate      DateTime
+  startTime      String
+  endTime        String
+  capacity       Int
+  enrolledCount  Int      @default(0)
+  reservedCount  Int      @default(0)
+  price          Decimal  @db.Decimal(10, 2)
+  currency       String   @default("OMR")
+  isActive       Boolean  @default(true)
+  isOnline       Boolean  @default(false)
+  onlineLink     String?
+  slug           String?  @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   teacher  TeacherProfile?   @relation(fields: [teacherId], references: [id])
+  room     Room?             @relation(fields: [roomId], references: [id])
   bookings WorkshopBooking[]
 
   @@map("workshops")
@@ -715,7 +707,7 @@ model Invoice {
   issuedAt    DateTime?
   dueDate     DateTime?
   paidAt      DateTime?
-  notes       String?
+  notes       String?       @db.Text
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -728,11 +720,6 @@ model Invoice {
 // NOTIFICATIONS
 // ─────────────────────────────────────────────
 
-// IMPORTANT — Teacher notifications:
-// TeacherProfile.userId is nullable. Before creating a Notification
-// for a teacher, always check that teacherProfile.userId is not null.
-// If null, fall back to notifying the admin instead.
-
 model Notification {
   id           String             @id @default(cuid())
   userId       String
@@ -743,7 +730,7 @@ model Notification {
   type         NotificationType
   status       NotificationStatus @default(PENDING)
   subject      String?
-  body         String
+  body         String             @db.Text
   sentAt       DateTime?
   failReason   String?
   scheduledFor DateTime?
@@ -794,7 +781,7 @@ model SupportTicket {
   id        String         @id @default(cuid())
   userId    String
   subject   String
-  body      String
+  body      String         @db.Text
   status    TicketStatus   @default(OPEN)
   priority  TicketPriority @default(NORMAL)
   createdAt DateTime       @default(now())
@@ -810,7 +797,7 @@ model TicketReply {
   id        String   @id @default(cuid())
   ticketId  String
   userId    String
-  body      String
+  body      String   @db.Text
   createdAt DateTime @default(now())
 
   ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
@@ -826,6 +813,7 @@ model TicketReply {
 model GalleryCategory {
   id        String   @id @default(cuid())
   name      String
+  name_ar   String?
   slug      String   @unique
   sortOrder Int      @default(0)
   isActive  Boolean  @default(true)
@@ -842,17 +830,19 @@ model GalleryItem {
   categoryId          String?
   mediaType           GalleryMediaType
   title               String?
-  description         String?
-  url                 String // Supabase Storage public URL
-  thumbnailUrl        String? // video poster frame
+  title_ar            String?
+  description         String?           @db.Text
+  description_ar      String?           @db.Text
+  url                 String            @db.Text
+  thumbnailUrl        String?
   altText             String?
   visibility          GalleryVisibility @default(DRAFT)
   isFeatured          Boolean           @default(false)
   sortOrder           Int               @default(0)
   takenAt             DateTime?
-  storageKey          String? // stable key for main file deletion
-  thumbnailStorageKey String? // stable key for thumbnail deletion
-  uploadedBy          String? // userId of uploader (soft ref, no FK)
+  storageKey          String?
+  thumbnailStorageKey String?
+  uploadedBy          String?
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
 
@@ -864,15 +854,12 @@ model GalleryItem {
   @@map("gallery_items")
 }
 
-// Named people who can be tagged in gallery media.
-// teacherId is a soft reference to TeacherProfile.id (no hard FK to avoid
-// circular deps — just a lookup hint for the admin UI).
 model GalleryPerson {
   id          String  @id @default(cuid())
   displayName String
-  role        String? // "Teacher", "Student", "Guest Artist"
+  role        String?
   photoUrl    String?
-  teacherId   String? // soft ref to TeacherProfile.id
+  teacherId   String?
 
   items GalleryItemPerson[]
 
@@ -890,32 +877,36 @@ model GalleryItemPerson {
   @@map("gallery_item_persons")
 }
 
-
 // ─────────────────────────────────────────────
 // UPCOMING
 // ─────────────────────────────────────────────
 
 model Upcoming {
-  id           String        @id @default(cuid())
-  title        String
-  subtitle     String?
-  description  String?
-  mediaUrls    Json
-  videoUrls    Json
-  thumbnailUrl String?
-  linkUrl      String?
-  linkLabel    String?
-  isExternal   Boolean       @default(false)
-  eventDate    DateTime?
-  publishAt    DateTime?
-  expireAt     DateTime?
-  status       ContentStatus @default(DRAFT)
-  isActive     Boolean       @default(false)
-  sortOrder    Int           @default(0)
-  badgeLabel   String?
-  createdBy    String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id             String        @id @default(cuid())
+  title          String
+  title_ar       String?
+  subtitle       String?
+  subtitle_ar    String?
+  description    String?       @db.Text
+  description_ar String?       @db.Text
+  // MySQL does not support native arrays — stored as JSON
+  mediaUrls      Json          @default("[]")
+  videoUrls      Json          @default("[]")
+  thumbnailUrl   String?
+  linkUrl        String?
+  linkLabel      String?
+  isExternal     Boolean       @default(false)
+  eventDate      DateTime?
+  publishAt      DateTime?
+  expireAt       DateTime?
+  status         ContentStatus @default(DRAFT)
+  isActive       Boolean       @default(false)
+  sortOrder      Int           @default(0)
+  badgeLabel     String?
+  createdBy      String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  workshopId     String?       @unique
 
   @@index([status, isActive, sortOrder])
   @@index([publishAt, expireAt])
@@ -927,26 +918,30 @@ model Upcoming {
 // ─────────────────────────────────────────────
 
 model News {
-  id           String        @id @default(cuid())
-  title        String
-  subtitle     String?
-  description  String?
-  mediaUrls    Json
-  videoUrls    Json
-  thumbnailUrl String?
-  linkUrl      String?
-  linkLabel    String?
-  isExternal   Boolean       @default(false)
-  slug         String        @unique
-  publishAt    DateTime?
-  expireAt     DateTime?
-  status       ContentStatus @default(DRAFT)
-  isActive     Boolean       @default(false)
-  sortOrder    Int           @default(0)
-  badgeLabel   String?
-  createdBy    String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id             String        @id @default(cuid())
+  title          String
+  title_ar       String?
+  subtitle       String?
+  subtitle_ar    String?
+  description    String?       @db.Text
+  description_ar String?       @db.Text
+  // MySQL does not support native arrays — stored as JSON
+  mediaUrls      Json          @default("[]")
+  videoUrls      Json          @default("[]")
+  thumbnailUrl   String?
+  linkUrl        String?
+  linkLabel      String?
+  isExternal     Boolean       @default(false)
+  slug           String        @unique
+  publishAt      DateTime?
+  expireAt       DateTime?
+  status         ContentStatus @default(DRAFT)
+  isActive       Boolean       @default(false)
+  sortOrder      Int           @default(0)
+  badgeLabel     String?
+  createdBy      String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@index([status, isActive, sortOrder])
   @@index([publishAt, expireAt])
@@ -960,10 +955,14 @@ model News {
 model Offer {
   id             String        @id @default(cuid())
   title          String
+  title_ar       String?
   subtitle       String?
-  description    String?
-  mediaUrls      Json
-  videoUrls      Json
+  subtitle_ar    String?
+  description    String?       @db.Text
+  description_ar String?       @db.Text
+  // MySQL does not support native arrays — stored as JSON
+  mediaUrls      Json          @default("[]")
+  videoUrls      Json          @default("[]")
   thumbnailUrl   String?
   linkUrl        String?
   linkLabel      String?
@@ -971,8 +970,8 @@ model Offer {
   discountType   DiscountType?
   discountValue  Decimal?      @db.Decimal(10, 2)
   promoCode      String?       @unique
-  classIds       Json // string[] of Class IDs
-  subClassIds    Json // string[] of SubClass IDs
+  classIds       Json          @default("[]")
+  subClassIds    Json          @default("[]")
   publishAt      DateTime?
   expireAt       DateTime?
   status         ContentStatus @default(DRAFT)
@@ -986,4 +985,24 @@ model Offer {
   @@index([status, isActive, sortOrder])
   @@index([publishAt, expireAt])
   @@map("offers")
+}
+
+// ─────────────────────────────────────────────
+// ROOM
+// ─────────────────────────────────────────────
+
+model Room {
+  id          String  @id @default(cuid())
+  name        String
+  description String? @db.Text
+  capacity    Int
+  location    String?
+  isActive    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workshops Workshop[]
+
+  @@map("rooms")
 }

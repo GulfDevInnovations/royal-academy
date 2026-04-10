@@ -3,7 +3,7 @@
 
 import { prisma } from "@/lib/prisma"; // ← fix singleton
 import { createClient } from "@/lib/supabase/server";
-import { jsonToStringArray } from "@/lib/prisma-json";
+import { jsonToStringArray } from "@/utils/prisma-json";
 
 export type PaymentStatus = "PAID" | "FAILED" | "REFUNDED" | "PARTIALLY_REFUNDED";
 
@@ -27,6 +27,7 @@ export interface StudentPaymentRecord {
   method?:      string;
   paidAt?:      string;
   subClassId:   string;
+  workshopSlug?: string;
   level?:       string;
   ageGroup?:    string;
   timeString?: string;
@@ -339,6 +340,7 @@ for (const e of multiMonthEnrollments) {
         method:       p.method  ?? undefined,
         paidAt:       p.paidAt?.toISOString(),
         subClassId:   ws.id,
+        workshopSlug: ws.slug,
       });
     }
 

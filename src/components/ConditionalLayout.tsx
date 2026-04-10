@@ -19,16 +19,37 @@ export default function ConditionalLayout({
     pathname.includes("/signup") ||
     pathname.includes("/verify-email") ||
     pathname.includes("/admin");
+  const isClassRoute = pathname.includes("/classes/");
 
   // Home is /en or /ar or /en/ or /ar/
   const isHome = /^\/[a-z]{2}(\/)?$/.test(pathname);
+  const contentClassName = isClassRoute
+    ? "class-route-shell h-[calc(100svh-4rem-4.5rem)] min-h-0 overflow-x-hidden overflow-y-auto sm:h-[calc(100svh-4rem-3.75rem)] md:h-[calc(100svh-5rem-3.1rem)] md:overflow-hidden"
+    : "";
 
   return (
     <HomeNavProvider>
       <NavbarStateProvider>
-        {!noNavPage && <Navbar />}
-        {children}
-        {!noNavPage && !isHome && <Footer locale={locale} />}
+        <div className="min-h-svh">
+          {!noNavPage && <Navbar />}
+          <div className={contentClassName}>{children}</div>
+          {!noNavPage && !isHome && <Footer locale={locale} />}
+        </div>
+
+        <style jsx>{`
+          @media (max-width: 767px) {
+            .class-route-shell {
+              -ms-overflow-style: none;
+              scrollbar-width: none;
+            }
+
+            .class-route-shell::-webkit-scrollbar {
+              display: none;
+              width: 0;
+              height: 0;
+            }
+          }
+        `}</style>
       </NavbarStateProvider>
     </HomeNavProvider>
   );

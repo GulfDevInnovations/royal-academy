@@ -11,6 +11,7 @@ import {
   AdminButton,
   adminColors,
 } from "@/components/admin/ui";
+import { useTranslations } from "next-intl";
 
 interface Props {
   onClose: () => void;
@@ -22,6 +23,8 @@ export default function ClassFormModal({ onClose, onSuccess, editing }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [langTab, setLangTab] = useState<"en" | "ar">("en");
+  const t = useTranslations("admin");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +44,12 @@ export default function ClassFormModal({ onClose, onSuccess, editing }: Props) {
     });
   };
 
+  const inputStyle = {
+    background: "rgba(255,255,255,0.04)",
+    borderColor: adminColors.border,
+    color: adminColors.textPrimary,
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
@@ -57,16 +66,16 @@ export default function ClassFormModal({ onClose, onSuccess, editing }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07]">
           <h2
-            className="text-sm font-semibold"
+            className="text-xl font-semibold"
             style={{ color: adminColors.textPrimary }}
           >
-            {editing ? "Edit Class" : "New Class"}
+            {editing ? "Edit Class" : t("newClass")}
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <X size={15} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
 
@@ -76,21 +85,106 @@ export default function ClassFormModal({ onClose, onSuccess, editing }: Props) {
           onSubmit={handleSubmit}
           className="px-6 py-5 space-y-4"
         >
-          <AdminInput
-            label="Class Name *"
-            name="name"
-            placeholder="e.g. Dance, Painting, Music"
-            defaultValue={editing?.name ?? ""}
-            required
-          />
+          <div
+            className="flex items-center gap-1 p-1 rounded-lg w-fit"
+            style={{ background: "rgba(255,255,255,0.05)" }}
+          >
+            {(["en", "ar"] as const).map((lang) => (
+              <button
+                key={lang}
+                type="button"
+                onClick={() => setLangTab(lang)}
+                className="px-3 py-1 rounded-md text-xs font-medium transition-all"
+                style={{
+                  background:
+                    langTab === lang ? "rgba(251,191,36,0.15)" : "transparent",
+                  color: langTab === lang ? "#fbbf24" : adminColors.textMuted,
+                  border:
+                    langTab === lang
+                      ? "1px solid rgba(251,191,36,0.3)"
+                      : "1px solid transparent",
+                }}
+              >
+                {lang === "en" ? "🇬🇧 English" : "🇴🇲 Arabic"}
+              </button>
+            ))}
+          </div>
+          <div className="space-y-1.5">
+            <label
+              className="text-l"
+              style={{ color: adminColors.textSecondary }}
+            >
+              Class Name <span className="text-red-400">*</span>
+              {langTab === "ar" && (
+                <span
+                  className="ml-1 text-[11px]"
+                  style={{ color: adminColors.textMuted }}
+                >
+                  (Arabic)
+                </span>
+              )}
+            </label>
+            <input
+              name="name"
+              defaultValue={editing?.name ?? ""}
+              placeholder="e.g. Dance, Painting, Music"
+              className="w-full text-l rounded-lg border px-3 py-2 outline-none"
+              style={{
+                ...inputStyle,
+                display: langTab === "en" ? "block" : "none",
+              }}
+            />
+            <input
+              name="name_ar"
+              defaultValue={(editing as any)?.name_ar ?? ""}
+              dir="rtl"
+              placeholder="مثال: رقص، رسم، موسيقى"
+              className="w-full text-xs rounded-lg border px-3 py-2 outline-none"
+              style={{
+                ...inputStyle,
+                fontFamily: "var(--font-layla, sans-serif)",
+                display: langTab === "ar" ? "block" : "none",
+              }}
+            />
+          </div>
 
-          <AdminTextarea
-            label="Description"
-            name="description"
-            placeholder="Brief description of this class category..."
-            defaultValue={editing?.description ?? ""}
-          />
-
+          {/* Description */}
+          <div className="space-y-1.5">
+            <label className="text-l">
+              Description
+              {langTab === "ar" && (
+                <span
+                  className="ml-1 text-[16px]"
+                  style={{ color: adminColors.textMuted }}
+                >
+                  (Arabic)
+                </span>
+              )}
+            </label>
+            <textarea
+              name="description"
+              defaultValue={editing?.description ?? ""}
+              rows={3}
+              className="w-full text-l rounded-lg border px-3 py-2 outline-none resize-none"
+              style={{
+                ...inputStyle,
+                display: langTab === "en" ? "block" : "none",
+              }}
+            />
+            <textarea
+              name="description_ar"
+              defaultValue={(editing as any)?.description_ar ?? ""}
+              rows={3}
+              dir="rtl"
+              placeholder="الوصف بالعربي"
+              className="w-full text-l rounded-lg border px-3 py-2 outline-none resize-none"
+              style={{
+                ...inputStyle,
+                fontFamily: "var(--font-layla, sans-serif)",
+                display: langTab === "ar" ? "block" : "none",
+              }}
+            />
+          </div>
           <AdminInput
             label="Sort Order"
             name="sortOrder"
@@ -115,7 +209,7 @@ export default function ClassFormModal({ onClose, onSuccess, editing }: Props) {
           )}
 
           {error && (
-            <p className="text-xs px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+            <p className="text-l px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
               {error}
             </p>
           )}
@@ -126,7 +220,7 @@ export default function ClassFormModal({ onClose, onSuccess, editing }: Props) {
               Cancel
             </AdminButton>
             <AdminButton type="submit" variant="primary" disabled={isPending}>
-              {isPending && <Loader2 size={13} className="animate-spin" />}
+              {isPending && <Loader2 size={17} className="animate-spin" />}
               {editing ? "Save Changes" : "Create Class"}
             </AdminButton>
           </div>

@@ -35,6 +35,7 @@ import SubClassFormModal from "./SubClassFormModal";
 import DeleteConfirmModal from "../../../../../components/admin/DeleteConfirmModal";
 import { ToastContainer } from "@/components/admin/Toast";
 import { useToast } from "../../hooks/useToast";
+import { useTranslations } from "next-intl";
 
 interface Teacher {
   id: string;
@@ -76,6 +77,7 @@ const SESSION_TYPE_VARIANT: Record<
 export default function ClassesClient({ initialClasses, teachers }: Props) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [modal, setModal] = useState<Modal | null>(null);
+  const t = useTranslations("admin");
 
   const toggleExpand = (id: string) =>
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -121,14 +123,14 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
   const { toasts, toast, remove } = useToast();
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-8xl mx-auto">
       {isRefreshing && (
         <div className="absolute inset-0 z-10 flex items-start justify-end pointer-events-none">
           <div
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs mt-1"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-l mt-1"
             style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b" }}
           >
-            <Loader2 size={12} className="animate-spin" />
+            <Loader2 size={16} className="animate-spin" />
             Updating...
           </div>
         </div>
@@ -141,8 +143,8 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
             variant="primary"
             onClick={() => setModal({ type: "addClass" })}
           >
-            <Plus size={14} />
-            New Class
+            <Plus size={17} />
+            {t("newClass")}
           </AdminButton>
         }
       />
@@ -157,8 +159,8 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                 variant="primary"
                 onClick={() => setModal({ type: "addClass" })}
               >
-                <Plus size={14} />
-                New Class
+                <Plus size={17} />
+                {t("newClass")}
               </AdminButton>
             }
           />
@@ -175,36 +177,36 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                 {/* Expand toggle */}
                 <span style={{ color: adminColors.textMuted }}>
                   {expanded[cls.id] ? (
-                    <ChevronDown size={15} />
+                    <ChevronDown size={19} />
                   ) : (
-                    <ChevronRight size={15} />
+                    <ChevronRight size={19} />
                   )}
                 </span>
 
                 {/* Icon */}
                 <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                   style={{ background: "rgba(245,158,11,0.1)" }}
                 >
-                  <BookOpen size={14} style={{ color: "#f59e0b" }} />
+                  <BookOpen size={18} style={{ color: "#f59e0b" }} />
                 </div>
 
                 {/* Name + meta */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span
-                      className="text-sm font-semibold"
+                      className="text-xl font-semibold"
                       style={{ color: adminColors.textPrimary }}
                     >
                       {cls.name}
                     </span>
                     <AdminBadge variant={cls.isActive ? "success" : "default"}>
-                      {cls.isActive ? "Active" : "Inactive"}
+                      {cls.isActive ? t("active") : "Inactive"}
                     </AdminBadge>
                   </div>
                   {cls.description && (
                     <p
-                      className="text-xs mt-0.5 truncate"
+                      className="text-2xl mt-0.5 truncate"
                       style={{ color: adminColors.textMuted }}
                     >
                       {cls.description}
@@ -214,7 +216,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
 
                 {/* Sub-class count */}
                 <span
-                  className="text-xs px-2 py-0.5 rounded-full"
+                  className="text-l px-2 py-0.5 rounded-full"
                   style={{
                     background: "rgba(255,255,255,0.05)",
                     color: adminColors.textSecondary,
@@ -226,30 +228,33 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
 
                 {/* Actions — stop propagation so clicks don't toggle expand */}
                 <div
-                  className="flex items-center gap-1 flex-shrink-0"
+                  className="flex items-center gap-1 shrink-0"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <AdminButton
-                    size="sm"
-                    variant="ghost"
+                    size="md"
+                    style={{
+                      color: adminColors.textPrimary,
+                      background: adminColors.pinkText,
+                    }}
                     onClick={() => setModal({ type: "addSub", data: cls })}
                   >
-                    <Plus size={13} />
-                    Sub-class
+                    <Plus size={16} />
+                    {t("subClass")}
                   </AdminButton>
                   <button
                     onClick={() => setModal({ type: "editClass", data: cls })}
-                    className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+                    className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-white/5 transition-colors"
                     title="Edit class"
                   >
-                    <Pencil size={13} />
+                    <Pencil size={20} />
                   </button>
                   <button
                     onClick={() => setModal({ type: "deleteClass", data: cls })}
-                    className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/[0.08] transition-colors"
+                    className="p-1.5 rounded-lg text-red-800 hover:text-red-500 hover:bg-white/5 transition-colors"
                     title="Delete class"
                   >
-                    <Trash2 size={13} />
+                    <Trash2 size={20} />
                   </button>
                 </div>
               </div>
@@ -263,10 +268,10 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                   {cls.subClasses.length === 0 ? (
                     <div className="px-5 py-6 text-center">
                       <p
-                        className="text-xs"
+                        className="text-l"
                         style={{ color: adminColors.textMuted }}
                       >
-                        No sub-classes yet.{" "}
+                        {t("noSubClasses")}{" "}
                         <button
                           className="underline"
                           style={{ color: "#f59e0b" }}
@@ -281,15 +286,15 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                   ) : (
                     <AdminTable>
                       <AdminThead>
-                        <AdminTh>Name</AdminTh>
-                        <AdminTh>Type</AdminTh>
-                        <AdminTh>Teacher</AdminTh>
-                        <AdminTh>Level</AdminTh>
-                        <AdminTh>Age</AdminTh>
-                        <AdminTh>Duration</AdminTh>
-                        <AdminTh>Price</AdminTh>
-                        <AdminTh>Status</AdminTh>
-                        <AdminTh className="text-right">Actions</AdminTh>
+                        <AdminTh>{t("name")}</AdminTh>
+                        <AdminTh>{t("type")}</AdminTh>
+                        <AdminTh>{t("teacher")}</AdminTh>
+                        <AdminTh>{t("level")}</AdminTh>
+                        <AdminTh>{t("age")}</AdminTh>
+                        <AdminTh>{t("duration")}</AdminTh>
+                        <AdminTh>{t("price")}</AdminTh>
+                        <AdminTh>{t("status")}</AdminTh>
+                        <AdminTh className="text-right">{t("actions")}</AdminTh>
                       </AdminThead>
                       <AdminTbody>
                         {cls.subClasses.map((sub) => (
@@ -356,7 +361,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                               <AdminBadge
                                 variant={sub.isActive ? "success" : "default"}
                               >
-                                {sub.isActive ? "Active" : "Inactive"}
+                                {sub.isActive ? t("active") : "Inactive"}
                               </AdminBadge>
                             </AdminTd>
                             <AdminTd className="text-right">
@@ -369,19 +374,19 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                                       data: sub,
                                     })
                                   }
-                                  className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+                                  className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
                                   title="Edit sub-class"
                                 >
-                                  <Pencil size={13} />
+                                  <Pencil size={16} />
                                 </button>
                                 <button
                                   onClick={() =>
                                     setModal({ type: "deleteSub", data: sub })
                                   }
-                                  className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/[0.08] transition-colors"
+                                  className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/8 transition-colors"
                                   title="Delete sub-class"
                                 >
-                                  <Trash2 size={13} />
+                                  <Trash2 size={16} />
                                 </button>
                               </div>
                             </AdminTd>

@@ -102,6 +102,7 @@ export async function createTeacher(
   const email       = (formData.get("email")       as string | null)?.trim() || null;
   const phone       = (formData.get("phone")       as string | null)?.trim() || null;
   const bio         = (formData.get("bio")         as string | null) || null;
+  const bio_ar         = (formData.get("bio_ar")         as string | null) || null;
   const photoUrl    = (formData.get("photoUrl")    as string | null) || null;
   const specialties = (formData.get("specialties") as string)
     .split(",").map((s) => s.trim()).filter(Boolean);
@@ -132,6 +133,7 @@ export async function createTeacher(
       firstName,
       lastName,
       bio,
+      bio_ar,
       photoUrl,
       specialties,
       isAvailable: true,
@@ -154,6 +156,7 @@ export async function updateTeacher(
   const firstName   = (formData.get("firstName")   as string).trim();
   const lastName    = (formData.get("lastName")    as string).trim();
   const bio         = (formData.get("bio")         as string | null) || null;
+  const bio_ar      = (formData.get("bio_ar")      as string | null) || null;
   const photoUrl    = (formData.get("photoUrl")    as string | null) || null;
   const specialties = (formData.get("specialties") as string)
     .split(",").map((s) => s.trim()).filter(Boolean);
@@ -171,7 +174,7 @@ export async function updateTeacher(
 
   await prisma.teacherProfile.update({
     where: { id },
-    data: { firstName, lastName, bio, photoUrl, specialties, isAvailable, isActive },
+    data: { firstName, lastName, bio, bio_ar, photoUrl, specialties, isAvailable, isActive },
   });
 
   if (profile.userId) {

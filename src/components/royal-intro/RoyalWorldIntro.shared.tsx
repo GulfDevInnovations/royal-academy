@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useLocale } from "next-intl";
 import { ContentCard, Section } from "./RoyalWorldIntro.types";
 
 // ─────────────────────────────────────────────
@@ -60,10 +61,13 @@ export function ExpiryCountdown({ expireAt }: { expireAt: string }) {
 // ─────────────────────────────────────────────
 
 export function CardMedia({ card }: { card: ContentCard }) {
-  const allMedia: { type: "image" | "video"; src: string }[] = [
-    ...card.videoUrls.map((src) => ({ type: "video" as const, src })),
-    ...card.mediaUrls.map((src) => ({ type: "image" as const, src })),
-  ];
+  const allMedia = useMemo(
+    () => [
+      ...card.videoUrls.map((src) => ({ type: "video" as const, src })),
+      ...card.mediaUrls.map((src) => ({ type: "image" as const, src })),
+    ],
+    [card.videoUrls, card.mediaUrls],
+  );
 
   const [index, setIndex] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -98,7 +102,7 @@ export function CardMedia({ card }: { card: ContentCard }) {
           style={{
             fontSize: 12,
             color: "#bbb",
-            fontFamily: "Georgia, serif",
+            fontFamily: "var(--font-text)",
             fontStyle: "italic",
           }}
         >
@@ -214,7 +218,7 @@ export function Card({
       <div
         style={{
           width: "100%",
-          height: isMini ? "70%" : "48%",
+          height: isMini ? "80%" : "60%",
           flexShrink: 0,
           borderBottom: "2px solid #111",
           overflow: "hidden",
@@ -231,7 +235,7 @@ export function Card({
           flexDirection: "column",
           overflow: "hidden",
           position: "relative",
-          padding: isMini ? "6px 8px" : "12px 14px",
+          padding: "6px 8px",
           transition: `padding 0.5s ${EASE}`,
         }}
       >
@@ -239,6 +243,7 @@ export function Card({
         <div
           style={{
             position: "absolute",
+            padding: 4,
             top: 0,
             right: 0,
             opacity: contentOpacity,
@@ -260,7 +265,7 @@ export function Card({
           <span
             style={{
               alignSelf: "flex-start",
-              fontSize: 9,
+              fontSize: 10,
               fontFamily: "'Arial', sans-serif",
               fontWeight: 700,
               letterSpacing: "0.1em",
@@ -287,8 +292,8 @@ export function Card({
               fontWeight: 700,
               lineHeight: 1.3,
               color: "#111",
-              margin: isMini ? "auto 0" : "0 0 4px",
-              fontFamily: "'Georgia', serif",
+              margin: isMini ? "0 0" : "0 0 4px",
+              fontFamily: "var(--font-text)",
               paddingRight: isMini ? 0 : 28,
               overflow: "hidden",
               display: "-webkit-box",
@@ -318,7 +323,7 @@ export function Card({
                 margin: "0 0 5px",
                 fontStyle: "italic",
                 lineHeight: 1.4,
-                fontFamily: "'Georgia', serif",
+                fontFamily: "var(--font-text)",
               }}
             >
               {card.subtitle}
@@ -353,7 +358,7 @@ export function Card({
                   display: "-webkit-box",
                   WebkitLineClamp: 3,
                   WebkitBoxOrient: "vertical",
-                  fontFamily: "'Georgia', serif",
+                  fontFamily: "var(--font-text)",
                 } as React.CSSProperties
               }
             >
@@ -790,40 +795,169 @@ export function SymbolCard({
 // ─────────────────────────────────────────────
 
 const ITEM_HEIGHT = 38;
+const MOBILE_ITEM_H = 114;
 export const VISIBLE_ITEMS = 3;
 
 export function SubclassItem({
   sub,
+  textShadow,
+  isMobile = false,
+  mobileHeight = 114,
 }: {
-  sub: { label: string; href: string };
+  sub: { label: string; href: string; image?: string };
+  textShadow?: string;
+  isMobile?: boolean;
+  mobileHeight?: number;
 }) {
   const [hovered, setHovered] = useState(false);
+
+  const defaultTextShadow = hovered
+    ? "0 2px 0 rgba(0,0,0,0.8), 0 -1px 0 rgba(255,230,140,0.4), 1px 0 0 rgba(0,0,0,0.5), -1px 0 0 rgba(0,0,0,0.5), 0 0 10px rgba(220,185,110,0.2)"
+    : "0 1px 0 rgba(0,0,0,0.7), 0 -1px 0 rgba(255,220,140,0.2), 1px 0 0 rgba(0,0,0,0.3), -1px 0 0 rgba(0,0,0,0.3)";
+
+  // ── Image card (used for both mobile render and desktop subclass cards) ──
+  if (isMobile) {
+    return (
+      <Link
+        href={sub.href}
+        prefetch={false}
+        onClick={(e) => e.stopPropagation()}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          position: "relative",
+          display: "block",
+          height: mobileHeight,
+          overflow: "hidden",
+          borderBottom: "1px solid rgba(196,168,120,0.2)",
+          textDecoration: "none",
+          flexShrink: 0,
+          transition: "box-shadow 0.3s ease",
+          boxShadow: hovered
+            ? "inset 0 0 0 1px rgba(196,168,120,0.35), 0 4px 18px rgba(0,0,0,0.55)"
+            : "none",
+        }}
+      >
+        {/* Background image — zooms slightly on hover */}
+        {sub.image && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={sub.image}
+            alt=""
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center",
+              transform: hovered ? "scale(1.06)" : "scale(1)",
+              transition: "transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94)",
+            }}
+          />
+        )}
+        {/* Dark scrim — slightly lighter on hover */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: hovered
+              ? "linear-gradient(to top, rgba(0,0,0,0.60) 0%, rgba(0,0,0,0.18) 60%, rgba(0,0,0,0.06) 100%)"
+              : "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.28) 60%, rgba(0,0,0,0.12) 100%)",
+            transition: "background 0.35s ease",
+          }}
+        />
+        {/* Label with blurred ghost copy behind it */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 10,
+            left: 10,
+            right: 10,
+            padding: "5px 10px 6px",
+          }}
+        >
+          {/* Blurred ghost — same text, larger, behind the real label */}
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              padding: "5px 10px 6px",
+              fontFamily: "var(--font-text)",
+              fontStyle: "italic",
+              fontSize: "1.18rem",
+              letterSpacing: "0.04em",
+              lineHeight: 1.3,
+              color: hovered
+                ? "rgba(200,155,60,0.55)"
+                : "rgba(160,120,40,0.38)",
+              filter: hovered ? "blur(7px)" : "blur(5px)",
+              transform: "scale(1.06)",
+              transformOrigin: "left center",
+              transition: "color 0.35s ease, filter 0.35s ease",
+              userSelect: "none",
+              pointerEvents: "none",
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {sub.label}
+          </span>
+          {/* Real label on top */}
+          <span
+            style={{
+              position: "relative",
+              fontFamily: "var(--font-text)",
+              fontStyle: "italic",
+              fontSize: "1.0rem",
+              letterSpacing: "0.04em",
+              color: hovered ? "rgba(248,224,172,1)" : "rgba(225,198,148,0.92)",
+              textShadow: hovered
+                ? "0 1px 3px rgba(0,0,0,0.9), 0 0 8px rgba(200,160,70,0.22)"
+                : "0 1px 3px rgba(0,0,0,0.85)",
+              lineHeight: 1.3,
+              transition: "color 0.3s ease, text-shadow 0.3s ease",
+              display: "block",
+            }}
+          >
+            {sub.label}
+          </span>
+        </div>
+      </Link>
+    );
+  }
+
+  // ── Desktop: original list-row style ────────────────────────────────────
   return (
     <Link
       href={sub.href}
+      prefetch={false}
       onClick={(e) => e.stopPropagation()}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
         position: "relative",
         display: "block",
-        fontFamily: "Georgia, 'Times New Roman', serif",
+        fontFamily: "var(--font-text)",
         fontStyle: "italic",
         fontSize: "1.05rem",
         letterSpacing: "0.04em",
         textDecoration: "none",
         padding: "7px 12px 7px 14px",
         color: hovered ? "rgba(240,215,168,1)" : "rgba(196,168,120,0.7)",
+        textShadow: textShadow ?? defaultTextShadow,
         boxShadow: hovered
           ? "inset 0 1px 0 rgba(255,230,160,0.12), inset 0 -1px 0 rgba(0,0,0,0.28), 0 0 18px rgba(196,155,80,0.07)"
           : "none",
         background: hovered
           ? "linear-gradient(to bottom, rgba(196,155,80,0.18) 0%, rgba(140,100,40,0.12) 100%)"
-          : "rgba(20,10,4,0.45)", // dark enough to look frosted without needing backdrop blur
+          : "rgba(20,10,4,0.45)",
         backdropFilter: "none",
         WebkitBackdropFilter: "none",
         transition:
-          "color 0.25s ease, box-shadow 0.3s ease, background 0.3s ease, padding-left 0.3s cubic-bezier(0.4,0,0.2,1)",
+          "color 0.25s ease, box-shadow 0.3s ease, background 0.3s ease, padding-left 0.3s cubic-bezier(0.4,0,0.2,1), text-shadow 0.3s ease",
         paddingLeft: hovered ? "20px" : "14px",
         overflow: "hidden",
       }}
@@ -855,21 +989,25 @@ export function SubclassItem({
 export function Subclasses({
   section,
   isActive,
+  style,
+  subItemTextShadow,
+  isMobile = false,
 }: {
   section: Section;
   isActive: boolean;
+  style?: React.CSSProperties;
+  subItemTextShadow?: string;
+  isMobile?: boolean;
 }) {
   const hasMore = section.subclasses.length > VISIBLE_ITEMS;
-
   const handleWheel = useCallback(
     (e: React.WheelEvent) => {
       if (hasMore) e.stopPropagation();
     },
     [hasMore],
   );
-
   return (
-    <div style={{ width: "100%", position: "relative" }}>
+    <div style={{ width: "100%", position: "relative", ...style }}>
       {/* Top fade */}
       {hasMore && (
         <div
@@ -888,7 +1026,6 @@ export function Subclasses({
           }}
         />
       )}
-
       {/* Bottom fade */}
       {hasMore && (
         <div
@@ -907,35 +1044,39 @@ export function Subclasses({
           }}
         />
       )}
-
       <div
         className="subclass-scroll"
         onWheel={handleWheel}
         style={{
           width: "100%",
-          maxHeight: `${ITEM_HEIGHT * VISIBLE_ITEMS}px`,
+          maxHeight: isMobile
+            ? `${MOBILE_ITEM_H * VISIBLE_ITEMS}px`
+            : `${ITEM_HEIGHT * VISIBLE_ITEMS}px`,
           overflowY: hasMore ? "auto" : "visible",
           overflowX: "hidden",
-          /* Firefox */
           scrollbarWidth: "thin",
           scrollbarColor: "rgba(196,155,80,0.45) transparent",
-          /* Subtle inset border — feels more refined than a full border */
-          boxShadow: "inset 0 0 0 1px rgba(196,168,120,0.18)",
-          borderRadius: 3,
-          paddingTop: 2,
-          paddingBottom: 2,
+          boxShadow: isMobile
+            ? "none"
+            : "inset 0 0 0 1px rgba(196,168,120,0.18)",
+          borderRadius: isMobile ? 0 : 3,
         }}
       >
         {section.subclasses.map((sub, idx) => (
           <div
-            key={sub.href}
+            key={`${section.id}-${sub.href}-${idx}`}
             style={{
               opacity: isActive ? 1 : 0,
               transform: isActive ? "translateY(0)" : "translateY(5px)",
               transition: `opacity 0.35s ease ${0.06 * idx}s, transform 0.35s ease ${0.06 * idx}s`,
             }}
           >
-            <SubclassItem sub={sub} />
+            <SubclassItem
+              sub={sub}
+              textShadow={subItemTextShadow}
+              isMobile={isMobile}
+              mobileHeight={MOBILE_ITEM_H}
+            />
           </div>
         ))}
       </div>

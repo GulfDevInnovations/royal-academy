@@ -22,6 +22,7 @@ import {
   AdminButton,
   adminColors,
 } from "@/components/admin/ui";
+import { useTranslations } from "next-intl";
 
 const MONTHS_SHORT = [
   "Jan",
@@ -75,6 +76,7 @@ export default function PaymentModal({
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("admin");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,23 +128,23 @@ export default function PaymentModal({
         onClick={onClose}
       />
       <div
-        className="relative w-full max-w-sm rounded-2xl border border-white/[0.08] shadow-2xl z-10"
+        className="relative w-full max-w-sm rounded-2xl border border-white/8 shadow-2xl z-10"
         style={{ background: "#1a1d27" }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07]">
           <div className="flex items-center gap-2">
-            <CreditCard size={15} style={{ color: "#f59e0b" }} />
+            <CreditCard size={19} style={{ color: "#f59e0b" }} />
             <div>
               <h2
-                className="text-sm font-semibold"
+                className="text-xl font-semibold"
                 style={{ color: adminColors.textPrimary }}
               >
                 {alreadyPaid ? "Update Payment" : "Record Payment"}
               </h2>
               {type === "multi" && (
                 <p
-                  className="text-[10px] mt-0.5"
+                  className="text-[16px] mt-0.5"
                   style={{ color: adminColors.textMuted }}
                 >
                   Multi-month enrollment
@@ -152,9 +154,9 @@ export default function PaymentModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/30 hover:text-white/70 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <X size={15} />
+            <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
         </div>
 
@@ -168,22 +170,22 @@ export default function PaymentModal({
             }}
           >
             <p
-              className="text-xs font-semibold"
+              className="text-l font-semibold"
               style={{ color: adminColors.textPrimary }}
             >
               {studentName}
             </p>
-            <p className="text-xs" style={{ color: adminColors.textSecondary }}>
+            <p className="text-l" style={{ color: adminColors.textSecondary }}>
               {subClassName}
             </p>
 
             {/* Period — with calendar icon for multi */}
             <div className="flex items-center gap-1.5">
               {type === "multi" && (
-                <CalendarDays size={11} style={{ color: "#60a5fa" }} />
+                <CalendarDays size={15} style={{ color: "#60a5fa" }} />
               )}
               <p
-                className="text-xs"
+                className="text-l"
                 style={{
                   color: type === "multi" ? "#60a5fa" : adminColors.textMuted,
                 }}
@@ -194,7 +196,7 @@ export default function PaymentModal({
               </p>
             </div>
 
-            <p className="text-xs" style={{ color: adminColors.textMuted }}>
+            <p className="text-l" style={{ color: adminColors.textMuted }}>
               {frequencyLabel}
               {" · "}Expected:{" "}
               <span style={{ color: adminColors.textSecondary }}>
@@ -204,9 +206,9 @@ export default function PaymentModal({
 
             {/* Child months breakdown for multi */}
             {type === "multi" && (
-              <div className="pt-1 border-t border-white/[0.05]">
+              <div className="pt-1 border-t border-white/5">
                 <p
-                  className="text-[10px] mb-1.5"
+                  className="text-[16px] mb-1.5"
                   style={{ color: adminColors.textMuted }}
                 >
                   Covers:
@@ -217,7 +219,7 @@ export default function PaymentModal({
                   ).monthlyEnrollments.map((me) => (
                     <span
                       key={me.id}
-                      className="text-[9px] px-1.5 py-0.5 rounded-full"
+                      className="text-[15px] px-1.5 py-0.5 rounded-full"
                       style={{
                         background:
                           me.status === "CONFIRMED"
@@ -273,8 +275,8 @@ export default function PaymentModal({
                 border: "1px solid rgba(52,211,153,0.12)",
               }}
             >
-              <CheckCircle2 size={12} style={{ color: "#34d399" }} />
-              <p className="text-xs" style={{ color: "#34d399" }}>
+              <CheckCircle2 size={16} style={{ color: "#34d399" }} />
+              <p className="text-l" style={{ color: "#34d399" }}>
                 {type === "multi"
                   ? "All months will be confirmed on save."
                   : "Enrollment will be auto-confirmed on save."}
@@ -282,7 +284,7 @@ export default function PaymentModal({
             </div>
 
             {error && (
-              <p className="text-xs px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+              <p className="text-l px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
                 {error}
               </p>
             )}
@@ -292,7 +294,7 @@ export default function PaymentModal({
                 Cancel
               </AdminButton>
               <AdminButton type="submit" variant="primary" disabled={isPending}>
-                {isPending && <Loader2 size={13} className="animate-spin" />}
+                {isPending && <Loader2 size={16} className="animate-spin" />}
                 Confirm Payment
               </AdminButton>
             </div>
