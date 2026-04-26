@@ -132,9 +132,7 @@ export default async function LocaleLayout({
         <PreloaderProvider>
           <div className="min-h-screen bg-black text-royal-cream flex flex-col">
             <NextIntlClientProvider messages={messages}>
-              <ConditionalLayout>
-                <main className="flex-1">{children}</main>
-              </ConditionalLayout>
+              <ConditionalLayout>{children}</ConditionalLayout>
             </NextIntlClientProvider>
           </div>
         </PreloaderProvider>

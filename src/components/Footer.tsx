@@ -8,10 +8,10 @@ export default function Footer({ locale }: { locale: string }) {
   const brand = isArabic ? "الأكاديمية الملكية" : "Royal Academy";
 
   return (
-    <div className="relative shrink-0 bg-black px-4 py-1 sm:px-6 sm:py-1.5 md:px-8">
+    <footer className="relative w-full bg-black px-4 py-2.5 sm:px-6 md:px-8">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 -top-4 h-4 bg-linear-to-t from-white/30 via-black/55 to-transparent"
+        className="pointer-events-none absolute inset-x-0 -top-6 h-6 bg-linear-to-t from-white/10 via-black/90 to-transparent"
       />
       <div className="mx-auto w-full max-w-7xl text-xs text-royal md:text-sm">
         <div
@@ -66,6 +66,6 @@ export default function Footer({ locale }: { locale: string }) {
           </div>
         </div>
       </div>
-    </div>
+    </footer>
   );
 }

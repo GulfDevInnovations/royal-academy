@@ -30,26 +30,11 @@ export default function ConditionalLayout({
   return (
     <HomeNavProvider>
       <NavbarStateProvider>
-        <div className="min-h-svh">
+        <div className="flex min-h-screen flex-col">
           {!noNavPage && <Navbar />}
-          <div className={contentClassName}>{children}</div>
+          <div className="flex-1">{children}</div>
           {!noNavPage && !isHome && <Footer locale={locale} />}
         </div>
-
-        <style jsx>{`
-          @media (max-width: 767px) {
-            .class-route-shell {
-              -ms-overflow-style: none;
-              scrollbar-width: none;
-            }
-
-            .class-route-shell::-webkit-scrollbar {
-              display: none;
-              width: 0;
-              height: 0;
-            }
-          }
-        `}</style>
       </NavbarStateProvider>
     </HomeNavProvider>
   );
