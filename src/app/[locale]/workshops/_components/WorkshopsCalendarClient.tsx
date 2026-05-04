@@ -309,7 +309,7 @@ function WorkshopDayCard({
   const orbitRef       = useRef(0);
   const hoveredRef     = useRef(false);
   const orbitReadyRef  = useRef(false);
-  const gatherTimer    = useRef<ReturnType<typeof setTimeout>>();
+  const gatherTimer    = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const btnRectCache   = useRef<{ x: number; y: number; w: number; h: number } | null>(null);
 
   // Stable particles seeded by workshop id

@@ -1,22 +1,13 @@
 // lib/auth.ts
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-import type { User } from '@supabase/supabase-js'
+import NextAuth from 'next-auth';
+import { redirect } from 'next/navigation';
+import { authConfig } from './auth.config';
 
-// Use this when user MUST be logged in (server components/pages)
-// Redirects if not authenticated
-export async function requireUser(): Promise<User> {
-  const supabase = await createClient()
-  const { data: { user }, error } = await supabase.auth.getUser()
+export const { auth, handlers, signIn, signOut } = NextAuth(authConfig);
 
-  if (error || !user) redirect('/login')
-
-  return user // guaranteed non-null here
-}
-
-// Use this when auth is optional
-export async function getOptionalUser(): Promise<User | null> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  return user
+/** Throws/redirects if the caller is not authenticated. Returns the session user. */
+export async function requireUser() {
+  const session = await auth();
+  if (!session?.user) redirect('/login');
+  return session.user;
 }

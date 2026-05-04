@@ -112,7 +112,7 @@ export async function getMyClasses(studentId: string): Promise<{
       where: {
         studentId,
         multiMonthEnrollmentId: null,
-        status: { in: ["PENDING", "CONFIRMED"] },
+        status: { in: ["CONFIRMED"] },
       },
       orderBy: [{ year: "desc" }, { month: "desc" }],
       include: {
@@ -137,7 +137,7 @@ export async function getMyClasses(studentId: string): Promise<{
     prisma.multiMonthEnrollment.findMany({
       where: {
         studentId,
-        status: { in: ["PENDING", "CONFIRMED"] },
+        status: { in: ["CONFIRMED"] },
       },
       orderBy: [{ startYear: "desc" }, { startMonth: "desc" }],
       include: {

@@ -165,6 +165,8 @@ model User {
   phone        String?   @unique
   passwordHash String
   role         Role      @default(STUDENT)
+  resetToken       String?   @unique
+  resetTokenExpiry DateTime?
   isActive     Boolean   @default(true)
   isVerified   Boolean   @default(false)
   createdAt    DateTime  @default(now())
@@ -348,6 +350,10 @@ model SubClass {
   trialPrice        Decimal     @default(10) @db.Decimal(10, 2)
   isTrialAvailable  Boolean     @default(true)
   isReschedulable   Boolean     @default(false)
+  isOfferActive     Boolean     @default(false)
+  offerLabel        String?
+  offerDescription  String?     @db.Text
+  offerExpiresAt    DateTime?
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
 

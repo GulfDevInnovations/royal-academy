@@ -1,12 +1,13 @@
 // src/app/api/reschedule/available-slots/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { parseJsonArray } from "@/utils/parseJson";
 
 export async function GET(req: NextRequest) {
   // ── Auth ─────────────────────────────────────────────────────────────────
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const session = await auth();
+  const user = session?.user;
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const studentProfile = await prisma.studentProfile.findUnique({
@@ -101,10 +102,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Enrollment not found" }, { status: 404 });
 
     allowedMonths       = [{ month: enrollment.month, year: enrollment.year }];
-    enrolledScheduleIds = enrollment.scheduleIds ?? [];
+    enrolledScheduleIds = parseJsonArray<string>(enrollment.scheduleIds);
 
     if (enrolledScheduleIds.length === 0) {
-      const uniqueDays = [...new Set(enrollment.preferredDays)];
+      const uniqueDays = [...new Set(parseJsonArray<string>(enrollment.preferredDays))];
       const rows = await prisma.classSchedule.findMany({
         where: { subClassId: enrollment.subClassId, status: "ACTIVE", dayOfWeek: { in: uniqueDays as any[] } },
         select: { id: true },
@@ -128,9 +129,9 @@ export async function GET(req: NextRequest) {
       if (++m > 12) { m = 1; y++; }
     }
 
-    enrolledScheduleIds = enrollment.scheduleIds ?? [];
+    enrolledScheduleIds = parseJsonArray<string>(enrollment.scheduleIds);
     if (enrolledScheduleIds.length === 0) {
-      const uniqueDays = [...new Set(enrollment.preferredDays)];
+      const uniqueDays = [...new Set(parseJsonArray<string>(enrollment.preferredDays))];
       const rows = await prisma.classSchedule.findMany({
         where: { subClassId: enrollment.subClassId, status: "ACTIVE", dayOfWeek: { in: uniqueDays as any[] } },
         select: { id: true },

@@ -1,15 +1,12 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const session = await auth();
 
-    if (!user) {
+    if (!session?.user) {
       return NextResponse.json({
         authenticated: false,
         imageUrl: null,
@@ -18,7 +15,7 @@ export async function GET() {
     }
 
     const dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
+      where: { id: session.user.id },
       select: {
         image: true,
         email: true,
@@ -28,17 +25,13 @@ export async function GET() {
       },
     });
 
-    const metadataName =
-      typeof user.user_metadata?.full_name === "string"
-        ? user.user_metadata.full_name.trim()
-        : "";
-    const dbName =
+    const displayName =
       dbUser?.studentProfile?.firstName ||
       dbUser?.teacherProfile?.firstName ||
       dbUser?.adminProfile?.firstName ||
-      "";
-    const emailName = dbUser?.email?.split("@")[0] || user.email?.split("@")[0] || "";
-    const displayName = dbName || metadataName || emailName || "User";
+      session.user.name?.split(' ')[0] ||
+      session.user.email?.split('@')[0] ||
+      'User';
 
     return NextResponse.json({
       authenticated: true,

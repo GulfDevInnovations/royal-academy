@@ -1,21 +1,18 @@
 // src/app/[locale]/payment/trial/page.tsx
-import { notFound, redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
-import { TrialPaymentClient } from "./_components/TrialPaymentClient";
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { notFound, redirect } from 'next/navigation';
+import { TrialPaymentClient } from './_components/TrialPaymentClient';
 
-export const metadata = { title: "Complete Payment | Royal Academy" };
+export const metadata = { title: 'Complete Payment | Royal Academy' };
 
 export default async function TrialPaymentPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string>>;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login?redirect=/payment/trial");
+  const authSession = await auth();
+  if (!authSession?.user) redirect('/login?redirect=/payment/trial');
 
   const { trialBookingId } = await searchParams;
   if (!trialBookingId) notFound();

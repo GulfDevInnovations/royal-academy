@@ -1,15 +1,15 @@
 // src/app/[locale]/admin/notifications/page.tsx
 
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import {
+  getAudienceOptions,
   getNotifications,
   getNotificationStats,
-  getAudienceOptions,
   getTickets,
   getTicketStats,
-} from "@/lib/actions/admin/Notifications.actions";
-import NotificationsClient from "./_components/NotificationsClient";
+} from '@/lib/actions/admin/Notifications.actions';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import NotificationsClient from './_components/NotificationsClient';
 
 function serializeNotifications(
   notifs: Awaited<ReturnType<typeof getNotifications>>,
@@ -44,21 +44,11 @@ export type NotifStats = Awaited<ReturnType<typeof getNotificationStats>>;
 export type TicketStats = Awaited<ReturnType<typeof getTicketStats>>;
 
 export default async function AdminNotificationsPage() {
-  // Get the current admin's Prisma userId from Supabase session
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => cookieStore.getAll() } },
-  );
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const session = await auth();
 
-  const { prisma } = await import("@/lib/prisma");
-  const adminUser = user
+  const adminUser = session?.user
     ? await prisma.user.findUnique({
-        where: { id: user.id },
+        where: { id: session.user.id },
         select: { id: true },
       })
     : null;
@@ -79,7 +69,7 @@ export default async function AdminNotificationsPage() {
       audienceOptions={audienceOptions}
       initialTickets={serializeTickets(tickets)}
       initialTicketStats={ticketStats}
-      adminUserId={adminUser?.id ?? ""}
+      adminUserId={adminUser?.id ?? ''}
     />
   );
 }
