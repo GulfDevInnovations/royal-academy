@@ -1,50 +1,50 @@
-"use server";
+'use server';
 
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import { z } from "zod";
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import {
   Gender,
   Prisma,
   ProfileExperience,
   ProfileTrack,
   Role,
-} from "@prisma/client";
-import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
+} from '@prisma/client';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { z } from 'zod';
 
-const PROFILE_DRAFT_COOKIE = "profile_setting_draft";
+const PROFILE_DRAFT_COOKIE = 'profile_setting_draft';
 
 const REQUIRED_FIELDS = [
-  "firstName",
-  "lastName",
-  "dateOfBirth",
-  "gender",
-  "email",
-  "phone",
-  "emergencyContactName",
-  "emergencyContactPhone",
-  "emergencyRelationship",
-  "country",
-  "city",
-  "preferredTrack",
-  "experience",
+  'firstName',
+  'lastName',
+  'dateOfBirth',
+  'gender',
+  'email',
+  'phone',
+  'emergencyContactName',
+  'emergencyContactPhone',
+  'emergencyRelationship',
+  'country',
+  'city',
+  'preferredTrack',
+  'experience',
 ];
 
 function getString(formData: FormData, key: string) {
-  return String(formData.get(key) ?? "").trim();
+  return String(formData.get(key) ?? '').trim();
 }
 
 function normalizeLocalOmPhone(raw: string) {
-  const digits = raw.replace(/\D/g, "");
-  if (digits.startsWith("968") && digits.length >= 11) {
+  const digits = raw.replace(/\D/g, '');
+  if (digits.startsWith('968') && digits.length >= 11) {
     return digits.slice(3, 11);
   }
   return digits.slice(0, 8);
 }
 
 const profileSchema = z.object({
-  locale: z.enum(["en", "ar"]).default("en"),
+  locale: z.enum(['en', 'ar']).default('en'),
   firstName: z.string().trim().min(1),
   lastName: z.string().trim().min(1),
   email: z.string().trim().email(),
@@ -59,103 +59,105 @@ const profileSchema = z.object({
   hasMedicalCondition: z.boolean().default(false),
   medicalConditionDetails: z.string().trim().optional(),
   agreePolicy: z.literal(true),
-  emergencyRelationship: z.string().trim().min(1),   // was optional
-preferredTrack: z.enum([ProfileTrack.DANCE, ProfileTrack.MUSIC, ProfileTrack.ART]),  // remove .optional()
-experience: z.enum([
-  ProfileExperience.NO_EXPERIENCE,
-  ProfileExperience.LESS_THAN_ONE_YEAR,
-  ProfileExperience.MORE_THAN_ONE_YEAR,
-]),  // remove .optional()
-city: z.string().trim().min(1),      // was optional
-country: z.string().trim().min(1),   // was optional
+  emergencyRelationship: z.string().trim().min(1), // was optional
+  preferredTrack: z.enum([
+    ProfileTrack.DANCE,
+    ProfileTrack.MUSIC,
+    ProfileTrack.ART,
+  ]), // remove .optional()
+  experience: z.enum([
+    ProfileExperience.NO_EXPERIENCE,
+    ProfileExperience.LESS_THAN_ONE_YEAR,
+    ProfileExperience.MORE_THAN_ONE_YEAR,
+  ]), // remove .optional()
+  city: z.string().trim().min(1), // was optional
+  country: z.string().trim().min(1), // was optional
 });
 
 export async function saveProfileSettings(formData: FormData) {
   const cookieStore = await cookies();
-  const rawLocale = formData.get("locale");
-  const locale = rawLocale === "ar" ? "ar" : "en";
+  const rawLocale = formData.get('locale');
+  const locale = rawLocale === 'ar' ? 'ar' : 'en';
 
   const draft = {
-    firstName: getString(formData, "firstName"),
-    lastName: getString(formData, "lastName"),
-    email: getString(formData, "email"),
-    phone: normalizeLocalOmPhone(getString(formData, "phone")),
-    dateOfBirth: getString(formData, "dateOfBirth"),
-    gender: getString(formData, "gender"),
-    emergencyContactName: getString(formData, "emergencyContactName"),
+    firstName: getString(formData, 'firstName'),
+    lastName: getString(formData, 'lastName'),
+    email: getString(formData, 'email'),
+    phone: normalizeLocalOmPhone(getString(formData, 'phone')),
+    dateOfBirth: getString(formData, 'dateOfBirth'),
+    gender: getString(formData, 'gender'),
+    emergencyContactName: getString(formData, 'emergencyContactName'),
     emergencyContactPhone: normalizeLocalOmPhone(
-      getString(formData, "emergencyContactPhone"),
+      getString(formData, 'emergencyContactPhone'),
     ),
-    emergencyRelationship: getString(formData, "emergencyRelationship"),
-    preferredTrack: getString(formData, "preferredTrack"),
-    experience: getString(formData, "experience"),
-    address: getString(formData, "address"),
-    city: getString(formData, "city"),
-    country: getString(formData, "country"),
-    notes: getString(formData, "notes"),
-    imageUrl: getString(formData, "imageUrl"),
-    hasMedicalCondition: formData.get("hasMedicalCondition") === "on",
-    medicalConditionDetails: getString(formData, "medicalConditionDetails"),
-    agreePolicy: formData.get("agreePolicy") === "on",
+    emergencyRelationship: getString(formData, 'emergencyRelationship'),
+    preferredTrack: getString(formData, 'preferredTrack'),
+    experience: getString(formData, 'experience'),
+    address: getString(formData, 'address'),
+    city: getString(formData, 'city'),
+    country: getString(formData, 'country'),
+    notes: getString(formData, 'notes'),
+    imageUrl: getString(formData, 'imageUrl'),
+    hasMedicalCondition: formData.get('hasMedicalCondition') === 'on',
+    medicalConditionDetails: getString(formData, 'medicalConditionDetails'),
+    agreePolicy: formData.get('agreePolicy') === 'on',
   };
 
   cookieStore.set(
     PROFILE_DRAFT_COOKIE,
     encodeURIComponent(JSON.stringify(draft)),
     {
-      path: "/",
+      path: '/',
       maxAge: 60 * 30,
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: 'lax',
     },
   );
 
   const missingFields = REQUIRED_FIELDS.filter(
-  (field) => getString(formData, field).length === 0,
-);
-if (formData.get("agreePolicy") !== "on") {
-  missingFields.push("agreePolicy");
-}
+    (field) => getString(formData, field).length === 0,
+  );
+  if (formData.get('agreePolicy') !== 'on') {
+    missingFields.push('agreePolicy');
+  }
 
   if (missingFields.length > 0) {
-    const missing = encodeURIComponent(missingFields.join(","));
+    const missing = encodeURIComponent(missingFields.join(','));
     redirect(`/${locale}/profile-setting?error=required&missing=${missing}`);
   }
 
   const parsed = profileSchema.safeParse({
-    locale: formData.get("locale"),
-    firstName: getString(formData, "firstName"),
-    lastName: getString(formData, "lastName"),
-    email: getString(formData, "email"),
-    phone: normalizeLocalOmPhone(getString(formData, "phone")),
-    dateOfBirth: getString(formData, "dateOfBirth"),
-    gender: formData.get("gender"),
-    emergencyContactName: getString(formData, "emergencyContactName"),
+    locale: formData.get('locale'),
+    firstName: getString(formData, 'firstName'),
+    lastName: getString(formData, 'lastName'),
+    email: getString(formData, 'email'),
+    phone: normalizeLocalOmPhone(getString(formData, 'phone')),
+    dateOfBirth: getString(formData, 'dateOfBirth'),
+    gender: formData.get('gender'),
+    emergencyContactName: getString(formData, 'emergencyContactName'),
     emergencyContactPhone: normalizeLocalOmPhone(
-      getString(formData, "emergencyContactPhone"),
+      getString(formData, 'emergencyContactPhone'),
     ),
-    emergencyRelationship: getString(formData, "emergencyRelationship"),
-    preferredTrack: getString(formData, "preferredTrack") || undefined,
-    experience: getString(formData, "experience") || undefined,
-    address: getString(formData, "address"),
-    city: getString(formData, "city"),
-    country: getString(formData, "country"),
-    notes: getString(formData, "notes"),
-    imageUrl: getString(formData, "imageUrl"),
-    hasMedicalCondition: formData.get("hasMedicalCondition") === "on",
-    medicalConditionDetails: getString(formData, "medicalConditionDetails"),
-    agreePolicy: formData.get("agreePolicy") === "on",
+    emergencyRelationship: getString(formData, 'emergencyRelationship'),
+    preferredTrack: getString(formData, 'preferredTrack') || undefined,
+    experience: getString(formData, 'experience') || undefined,
+    address: getString(formData, 'address'),
+    city: getString(formData, 'city'),
+    country: getString(formData, 'country'),
+    notes: getString(formData, 'notes'),
+    imageUrl: getString(formData, 'imageUrl'),
+    hasMedicalCondition: formData.get('hasMedicalCondition') === 'on',
+    medicalConditionDetails: getString(formData, 'medicalConditionDetails'),
+    agreePolicy: formData.get('agreePolicy') === 'on',
   });
 
   if (!parsed.success) {
-    console.log("Profile validation errors:", parsed.error.flatten());
+    console.log('Profile validation errors:', parsed.error.flatten());
     redirect(`/${locale}/profile-setting?error=invalid`);
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const session = await auth();
+  const user = session?.user;
 
   if (!user) {
     redirect(`/${locale}/login?redirectTo=/${locale}/profile-setting`);
@@ -166,10 +168,10 @@ if (formData.get("agreePolicy") !== "on") {
     select: { role: true },
   });
 
-  console.log("AUTH_USER_ID", user?.id);
+  console.log('AUTH_USER_ID', user?.id);
 
   if (!dbUser) {
-    console.log("DB_USER_NOT_FOUND_FOR_SUPABASE_ID", user.id);
+    console.log('DB_USER_NOT_FOUND', session.user.id);
     redirect(`/${locale}/profile-setting?error=invalid`);
   }
 
@@ -202,7 +204,7 @@ if (formData.get("agreePolicy") !== "on") {
               emergencyRelationship: data.emergencyRelationship,
               hasMedicalCondition: data.hasMedicalCondition,
               medicalConditionDetails: data.hasMedicalCondition
-                ? (data.medicalConditionDetails || null)
+                ? data.medicalConditionDetails || null
                 : null,
               agreePolicy: data.agreePolicy,
               preferredTrack: data.preferredTrack ?? null,
@@ -222,7 +224,7 @@ if (formData.get("agreePolicy") !== "on") {
               emergencyRelationship: data.emergencyRelationship,
               hasMedicalCondition: data.hasMedicalCondition,
               medicalConditionDetails: data.hasMedicalCondition
-                ? (data.medicalConditionDetails || null)
+                ? data.medicalConditionDetails || null
                 : null,
               agreePolicy: data.agreePolicy,
               preferredTrack: data.preferredTrack ?? null,
@@ -236,25 +238,25 @@ if (formData.get("agreePolicy") !== "on") {
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
+      error.code === 'P2002'
     ) {
       const target = Array.isArray(error.meta?.target)
-        ? error.meta.target.join(",")
-        : String(error.meta?.target ?? "");
-      const conflictField = target.includes("phone")
-        ? "phone"
-        : target.includes("email")
-          ? "email"
-          : "unknown";
+        ? error.meta.target.join(',')
+        : String(error.meta?.target ?? '');
+      const conflictField = target.includes('phone')
+        ? 'phone'
+        : target.includes('email')
+          ? 'email'
+          : 'unknown';
       redirect(
-        `/${locale}/profile-setting?error=duplicate&field=${conflictField}`
+        `/${locale}/profile-setting?error=duplicate&field=${conflictField}`,
       );
     }
     throw error;
   }
 
-  cookieStore.set(PROFILE_DRAFT_COOKIE, "", {
-    path: "/",
+  cookieStore.set(PROFILE_DRAFT_COOKIE, '', {
+    path: '/',
     maxAge: 0,
   });
 

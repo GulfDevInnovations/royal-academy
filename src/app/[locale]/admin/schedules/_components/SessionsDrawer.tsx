@@ -104,7 +104,7 @@ export default function SessionsDrawer({
     setError(null);
     startRegen(async () => {
       const result = await regenerateSessions(schedule.id);
-      if ("error" in result) setError(result.error);
+      if ("error" in result) setError(result.error ?? null);
       else onRefresh();
     });
   };

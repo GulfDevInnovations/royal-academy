@@ -1,6 +1,7 @@
 "use client";
 
-import { Bell, Search, ChevronDown, LogOut, User } from "lucide-react";
+import { Bell, Search, ChevronDown, LogOut, User, Home } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { signOut } from "@/lib/actions/auth.actions";
 import { usePathname, useRouter } from "next/navigation";
@@ -120,6 +121,15 @@ export default function AdminHeader({
 
       {/* ── Right side ── */}
       <div className="flex items-center gap-2">
+        {/* Back to site */}
+        <Link
+          href={`/${locale}`}
+          className="p-2 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
+          title="Back to site"
+        >
+          <Home size={16} />
+        </Link>
+
         {/* Notifications */}
         <button className="relative p-2 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors">
           <Bell size={16} />

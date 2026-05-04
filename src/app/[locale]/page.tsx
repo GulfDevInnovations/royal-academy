@@ -1,9 +1,12 @@
-import { prisma } from "@/lib/prisma";
-import type { News, Offer, Upcoming } from "@prisma/client";
-import { parseJsonArray } from "@/utils/parseJson";
-export const dynamic = "force-dynamic";
-import HomeWrapper from "@/components/layout-toggle/HomeWrapper"; // adjust path if needed
+import { prisma } from '@/lib/prisma';
+import type { News, Offer, Upcoming } from '@prisma/client';
+import { parseJsonArray } from '@/utils/parseJson';
+import HeroSection from '@/app/[locale]/newhome/_components/HeroSection';
+import AboutSection from '@/components/AboutSection';
 
+export const dynamic = 'force-dynamic';
+
+const SIDEBAR_W = 150;
 
 export default async function Home({
   params,
@@ -11,11 +14,9 @@ export default async function Home({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const isAr = locale === 'ar';
 
-  const where = {
-    status: "ACTIVE" as const,
-    isActive: true,
-  };
+  const where = { status: 'ACTIVE' as const, isActive: true };
 
   let upcoming: Upcoming[] = [];
   let news: News[] = [];
@@ -23,26 +24,28 @@ export default async function Home({
 
   try {
     [upcoming, news, offers] = await Promise.all([
-      prisma.upcoming.findMany({ where, orderBy: { sortOrder: "asc" } }),
-      prisma.news.findMany({ where, orderBy: { sortOrder: "asc" } }),
-      prisma.offer.findMany({ where, orderBy: { sortOrder: "asc" } }),
+      prisma.upcoming.findMany({ where, orderBy: { createdAt: 'desc' }, take: 3 }),
+      prisma.news.findMany({ where, orderBy: { createdAt: 'desc' }, take: 3 }),
+      prisma.offer.findMany({ where, orderBy: { createdAt: 'desc' }, take: 3 }),
     ]);
-  } catch (error) {
-    // Dev convenience: allow the homepage to render even if Postgres isn't up locally.
-    // In production we still want to fail fast so we notice DB outages.
-    if (process.env.NODE_ENV === "production") throw error;
-    console.error("[home] Failed to load content from DB; rendering empty lists.", error);
+  } catch (e) {
+    if (process.env.NODE_ENV === 'production') throw e;
+    console.error('[home] Failed to load content from DB; rendering empty.', e);
   }
 
-  type WithBaseDates = {
-    createdAt: Date;
-    updatedAt: Date;
-    eventDate?: Date | null;
-    publishAt?: Date | null;
-    expireAt?: Date | null;
-  };
-
-  const serializeBase = <T extends WithBaseDates & { mediaUrls: unknown; videoUrls: unknown }>(i: T) => ({
+  const serializeBase = <
+    T extends {
+      createdAt: Date;
+      updatedAt: Date;
+      eventDate?: Date | null;
+      publishAt?: Date | null;
+      expireAt?: Date | null;
+      mediaUrls: unknown;
+      videoUrls: unknown;
+    },
+  >(
+    i: T,
+  ) => ({
     ...i,
     mediaUrls: parseJsonArray<string>(i.mediaUrls),
     videoUrls: parseJsonArray<string>(i.videoUrls),
@@ -54,18 +57,18 @@ export default async function Home({
   });
 
   return (
-    <HomeWrapper
-      key={locale}
-      worldData={{
-        upcoming: upcoming.map(serializeBase),
-        news: news.map(serializeBase),
-        offers: offers.map((i) => ({
+    <>
+      <HeroSection
+        upcoming={upcoming.map(serializeBase)}
+        news={news.map(serializeBase)}
+        offers={offers.map((i) => ({
           ...serializeBase(i),
           discountValue: i.discountValue?.toString() ?? null,
-        })),
-      }}
-      logoUrl="/images/logo/Logo-Color.png"
-      backgroundImageUrl="/images/rooms/initial-room4.png"
-    />
+        }))}
+      />
+      <div style={{ [isAr ? 'marginRight' : 'marginLeft']: SIDEBAR_W }}>
+        <AboutSection active locale={locale} scrollable />
+      </div>
+    </>
   );
 }

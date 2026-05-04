@@ -637,7 +637,7 @@ export default function WorkshopFormModal({
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => setIsOnline((v) => !v)}
+              onClick={() => setIsOnline((v: boolean) => !v)}
               className="relative w-10 h-5 rounded-full transition-colors flex-shrink-0"
               style={{
                 background: isOnline

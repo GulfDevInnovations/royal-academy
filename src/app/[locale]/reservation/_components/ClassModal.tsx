@@ -173,7 +173,7 @@ export function ClassModal({
                   </div>
                   {session.teacher.specialties.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {session.teacher.specialties.slice(0, 3).map((s) => (
+                      {session.teacher.specialties.slice(0, 3).map((s: string) => (
                         <span
                           key={s}
                           className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-royal-cream/50 border border-white/5"

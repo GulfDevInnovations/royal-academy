@@ -280,9 +280,9 @@ export default function StudentsClient({
 
   // ── Bulk activate/deactivate ──
   const handleBulkStatus = async (isActive: boolean) => {
-    const result = await setStudentsActive([...selected], isActive);
+    const result = await setStudentsActive([...selected], isActive) as { success?: boolean; error?: string };
     if (result.error) {
-      toast((result as { error: string }).error, "error");
+      toast(result.error, "error");
       return;
     }
     toast(

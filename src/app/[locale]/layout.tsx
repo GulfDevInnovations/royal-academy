@@ -8,6 +8,8 @@ import "../globals.css";
 import ConditionalLayout from "@/components/ConditionalLayout";
 import { PreloaderProvider } from "@/context/PreloaderContext";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 const goudy = localFont({
   src: [
@@ -121,6 +123,67 @@ export default async function LocaleLayout({
   const messages = await getMessages();
   const isArabic = locale === "ar";
 
+  // ── Session for sidebar ───────────────────────────────────────────────────
+  const session = await auth();
+  let sessionUser: { id: string; name: string; image: string | null; role: string | null } | null = null;
+
+  if (session?.user?.id) {
+    try {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: {
+          image: true,
+          studentProfile: { select: { firstName: true } },
+          teacherProfile: { select: { firstName: true } },
+          adminProfile: { select: { firstName: true } },
+        },
+      });
+      const firstName =
+        dbUser?.adminProfile?.firstName ??
+        dbUser?.teacherProfile?.firstName ??
+        dbUser?.studentProfile?.firstName ??
+        session.user.name ??
+        session.user.email?.split("@")[0] ??
+        (isArabic ? "المستخدم" : "User");
+
+      sessionUser = {
+        id: session.user.id,
+        name: firstName,
+        image: dbUser?.image ?? null,
+        role: (session.user as { role?: string }).role ?? null,
+      };
+    } catch {
+      // non-fatal — sidebar renders without user info
+    }
+  }
+
+  // ── Nav classes for sidebar ───────────────────────────────────────────────
+  type NavClass = {
+    id: string;
+    name: string;
+    name_ar: string | null;
+    subClasses: { id: string; name: string; name_ar: string | null }[];
+  };
+  let navClasses: NavClass[] = [];
+  try {
+    navClasses = await prisma.class.findMany({
+      where: { isActive: true },
+      orderBy: { sortOrder: "asc" },
+      select: {
+        id: true,
+        name: true,
+        name_ar: true,
+        subClasses: {
+          where: { isActive: true },
+          orderBy: { createdAt: "asc" },
+          select: { id: true, name: true, name_ar: true },
+        },
+      },
+    });
+  } catch {
+    // non-fatal — sidebar shows without classes
+  }
+
   return (
     <html
       lang={locale}
@@ -132,7 +195,7 @@ export default async function LocaleLayout({
         <PreloaderProvider>
           <div className="min-h-screen bg-black text-royal-cream flex flex-col">
             <NextIntlClientProvider messages={messages}>
-              <ConditionalLayout>
+              <ConditionalLayout sessionUser={sessionUser} navClasses={navClasses}>
                 <main className="flex-1">{children}</main>
               </ConditionalLayout>
             </NextIntlClientProvider>

@@ -1,15 +1,15 @@
 // src/app/[locale]/my-classes/page.tsx
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
-import MyClassesClient from "./_components/MyClassesClient";
-import { parseJsonArray } from "@/utils/parseJson";
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { parseJsonArray } from '@/utils/parseJson';
+import { redirect } from 'next/navigation';
 import type {
   EnrolledClass,
   RescheduledSession,
-} from "./_components/MyClassesClient";
+} from './_components/MyClassesClient';
+import MyClassesClient from './_components/MyClassesClient';
 
-export const metadata = { title: "My Classes | Royal Academy" };
+export const metadata = { title: 'My Classes | Royal Academy' };
 
 function plain<T>(v: T): T {
   return JSON.parse(JSON.stringify(v));
@@ -47,126 +47,125 @@ function resolveSlots(
 }
 
 export default async function MyClassesPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login?redirect=/my-classes");
+  const session = await auth();
+  if (!session?.user) redirect('/login?redirect=/my-classes');
 
   const studentProfile = await prisma.studentProfile.findUnique({
-    where: { userId: user.id },
+    where: { userId: session.user.id },
     select: { id: true, firstName: true, lastName: true },
   });
-  if (!studentProfile) redirect("/onboarding");
+  if (!studentProfile) redirect('/onboarding');
 
   const studentId = studentProfile.id;
 
-  const [singles, multis, rescheduleLogs, workshopBookings] = await Promise.all([
-    prisma.monthlyEnrollment.findMany({
-      where: {
-        studentId,
-        multiMonthEnrollmentId: null,
-        status: { in: ["CONFIRMED"] },
-      },
-      orderBy: [{ year: "desc" }, { month: "desc" }],
-      include: {
-        payment: { select: { status: true, amount: true, paidAt: true } },
-        subClass: {
-          include: {
-            class: { select: { id: true, name: true, iconUrl: true } },
-            classSchedules: {
-              where: { status: "ACTIVE" },
-              orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
-              select: {
-                id: true,
-                dayOfWeek: true,
-                startTime: true,
-                endTime: true,
-                teacher: { select: { firstName: true, lastName: true } },
+  const [singles, multis, rescheduleLogs, workshopBookings] = await Promise.all(
+    [
+      prisma.monthlyEnrollment.findMany({
+        where: {
+          studentId,
+          multiMonthEnrollmentId: null,
+          status: { in: ['CONFIRMED'] },
+        },
+        orderBy: [{ year: 'desc' }, { month: 'desc' }],
+        include: {
+          payment: { select: { status: true, amount: true, paidAt: true } },
+          subClass: {
+            include: {
+              class: { select: { id: true, name: true, iconUrl: true } },
+              classSchedules: {
+                where: { status: 'ACTIVE' },
+                orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }],
+                select: {
+                  id: true,
+                  dayOfWeek: true,
+                  startTime: true,
+                  endTime: true,
+                  teacher: { select: { firstName: true, lastName: true } },
+                },
               },
             },
           },
         },
-      },
-    }),
+      }),
 
-    prisma.multiMonthEnrollment.findMany({
-      where: { studentId, status: { in: ["CONFIRMED"] } },
-      orderBy: [{ startYear: "desc" }, { startMonth: "desc" }],
-      include: {
-        payment: { select: { status: true, amount: true, paidAt: true } },
-        subClass: {
-          include: {
-            class: { select: { id: true, name: true, iconUrl: true } },
-            classSchedules: {
-              where: { status: "ACTIVE" },
-              orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
-              select: {
-                id: true,
-                dayOfWeek: true,
-                startTime: true,
-                endTime: true,
-                teacher: { select: { firstName: true, lastName: true } },
+      prisma.multiMonthEnrollment.findMany({
+        where: { studentId, status: { in: ['CONFIRMED'] } },
+        orderBy: [{ startYear: 'desc' }, { startMonth: 'desc' }],
+        include: {
+          payment: { select: { status: true, amount: true, paidAt: true } },
+          subClass: {
+            include: {
+              class: { select: { id: true, name: true, iconUrl: true } },
+              classSchedules: {
+                where: { status: 'ACTIVE' },
+                orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }],
+                select: {
+                  id: true,
+                  dayOfWeek: true,
+                  startTime: true,
+                  endTime: true,
+                  teacher: { select: { firstName: true, lastName: true } },
+                },
               },
             },
           },
         },
-      },
-    }),
+      }),
 
-    // Fetch all reschedule logs for this student, newest first
-    prisma.rescheduleLog.findMany({
-      where: { studentId },
-      orderBy: { requestedAt: "desc" },
-      select: {
-        id: true,
-        requestedAt: true,
-        wasLost: true,
-        lostReason: true,
-        oldSession: {
-          select: {
-            id: true,
-            sessionDate: true,
-            startTime: true,
-            endTime: true,
-            schedule: {
-              select: {
-                subClassId: true,
-                dayOfWeek: true,
+      // Fetch all reschedule logs for this student, newest first
+      prisma.rescheduleLog.findMany({
+        where: { studentId },
+        orderBy: { requestedAt: 'desc' },
+        select: {
+          id: true,
+          requestedAt: true,
+          wasLost: true,
+          lostReason: true,
+          oldSession: {
+            select: {
+              id: true,
+              sessionDate: true,
+              startTime: true,
+              endTime: true,
+              schedule: {
+                select: {
+                  subClassId: true,
+                  dayOfWeek: true,
+                },
+              },
+            },
+          },
+          newSession: {
+            select: {
+              id: true,
+              sessionDate: true,
+              startTime: true,
+              endTime: true,
+              schedule: {
+                select: {
+                  dayOfWeek: true,
+                },
               },
             },
           },
         },
-        newSession: {
-          select: {
-            id: true,
-            sessionDate: true,
-            startTime: true,
-            endTime: true,
-            schedule: {
-              select: {
-                dayOfWeek: true,
-              },
-            },
-          },
-        },
-      },
-    }),
+      }),
 
-    // Workshop bookings for this student
-    prisma.workshopBooking.findMany({
-      where: { studentId, status: "CONFIRMED" },
-      orderBy: { bookedAt: "desc" },
-      include: {
-        workshop: {
-          include: {
-            teacher: { select: { firstName: true, lastName: true } },
+      // Workshop bookings for this student
+      prisma.workshopBooking.findMany({
+        where: { studentId, status: 'CONFIRMED' },
+        orderBy: { bookedAt: 'desc' },
+        include: {
+          workshop: {
+            include: {
+              teacher: { select: { firstName: true, lastName: true } },
+            },
           },
+          payment: { select: { status: true, amount: true, paidAt: true } },
         },
-        payment: { select: { status: true, amount: true, paidAt: true } },
-      },
-    }),
-  ]);
+      }),
+    ],
+  );
 
   const p = plain({ singles, multis, rescheduleLogs });
   const plainWorkshops: any[] = plain(workshopBookings);
@@ -182,14 +181,14 @@ export default async function MyClassesPage() {
     }
     reschedulesBySubClass.get(subClassId)!.push({
       logId: log.id,
-      requestedAt: log.requestedAt,
+      requestedAt: log.requestedAt instanceof Date ? log.requestedAt.toISOString() : log.requestedAt,
       wasLost: log.wasLost,
       lostReason: log.lostReason ?? null,
-      oldSessionDate: log.oldSession?.sessionDate ?? null,
+      oldSessionDate: log.oldSession?.sessionDate ? (log.oldSession.sessionDate instanceof Date ? log.oldSession.sessionDate.toISOString() : log.oldSession.sessionDate) : null,
       oldStartTime: log.oldSession?.startTime ?? null,
       oldEndTime: log.oldSession?.endTime ?? null,
       oldDayOfWeek: log.oldSession?.schedule?.dayOfWeek ?? null,
-      newSessionDate: log.newSession?.sessionDate ?? null,
+      newSessionDate: log.newSession?.sessionDate ? (log.newSession.sessionDate instanceof Date ? log.newSession.sessionDate.toISOString() : log.newSession.sessionDate) : null,
       newStartTime: log.newSession?.startTime ?? null,
       newEndTime: log.newSession?.endTime ?? null,
       newDayOfWeek: log.newSession?.schedule?.dayOfWeek ?? null,
@@ -200,7 +199,7 @@ export default async function MyClassesPage() {
     ...p.singles.map(
       (e: any): EnrolledClass => ({
         enrollmentId: e.id,
-        enrollmentType: "SINGLE",
+        enrollmentType: 'SINGLE',
         status: e.status,
         frequency: e.frequency,
         preferredDays: parseJsonArray<string>(e.preferredDays),
@@ -246,7 +245,7 @@ export default async function MyClassesPage() {
     ...p.multis.map(
       (m: any): EnrolledClass => ({
         enrollmentId: m.id,
-        enrollmentType: "MULTI",
+        enrollmentType: 'MULTI',
         status: m.status,
         frequency: m.frequency,
         preferredDays: parseJsonArray<string>(m.preferredDays),
@@ -292,9 +291,9 @@ export default async function MyClassesPage() {
     ...plainWorkshops.map(
       (wb: any): EnrolledClass => ({
         enrollmentId: wb.id,
-        enrollmentType: "WORKSHOP",
+        enrollmentType: 'WORKSHOP',
         status: wb.status,
-        frequency: "",
+        frequency: '',
         preferredDays: [],
         month: null,
         year: null,
@@ -327,7 +326,7 @@ export default async function MyClassesPage() {
           isReschedulable: false,
           oncePriceMonthly: null,
           twicePriceMonthly: null,
-          class: { id: wb.workshop.id, name: "Workshop", iconUrl: null },
+          class: { id: wb.workshop.id, name: 'Workshop', iconUrl: null },
         },
       }),
     ),

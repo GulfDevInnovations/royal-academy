@@ -1,11 +1,11 @@
 // src/app/[locale]/payment/page.tsx
-import { notFound, redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
-import { PaymentPageClient } from "./_components/PaymentPageClient";
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { notFound, redirect } from 'next/navigation';
+import { PaymentPageClient } from './_components/PaymentPageClient';
 
 export const metadata = {
-  title: "Payment | Royal Academy",
+  title: 'Payment | Royal Academy',
 };
 
 export default async function PaymentPage({
@@ -13,18 +13,14 @@ export default async function PaymentPage({
 }: {
   searchParams: Promise<Record<string, string>>;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login?redirect=/payment");
+  const authSession = await auth();
+  if (!authSession?.user) redirect('/login?redirect=/payment');
 
   const { studentId, sessionId, amount, currency } = await searchParams;
 
   if (!studentId || !sessionId || !amount) notFound();
 
-  // Resolve display data — read-only, no DB writes
-  const [student, session] = await Promise.all([
+  const [student, classSession] = await Promise.all([
     prisma.studentProfile.findUnique({
       where: { id: studentId },
       select: {
@@ -58,7 +54,7 @@ export default async function PaymentPage({
     }),
   ]);
 
-  if (!student || !session) notFound();
+  if (!student || !classSession) notFound();
 
   return (
     <PaymentPageClient
@@ -66,21 +62,21 @@ export default async function PaymentPage({
         studentId,
         sessionId,
         amount: Number(amount),
-        currency: currency ?? "OMR",
+        currency: currency ?? 'OMR',
         studentName: `${student.firstName} ${student.lastName}`,
         studentEmail: student.user.email,
         session: {
-          date: session.sessionDate.toISOString(),
-          startTime: session.startTime,
-          endTime: session.endTime,
+          date: classSession.sessionDate.toISOString(),
+          startTime: classSession.startTime,
+          endTime: classSession.endTime,
         },
         subClass: {
-          name: session.schedule.subClass.name,
-          level: session.schedule.subClass.level,
-          durationMinutes: session.schedule.subClass.durationMinutes,
-          className: session.schedule.subClass.class.name,
+          name: classSession.schedule.subClass.name,
+          level: classSession.schedule.subClass.level,
+          durationMinutes: classSession.schedule.subClass.durationMinutes,
+          className: classSession.schedule.subClass.class.name,
         },
-        teacher: session.schedule.teacher,
+        teacher: classSession.schedule.teacher,
       }}
     />
   );

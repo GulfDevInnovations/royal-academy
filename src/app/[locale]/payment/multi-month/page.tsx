@@ -1,22 +1,19 @@
 // src/app/[locale]/payment/multi-month/page.tsx
-import { notFound, redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
-import { MultiMonthPaymentClient } from "./_components/MultiMonthPaymentClient";
-import { parseJsonArray } from "@/utils/parseJson";
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { parseJsonArray } from '@/utils/parseJson';
+import { notFound, redirect } from 'next/navigation';
+import { MultiMonthPaymentClient } from './_components/MultiMonthPaymentClient';
 
-export const metadata = { title: "Complete Payment | Royal Academy" };
+export const metadata = { title: 'Complete Payment | Royal Academy' };
 
 export default async function MultiMonthPaymentPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string>>;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login?redirect=/payment/multi-month");
+  const session = await auth();
+  if (!session?.user) redirect('/login?redirect=/payment/multi-month');
 
   const { enrollmentId } = await searchParams;
   if (!enrollmentId) notFound();
@@ -30,7 +27,7 @@ export default async function MultiMonthPaymentPage({
         include: {
           class: { select: { name: true } },
           classSchedules: {
-            where: { status: "ACTIVE" },
+            where: { status: 'ACTIVE' },
             select: {
               dayOfWeek: true,
               teacher: {
@@ -65,7 +62,7 @@ export default async function MultiMonthPaymentPage({
         endYear: enrollment.endYear,
         totalMonths: enrollment.totalMonths,
         frequency: enrollment.frequency,
-        preferredDays,
+        preferredDays: preferredDays as any,
         monthlyPrice: Number(enrollment.totalAmount) / enrollment.totalMonths,
         totalAmount: Number(enrollment.totalAmount),
         currency: enrollment.currency,
