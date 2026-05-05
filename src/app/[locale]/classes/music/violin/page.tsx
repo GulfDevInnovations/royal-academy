@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { Pause, Play } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { Pause, Play } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   musicCtaTextClass,
   musicHelperTextClass,
   musicTypography,
-} from "@/lib/musicTypography";
+} from '@/lib/musicTypography';
 
 const WAVEFORM_BAR_COUNT = 28;
 const WAVEFORM_IDLE_BARS = Array.from(
@@ -18,48 +18,230 @@ const WAVEFORM_IDLE_BARS = Array.from(
 
 const GLASS_CARD_STYLE = {
   background:
-    "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)",
-  backdropFilter: "blur(18px)",
-  WebkitBackdropFilter: "blur(18px)",
-  borderColor: "rgba(217,192,161,0.22)",
-  boxShadow: "0 18px 42px rgba(0,0,0,0.30)",
+    'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)',
+  backdropFilter: 'blur(18px)',
+  WebkitBackdropFilter: 'blur(18px)',
+  borderColor: 'rgba(217,192,161,0.22)',
+  boxShadow: '0 18px 42px rgba(0,0,0,0.30)',
 } as const;
 
 const TEXT_HIGHLIGHT_STYLE = {
-  background: "rgba(43,25,18,0.48)",
-  padding: "0.06rem 0.32rem",
-  borderRadius: "0.35rem",
-  boxDecorationBreak: "clone",
-  WebkitBoxDecorationBreak: "clone",
+  background: 'rgba(43,25,18,0.48)',
+  padding: '0.06rem 0.32rem',
+  borderRadius: '0.35rem',
+  boxDecorationBreak: 'clone',
+  WebkitBoxDecorationBreak: 'clone',
 } as const;
 
 const VIOLIN_SPARKLES = [
-  { id: "sparkle-1", left: "8%", top: "10%", size: "0.3rem", delay: "0s", duration: "4.2s" },
-  { id: "sparkle-2", left: "16%", top: "18%", size: "0.22rem", delay: "0.8s", duration: "5s" },
-  { id: "sparkle-3", left: "26%", top: "9%", size: "0.18rem", delay: "1.4s", duration: "4.6s" },
-  { id: "sparkle-4", left: "34%", top: "22%", size: "0.26rem", delay: "0.3s", duration: "5.4s" },
-  { id: "sparkle-5", left: "44%", top: "12%", size: "0.34rem", delay: "1.7s", duration: "4.8s" },
-  { id: "sparkle-6", left: "56%", top: "14%", size: "0.2rem", delay: "0.5s", duration: "5.2s" },
-  { id: "sparkle-7", left: "66%", top: "20%", size: "0.28rem", delay: "1.1s", duration: "4.4s" },
-  { id: "sparkle-8", left: "76%", top: "11%", size: "0.18rem", delay: "0.2s", duration: "5.6s" },
-  { id: "sparkle-9", left: "86%", top: "17%", size: "0.3rem", delay: "1.9s", duration: "4.9s" },
-  { id: "sparkle-10", left: "14%", top: "34%", size: "0.18rem", delay: "0.6s", duration: "5.1s" },
-  { id: "sparkle-11", left: "28%", top: "42%", size: "0.24rem", delay: "1.5s", duration: "4.5s" },
-  { id: "sparkle-12", left: "72%", top: "38%", size: "0.22rem", delay: "0.9s", duration: "5.3s" },
-  { id: "sparkle-13", left: "84%", top: "46%", size: "0.18rem", delay: "1.2s", duration: "4.7s" },
-  { id: "sparkle-14", left: "11%", top: "14%", size: "0.16rem", delay: "0.4s", duration: "4.9s" },
-  { id: "sparkle-15", left: "20%", top: "26%", size: "0.28rem", delay: "1.1s", duration: "5.2s" },
-  { id: "sparkle-16", left: "31%", top: "15%", size: "0.2rem", delay: "1.8s", duration: "4.4s" },
-  { id: "sparkle-17", left: "39%", top: "31%", size: "0.18rem", delay: "0.7s", duration: "5.5s" },
-  { id: "sparkle-18", left: "48%", top: "24%", size: "0.26rem", delay: "1.3s", duration: "4.6s" },
-  { id: "sparkle-19", left: "53%", top: "8%", size: "0.16rem", delay: "0.1s", duration: "5.1s" },
-  { id: "sparkle-20", left: "61%", top: "29%", size: "0.24rem", delay: "1.6s", duration: "4.7s" },
-  { id: "sparkle-21", left: "69%", top: "13%", size: "0.18rem", delay: "0.5s", duration: "5.4s" },
-  { id: "sparkle-22", left: "78%", top: "27%", size: "0.26rem", delay: "1s", duration: "4.8s" },
-  { id: "sparkle-23", left: "89%", top: "23%", size: "0.16rem", delay: "1.7s", duration: "5.2s" },
-  { id: "sparkle-24", left: "22%", top: "48%", size: "0.18rem", delay: "0.2s", duration: "4.5s" },
-  { id: "sparkle-25", left: "58%", top: "41%", size: "0.22rem", delay: "1.4s", duration: "5.3s" },
-  { id: "sparkle-26", left: "76%", top: "44%", size: "0.2rem", delay: "0.9s", duration: "4.9s" },
+  {
+    id: 'sparkle-1',
+    left: '8%',
+    top: '10%',
+    size: '0.3rem',
+    delay: '0s',
+    duration: '4.2s',
+  },
+  {
+    id: 'sparkle-2',
+    left: '16%',
+    top: '18%',
+    size: '0.22rem',
+    delay: '0.8s',
+    duration: '5s',
+  },
+  {
+    id: 'sparkle-3',
+    left: '26%',
+    top: '9%',
+    size: '0.18rem',
+    delay: '1.4s',
+    duration: '4.6s',
+  },
+  {
+    id: 'sparkle-4',
+    left: '34%',
+    top: '22%',
+    size: '0.26rem',
+    delay: '0.3s',
+    duration: '5.4s',
+  },
+  {
+    id: 'sparkle-5',
+    left: '44%',
+    top: '12%',
+    size: '0.34rem',
+    delay: '1.7s',
+    duration: '4.8s',
+  },
+  {
+    id: 'sparkle-6',
+    left: '56%',
+    top: '14%',
+    size: '0.2rem',
+    delay: '0.5s',
+    duration: '5.2s',
+  },
+  {
+    id: 'sparkle-7',
+    left: '66%',
+    top: '20%',
+    size: '0.28rem',
+    delay: '1.1s',
+    duration: '4.4s',
+  },
+  {
+    id: 'sparkle-8',
+    left: '76%',
+    top: '11%',
+    size: '0.18rem',
+    delay: '0.2s',
+    duration: '5.6s',
+  },
+  {
+    id: 'sparkle-9',
+    left: '86%',
+    top: '17%',
+    size: '0.3rem',
+    delay: '1.9s',
+    duration: '4.9s',
+  },
+  {
+    id: 'sparkle-10',
+    left: '14%',
+    top: '34%',
+    size: '0.18rem',
+    delay: '0.6s',
+    duration: '5.1s',
+  },
+  {
+    id: 'sparkle-11',
+    left: '28%',
+    top: '42%',
+    size: '0.24rem',
+    delay: '1.5s',
+    duration: '4.5s',
+  },
+  {
+    id: 'sparkle-12',
+    left: '72%',
+    top: '38%',
+    size: '0.22rem',
+    delay: '0.9s',
+    duration: '5.3s',
+  },
+  {
+    id: 'sparkle-13',
+    left: '84%',
+    top: '46%',
+    size: '0.18rem',
+    delay: '1.2s',
+    duration: '4.7s',
+  },
+  {
+    id: 'sparkle-14',
+    left: '11%',
+    top: '14%',
+    size: '0.16rem',
+    delay: '0.4s',
+    duration: '4.9s',
+  },
+  {
+    id: 'sparkle-15',
+    left: '20%',
+    top: '26%',
+    size: '0.28rem',
+    delay: '1.1s',
+    duration: '5.2s',
+  },
+  {
+    id: 'sparkle-16',
+    left: '31%',
+    top: '15%',
+    size: '0.2rem',
+    delay: '1.8s',
+    duration: '4.4s',
+  },
+  {
+    id: 'sparkle-17',
+    left: '39%',
+    top: '31%',
+    size: '0.18rem',
+    delay: '0.7s',
+    duration: '5.5s',
+  },
+  {
+    id: 'sparkle-18',
+    left: '48%',
+    top: '24%',
+    size: '0.26rem',
+    delay: '1.3s',
+    duration: '4.6s',
+  },
+  {
+    id: 'sparkle-19',
+    left: '53%',
+    top: '8%',
+    size: '0.16rem',
+    delay: '0.1s',
+    duration: '5.1s',
+  },
+  {
+    id: 'sparkle-20',
+    left: '61%',
+    top: '29%',
+    size: '0.24rem',
+    delay: '1.6s',
+    duration: '4.7s',
+  },
+  {
+    id: 'sparkle-21',
+    left: '69%',
+    top: '13%',
+    size: '0.18rem',
+    delay: '0.5s',
+    duration: '5.4s',
+  },
+  {
+    id: 'sparkle-22',
+    left: '78%',
+    top: '27%',
+    size: '0.26rem',
+    delay: '1s',
+    duration: '4.8s',
+  },
+  {
+    id: 'sparkle-23',
+    left: '89%',
+    top: '23%',
+    size: '0.16rem',
+    delay: '1.7s',
+    duration: '5.2s',
+  },
+  {
+    id: 'sparkle-24',
+    left: '22%',
+    top: '48%',
+    size: '0.18rem',
+    delay: '0.2s',
+    duration: '4.5s',
+  },
+  {
+    id: 'sparkle-25',
+    left: '58%',
+    top: '41%',
+    size: '0.22rem',
+    delay: '1.4s',
+    duration: '5.3s',
+  },
+  {
+    id: 'sparkle-26',
+    left: '76%',
+    top: '44%',
+    size: '0.2rem',
+    delay: '0.9s',
+    duration: '4.9s',
+  },
 ] as const;
 
 function GlassControlButton({
@@ -84,10 +266,10 @@ function GlassControlButton({
 }
 
 function formatTime(value: number) {
-  if (!Number.isFinite(value) || value < 0) return "0:00";
+  if (!Number.isFinite(value) || value < 0) return '0:00';
   const minutes = Math.floor(value / 60);
   const seconds = Math.floor(value % 60);
-  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+  return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
 function AudioWaveform({ bars }: { bars: number[] }) {
@@ -115,7 +297,7 @@ function ViolinSparkles() {
     <div
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 z-10 overflow-hidden"
-      style={{ direction: "ltr" }}
+      style={{ direction: 'ltr' }}
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,rgba(255,244,211,0.16)_0%,rgba(255,244,211,0.05)_26%,transparent_58%)]" />
       {VIOLIN_SPARKLES.map((sparkle) => (
@@ -140,21 +322,21 @@ function ViolinSparkles() {
 
 export default function ViolinPage() {
   const params = useParams<{ locale: string }>();
-  const locale = params?.locale ?? "en";
-  const isArabic = locale === "ar";
-  const reservationHref = `/${locale}/reservation`;
+  const locale = params?.locale ?? 'en';
+  const isArabic = locale === 'ar';
+  const enrollmentHref = `/${locale}/enrollment`;
   const content = isArabic
     ? {
         paragraph:
-          "نشأ الكمان في إيطاليا خلال القرن السادس عشر، وتطوّر من آلات وترية مقوّسة أقدم، ثم بلغ كماله على يد صنّاع بارعين مثل أنطونيو ستراديفاري، ليصبح واحداً من أكثر الآلات تعبيراً في الموسيقى الكلاسيكية. ومع مرور الوقت، أخذ مكانة محورية في الأوركسترا والعزف المنفرد، واشتهر بقدرته على نقل المشاعر العميقة. ومن أجمل الأمثلة على هذه القوة التعبيرية مقطوعة تأمل من أوبرا تاييس لجول ماسينيه، وهي من أكثر أعمال الكمان رومانسية، وتتميّز بلحنها الحالم الرقيق وطابعها العاطفي الشغوف الذي يجسّد أناقة الكمان وعمقه الوجداني. 🎻",
-        reserveHelper: "احجز تجربتك مع الكمان",
-        reserveCta: "التسجيل",
+          'نشأ الكمان في إيطاليا خلال القرن السادس عشر، وتطوّر من آلات وترية مقوّسة أقدم، ثم بلغ كماله على يد صنّاع بارعين مثل أنطونيو ستراديفاري، ليصبح واحداً من أكثر الآلات تعبيراً في الموسيقى الكلاسيكية. ومع مرور الوقت، أخذ مكانة محورية في الأوركسترا والعزف المنفرد، واشتهر بقدرته على نقل المشاعر العميقة. ومن أجمل الأمثلة على هذه القوة التعبيرية مقطوعة تأمل من أوبرا تاييس لجول ماسينيه، وهي من أكثر أعمال الكمان رومانسية، وتتميّز بلحنها الحالم الرقيق وطابعها العاطفي الشغوف الذي يجسّد أناقة الكمان وعمقه الوجداني. 🎻',
+        reserveHelper: 'احجز تجربتك مع الكمان',
+        reserveCta: 'التسجيل',
       }
     : {
         paragraph:
-          "The Violin originated in 16th-century Italy, evolving from earlier bowed instruments, and was perfected by master makers like Antonio Stradivari, becoming one of the most expressive instruments in classical music. Over time, it took a central role in orchestras and solo performances, admired for its ability to convey deep emotion. A beautiful example of this expressive power is Meditation from Thaïs by Jules Massenet, one of the most romantic violin pieces ever written, known for its soft, dreamy melody and passionate character that captures the elegance and emotional depth of the violin. 🎻",
-        reserveHelper: "Reserve your violin experience",
-        reserveCta: "Enrollment",
+          'The Violin originated in 16th-century Italy, evolving from earlier bowed instruments, and was perfected by master makers like Antonio Stradivari, becoming one of the most expressive instruments in classical music. Over time, it took a central role in orchestras and solo performances, admired for its ability to convey deep emotion. A beautiful example of this expressive power is Meditation from Thaïs by Jules Massenet, one of the most romantic violin pieces ever written, known for its soft, dreamy melody and passionate character that captures the elegance and emotional depth of the violin. 🎻',
+        reserveHelper: 'Reserve your violin experience',
+        reserveCta: 'Enrollment',
       };
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -166,7 +348,8 @@ export default function ViolinPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [sliderValue, setSliderValue] = useState(0);
-  const [waveformBars, setWaveformBars] = useState<number[]>(WAVEFORM_IDLE_BARS);
+  const [waveformBars, setWaveformBars] =
+    useState<number[]>(WAVEFORM_IDLE_BARS);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -210,22 +393,22 @@ export default function ViolinPage() {
       stopWaveform();
     };
 
-    audio.addEventListener("play", handlePlay);
-    audio.addEventListener("pause", handlePause);
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("durationchange", syncDuration);
-    audio.addEventListener("canplay", syncDuration);
-    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('durationchange', syncDuration);
+    audio.addEventListener('canplay', syncDuration);
+    audio.addEventListener('ended', handleEnded);
 
     return () => {
-      audio.removeEventListener("play", handlePlay);
-      audio.removeEventListener("pause", handlePause);
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("durationchange", syncDuration);
-      audio.removeEventListener("canplay", syncDuration);
-      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('durationchange', syncDuration);
+      audio.removeEventListener('canplay', syncDuration);
+      audio.removeEventListener('ended', handleEnded);
     };
   }, []);
 
@@ -258,19 +441,26 @@ export default function ViolinPage() {
     const updateWaveform = () => {
       analyser.getByteFrequencyData(frequencyData);
 
-      const nextBars = Array.from({ length: WAVEFORM_BAR_COUNT }, (_, index) => {
-        const start = Math.floor((index * frequencyData.length) / WAVEFORM_BAR_COUNT);
-        const end = Math.floor(((index + 1) * frequencyData.length) / WAVEFORM_BAR_COUNT);
-        let total = 0;
+      const nextBars = Array.from(
+        { length: WAVEFORM_BAR_COUNT },
+        (_, index) => {
+          const start = Math.floor(
+            (index * frequencyData.length) / WAVEFORM_BAR_COUNT,
+          );
+          const end = Math.floor(
+            ((index + 1) * frequencyData.length) / WAVEFORM_BAR_COUNT,
+          );
+          let total = 0;
 
-        for (let cursor = start; cursor < end; cursor += 1) {
-          total += frequencyData[cursor] ?? 0;
-        }
+          for (let cursor = start; cursor < end; cursor += 1) {
+            total += frequencyData[cursor] ?? 0;
+          }
 
-        const average = total / Math.max(1, end - start);
-        const normalized = average / 255;
-        return 0.18 + normalized * 0.82;
-      });
+          const average = total / Math.max(1, end - start);
+          const normalized = average / 255;
+          return 0.18 + normalized * 0.82;
+        },
+      );
 
       setWaveformBars(nextBars);
       animationFrameRef.current = window.requestAnimationFrame(updateWaveform);
@@ -314,7 +504,7 @@ export default function ViolinPage() {
       sourceNodeRef.current = source;
     }
 
-    if (audioContextRef.current.state === "suspended") {
+    if (audioContextRef.current.state === 'suspended') {
       await audioContextRef.current.resume();
     }
   };
@@ -357,7 +547,7 @@ export default function ViolinPage() {
   return (
     <main
       className="relative min-h-screen overflow-hidden bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: "url('/images/violin.png')", direction: "ltr" }}
+      style={{ backgroundImage: "url('/images/violin.png')", direction: 'ltr' }}
     >
       <audio
         ref={audioRef}
@@ -370,7 +560,7 @@ export default function ViolinPage() {
 
       <section
         className="relative z-20 hidden min-h-screen px-6 pb-12 pt-24 lg:block xl:px-10 xl:pt-28"
-        style={{ direction: "ltr" }}
+        style={{ direction: 'ltr' }}
       >
         <div className="mx-auto flex w-full max-w-7xl items-start justify-between gap-8 xl:gap-12">
           <div
@@ -385,12 +575,15 @@ export default function ViolinPage() {
 
             <div className="liquid-glass flex items-center gap-2 rounded-full px-3 py-2">
               <GlassControlButton label="Play track" onClick={playAudio}>
-                <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
+                <Play
+                  size={12}
+                  className={isPlaying ? 'text-royal-cream' : ''}
+                />
               </GlassControlButton>
               <GlassControlButton label="Pause track" onClick={pauseAudio}>
                 <Pause
                   size={12}
-                  className={!isPlaying ? "text-royal-cream" : ""}
+                  className={!isPlaying ? 'text-royal-cream' : ''}
                 />
               </GlassControlButton>
             </div>
@@ -419,7 +612,7 @@ export default function ViolinPage() {
                 className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
               >
                 <span>{formatTime(currentTime)}</span>
-                <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
+                <span>{progress ? `${Math.round(progress)}%` : '0%'}</span>
                 <span>{formatTime(duration)}</span>
               </div>
             </div>
@@ -429,11 +622,11 @@ export default function ViolinPage() {
             <div
               className="rounded-[1.65rem] border px-6 py-6 sm:px-6.5 sm:py-6.5"
               style={GLASS_CARD_STYLE}
-              dir={isArabic ? "rtl" : "ltr"}
+              dir={isArabic ? 'rtl' : 'ltr'}
             >
               <p
                 className={`${musicTypography.body} text-[17.5px] leading-[1.9rem] text-royal-cream/90 sm:text-[18.5px] sm:leading-[2rem] ${
-                  isArabic ? "text-right" : ""
+                  isArabic ? 'text-right' : ''
                 }`}
               >
                 <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
@@ -441,18 +634,20 @@ export default function ViolinPage() {
 
               <div
                 className={`mt-4 flex flex-col gap-3 ${
-                  isArabic ? "items-end" : "items-start"
+                  isArabic ? 'items-end' : 'items-start'
                 }`}
               >
                 <p
                   className={`${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
-                    isArabic ? "text-right" : ""
+                    isArabic ? 'text-right' : ''
                   }`}
                 >
-                  <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
+                  <span style={TEXT_HIGHLIGHT_STYLE}>
+                    {content.reserveHelper}
+                  </span>
                 </p>
                 <Link
-                  href={reservationHref}
+                  href={enrollmentHref}
                   className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 ${musicCtaTextClass(
                     isArabic,
                   )} text-[#2b1912] transition-transform duration-300 hover:scale-[1.03]`}
@@ -467,7 +662,7 @@ export default function ViolinPage() {
 
       <section
         className="relative z-20 flex min-h-screen flex-col items-center justify-center gap-6 px-4 py-24 sm:px-6 lg:hidden"
-        style={{ direction: "ltr" }}
+        style={{ direction: 'ltr' }}
       >
         <div
           className="font-goudy flex w-full max-w-[18rem] flex-col items-center gap-4 sm:max-w-[20rem]"
@@ -481,12 +676,12 @@ export default function ViolinPage() {
 
           <div className="liquid-glass flex items-center gap-2 rounded-full px-3 py-2">
             <GlassControlButton label="Play track" onClick={playAudio}>
-              <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
+              <Play size={12} className={isPlaying ? 'text-royal-cream' : ''} />
             </GlassControlButton>
             <GlassControlButton label="Pause track" onClick={pauseAudio}>
               <Pause
                 size={12}
-                className={!isPlaying ? "text-royal-cream" : ""}
+                className={!isPlaying ? 'text-royal-cream' : ''}
               />
             </GlassControlButton>
           </div>
@@ -515,7 +710,7 @@ export default function ViolinPage() {
               className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
             >
               <span>{formatTime(currentTime)}</span>
-              <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
+              <span>{progress ? `${Math.round(progress)}%` : '0%'}</span>
               <span>{formatTime(duration)}</span>
             </div>
           </div>
@@ -523,11 +718,11 @@ export default function ViolinPage() {
           <div
             className="w-full max-w-[27rem] rounded-[1.65rem] border px-6 py-6 sm:max-w-[29rem] sm:px-6.5 sm:py-6.5"
             style={GLASS_CARD_STYLE}
-            dir={isArabic ? "rtl" : "ltr"}
+            dir={isArabic ? 'rtl' : 'ltr'}
           >
             <p
               className={`${musicTypography.body} text-[17.5px] leading-[1.9rem] text-royal-cream/90 sm:text-[18.5px] sm:leading-[2rem] ${
-                isArabic ? "text-right" : ""
+                isArabic ? 'text-right' : ''
               }`}
             >
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
@@ -535,18 +730,20 @@ export default function ViolinPage() {
 
             <div
               className={`mt-4 flex flex-col gap-3 ${
-                isArabic ? "items-end" : "items-start"
+                isArabic ? 'items-end' : 'items-start'
               }`}
             >
               <p
                 className={`${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
-                  isArabic ? "text-right" : ""
+                  isArabic ? 'text-right' : ''
                 }`}
               >
-                <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
+                <span style={TEXT_HIGHLIGHT_STYLE}>
+                  {content.reserveHelper}
+                </span>
               </p>
               <Link
-                href={reservationHref}
+                href={enrollmentHref}
                 className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 ${musicCtaTextClass(
                   isArabic,
                 )} text-[#2b1912] transition-transform duration-300 hover:scale-[1.03]`}
@@ -590,7 +787,7 @@ export default function ViolinPage() {
         }
 
         .violin-sparkle-cross::after {
-          content: "";
+          content: '';
           position: absolute;
           inset: 50%;
           width: 1px;

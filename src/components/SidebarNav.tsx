@@ -61,7 +61,10 @@ interface SidebarNavProps {
 // ─── Nav helpers ─────────────────────────────────────────────────────────────
 
 function toSlug(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 // ─── Nav data ────────────────────────────────────────────────────────────────
@@ -77,14 +80,34 @@ function buildNav(locale: string, navClasses: NavClass[]): NavItem[] {
       href: classHref,
     }));
     return subItems.length > 0
-      ? { id: `cls-${cls.id}`, labelEn: cls.name, labelAr: cls.name_ar ?? cls.name, children: subItems }
-      : { id: `cls-${cls.id}`, labelEn: cls.name, labelAr: cls.name_ar ?? cls.name, href: classHref };
+      ? {
+          id: `cls-${cls.id}`,
+          labelEn: cls.name,
+          labelAr: cls.name_ar ?? cls.name,
+          children: subItems,
+        }
+      : {
+          id: `cls-${cls.id}`,
+          labelEn: cls.name,
+          labelAr: cls.name_ar ?? cls.name,
+          href: classHref,
+        };
   });
 
   const classesEntry: NavItem =
     classChildren.length > 0
-      ? { id: 'classes', labelEn: 'Classes', labelAr: 'الفصول', children: classChildren }
-      : { id: 'classes', labelEn: 'Classes', labelAr: 'الفصول', href: `/${locale}/reservation` };
+      ? {
+          id: 'classes',
+          labelEn: 'Classes',
+          labelAr: 'الفصول',
+          children: classChildren,
+        }
+      : {
+          id: 'classes',
+          labelEn: 'Classes',
+          labelAr: 'الفصول',
+          href: `/${locale}/enrollment`,
+        };
 
   return [
     classesEntry,
@@ -92,7 +115,7 @@ function buildNav(locale: string, navClasses: NavClass[]): NavItem[] {
       id: 'enrollment',
       labelEn: 'Enrollment',
       labelAr: 'التسجيل',
-      href: `/${locale}/reservation`,
+      href: `/${locale}/enrollment`,
     },
     {
       id: 'workshops',
@@ -121,6 +144,60 @@ function buildNav(locale: string, navClasses: NavClass[]): NavItem[] {
   ];
 }
 
+// ─── Breadcrumbs ─────────────────────────────────────────────────────────────
+
+function buildBreadcrumbs(
+  pathname: string | null,
+  locale: string,
+  navClasses: NavClass[],
+  isAr: boolean,
+): { label: string; href: string }[] {
+  if (!pathname) return [];
+  const isHome = /^\/[a-z]{2}(\/)?$/.test(pathname);
+  if (isHome) return [];
+
+  const crumbs: { label: string; href: string }[] = [
+    { label: isAr ? 'الرئيسية' : 'Home', href: `/${locale}` },
+  ];
+
+  const segments = pathname
+    .replace(new RegExp(`^\\/${locale}`), '')
+    .split('/')
+    .filter(Boolean);
+  if (segments.length === 0) return crumbs;
+
+  const pageLabels: Record<string, string> = {
+    enrollment: isAr ? 'التسجيل' : 'Enrollment',
+    workshops: isAr ? 'ورش العمل' : 'Workshops',
+    gallery: isAr ? 'المعرض' : 'Gallery',
+    about: isAr ? 'خلفيتنا' : 'Our Background',
+    'profile-setting': isAr ? 'الملف الشخصي' : 'Profile',
+    'my-classes': isAr ? 'دروسي' : 'My Classes',
+    payments: isAr ? 'المدفوعات' : 'Payments',
+    signup: isAr ? 'إنشاء حساب' : 'Sign Up',
+    'forgot-password': isAr ? 'نسيت كلمة المرور' : 'Forgot Password',
+  };
+
+  const page = segments[0];
+
+  if (page === 'classes') {
+    crumbs.push({
+      label: isAr ? 'الفصول' : 'Classes',
+      href: `/${locale}/enrollment`,
+    });
+    if (segments[1]) {
+      const slug = segments[1];
+      const cls = navClasses.find((c) => toSlug(c.name) === slug);
+      const name = cls ? (isAr ? cls.name_ar ?? cls.name : cls.name) : slug;
+      crumbs.push({ label: name, href: pathname });
+    }
+  } else if (pageLabels[page]) {
+    crumbs.push({ label: pageLabels[page], href: `/${locale}/${page}` });
+  }
+
+  return crumbs;
+}
+
 // ─── Widths (px) ─────────────────────────────────────────────────────────────
 
 export const SIDEBAR_W = 150;
@@ -145,7 +222,10 @@ interface AppNotification {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function SidebarNav({ sessionUser = null, navClasses = [] }: SidebarNavProps) {
+export default function SidebarNav({
+  sessionUser = null,
+  navClasses = [],
+}: SidebarNavProps) {
   const params = useParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -412,6 +492,8 @@ export default function SidebarNav({ sessionUser = null, navClasses = [] }: Side
     },
   ];
 
+  const breadcrumbs = buildBreadcrumbs(pathname, locale, navClasses, isAr);
+
   const activeL1Node = NAV_ITEMS.find((i) => i.id === activeL1);
   const activeL2Node = activeL1Node?.children?.find((i) => i.id === activeL2);
   const d2Open = d1Open && !!activeL1 && !!activeL1Node?.children;
@@ -614,13 +696,15 @@ export default function SidebarNav({ sessionUser = null, navClasses = [] }: Side
             style={{ width: 20, height: 0.5, background: 'rgba(0,0,0,.12)' }}
           />
 
-          {/* Logo */}
+          {/* Logo + breadcrumbs */}
           <div
             style={{
               flex: 1,
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
+              gap: 10,
             }}
           >
             <Link href={`/${locale}`}>
@@ -636,6 +720,55 @@ export default function SidebarNav({ sessionUser = null, navClasses = [] }: Side
                 }}
               />
             </Link>
+
+            {breadcrumbs.length > 0 && (
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '2px 3px',
+                  padding: '0 10px',
+                  maxWidth: 130,
+                }}
+              >
+                {breadcrumbs.map((crumb, i) => (
+                  <span
+                    key={crumb.href}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}
+                  >
+                    {i > 0 && (
+                      <span
+                        style={{
+                          color: 'rgba(255,117,31,0.4)',
+                          fontSize: 8,
+                          lineHeight: 1,
+                        }}
+                      >
+                        /
+                      </span>
+                    )}
+                    <Link
+                      href={crumb.href}
+                      style={{
+                        color:
+                          i === breadcrumbs.length - 1
+                            ? '#ff751f'
+                            : 'rgba(255,117,31,0.6)',
+                        fontSize: 8.5,
+                        letterSpacing: '.05em',
+                        textDecoration: 'none',
+                        lineHeight: 1.4,
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      {crumb.label}
+                    </Link>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div

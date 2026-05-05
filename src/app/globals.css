@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --royal-dark: #02051a;
@@ -6,9 +6,9 @@
   --royal-mauve: #5c2d4a;
   --royal-purple: #592c41;
   --royal-rose: #9e7070;
-  --royal-gold: #c4a882;
+  --royal-gold: #ff751f;
   --royal-gold-light: #d4b896;
-  --royal-cream: #dec2ab;
+  --royal-cream: #ffffff;
   --royal-white: #ffffff;
   --auth-teal: #227b81;
   --auth-sand: #e4d0b5;
@@ -39,7 +39,7 @@
   --font-text: var(--font-goudy), serif;
 }
 
-[dir="rtl"] {
+[dir='rtl'] {
   --font-text: var(--font-layla), sans-serif;
 }
 
@@ -50,13 +50,13 @@ body {
 
 /* globals.css */
 
-[dir="rtl"] {
+[dir='rtl'] {
   font-family: var(--font-layla), sans-serif;
 }
 
 /* Slightly scale typography for Arabic via root font-size.
    Avoid transform-based scaling which can cause clipping/overlap. */
-html[dir="rtl"] {
+html[dir='rtl'] {
   font-size: 18px;
 }
 
@@ -89,7 +89,7 @@ html {
     0 8px 32px rgba(0, 0, 0, 0.28),
     0 2px 8px rgba(0, 0, 0, 0.15),
     /* === DIRECTIONAL BEVEL (the iOS trick) === */
-      /* Top-left corner — brightest specular hit */ inset 0.2px 0.5px 0px
+    /* Top-left corner — brightest specular hit */ inset 0.2px 0.5px 0px
       rgba(255, 255, 255, 0.1),
     /* Top edge only */ inset 0 0.3px 0px rgba(255, 255, 255, 0.45),
     /* Left edge only */ inset 0.3px 0 0px rgba(255, 255, 255, 0.4),
@@ -122,7 +122,7 @@ html {
     0 8px 32px rgba(0, 0, 0, 0.28),
     0 2px 8px rgba(60, 30, 0, 0.15),
     /* === DIRECTIONAL BEVEL (gold-tinted) === */
-      /* Top-left corner — warm specular */ inset 1px 1px 0px
+    /* Top-left corner — warm specular */ inset 1px 1px 0px
       rgba(255, 230, 150, 0.6),
     /* Top edge */ inset 0 1px 0px rgba(255, 220, 130, 0.45),
     /* Left edge */ inset 1px 0 0px rgba(220, 185, 120, 0.22),
@@ -184,7 +184,7 @@ html {
 }
 
 .shimmer::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: -100%;
@@ -210,7 +210,7 @@ html {
 }
 /* Hover shimmer — uses ::after */
 .shimmer::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: -100%;
@@ -231,7 +231,7 @@ html {
 
 /* Auto shimmer — uses ::before */
 .shimmer-auto::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: -100%;
@@ -297,7 +297,7 @@ html {
 }
 
 .shimmer-auto::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: -100%;
@@ -418,7 +418,7 @@ html {
 }
 
 .ballet-violin-sparkle-cross::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 50%;
   width: 1.5px;

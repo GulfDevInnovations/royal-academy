@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { Pause, Play } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { Pause, Play } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   musicCtaTextClass,
   musicHelperTextClass,
   musicTypography,
-} from "@/lib/musicTypography";
+} from '@/lib/musicTypography';
 
 const WAVEFORM_BAR_COUNT = 28;
 const WAVEFORM_IDLE_BARS = Array.from(
@@ -17,75 +17,75 @@ const WAVEFORM_IDLE_BARS = Array.from(
 );
 
 const BASS_TRACK_SRC =
-  "/images/Tame%20Impala-The%20Less%20I%20Know%20The%20Better%20(Original%20Instrumental)_320k.mp3";
+  '/images/Tame%20Impala-The%20Less%20I%20Know%20The%20Better%20(Original%20Instrumental)_320k.mp3';
 
 const GLASS_CARD_STYLE = {
   background:
-    "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)",
-  backdropFilter: "blur(18px)",
-  WebkitBackdropFilter: "blur(18px)",
-  borderColor: "rgba(217,192,161,0.22)",
-  boxShadow: "0 18px 42px rgba(0,0,0,0.30)",
+    'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)',
+  backdropFilter: 'blur(18px)',
+  WebkitBackdropFilter: 'blur(18px)',
+  borderColor: 'rgba(217,192,161,0.22)',
+  boxShadow: '0 18px 42px rgba(0,0,0,0.30)',
 } as const;
 
 const TEXT_HIGHLIGHT_STYLE = {
-  background: "rgba(43,25,18,0.48)",
-  padding: "0.06rem 0.32rem",
-  borderRadius: "0.35rem",
-  boxDecorationBreak: "clone",
-  WebkitBoxDecorationBreak: "clone",
+  background: 'rgba(43,25,18,0.48)',
+  padding: '0.06rem 0.32rem',
+  borderRadius: '0.35rem',
+  boxDecorationBreak: 'clone',
+  WebkitBoxDecorationBreak: 'clone',
 } as const;
 
 const BASS_LASERS = [
   {
-    id: "laser-1",
-    left: "6%",
-    top: "-10%",
-    width: "0.55rem",
-    height: "110vh",
-    color: "rgba(255, 92, 146, 0.72)",
-    duration: "8.5s",
-    delay: "0s",
+    id: 'laser-1',
+    left: '6%',
+    top: '-10%',
+    width: '0.55rem',
+    height: '110vh',
+    color: 'rgba(255, 92, 146, 0.72)',
+    duration: '8.5s',
+    delay: '0s',
   },
   {
-    id: "laser-2",
-    left: "24%",
-    top: "-8%",
-    width: "0.42rem",
-    height: "108vh",
-    color: "rgba(110, 224, 255, 0.68)",
-    duration: "10s",
-    delay: "1.2s",
+    id: 'laser-2',
+    left: '24%',
+    top: '-8%',
+    width: '0.42rem',
+    height: '108vh',
+    color: 'rgba(110, 224, 255, 0.68)',
+    duration: '10s',
+    delay: '1.2s',
   },
   {
-    id: "laser-3",
-    left: "46%",
-    top: "-12%",
-    width: "0.6rem",
-    height: "114vh",
-    color: "rgba(255, 205, 107, 0.7)",
-    duration: "7.8s",
-    delay: "0.6s",
+    id: 'laser-3',
+    left: '46%',
+    top: '-12%',
+    width: '0.6rem',
+    height: '114vh',
+    color: 'rgba(255, 205, 107, 0.7)',
+    duration: '7.8s',
+    delay: '0.6s',
   },
   {
-    id: "laser-4",
-    left: "68%",
-    top: "-10%",
-    width: "0.45rem",
-    height: "110vh",
-    color: "rgba(198, 137, 255, 0.68)",
-    duration: "9.4s",
-    delay: "1.8s",
+    id: 'laser-4',
+    left: '68%',
+    top: '-10%',
+    width: '0.45rem',
+    height: '110vh',
+    color: 'rgba(198, 137, 255, 0.68)',
+    duration: '9.4s',
+    delay: '1.8s',
   },
   {
-    id: "laser-5",
-    left: "86%",
-    top: "-14%",
-    width: "0.5rem",
-    height: "116vh",
-    color: "rgba(94, 255, 188, 0.66)",
-    duration: "8.9s",
-    delay: "0.9s",
+    id: 'laser-5',
+    left: '86%',
+    top: '-14%',
+    width: '0.5rem',
+    height: '116vh',
+    color: 'rgba(94, 255, 188, 0.66)',
+    duration: '8.9s',
+    delay: '0.9s',
   },
 ] as const;
 
@@ -111,10 +111,10 @@ function GlassControlButton({
 }
 
 function formatTime(value: number) {
-  if (!Number.isFinite(value) || value < 0) return "0:00";
+  if (!Number.isFinite(value) || value < 0) return '0:00';
   const minutes = Math.floor(value / 60);
   const seconds = Math.floor(value % 60);
-  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+  return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
 function AudioWaveform({ bars }: { bars: number[] }) {
@@ -165,21 +165,21 @@ function BassLasers() {
 
 export default function BassPage() {
   const params = useParams<{ locale: string }>();
-  const locale = params?.locale ?? "en";
-  const isArabic = locale === "ar";
-  const reservationHref = `/${locale}/reservation`;
+  const locale = params?.locale ?? 'en';
+  const isArabic = locale === 'ar';
+  const enrollmentHref = `/${locale}/enrollment`;
   const content = isArabic
     ? {
         paragraph:
-          "تطورت آلة الباص غيتار في أوائل القرن العشرين عندما سعى الموسيقيون إلى بديل أكثر قابلية للحمل والتضخيم من الكونترباص الكبير. وبينما تعود جذورها إلى آلة الكونترباص المستخدمة في الموسيقى الكلاسيكية والجاز، فقد اشتهر الباص الكهربائي الحديث في خمسينيات القرن الماضي على يد ليو فندر، الذي قدّم أول غيتار باص كهربائي يُنتج على نطاق واسع. وقد سمح هذا الابتكار بسماع عازفي الباص بوضوح أكبر داخل الفرق الموسيقية، وحوّل دور الباص إلى عنصر أساسي في الإيقاع والغرووف. واليوم يُعد الباص عنصراً محورياً في أنماط موسيقية متعددة، من الجاز والفانك إلى الروك والبوب، إذ يمنح الموسيقى العمق والانسجام والنبض الأساسي الذي يدفعها إلى الأمام. 🎸",
-        reserveHelper: "احجز تجربتك مع الباص",
-        reserveCta: "التسجيل",
+          'تطورت آلة الباص غيتار في أوائل القرن العشرين عندما سعى الموسيقيون إلى بديل أكثر قابلية للحمل والتضخيم من الكونترباص الكبير. وبينما تعود جذورها إلى آلة الكونترباص المستخدمة في الموسيقى الكلاسيكية والجاز، فقد اشتهر الباص الكهربائي الحديث في خمسينيات القرن الماضي على يد ليو فندر، الذي قدّم أول غيتار باص كهربائي يُنتج على نطاق واسع. وقد سمح هذا الابتكار بسماع عازفي الباص بوضوح أكبر داخل الفرق الموسيقية، وحوّل دور الباص إلى عنصر أساسي في الإيقاع والغرووف. واليوم يُعد الباص عنصراً محورياً في أنماط موسيقية متعددة، من الجاز والفانك إلى الروك والبوب، إذ يمنح الموسيقى العمق والانسجام والنبض الأساسي الذي يدفعها إلى الأمام. 🎸',
+        reserveHelper: 'احجز تجربتك مع الباص',
+        reserveCta: 'التسجيل',
       }
     : {
         paragraph:
-          "The Bass guitar developed in the early 20th century as musicians sought a more portable and amplified alternative to the upright double bass. While its roots trace back to the double bass used in classical and jazz music, the modern electric bass was popularized in the 1950s by Leo Fender, who introduced the first mass-produced electric bass guitar. This innovation allowed bassists to be heard more clearly in bands and transformed the role of bass into a central element of rhythm and groove. Today, the bass is essential across genres-from jazz and funk to rock and pop-providing depth, harmony, and the foundational pulse that drives music forward. 🎸",
-        reserveHelper: "Reserve your bass experience",
-        reserveCta: "Enrollment",
+          'The Bass guitar developed in the early 20th century as musicians sought a more portable and amplified alternative to the upright double bass. While its roots trace back to the double bass used in classical and jazz music, the modern electric bass was popularized in the 1950s by Leo Fender, who introduced the first mass-produced electric bass guitar. This innovation allowed bassists to be heard more clearly in bands and transformed the role of bass into a central element of rhythm and groove. Today, the bass is essential across genres-from jazz and funk to rock and pop-providing depth, harmony, and the foundational pulse that drives music forward. 🎸',
+        reserveHelper: 'Reserve your bass experience',
+        reserveCta: 'Enrollment',
       };
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -191,7 +191,8 @@ export default function BassPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [sliderValue, setSliderValue] = useState(0);
-  const [waveformBars, setWaveformBars] = useState<number[]>(WAVEFORM_IDLE_BARS);
+  const [waveformBars, setWaveformBars] =
+    useState<number[]>(WAVEFORM_IDLE_BARS);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -235,22 +236,22 @@ export default function BassPage() {
       stopWaveform();
     };
 
-    audio.addEventListener("play", handlePlay);
-    audio.addEventListener("pause", handlePause);
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("durationchange", syncDuration);
-    audio.addEventListener("canplay", syncDuration);
-    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('durationchange', syncDuration);
+    audio.addEventListener('canplay', syncDuration);
+    audio.addEventListener('ended', handleEnded);
 
     return () => {
-      audio.removeEventListener("play", handlePlay);
-      audio.removeEventListener("pause", handlePause);
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("durationchange", syncDuration);
-      audio.removeEventListener("canplay", syncDuration);
-      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('durationchange', syncDuration);
+      audio.removeEventListener('canplay', syncDuration);
+      audio.removeEventListener('ended', handleEnded);
     };
   }, []);
 
@@ -346,7 +347,7 @@ export default function BassPage() {
       sourceNodeRef.current = source;
     }
 
-    if (audioContextRef.current.state === "suspended") {
+    if (audioContextRef.current.state === 'suspended') {
       await audioContextRef.current.resume();
     }
   };
@@ -402,11 +403,11 @@ export default function BassPage() {
             <div
               className="rounded-[1.65rem] border px-6 py-6 sm:px-6.5 sm:py-6.5"
               style={GLASS_CARD_STYLE}
-              dir={isArabic ? "rtl" : "ltr"}
+              dir={isArabic ? 'rtl' : 'ltr'}
             >
               <p
                 className={`text-[1.18rem] leading-[2.1rem] text-royal-cream/90 sm:text-[1.24rem] sm:leading-[2.2rem] ${
-                  isArabic ? "text-right" : ""
+                  isArabic ? 'text-right' : ''
                 }`}
               >
                 <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
@@ -414,22 +415,24 @@ export default function BassPage() {
 
               <div
                 className={`mt-4 flex w-full flex-col gap-3 ${
-                  isArabic ? "items-end text-right" : "items-start"
+                  isArabic ? 'items-end text-right' : 'items-start'
                 }`}
               >
                 <p
                   className={`w-full ${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
-                    isArabic ? "text-right" : ""
+                    isArabic ? 'text-right' : ''
                   }`}
                 >
-                  <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
+                  <span style={TEXT_HIGHLIGHT_STYLE}>
+                    {content.reserveHelper}
+                  </span>
                 </p>
                 <Link
-                  href={reservationHref}
+                  href={enrollmentHref}
                   className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 ${musicCtaTextClass(
                     isArabic,
                   )} text-[#2b1912] transition-transform duration-300 hover:scale-[1.03] ${
-                    isArabic ? "self-end text-right" : ""
+                    isArabic ? 'self-end text-right' : ''
                   }`}
                 >
                   {content.reserveCta}
@@ -451,12 +454,15 @@ export default function BassPage() {
 
             <div className="liquid-glass flex items-center gap-2 rounded-full px-3 py-2">
               <GlassControlButton label="Play track" onClick={playAudio}>
-                <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
+                <Play
+                  size={12}
+                  className={isPlaying ? 'text-royal-cream' : ''}
+                />
               </GlassControlButton>
               <GlassControlButton label="Pause track" onClick={pauseAudio}>
                 <Pause
                   size={12}
-                  className={!isPlaying ? "text-royal-cream" : ""}
+                  className={!isPlaying ? 'text-royal-cream' : ''}
                 />
               </GlassControlButton>
             </div>
@@ -485,7 +491,7 @@ export default function BassPage() {
                 className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
               >
                 <span>{formatTime(currentTime)}</span>
-                <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
+                <span>{progress ? `${Math.round(progress)}%` : '0%'}</span>
                 <span>{formatTime(duration)}</span>
               </div>
             </div>
@@ -506,12 +512,12 @@ export default function BassPage() {
 
           <div className="liquid-glass flex items-center gap-2 rounded-full px-3 py-2">
             <GlassControlButton label="Play track" onClick={playAudio}>
-              <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
+              <Play size={12} className={isPlaying ? 'text-royal-cream' : ''} />
             </GlassControlButton>
             <GlassControlButton label="Pause track" onClick={pauseAudio}>
               <Pause
                 size={12}
-                className={!isPlaying ? "text-royal-cream" : ""}
+                className={!isPlaying ? 'text-royal-cream' : ''}
               />
             </GlassControlButton>
           </div>
@@ -540,7 +546,7 @@ export default function BassPage() {
               className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
             >
               <span>{formatTime(currentTime)}</span>
-              <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
+              <span>{progress ? `${Math.round(progress)}%` : '0%'}</span>
               <span>{formatTime(duration)}</span>
             </div>
           </div>
@@ -548,11 +554,11 @@ export default function BassPage() {
           <div
             className="w-full rounded-[1.65rem] border px-6 py-6"
             style={GLASS_CARD_STYLE}
-            dir={isArabic ? "rtl" : "ltr"}
+            dir={isArabic ? 'rtl' : 'ltr'}
           >
             <p
               className={`text-[1.05rem] leading-[1.9rem] text-royal-cream/90 sm:text-[1.12rem] sm:leading-[2rem] ${
-                isArabic ? "text-right" : ""
+                isArabic ? 'text-right' : ''
               }`}
             >
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
@@ -560,22 +566,24 @@ export default function BassPage() {
 
             <div
               className={`mt-4 flex w-full flex-col gap-3 ${
-                isArabic ? "items-end text-right" : "items-start"
+                isArabic ? 'items-end text-right' : 'items-start'
               }`}
             >
               <p
                 className={`w-full ${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
-                  isArabic ? "text-right" : ""
+                  isArabic ? 'text-right' : ''
                 }`}
               >
-                <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
+                <span style={TEXT_HIGHLIGHT_STYLE}>
+                  {content.reserveHelper}
+                </span>
               </p>
               <Link
-                href={reservationHref}
+                href={enrollmentHref}
                 className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 ${musicCtaTextClass(
                   isArabic,
                 )} text-[#2b1912] transition-transform duration-300 hover:scale-[1.03] ${
-                  isArabic ? "self-end text-right" : ""
+                  isArabic ? 'self-end text-right' : ''
                 }`}
               >
                 {content.reserveCta}
@@ -587,15 +595,14 @@ export default function BassPage() {
 
       <style jsx global>{`
         .bass-smoke-plume {
-          background:
-            radial-gradient(
-              ellipse at 50% 55%,
-              rgba(255, 255, 255, 0.42) 0%,
-              rgba(232, 236, 244, 0.32) 22%,
-              rgba(185, 196, 214, 0.24) 44%,
-              rgba(132, 144, 166, 0.14) 62%,
-              transparent 74%
-            );
+          background: radial-gradient(
+            ellipse at 50% 55%,
+            rgba(255, 255, 255, 0.42) 0%,
+            rgba(232, 236, 244, 0.32) 22%,
+            rgba(185, 196, 214, 0.24) 44%,
+            rgba(132, 144, 166, 0.14) 62%,
+            transparent 74%
+          );
           filter: blur(28px);
           mix-blend-mode: screen;
           opacity: 0;
@@ -615,14 +622,13 @@ export default function BassPage() {
         }
 
         .bass-laser {
-          background:
-            linear-gradient(
-              180deg,
-              color-mix(in srgb, currentColor 0%, transparent 100%) 0%,
-              color-mix(in srgb, currentColor 96%, white 4%) 18%,
-              color-mix(in srgb, currentColor 88%, white 12%) 45%,
-              color-mix(in srgb, currentColor 12%, transparent 88%) 100%
-            );
+          background: linear-gradient(
+            180deg,
+            color-mix(in srgb, currentColor 0%, transparent 100%) 0%,
+            color-mix(in srgb, currentColor 96%, white 4%) 18%,
+            color-mix(in srgb, currentColor 88%, white 12%) 45%,
+            color-mix(in srgb, currentColor 12%, transparent 88%) 100%
+          );
           box-shadow:
             0 0 10px color-mix(in srgb, currentColor 70%, transparent 30%),
             0 0 22px color-mix(in srgb, currentColor 46%, transparent 54%),
@@ -742,7 +748,6 @@ export default function BassPage() {
             animation: none;
           }
         }
-
       `}</style>
     </main>
   );

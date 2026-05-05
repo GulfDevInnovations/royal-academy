@@ -1,4 +1,4 @@
-import DanceWellnessSubclassPage from "@/components/DanceWellnessSubclassPage";
+import DanceWellnessSubclassPage from '@/components/DanceWellnessSubclassPage';
 
 export default async function ContemporaryDancePage({
   params,
@@ -10,16 +10,16 @@ export default async function ContemporaryDancePage({
   return (
     <DanceWellnessSubclassPage
       locale={locale}
-      title={{ en: "Contemporary Dance" }}
-      reservationQuery={{ q: "Contemporary Dance" }}
+      title={{ en: 'Contemporary Dance' }}
+      enrollmentQuery={{ q: 'Contemporary Dance' }}
       description={{
-        en: "Contemporary dance sessions that build control, fluidity, and expression — with technique-focused progressions for every level.",
+        en: 'Contemporary dance sessions that build control, fluidity, and expression — with technique-focused progressions for every level.',
       }}
       highlights={[
-        { en: "Floorwork, flow, and body awareness" },
-        { en: "Strength, mobility, and alignment" },
-        { en: "Musicality and movement quality" },
-        { en: "Choreography and creative exploration" },
+        { en: 'Floorwork, flow, and body awareness' },
+        { en: 'Strength, mobility, and alignment' },
+        { en: 'Musicality and movement quality' },
+        { en: 'Choreography and creative exploration' },
       ]}
       imgSrc="/images/dance/contemporary.jpg"
     />

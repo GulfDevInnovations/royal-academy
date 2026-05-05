@@ -1,4 +1,4 @@
-import DanceWellnessSubclassPage from "@/components/DanceWellnessSubclassPage";
+import DanceWellnessSubclassPage from '@/components/DanceWellnessSubclassPage';
 
 export default async function SalsaPage({
   params,
@@ -10,16 +10,16 @@ export default async function SalsaPage({
   return (
     <DanceWellnessSubclassPage
       locale={locale}
-      title={{ en: "Salsa" }}
-      reservationQuery={{ q: "Salsa" }}
+      title={{ en: 'Salsa' }}
+      enrollmentQuery={{ q: 'Salsa' }}
       description={{
-        en: "Learn timing, turns, and partner-work fundamentals with a focus on technique, connection, and musical interpretation.",
+        en: 'Learn timing, turns, and partner-work fundamentals with a focus on technique, connection, and musical interpretation.',
       }}
       highlights={[
-        { en: "Basic steps, timing, and rhythm" },
-        { en: "Turns, styling, and footwork" },
-        { en: "Partner connection and leading/following" },
-        { en: "Social-dance confidence" },
+        { en: 'Basic steps, timing, and rhythm' },
+        { en: 'Turns, styling, and footwork' },
+        { en: 'Partner connection and leading/following' },
+        { en: 'Social-dance confidence' },
       ]}
       imgSrc="/images/dance/salsa.jpg"
     />

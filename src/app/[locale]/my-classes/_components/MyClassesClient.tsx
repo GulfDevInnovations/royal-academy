@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen,
   ChevronRight,
@@ -16,8 +16,8 @@ import {
   Award,
   RefreshCw,
   History,
-} from "lucide-react";
-import RescheduleModal from "./RescheduleModal";
+} from 'lucide-react';
+import RescheduleModal from './RescheduleModal';
 
 // ─────────────────────────────────────────────
 // Exported types (imported by page.tsx for serialization)
@@ -40,7 +40,7 @@ export type RescheduledSession = {
 
 export type EnrolledClass = {
   enrollmentId: string;
-  enrollmentType: "SINGLE" | "MULTI" | "WORKSHOP";
+  enrollmentType: 'SINGLE' | 'MULTI' | 'WORKSHOP';
   status: string;
   frequency: string;
   preferredDays: string[];
@@ -88,50 +88,50 @@ export type EnrolledClass = {
 // ─────────────────────────────────────────────
 
 const CLASS_ACCENT: Record<string, string> = {
-  Music: "#C9A84C",
-  "Dance & Wellness": "#A855F7",
-  Art: "#F97316",
-  Ballet: "#EC4899",
-  Workshops: "#10B981",
-  default: "#C9A84C",
+  Music: '#C9A84C',
+  'Dance & Wellness': '#A855F7',
+  Art: '#F97316',
+  Ballet: '#EC4899',
+  Workshops: '#10B981',
+  default: '#C9A84C',
 };
 
 const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 const MONTHS_SHORT = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
 ];
 const DAY_LABELS: Record<string, string> = {
-  MONDAY: "Mon",
-  TUESDAY: "Tue",
-  WEDNESDAY: "Wed",
-  THURSDAY: "Thu",
-  FRIDAY: "Fri",
-  SATURDAY: "Sat",
-  SUNDAY: "Sun",
+  MONDAY: 'Mon',
+  TUESDAY: 'Tue',
+  WEDNESDAY: 'Wed',
+  THURSDAY: 'Thu',
+  FRIDAY: 'Fri',
+  SATURDAY: 'Sat',
+  SUNDAY: 'Sun',
 };
 
 function accent(className: string) {
@@ -139,10 +139,10 @@ function accent(className: string) {
 }
 
 function statusColor(status: string, payStatus: string | null) {
-  if (status === "CANCELLED") return { dot: "#6b7280", text: "Cancelled" };
-  if (payStatus === "PAID" && status === "CONFIRMED")
-    return { dot: "#34d399", text: "Active" };
-  return { dot: "#60a5fa", text: status };
+  if (status === 'CANCELLED') return { dot: '#6b7280', text: 'Cancelled' };
+  if (payStatus === 'PAID' && status === 'CONFIRMED')
+    return { dot: '#34d399', text: 'Active' };
+  return { dot: '#60a5fa', text: status };
 }
 
 // ─────────────────────────────────────────────
@@ -188,17 +188,17 @@ export default function MyClassesClient({ enrollments, studentName }: Props) {
             </h1>
             <p className="text-royal-cream/40 text-sm mt-3">
               {studentName} · {enrollments.length} active enrollment
-              {enrollments.length !== 1 ? "s" : ""}
+              {enrollments.length !== 1 ? 's' : ''}
             </p>
           </motion.div>
 
           {/* ── Enrollments ── */}
           {!hasEnrollments ? (
-            <EmptyState onBrowse={() => router.push("/reservation")} />
+            <EmptyState onBrowse={() => router.push('/enrollment')} />
           ) : (
             <div className="space-y-4">
               {enrollments.map((enrollment, i) =>
-                enrollment.enrollmentType === "WORKSHOP" ? (
+                enrollment.enrollmentType === 'WORKSHOP' ? (
                   <WorkshopCard
                     key={enrollment.enrollmentId}
                     enrollment={enrollment}
@@ -229,7 +229,7 @@ export default function MyClassesClient({ enrollments, studentName }: Props) {
                       )
                     }
                     onContinue={() =>
-                      router.push(`/reservation/${enrollment.subClass.id}`)
+                      router.push(`/enrollment/${enrollment.subClass.id}`)
                     }
                     onViewClass={() =>
                       router.push(`/classes/${enrollment.subClass.id}`)
@@ -284,7 +284,7 @@ function EnrollmentCard({
 }) {
   const ac = accent(enrollment.subClass.class.name);
   const status = statusColor(enrollment.status, enrollment.paymentStatus);
-  const isMulti = enrollment.enrollmentType === "MULTI";
+  const isMulti = enrollment.enrollmentType === 'MULTI';
 
   const periodLabel = isMulti
     ? `${MONTHS_SHORT[(enrollment.startMonth ?? 1) - 1]} ${enrollment.startYear} → ${MONTHS_SHORT[(enrollment.endMonth ?? 1) - 1]} ${enrollment.endYear}`
@@ -297,7 +297,7 @@ function EnrollmentCard({
       transition={{ duration: 0.35, delay: index * 0.06 }}
       className="rounded-2xl border overflow-hidden"
       style={{
-        background: "linear-gradient(145deg, #1a1610, #100e0c)",
+        background: 'linear-gradient(145deg, #1a1610, #100e0c)',
         borderColor: `${ac}22`,
       }}
     >
@@ -354,8 +354,8 @@ function EnrollmentCard({
               <span
                 className="text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider flex items-center gap-0.5"
                 style={{
-                  background: "rgba(96,165,250,0.12)",
-                  color: "#60a5fa",
+                  background: 'rgba(96,165,250,0.12)',
+                  color: '#60a5fa',
                 }}
               >
                 <Layers className="w-2.5 h-2.5" />
@@ -367,8 +367,8 @@ function EnrollmentCard({
               <span
                 className="text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider flex items-center gap-0.5"
                 style={{
-                  background: "rgba(52,211,153,0.10)",
-                  color: "#34d399",
+                  background: 'rgba(52,211,153,0.10)',
+                  color: '#34d399',
                 }}
               >
                 <RefreshCw className="w-2.5 h-2.5" />
@@ -393,7 +393,7 @@ function EnrollmentCard({
           </div>
           <ChevronRight
             className="w-4 h-4 text-royal-cream/20 transition-transform"
-            style={{ transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)" }}
+            style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
           />
         </div>
       </button>
@@ -403,14 +403,14 @@ function EnrollmentCard({
         {isExpanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
+            animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
             <div
               className="px-5 pb-5 pt-1 space-y-4 border-t"
-              style={{ borderColor: "rgba(255,255,255,0.05)" }}
+              style={{ borderColor: 'rgba(255,255,255,0.05)' }}
             >
               {/* Schedule slots */}
               {enrollment.resolvedSlots.length > 0 && (
@@ -476,9 +476,9 @@ function EnrollmentCard({
                   icon={<RefreshCw className="w-3.5 h-3.5" />}
                   label="Frequency"
                   value={
-                    enrollment.frequency === "TWICE_PER_WEEK"
-                      ? "2× / week"
-                      : "1× / week"
+                    enrollment.frequency === 'TWICE_PER_WEEK'
+                      ? '2× / week'
+                      : '1× / week'
                   }
                   ac={ac}
                 />
@@ -504,27 +504,27 @@ function EnrollmentCard({
               <div
                 className="flex items-center justify-between px-3 py-2.5 rounded-xl"
                 style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.06)',
                 }}
               >
                 <div className="flex items-center gap-2">
-                  {enrollment.paymentStatus === "PAID" ? (
+                  {enrollment.paymentStatus === 'PAID' ? (
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                   ) : (
                     <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
                   )}
                   <span className="text-xs text-royal-cream/50">
                     {enrollment.paidAt
-                      ? `Paid · ${new Date(enrollment.paidAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}`
-                      : "Paid"}
+                      ? `Paid · ${new Date(enrollment.paidAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`
+                      : 'Paid'}
                   </span>
                 </div>
                 <span
                   className="text-sm font-bold font-goudy"
                   style={{ color: ac }}
                 >
-                  {enrollment.totalAmount.toFixed(3)}{" "}
+                  {enrollment.totalAmount.toFixed(3)}{' '}
                   <span className="text-xs font-normal text-royal-cream/30">
                     {enrollment.currency}
                   </span>
@@ -537,9 +537,9 @@ function EnrollmentCard({
                   onClick={onViewClass}
                   className="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-all border text-royal-cream/50 hover:text-royal-cream/80 hover:border-white/15"
                   style={{
-                    background: "rgba(255,255,255,0.03)",
-                    borderColor: "rgba(255,255,255,0.07)",
-                    minWidth: "80px",
+                    background: 'rgba(255,255,255,0.03)',
+                    borderColor: 'rgba(255,255,255,0.07)',
+                    minWidth: '80px',
                   }}
                 >
                   Class Info
@@ -554,10 +554,10 @@ function EnrollmentCard({
                     }}
                     className="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-all border flex items-center justify-center gap-1.5 hover:opacity-90"
                     style={{
-                      background: "rgba(52,211,153,0.08)",
-                      borderColor: "rgba(52,211,153,0.20)",
-                      color: "#34d399",
-                      minWidth: "80px",
+                      background: 'rgba(52,211,153,0.08)',
+                      borderColor: 'rgba(52,211,153,0.20)',
+                      color: '#34d399',
+                      minWidth: '80px',
                     }}
                   >
                     <RefreshCw className="w-3 h-3" />
@@ -570,8 +570,8 @@ function EnrollmentCard({
                   className="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 hover:opacity-90"
                   style={{
                     background: `linear-gradient(135deg, ${ac}, ${ac}bb)`,
-                    color: "#100e0c",
-                    minWidth: "80px",
+                    color: '#100e0c',
+                    minWidth: '80px',
                   }}
                 >
                   Continue This Class
@@ -590,7 +590,7 @@ function EnrollmentCard({
 // WorkshopCard
 // ─────────────────────────────────────────────
 
-const WORKSHOP_ACCENT = "#10B981";
+const WORKSHOP_ACCENT = '#10B981';
 
 function WorkshopCard({
   enrollment,
@@ -609,11 +609,11 @@ function WorkshopCard({
   const status = statusColor(enrollment.status, enrollment.paymentStatus);
 
   const eventLabel = enrollment.workshopEventDate
-    ? new Date(enrollment.workshopEventDate).toLocaleDateString("en-GB", {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-        year: "numeric",
+    ? new Date(enrollment.workshopEventDate).toLocaleDateString('en-GB', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
       })
     : null;
 
@@ -624,7 +624,7 @@ function WorkshopCard({
       transition={{ duration: 0.35, delay: index * 0.06 }}
       className="rounded-2xl border overflow-hidden"
       style={{
-        background: "linear-gradient(145deg, #1a1610, #100e0c)",
+        background: 'linear-gradient(145deg, #1a1610, #100e0c)',
         borderColor: `${ac}22`,
       }}
     >
@@ -696,7 +696,7 @@ function WorkshopCard({
           </div>
           <ChevronRight
             className="w-4 h-4 text-royal-cream/20 transition-transform"
-            style={{ transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)" }}
+            style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
           />
         </div>
       </button>
@@ -706,14 +706,14 @@ function WorkshopCard({
         {isExpanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
+            animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
             <div
               className="px-5 pb-5 pt-1 space-y-4 border-t"
-              style={{ borderColor: "rgba(255,255,255,0.05)" }}
+              style={{ borderColor: 'rgba(255,255,255,0.05)' }}
             >
               {/* Details */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -747,27 +747,27 @@ function WorkshopCard({
               <div
                 className="flex items-center justify-between px-3 py-2.5 rounded-xl"
                 style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.06)',
                 }}
               >
                 <div className="flex items-center gap-2">
-                  {enrollment.paymentStatus === "PAID" ? (
+                  {enrollment.paymentStatus === 'PAID' ? (
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                   ) : (
                     <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
                   )}
                   <span className="text-xs text-royal-cream/50">
                     {enrollment.paidAt
-                      ? `Paid · ${new Date(enrollment.paidAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}`
-                      : "Awaiting Payment"}
+                      ? `Paid · ${new Date(enrollment.paidAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`
+                      : 'Awaiting Payment'}
                   </span>
                 </div>
                 <span
                   className="text-sm font-bold font-goudy"
                   style={{ color: ac }}
                 >
-                  {enrollment.totalAmount.toFixed(3)}{" "}
+                  {enrollment.totalAmount.toFixed(3)}{' '}
                   <span className="text-xs font-normal text-royal-cream/30">
                     {enrollment.currency}
                   </span>
@@ -781,7 +781,7 @@ function WorkshopCard({
                   className="flex-1 py-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 hover:opacity-90"
                   style={{
                     background: `linear-gradient(135deg, ${ac}, ${ac}bb)`,
-                    color: "#100e0c",
+                    color: '#100e0c',
                   }}
                 >
                   View Workshop
@@ -811,8 +811,8 @@ function EmptyState({ onBrowse }: { onBrowse: () => void }) {
       <div
         className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6"
         style={{
-          background: "rgba(201,168,76,0.08)",
-          border: "1px solid rgba(201,168,76,0.15)",
+          background: 'rgba(201,168,76,0.08)',
+          border: '1px solid rgba(201,168,76,0.15)',
         }}
       >
         <BookOpen className="w-8 h-8 text-royal-gold/50" />
@@ -828,8 +828,8 @@ function EmptyState({ onBrowse }: { onBrowse: () => void }) {
         onClick={onBrowse}
         className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90"
         style={{
-          background: "linear-gradient(135deg, #C9A84C, #C9A84Cbb)",
-          color: "#100e0c",
+          background: 'linear-gradient(135deg, #C9A84C, #C9A84Cbb)',
+          color: '#100e0c',
         }}
       >
         Browse Classes
@@ -844,22 +844,22 @@ function EmptyState({ onBrowse }: { onBrowse: () => void }) {
 // ─────────────────────────────────────────────
 
 const MONTHS_SHORT_MAP = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
 ];
 
 function fmtShort(dateStr: string | null) {
-  if (!dateStr) return "—";
+  if (!dateStr) return '—';
   const d = new Date(dateStr);
   return `${d.getDate()} ${MONTHS_SHORT_MAP[d.getMonth()]}`;
 }
@@ -902,9 +902,9 @@ function RescheduleHistory({
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
             style={{
               background: log.wasLost
-                ? "rgba(239,68,68,0.05)"
-                : "rgba(255,255,255,0.03)",
-              border: `1px solid ${log.wasLost ? "rgba(239,68,68,0.15)" : "rgba(255,255,255,0.06)"}`,
+                ? 'rgba(239,68,68,0.05)'
+                : 'rgba(255,255,255,0.03)',
+              border: `1px solid ${log.wasLost ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.06)'}`,
             }}
           >
             {/* Old → New */}
@@ -913,7 +913,7 @@ function RescheduleHistory({
                 {/* Old session */}
                 <span className="text-xs text-royal-cream/40 line-through">
                   {fmtShort(log.oldSessionDate)}
-                  {log.oldStartTime ? ` · ${log.oldStartTime}` : ""}
+                  {log.oldStartTime ? ` · ${log.oldStartTime}` : ''}
                 </span>
 
                 <ArrowRight
@@ -924,12 +924,12 @@ function RescheduleHistory({
                 {/* New session */}
                 {log.wasLost ? (
                   <span className="text-xs text-red-400/70">
-                    {log.lostReason ?? "No slot found"}
+                    {log.lostReason ?? 'No slot found'}
                   </span>
                 ) : (
                   <span className="text-xs font-medium text-royal-cream/70">
                     {fmtShort(log.newSessionDate)}
-                    {log.newStartTime ? ` · ${log.newStartTime}` : ""}
+                    {log.newStartTime ? ` · ${log.newStartTime}` : ''}
                   </span>
                 )}
               </div>
@@ -945,12 +945,12 @@ function RescheduleHistory({
               className="text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider flex-shrink-0"
               style={{
                 background: log.wasLost
-                  ? "rgba(239,68,68,0.10)"
-                  : "rgba(52,211,153,0.10)",
-                color: log.wasLost ? "#f87171" : "#34d399",
+                  ? 'rgba(239,68,68,0.10)'
+                  : 'rgba(52,211,153,0.10)',
+                color: log.wasLost ? '#f87171' : '#34d399',
               }}
             >
-              {log.wasLost ? "Lost" : "Done"}
+              {log.wasLost ? 'Lost' : 'Done'}
             </span>
           </div>
         ))}
@@ -962,7 +962,7 @@ function RescheduleHistory({
           className="mt-2 text-[10px] font-semibold transition-colors"
           style={{ color: `${ac}60` }}
         >
-          {expanded ? "Show less" : `+${logs.length - 2} more`}
+          {expanded ? 'Show less' : `+${logs.length - 2} more`}
         </button>
       )}
     </div>

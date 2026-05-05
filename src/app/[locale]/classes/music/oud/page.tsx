@@ -1,39 +1,81 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { Pause, Play } from "lucide-react";
-import { useParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import Link from 'next/link';
+import { Pause, Play } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   musicCtaTextClass,
   musicHelperTextClass,
   musicTypography,
-} from "@/lib/musicTypography";
+} from '@/lib/musicTypography';
 
 const FLYING_NOTES = [
-  { id: "note-1", symbol: "♪", left: "14%", bottom: "18%", delay: "0s", duration: "4.8s" },
-  { id: "note-2", symbol: "♫", left: "24%", bottom: "10%", delay: "0.8s", duration: "5.2s" },
-  { id: "note-3", symbol: "♬", left: "36%", bottom: "22%", delay: "1.3s", duration: "4.6s" },
-  { id: "note-4", symbol: "♪", left: "58%", bottom: "14%", delay: "0.4s", duration: "5.5s" },
-  { id: "note-5", symbol: "♫", left: "72%", bottom: "18%", delay: "1.6s", duration: "4.9s" },
-  { id: "note-6", symbol: "♩", left: "84%", bottom: "12%", delay: "2.1s", duration: "5.4s" },
+  {
+    id: 'note-1',
+    symbol: '♪',
+    left: '14%',
+    bottom: '18%',
+    delay: '0s',
+    duration: '4.8s',
+  },
+  {
+    id: 'note-2',
+    symbol: '♫',
+    left: '24%',
+    bottom: '10%',
+    delay: '0.8s',
+    duration: '5.2s',
+  },
+  {
+    id: 'note-3',
+    symbol: '♬',
+    left: '36%',
+    bottom: '22%',
+    delay: '1.3s',
+    duration: '4.6s',
+  },
+  {
+    id: 'note-4',
+    symbol: '♪',
+    left: '58%',
+    bottom: '14%',
+    delay: '0.4s',
+    duration: '5.5s',
+  },
+  {
+    id: 'note-5',
+    symbol: '♫',
+    left: '72%',
+    bottom: '18%',
+    delay: '1.6s',
+    duration: '4.9s',
+  },
+  {
+    id: 'note-6',
+    symbol: '♩',
+    left: '84%',
+    bottom: '12%',
+    delay: '2.1s',
+    duration: '5.4s',
+  },
 ] as const;
 
 const GLASS_CARD_STYLE = {
   background:
-    "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)",
-  backdropFilter: "blur(18px)",
-  WebkitBackdropFilter: "blur(18px)",
-  borderColor: "rgba(217,192,161,0.22)",
-  boxShadow: "0 18px 42px rgba(0,0,0,0.30)",
+    'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)',
+  backdropFilter: 'blur(18px)',
+  WebkitBackdropFilter: 'blur(18px)',
+  borderColor: 'rgba(217,192,161,0.22)',
+  boxShadow: '0 18px 42px rgba(0,0,0,0.30)',
 } as const;
 
 const TEXT_HIGHLIGHT_STYLE = {
-  background: "rgba(43,25,18,0.48)",
-  padding: "0.16rem 0.32rem",
-  borderRadius: "0.35rem",
-  boxDecorationBreak: "clone",
-  WebkitBoxDecorationBreak: "clone",
+  background: 'rgba(43,25,18,0.48)',
+  padding: '0.16rem 0.32rem',
+  borderRadius: '0.35rem',
+  boxDecorationBreak: 'clone',
+  WebkitBoxDecorationBreak: 'clone',
 } as const;
 
 const WAVEFORM_BAR_COUNT = 28;
@@ -64,10 +106,10 @@ function GlassControlButton({
 }
 
 function formatTime(value: number) {
-  if (!Number.isFinite(value) || value < 0) return "0:00";
+  if (!Number.isFinite(value) || value < 0) return '0:00';
   const minutes = Math.floor(value / 60);
   const seconds = Math.floor(value % 60);
-  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+  return `${minutes}:${String(seconds).padStart(2, '0')}`;
 }
 
 function AudioWaveform({ bars }: { bars: number[] }) {
@@ -102,21 +144,23 @@ export default function OudPage() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [sliderValue, setSliderValue] = useState(0);
-  const [waveformBars, setWaveformBars] = useState<number[]>(WAVEFORM_IDLE_BARS);
-  const locale = params?.locale ?? "en";
-  const isArabic = locale === "ar";
-  const reservationHref = `/${locale}/reservation/sub-oud`;
+  const [waveformBars, setWaveformBars] =
+    useState<number[]>(WAVEFORM_IDLE_BARS);
+  const locale = params?.locale ?? 'en';
+  const isArabic = locale === 'ar';
+  const enrollmentHref = `/${locale}/enrollment/sub-oud`;
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
     const syncDuration = () => {
-      const nextDuration = Number.isFinite(audio.duration) && audio.duration > 0
-        ? audio.duration
-        : audio.seekable.length > 0
-          ? audio.seekable.end(audio.seekable.length - 1)
-          : 0;
+      const nextDuration =
+        Number.isFinite(audio.duration) && audio.duration > 0
+          ? audio.duration
+          : audio.seekable.length > 0
+            ? audio.seekable.end(audio.seekable.length - 1)
+            : 0;
 
       if (nextDuration > 0) {
         setDuration(nextDuration);
@@ -148,22 +192,22 @@ export default function OudPage() {
       stopWaveform();
     };
 
-    audio.addEventListener("play", handlePlay);
-    audio.addEventListener("pause", handlePause);
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("durationchange", syncDuration);
-    audio.addEventListener("canplay", syncDuration);
-    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('durationchange', syncDuration);
+    audio.addEventListener('canplay', syncDuration);
+    audio.addEventListener('ended', handleEnded);
 
     return () => {
-      audio.removeEventListener("play", handlePlay);
-      audio.removeEventListener("pause", handlePause);
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("durationchange", syncDuration);
-      audio.removeEventListener("canplay", syncDuration);
-      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('durationchange', syncDuration);
+      audio.removeEventListener('canplay', syncDuration);
+      audio.removeEventListener('ended', handleEnded);
     };
   }, []);
 
@@ -196,19 +240,26 @@ export default function OudPage() {
     const updateWaveform = () => {
       analyser.getByteFrequencyData(frequencyData);
 
-      const nextBars = Array.from({ length: WAVEFORM_BAR_COUNT }, (_, index) => {
-        const start = Math.floor((index * frequencyData.length) / WAVEFORM_BAR_COUNT);
-        const end = Math.floor(((index + 1) * frequencyData.length) / WAVEFORM_BAR_COUNT);
-        let total = 0;
+      const nextBars = Array.from(
+        { length: WAVEFORM_BAR_COUNT },
+        (_, index) => {
+          const start = Math.floor(
+            (index * frequencyData.length) / WAVEFORM_BAR_COUNT,
+          );
+          const end = Math.floor(
+            ((index + 1) * frequencyData.length) / WAVEFORM_BAR_COUNT,
+          );
+          let total = 0;
 
-        for (let cursor = start; cursor < end; cursor += 1) {
-          total += frequencyData[cursor] ?? 0;
-        }
+          for (let cursor = start; cursor < end; cursor += 1) {
+            total += frequencyData[cursor] ?? 0;
+          }
 
-        const average = total / Math.max(1, end - start);
-        const normalized = average / 255;
-        return 0.18 + normalized * 0.82;
-      });
+          const average = total / Math.max(1, end - start);
+          const normalized = average / 255;
+          return 0.18 + normalized * 0.82;
+        },
+      );
 
       setWaveformBars(nextBars);
       animationFrameRef.current = window.requestAnimationFrame(updateWaveform);
@@ -252,7 +303,7 @@ export default function OudPage() {
       sourceNodeRef.current = source;
     }
 
-    if (audioContextRef.current.state === "suspended") {
+    if (audioContextRef.current.state === 'suspended') {
       await audioContextRef.current.resume();
     }
   };
@@ -262,11 +313,12 @@ export default function OudPage() {
     if (!audio) return;
     await ensureAudioAnalysis();
     await audio.play();
-    const nextDuration = Number.isFinite(audio.duration) && audio.duration > 0
-      ? audio.duration
-      : audio.seekable.length > 0
-        ? audio.seekable.end(audio.seekable.length - 1)
-        : 0;
+    const nextDuration =
+      Number.isFinite(audio.duration) && audio.duration > 0
+        ? audio.duration
+        : audio.seekable.length > 0
+          ? audio.seekable.end(audio.seekable.length - 1)
+          : 0;
 
     if (nextDuration > 0) {
       setDuration(nextDuration);
@@ -292,20 +344,20 @@ export default function OudPage() {
 
   const content = isArabic
     ? {
-        playLabel: "تشغيل المقطوعة",
-        pauseLabel: "إيقاف المقطوعة",
+        playLabel: 'تشغيل المقطوعة',
+        pauseLabel: 'إيقاف المقطوعة',
         paragraph:
-          "هل تعلم أن العود يُعد من أقدم الآلات الوترية في العالم، إذ يعود تاريخه إلى أكثر من 3000 عام في بلاد ما بين النهرين القديمة؟ تطور العود من آلات أقدم وأصبح أكثر دقة وإتقاناً خلال العصر الذهبي الإسلامي. وكان يُعزف في القصور الملكية والمجالس الثقافية وتقاليد السرد والحكاية. وأسهم الموسيقي الشهير زرياب في تطوير أسلوبه وأضاف له وتراً خامساً. ثم انتقلت هذه الآلة إلى أوروبا وأثرت في نشأة آلة اللوت. وبفضل صوته الدافئ والعميق، أصبح العود محورياً في الموسيقى العربية والتركية والفارسية. ولا يزال اليوم رمزاً لتراث موسيقي عريق وأصيل. 🎶",
-        reserveHelper: "اكتشف سحر العود في حصة حقيقية",
-        reserveCta: "التسجيل",
+          'هل تعلم أن العود يُعد من أقدم الآلات الوترية في العالم، إذ يعود تاريخه إلى أكثر من 3000 عام في بلاد ما بين النهرين القديمة؟ تطور العود من آلات أقدم وأصبح أكثر دقة وإتقاناً خلال العصر الذهبي الإسلامي. وكان يُعزف في القصور الملكية والمجالس الثقافية وتقاليد السرد والحكاية. وأسهم الموسيقي الشهير زرياب في تطوير أسلوبه وأضاف له وتراً خامساً. ثم انتقلت هذه الآلة إلى أوروبا وأثرت في نشأة آلة اللوت. وبفضل صوته الدافئ والعميق، أصبح العود محورياً في الموسيقى العربية والتركية والفارسية. ولا يزال اليوم رمزاً لتراث موسيقي عريق وأصيل. 🎶',
+        reserveHelper: 'اكتشف سحر العود في حصة حقيقية',
+        reserveCta: 'التسجيل',
       }
     : {
-        playLabel: "Play track",
-        pauseLabel: "Pause track",
+        playLabel: 'Play track',
+        pauseLabel: 'Pause track',
         paragraph:
-          "Did you know the Oud is one of the oldest string instruments in the world, dating back over 3000 years to ancient Mesopotamia? It evolved from early instruments and became highly refined during the Islamic Golden Age. The oud was widely played in royal courts, cultural gatherings, and storytelling traditions. A famous musician, Ziryab, helped develop its style and added a fifth string. The instrument later traveled to Europe, influencing the creation of the lute. Its deep, warm sound made it central to Arabic, Turkish, and Persian music. Today, the oud remains a symbol of rich musical heritage and tradition. 🎶",
-        reserveHelper: "Discover the oud in a real class",
-        reserveCta: "Enrollment",
+          'Did you know the Oud is one of the oldest string instruments in the world, dating back over 3000 years to ancient Mesopotamia? It evolved from early instruments and became highly refined during the Islamic Golden Age. The oud was widely played in royal courts, cultural gatherings, and storytelling traditions. A famous musician, Ziryab, helped develop its style and added a fifth string. The instrument later traveled to Europe, influencing the creation of the lute. Its deep, warm sound made it central to Arabic, Turkish, and Persian music. Today, the oud remains a symbol of rich musical heritage and tradition. 🎶',
+        reserveHelper: 'Discover the oud in a real class',
+        reserveCta: 'Enrollment',
       };
 
   return (
@@ -345,12 +397,12 @@ export default function OudPage() {
         <div className="font-goudy flex flex-col items-center gap-4">
           <div className="liquid-glass flex items-center gap-2.5 rounded-full px-4 py-2.5">
             <GlassControlButton label={content.playLabel} onClick={playAudio}>
-              <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
+              <Play size={12} className={isPlaying ? 'text-royal-cream' : ''} />
             </GlassControlButton>
             <GlassControlButton label={content.pauseLabel} onClick={pauseAudio}>
               <Pause
                 size={12}
-                className={!isPlaying ? "text-royal-cream" : ""}
+                className={!isPlaying ? 'text-royal-cream' : ''}
               />
             </GlassControlButton>
           </div>
@@ -379,7 +431,7 @@ export default function OudPage() {
               className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
             >
               <span>{formatTime(currentTime)}</span>
-              <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
+              <span>{progress ? `${Math.round(progress)}%` : '0%'}</span>
               <span>{formatTime(duration)}</span>
             </div>
           </div>
@@ -390,9 +442,11 @@ export default function OudPage() {
         <div
           className="rounded-[1.5rem] border px-6 py-6 sm:px-7 sm:py-7"
           style={GLASS_CARD_STYLE}
-          dir={isArabic ? "rtl" : "ltr"}
+          dir={isArabic ? 'rtl' : 'ltr'}
         >
-          <p className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem]`}>
+          <p
+            className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem]`}
+          >
             <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
           </p>
 
@@ -403,7 +457,7 @@ export default function OudPage() {
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
             </p>
             <Link
-              href={reservationHref}
+              href={enrollmentHref}
               className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
                 isArabic,
               )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
@@ -421,12 +475,12 @@ export default function OudPage() {
         >
           <div className="liquid-glass flex items-center gap-2 rounded-full px-3 py-2">
             <GlassControlButton label={content.playLabel} onClick={playAudio}>
-              <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
+              <Play size={12} className={isPlaying ? 'text-royal-cream' : ''} />
             </GlassControlButton>
             <GlassControlButton label={content.pauseLabel} onClick={pauseAudio}>
               <Pause
                 size={12}
-                className={!isPlaying ? "text-royal-cream" : ""}
+                className={!isPlaying ? 'text-royal-cream' : ''}
               />
             </GlassControlButton>
           </div>
@@ -455,7 +509,7 @@ export default function OudPage() {
               className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
             >
               <span>{formatTime(currentTime)}</span>
-              <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
+              <span>{progress ? `${Math.round(progress)}%` : '0%'}</span>
               <span>{formatTime(duration)}</span>
             </div>
           </div>
@@ -465,9 +519,11 @@ export default function OudPage() {
           <div
             className="rounded-[1.5rem] border px-6 py-6 sm:px-7 sm:py-7"
             style={GLASS_CARD_STYLE}
-            dir={isArabic ? "rtl" : "ltr"}
+            dir={isArabic ? 'rtl' : 'ltr'}
           >
-            <p className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem]`}>
+            <p
+              className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem]`}
+            >
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
             </p>
 
@@ -475,10 +531,12 @@ export default function OudPage() {
               <p
                 className={`${musicHelperTextClass(isArabic)} text-[14px] text-royal-gold/65 sm:text-[15px]`}
               >
-                <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
+                <span style={TEXT_HIGHLIGHT_STYLE}>
+                  {content.reserveHelper}
+                </span>
               </p>
               <Link
-                href={reservationHref}
+                href={enrollmentHref}
                 className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
                   isArabic,
                 )} text-[14px] text-[#2b1912] transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}

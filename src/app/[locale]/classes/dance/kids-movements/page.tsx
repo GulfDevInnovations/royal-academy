@@ -1,25 +1,25 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { use, useEffect, useMemo, useState } from "react";
+import Image from 'next/image';
+import Link from 'next/link';
+import { use, useEffect, useMemo, useState } from 'react';
 
 const KIDS_MOVEMENT_SLIDES = [
-  "/images/babyballet.png",
-  "/images/babyballet02.png",
-  "/images/babyballet03.png",
-  "/images/babygymnastics.png",
-  "/images/babygymnastics02.png",
-  "/images/babygymnastics03.png",
-  "/images/contemporarydance.png",
-  "/images/contemporarydance01.png",
-  "/images/hiphop01.png",
-  "/images/hiphop02.png",
-  "/images/hiphop03.png",
-  "/images/hiphop04.png",
-  "/images/jazzdance.png",
-  "/images/jazzdance01.png",
-  "/images/jazzdance02.png",
+  '/images/babyballet.png',
+  '/images/babyballet02.png',
+  '/images/babyballet03.png',
+  '/images/babygymnastics.png',
+  '/images/babygymnastics02.png',
+  '/images/babygymnastics03.png',
+  '/images/contemporarydance.png',
+  '/images/contemporarydance01.png',
+  '/images/hiphop01.png',
+  '/images/hiphop02.png',
+  '/images/hiphop03.png',
+  '/images/hiphop04.png',
+  '/images/jazzdance.png',
+  '/images/jazzdance01.png',
+  '/images/jazzdance02.png',
 ] as const;
 
 const SLIDE_INTERVAL_MS = 7_000;
@@ -29,8 +29,8 @@ export default function KidsMovementsPage({
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  const { locale = "en" } = use(params);
-  const isArabic = locale === "ar";
+  const { locale = 'en' } = use(params);
+  const isArabic = locale === 'ar';
 
   const [activeSlide, setActiveSlide] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
@@ -49,50 +49,50 @@ export default function KidsMovementsPage({
   );
   const content = isArabic
     ? {
-        slideAltPrefix: "شريحة حركة الأطفال",
-        dotsLabelPrefix: "الانتقال إلى مجموعة حركة الأطفال",
-        enrollment: "التسجيل",
-        cardTitle: "برامج حركة الأطفال",
+        slideAltPrefix: 'شريحة حركة الأطفال',
+        dotsLabelPrefix: 'الانتقال إلى مجموعة حركة الأطفال',
+        enrollment: 'التسجيل',
+        cardTitle: 'برامج حركة الأطفال',
         cardDescription:
-          "مصممة لبناء التناسق، والإيقاع، والانضباط، والثقة من خلال تدرج مناسب لكل مرحلة عمرية.",
+          'مصممة لبناء التناسق، والإيقاع، والانضباط، والثقة من خلال تدرج مناسب لكل مرحلة عمرية.',
         cardBullets: [
-          "بيبي باليه (الأعمار 3–5)",
-          "بيبي جمباز (3.5–4 سنوات)",
-          "الجمباز للأطفال (4–6 سنوات)",
-          "أساسيات الجمباز (6–8 سنوات)",
-          "جونيور جاز دانس (8–16 سنة)",
-          "الرقص المعاصر (8–16 سنة)",
-          "هيب هوب (8–16 سنة)",
+          'بيبي باليه (الأعمار 3–5)',
+          'بيبي جمباز (3.5–4 سنوات)',
+          'الجمباز للأطفال (4–6 سنوات)',
+          'أساسيات الجمباز (6–8 سنوات)',
+          'جونيور جاز دانس (8–16 سنة)',
+          'الرقص المعاصر (8–16 سنة)',
+          'هيب هوب (8–16 سنة)',
         ],
         cardFooter:
-          "تركز هذه البرامج على المهارات الحركية الأساسية، والإحساس الموسيقي، والمرونة، والحركة التعبيرية ضمن بيئة منظمة وداعمة.",
+          'تركز هذه البرامج على المهارات الحركية الأساسية، والإحساس الموسيقي، والمرونة، والحركة التعبيرية ضمن بيئة منظمة وداعمة.',
       }
     : {
-        slideAltPrefix: "Kids movement slide",
-        dotsLabelPrefix: "Go to kids movement group",
-        enrollment: "Enrollment",
-        cardTitle: "Children’s Movement Programs",
+        slideAltPrefix: 'Kids movement slide',
+        dotsLabelPrefix: 'Go to kids movement group',
+        enrollment: 'Enrollment',
+        cardTitle: 'Children’s Movement Programs',
         cardDescription:
-          "Designed to build coordination, rhythm, discipline, and confidence through age-appropriate progression.",
+          'Designed to build coordination, rhythm, discipline, and confidence through age-appropriate progression.',
         cardBullets: [
-          "Baby Ballet (Ages 3–5)",
-          "Baby Gymnastics (3.5–4 yrs)",
-          "Gymnastics for Kids (4–6 yrs)",
-          "Basics of Gymnastics (6–8 yrs)",
-          "Junior Jazz Dance (8–16 yrs)",
-          "Contemporary Dance (8–16 yrs)",
-          "Hip-Hop (8–16 yrs)",
+          'Baby Ballet (Ages 3–5)',
+          'Baby Gymnastics (3.5–4 yrs)',
+          'Gymnastics for Kids (4–6 yrs)',
+          'Basics of Gymnastics (6–8 yrs)',
+          'Junior Jazz Dance (8–16 yrs)',
+          'Contemporary Dance (8–16 yrs)',
+          'Hip-Hop (8–16 yrs)',
         ],
         cardFooter:
-          "These programs focus on foundational motor skills, musicality, flexibility, and expressive movement within a structured and supportive environment.",
+          'These programs focus on foundational motor skills, musicality, flexibility, and expressive movement within a structured and supportive environment.',
       };
 
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
+    const mq = window.matchMedia('(max-width: 767px)');
     const update = () => setIsMobile(mq.matches);
     update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
   }, []);
 
   useEffect(() => {
@@ -107,8 +107,8 @@ export default function KidsMovementsPage({
     setActiveSlide((current) => current % slideGroups.length);
   }, [slideGroups.length]);
 
-  const previousLabel = isArabic ? "السابق" : "Previous";
-  const nextLabel = isArabic ? "التالي" : "Next";
+  const previousLabel = isArabic ? 'السابق' : 'Previous';
+  const nextLabel = isArabic ? 'التالي' : 'Next';
   const totalGroups = slideGroups.length;
   const goPrevious = () => {
     setActiveSlide((current) => (current - 1 + totalGroups) % totalGroups);
@@ -119,8 +119,8 @@ export default function KidsMovementsPage({
 
   return (
     <main
-      dir={isArabic ? "rtl" : "ltr"}
-       className="min-h-screen pt-20 md:pt-30 bg-royal-purple"
+      dir={isArabic ? 'rtl' : 'ltr'}
+      className="min-h-screen pt-20 md:pt-30 bg-royal-purple"
       onWheelCapture={(event) => event.stopPropagation()}
       onTouchMoveCapture={(event) => event.stopPropagation()}
     >
@@ -130,14 +130,14 @@ export default function KidsMovementsPage({
             <div
               key={`kids-movement-group-${index}`}
               className={`absolute inset-0 transition-opacity duration-1400 ${
-                index === activeSlide ? "opacity-100" : "opacity-0"
+                index === activeSlide ? 'opacity-100' : 'opacity-0'
               }`}
             >
               <div
                 className={`grid h-full px-4 py-10 sm:px-6 md:px-8 ${
                   isMobile
-                    ? "mx-auto max-w-88 grid-cols-1 gap-3"
-                    : "mx-auto max-w-6xl grid-cols-3 gap-3"
+                    ? 'mx-auto max-w-88 grid-cols-1 gap-3'
+                    : 'mx-auto max-w-6xl grid-cols-3 gap-3'
                 }`}
               >
                 {group.map((slide, imageIndex) => (
@@ -151,7 +151,7 @@ export default function KidsMovementsPage({
                       fill
                       priority={index === 0}
                       className="object-contain"
-                      sizes={isMobile ? "100vw" : "33vw"}
+                      sizes={isMobile ? '100vw' : '33vw'}
                     />
                   </div>
                 ))}
@@ -193,7 +193,7 @@ export default function KidsMovementsPage({
               onClick={() => setActiveSlide(index)}
               aria-label={`${content.dotsLabelPrefix} ${index + 1}`}
               className={`h-2.5 w-2.5 rounded-full border border-white/30 transition ${
-                index === activeSlide ? "bg-white" : "bg-white/25"
+                index === activeSlide ? 'bg-white' : 'bg-white/25'
               }`}
             />
           ))}
@@ -220,9 +220,9 @@ export default function KidsMovementsPage({
       </section>
 
       <section className="mx-auto w-full max-w-6xl px-4 pb-10 pt-10 sm:px-6">
-        <div className={isArabic ? "text-right" : "text-left"}>
+        <div className={isArabic ? 'text-right' : 'text-left'}>
           <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-royal-gold/75">
-            {isArabic ? "الرقص والعافية" : "Dance & Wellness"}
+            {isArabic ? 'الرقص والعافية' : 'Dance & Wellness'}
           </p>
           <h1 className="mt-4 font-goudy text-4xl leading-[1.05] text-royal-cream sm:text-5xl md:text-6xl">
             {content.cardTitle}
@@ -233,7 +233,7 @@ export default function KidsMovementsPage({
 
           <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Link
-              href={`/${locale}/reservation?${new URLSearchParams({ dept: "dance", q: "Kids Movements" }).toString()}`}
+              href={`/${locale}/enrollment?${new URLSearchParams({ dept: 'dance', q: 'Kids Movements' }).toString()}`}
               className="liquid-glass-gold shimmer inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:w-auto sm:py-2.5"
             >
               {content.enrollment}
@@ -242,7 +242,7 @@ export default function KidsMovementsPage({
               href={`/${locale}`}
               className="mt-1 w-full text-center text-[11px] font-medium uppercase tracking-[0.22em] text-royal-gold/70 underline decoration-royal-gold/40 underline-offset-4 hover:text-royal-gold sm:mt-0 sm:w-auto sm:text-left"
             >
-              {isArabic ? "العودة للرئيسية" : "Back to Home"}
+              {isArabic ? 'العودة للرئيسية' : 'Back to Home'}
             </Link>
           </div>
         </div>
@@ -251,7 +251,7 @@ export default function KidsMovementsPage({
       <section className="mx-auto w-full max-w-6xl px-4 pb-16 pt-10 sm:px-6">
         <div className="liquid-glass rounded-2xl border border-royal-cream/10 p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.28em] text-royal-gold/70">
-            {isArabic ? "ماذا ستتعلم" : "What You'll Learn"}
+            {isArabic ? 'ماذا ستتعلم' : "What You'll Learn"}
           </p>
           <ul className="mt-4 space-y-2 text-sm text-royal-cream/85 sm:text-[15px]">
             {content.cardBullets.map((bullet) => (
