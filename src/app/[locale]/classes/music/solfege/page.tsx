@@ -87,7 +87,7 @@ export default function SolfegePage() {
   const [waveformBars, setWaveformBars] = useState<number[]>(WAVEFORM_IDLE_BARS);
   const isArabic = params?.locale === "ar";
   const locale = params?.locale ?? "en";
-  const reservationHref = `/${locale}/reservation`;
+  const enrollmentHref = `/${locale}/enrollment`;
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -322,7 +322,7 @@ export default function SolfegePage() {
         <div className="flex flex-col items-center gap-5.5">
           <div
             className={`group relative h-50 w-50 rounded-full border border-white/40 bg-[radial-gradient(circle_at_48%_42%,rgba(255,255,255,0.14)_0%,rgba(255,255,255,0.03)_18%,rgba(10,10,10,0.98)_34%,rgba(4,4,4,1)_68%,rgba(0,0,0,1)_100%)] shadow-[0_22px_44px_rgba(0,0,0,0.45)] ${
-              isPlaying ? "animate-spin [animation-duration:8s]" : ""
+              isPlaying ? 'animate-spin [animation-duration:8s]' : ''
             }`}
           >
             <div className="absolute inset-[3%] rounded-full border border-white/6" />
@@ -350,15 +350,12 @@ export default function SolfegePage() {
 
           <div className="liquid-glass flex items-center gap-2.5 rounded-full px-4.5 py-3">
             <GlassControlButton label={content.playLabel} onClick={playAudio}>
-              <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
+              <Play size={12} className={isPlaying ? 'text-royal-cream' : ''} />
             </GlassControlButton>
-            <GlassControlButton
-              label={content.pauseLabel}
-              onClick={pauseAudio}
-            >
+            <GlassControlButton label={content.pauseLabel} onClick={pauseAudio}>
               <Pause
                 size={12}
-                className={!isPlaying ? "text-royal-cream" : ""}
+                className={!isPlaying ? 'text-royal-cream' : ''}
               />
             </GlassControlButton>
           </div>
@@ -391,11 +388,10 @@ export default function SolfegePage() {
               className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
             >
               <span>{formatTime(currentTime)}</span>
-              <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
+              <span>{progress ? `${Math.round(progress)}%` : '0%'}</span>
               <span>{formatTime(duration)}</span>
             </div>
           </div>
-
         </div>
       </div>
 
@@ -404,21 +400,21 @@ export default function SolfegePage() {
           className="rounded-[1.6rem] border px-5 py-5"
           style={{
             background:
-              "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)",
-            backdropFilter: "blur(18px)",
-            WebkitBackdropFilter: "blur(18px)",
-            borderColor: "rgba(217,192,161,0.22)",
-            boxShadow: "0 18px 42px rgba(0,0,0,0.30)",
+              'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)',
+            backdropFilter: 'blur(18px)',
+            WebkitBackdropFilter: 'blur(18px)',
+            borderColor: 'rgba(217,192,161,0.22)',
+            boxShadow: '0 18px 42px rgba(0,0,0,0.30)',
           }}
         >
           <p className="text-[1.3rem] leading-[1.8rem] text-royal-cream/90">
             <span
               style={{
-                background: "rgba(43,25,18,0.48)",
-                padding: "0.06rem 0.32rem",
-                borderRadius: "0.35rem",
-                boxDecorationBreak: "clone",
-                WebkitBoxDecorationBreak: "clone",
+                background: 'rgba(43,25,18,0.48)',
+                padding: '0.06rem 0.32rem',
+                borderRadius: '0.35rem',
+                boxDecorationBreak: 'clone',
+                WebkitBoxDecorationBreak: 'clone',
               }}
             >
               {content.paragraph}
@@ -428,27 +424,27 @@ export default function SolfegePage() {
           <div className="mt-3 flex flex-col items-start gap-2.5">
             <p
               className={`text-[0.95rem] ${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
-                isArabic ? "text-right" : ""
+                isArabic ? 'text-right' : ''
               }`}
             >
               <span
                 style={{
-                  background: "rgba(43,25,18,0.48)",
-                  padding: "0.06rem 0.32rem",
-                  borderRadius: "0.35rem",
-                  boxDecorationBreak: "clone",
-                  WebkitBoxDecorationBreak: "clone",
+                  background: 'rgba(43,25,18,0.48)',
+                  padding: '0.06rem 0.32rem',
+                  borderRadius: '0.35rem',
+                  boxDecorationBreak: 'clone',
+                  WebkitBoxDecorationBreak: 'clone',
                 }}
               >
                 {content.reserveHelper}
               </span>
             </p>
             <Link
-              href={reservationHref}
+              href={enrollmentHref}
               className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-5 py-3 text-[0.95rem] ${musicCtaTextClass(
                 isArabic,
               )} text-[#2b1912] transition-transform duration-300 hover:scale-[1.03] ${
-                isArabic ? "text-right" : ""
+                isArabic ? 'text-right' : ''
               }`}
             >
               {content.reserveCta}
@@ -461,7 +457,7 @@ export default function SolfegePage() {
         <div className="flex w-full max-w-[18rem] flex-col items-center gap-4 sm:max-w-[20rem]">
           <div
             className={`group relative h-32 w-32 rounded-full border border-white/40 bg-[radial-gradient(circle_at_48%_42%,rgba(255,255,255,0.14)_0%,rgba(255,255,255,0.03)_18%,rgba(10,10,10,0.98)_34%,rgba(4,4,4,1)_68%,rgba(0,0,0,1)_100%)] shadow-[0_18px_36px_rgba(0,0,0,0.45)] sm:h-36 sm:w-36 ${
-              isPlaying ? "animate-spin [animation-duration:8s]" : ""
+              isPlaying ? 'animate-spin [animation-duration:8s]' : ''
             }`}
           >
             <div className="absolute inset-[3%] rounded-full border border-white/6" />
@@ -489,15 +485,12 @@ export default function SolfegePage() {
 
           <div className="liquid-glass flex items-center gap-2 rounded-full px-3 py-2">
             <GlassControlButton label={content.playLabel} onClick={playAudio}>
-              <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
+              <Play size={12} className={isPlaying ? 'text-royal-cream' : ''} />
             </GlassControlButton>
-            <GlassControlButton
-              label={content.pauseLabel}
-              onClick={pauseAudio}
-            >
+            <GlassControlButton label={content.pauseLabel} onClick={pauseAudio}>
               <Pause
                 size={12}
-                className={!isPlaying ? "text-royal-cream" : ""}
+                className={!isPlaying ? 'text-royal-cream' : ''}
               />
             </GlassControlButton>
           </div>
@@ -530,7 +523,7 @@ export default function SolfegePage() {
               className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
             >
               <span>{formatTime(currentTime)}</span>
-              <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
+              <span>{progress ? `${Math.round(progress)}%` : '0%'}</span>
               <span>{formatTime(duration)}</span>
             </div>
           </div>
@@ -541,21 +534,21 @@ export default function SolfegePage() {
             className="rounded-[1.5rem] border px-4 py-4 sm:px-5 sm:py-5"
             style={{
               background:
-                "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)",
-              backdropFilter: "blur(18px)",
-              WebkitBackdropFilter: "blur(18px)",
-              borderColor: "rgba(217,192,161,0.22)",
-              boxShadow: "0 18px 42px rgba(0,0,0,0.30)",
+                'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)',
+              backdropFilter: 'blur(18px)',
+              WebkitBackdropFilter: 'blur(18px)',
+              borderColor: 'rgba(217,192,161,0.22)',
+              boxShadow: '0 18px 42px rgba(0,0,0,0.30)',
             }}
           >
             <p className={`${musicTypography.body} text-royal-cream/90`}>
               <span
                 style={{
-                  background: "rgba(43,25,18,0.48)",
-                  padding: "0.06rem 0.32rem",
-                  borderRadius: "0.35rem",
-                  boxDecorationBreak: "clone",
-                  WebkitBoxDecorationBreak: "clone",
+                  background: 'rgba(43,25,18,0.48)',
+                  padding: '0.06rem 0.32rem',
+                  borderRadius: '0.35rem',
+                  boxDecorationBreak: 'clone',
+                  WebkitBoxDecorationBreak: 'clone',
                 }}
               >
                 {content.paragraph}
@@ -565,27 +558,27 @@ export default function SolfegePage() {
             <div className="mt-4 flex flex-col items-start gap-3">
               <p
                 className={`${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
-                  isArabic ? "text-right" : ""
+                  isArabic ? 'text-right' : ''
                 }`}
               >
                 <span
                   style={{
-                    background: "rgba(43,25,18,0.48)",
-                    padding: "0.06rem 0.32rem",
-                    borderRadius: "0.35rem",
-                    boxDecorationBreak: "clone",
-                    WebkitBoxDecorationBreak: "clone",
+                    background: 'rgba(43,25,18,0.48)',
+                    padding: '0.06rem 0.32rem',
+                    borderRadius: '0.35rem',
+                    boxDecorationBreak: 'clone',
+                    WebkitBoxDecorationBreak: 'clone',
                   }}
                 >
                   {content.reserveHelper}
                 </span>
               </p>
               <Link
-                href={reservationHref}
+                href={enrollmentHref}
                 className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 ${musicCtaTextClass(
                   isArabic,
                 )} text-[#2b1912] transition-transform duration-300 hover:scale-[1.03] ${
-                  isArabic ? "text-right" : ""
+                  isArabic ? 'text-right' : ''
                 }`}
               >
                 {content.reserveCta}

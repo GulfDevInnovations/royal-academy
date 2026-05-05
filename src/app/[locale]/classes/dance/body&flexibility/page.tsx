@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { use, useEffect, useMemo, useState } from "react";
+import Image from 'next/image';
+import Link from 'next/link';
+import { use, useEffect, useMemo, useState } from 'react';
 
 const MOVEMENT_SLIDES = [
-  "/images/movement01.png",
-  "/images/movement02.png",
-  "/images/movement03.png",
-  "/images/movement04.png",
-  "/images/movement05.png",
-  "/images/movement06.png",
-  "/images/movement07.png",
-  "/images/movement08.png",
-  "/images/movement09.png",
+  '/images/movement01.png',
+  '/images/movement02.png',
+  '/images/movement03.png',
+  '/images/movement04.png',
+  '/images/movement05.png',
+  '/images/movement06.png',
+  '/images/movement07.png',
+  '/images/movement08.png',
+  '/images/movement09.png',
 ] as const;
 
 const SLIDE_INTERVAL_MS = 7_000;
@@ -24,8 +24,8 @@ export default function BodyFlexibilityPage({
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  const { locale = "en" } = use(params);
-  const isArabic = locale === "ar";
+  const { locale = 'en' } = use(params);
+  const isArabic = locale === 'ar';
 
   const [activeSlide, setActiveSlide] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
@@ -44,90 +44,86 @@ export default function BodyFlexibilityPage({
   );
   const content = isArabic
     ? {
-        slideAltPrefix: "شريحة الحركة",
-        dotsLabelPrefix: "الانتقال إلى مجموعة الحركة",
-        enrollment: "التسجيل",
+        slideAltPrefix: 'شريحة الحركة',
+        dotsLabelPrefix: 'الانتقال إلى مجموعة الحركة',
+        enrollment: 'التسجيل',
         cards: [
           {
-            title: "برامج الجسم والمرونة",
+            title: 'برامج الجسم والمرونة',
             description:
-              "جلسات تدريبية مركزة تهدف إلى تحسين الأداء البدني، ووضعية الجسم، والمرونة الحركية.",
+              'جلسات تدريبية مركزة تهدف إلى تحسين الأداء البدني، ووضعية الجسم، والمرونة الحركية.',
             bullets: [
-              "مرونة الجسم",
-              "الإطالة والتهيئة البدنية",
-              "الوضعية والحركة",
+              'مرونة الجسم',
+              'الإطالة والتهيئة البدنية',
+              'الوضعية والحركة',
             ],
             footer:
-              "مثالية للطلاب الذين يسعون إلى تحسين المحاذاة الجسدية، وتوازن القوة، وتطوير المرونة.",
+              'مثالية للطلاب الذين يسعون إلى تحسين المحاذاة الجسدية، وتوازن القوة، وتطوير المرونة.',
           },
           {
-            title: "الحركة الواعية والعافية",
+            title: 'الحركة الواعية والعافية',
             description:
-              "منهج شمولي للحركة يربط بين التنفس، ووعي الجسد، والانسياب المتحكم به.",
-            bullets: [
-              "يوغا",
-              "التنفس والتوازن",
-              "الحركة واليقظة الذهنية",
-            ],
+              'منهج شمولي للحركة يربط بين التنفس، ووعي الجسد، والانسياب المتحكم به.',
+            bullets: ['يوغا', 'التنفس والتوازن', 'الحركة واليقظة الذهنية'],
             footer:
-              "تعزز هذه الجلسات تقليل التوتر، والتحكم بالجسم، والوعي البدني المستدام.",
+              'تعزز هذه الجلسات تقليل التوتر، والتحكم بالجسم، والوعي البدني المستدام.',
           },
           {
-            title: "البرامج الخاصة والخلوات",
+            title: 'البرامج الخاصة والخلوات',
             description:
-              "برامج منتقاة بعناية لتعميق العافية الجسدية والحركة الاستشفائية.",
+              'برامج منتقاة بعناية لتعميق العافية الجسدية والحركة الاستشفائية.',
             bullets: [
-              "خلوات الحركة",
-              "الحركة الخالدة",
-              "(صف لطيف يركز على مرونة المفاصل، والمرونة الجسدية، وسهولة الحركة للبالغين +50)",
+              'خلوات الحركة',
+              'الحركة الخالدة',
+              '(صف لطيف يركز على مرونة المفاصل، والمرونة الجسدية، وسهولة الحركة للبالغين +50)',
             ],
           },
         ],
       }
     : {
-        slideAltPrefix: "Movement slide",
-        dotsLabelPrefix: "Go to movement group",
-        enrollment: "Enrollment",
+        slideAltPrefix: 'Movement slide',
+        dotsLabelPrefix: 'Go to movement group',
+        enrollment: 'Enrollment',
         cards: [
           {
-            title: "Body & Flexibility Programs",
+            title: 'Body & Flexibility Programs',
             description:
-              "Targeted conditioning sessions designed to enhance physical performance, posture, and mobility.",
+              'Targeted conditioning sessions designed to enhance physical performance, posture, and mobility.',
             bullets: [
-              "Body Flexibility",
-              "Stretch & Conditioning",
-              "Posture & Mobility",
+              'Body Flexibility',
+              'Stretch & Conditioning',
+              'Posture & Mobility',
             ],
             footer:
-              "Ideal for students seeking improved alignment, strength balance, and flexibility development.",
+              'Ideal for students seeking improved alignment, strength balance, and flexibility development.',
           },
           {
-            title: "Mindful Movement & Wellness",
+            title: 'Mindful Movement & Wellness',
             description:
-              "A holistic approach to movement connecting breath, body awareness, and controlled flow.",
-            bullets: ["Yoga", "Breath & Balance", "Movement & Mindfulness"],
+              'A holistic approach to movement connecting breath, body awareness, and controlled flow.',
+            bullets: ['Yoga', 'Breath & Balance', 'Movement & Mindfulness'],
             footer:
-              "These sessions promote stress reduction, body control, and sustainable physical awareness.",
+              'These sessions promote stress reduction, body control, and sustainable physical awareness.',
           },
           {
-            title: "Special Programs & Retreats",
+            title: 'Special Programs & Retreats',
             description:
-              "Curated programs designed to deepen physical wellbeing and restorative movement.",
+              'Curated programs designed to deepen physical wellbeing and restorative movement.',
             bullets: [
-              "Movement Retreats",
-              "Timeless Movement",
-              "(A gentle class focused on joint mobility, flexibility, and ease of movement for adults 50+)",
+              'Movement Retreats',
+              'Timeless Movement',
+              '(A gentle class focused on joint mobility, flexibility, and ease of movement for adults 50+)',
             ],
           },
         ],
       };
 
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
+    const mq = window.matchMedia('(max-width: 767px)');
     const update = () => setIsMobile(mq.matches);
     update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
   }, []);
 
   useEffect(() => {
@@ -142,8 +138,8 @@ export default function BodyFlexibilityPage({
     setActiveSlide((current) => current % slideGroups.length);
   }, [slideGroups.length]);
 
-  const previousLabel = isArabic ? "السابق" : "Previous";
-  const nextLabel = isArabic ? "التالي" : "Next";
+  const previousLabel = isArabic ? 'السابق' : 'Previous';
+  const nextLabel = isArabic ? 'التالي' : 'Next';
   const totalGroups = slideGroups.length;
   const goPrevious = () => {
     setActiveSlide((current) => (current - 1 + totalGroups) % totalGroups);
@@ -154,18 +150,18 @@ export default function BodyFlexibilityPage({
 
   return (
     <main
-      dir={isArabic ? "rtl" : "ltr"}
+      dir={isArabic ? 'rtl' : 'ltr'}
       className="min-h-full overflow-x-hidden bg-royal-purple pt-20 md:min-h-screen md:pt-30"
     >
       <section className="relative h-[44vh] min-h-88 overflow-hidden">
         <div
           className={`absolute left-6 top-8 z-10 hidden w-full max-w-[20rem] rounded-[1.2rem] border border-white/14 bg-[rgba(24,16,11,0.8)] p-5 text-[#fff6ec] shadow-[0_18px_36px_rgba(22,12,7,0.22)] backdrop-blur-sm md:left-[calc(50%-47.625rem)] md:top-1/2 md:block md:w-[26rem] md:max-w-[26rem] md:-translate-y-1/2 ${
-            isArabic ? "text-right" : "text-left"
+            isArabic ? 'text-right' : 'text-left'
           }`}
-          dir={isArabic ? "rtl" : "ltr"}
+          dir={isArabic ? 'rtl' : 'ltr'}
         >
           <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-royal-gold/75">
-            {isArabic ? "الرقص والعافية" : "Dance & Wellness"}
+            {isArabic ? 'الرقص والعافية' : 'Dance & Wellness'}
           </p>
           <h1 className="mt-4 font-goudy text-[2.1rem] leading-[1.04] text-royal-cream">
             {content.cards[0].title}
@@ -176,7 +172,7 @@ export default function BodyFlexibilityPage({
 
           <div className="mt-6 flex flex-col gap-3">
             <Link
-              href={`/${locale}/reservation?${new URLSearchParams({ dept: "dance", q: "Body & Flexibility" }).toString()}`}
+              href={`/${locale}/enrollment?${new URLSearchParams({ dept: 'dance', q: 'Body & Flexibility' }).toString()}`}
               className="liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-5 py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03]"
             >
               {content.enrollment}
@@ -185,7 +181,7 @@ export default function BodyFlexibilityPage({
               href={`/${locale}`}
               className="text-[11px] font-medium uppercase tracking-[0.22em] text-royal-gold/70 underline decoration-royal-gold/40 underline-offset-4 hover:text-royal-gold"
             >
-              {isArabic ? "العودة للرئيسية" : "Back to Home"}
+              {isArabic ? 'العودة للرئيسية' : 'Back to Home'}
             </Link>
           </div>
         </div>
@@ -195,14 +191,14 @@ export default function BodyFlexibilityPage({
             <div
               key={`movement-group-${index}`}
               className={`absolute inset-0 transition-opacity duration-1400 ${
-                index === activeSlide ? "opacity-100" : "opacity-0"
+                index === activeSlide ? 'opacity-100' : 'opacity-0'
               }`}
             >
               <div
                 className={`grid h-full px-4 py-10 md:py-20 sm:px-6 md:px-8 ${
                   isMobile
-                    ? "mx-auto max-w-88 grid-cols-1 gap-3"
-                    : "mx-auto max-w-6xl translate-x-[270px] grid-cols-3 gap-3"
+                    ? 'mx-auto max-w-88 grid-cols-1 gap-3'
+                    : 'mx-auto max-w-6xl translate-x-[270px] grid-cols-3 gap-3'
                 }`}
               >
                 {group.map((slide, imageIndex) => (
@@ -216,7 +212,7 @@ export default function BodyFlexibilityPage({
                       fill
                       priority={index === 0}
                       className="object-contain"
-                      sizes={isMobile ? "100vw" : "33vw"}
+                      sizes={isMobile ? '100vw' : '33vw'}
                     />
                   </div>
                 ))}
@@ -258,7 +254,7 @@ export default function BodyFlexibilityPage({
               onClick={() => setActiveSlide(index)}
               aria-label={`${content.dotsLabelPrefix} ${index + 1}`}
               className={`h-2.5 w-2.5 rounded-full border border-white/30 transition ${
-                index === activeSlide ? "bg-white" : "bg-white/25"
+                index === activeSlide ? 'bg-white' : 'bg-white/25'
               }`}
             />
           ))}
@@ -285,9 +281,9 @@ export default function BodyFlexibilityPage({
       </section>
 
       <section className="mx-auto w-full max-w-6xl px-4 pb-10 pt-10 sm:px-6 md:hidden">
-        <div className={isArabic ? "text-right" : "text-left"}>
+        <div className={isArabic ? 'text-right' : 'text-left'}>
           <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-royal-gold/75">
-            {isArabic ? "الرقص والعافية" : "Dance & Wellness"}
+            {isArabic ? 'الرقص والعافية' : 'Dance & Wellness'}
           </p>
           <h1 className="mt-4 font-goudy text-4xl leading-[1.05] text-royal-cream sm:text-5xl md:text-6xl">
             {content.cards[0].title}
@@ -298,7 +294,7 @@ export default function BodyFlexibilityPage({
 
           <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Link
-              href={`/${locale}/reservation?${new URLSearchParams({ dept: "dance", q: "Body & Flexibility" }).toString()}`}
+              href={`/${locale}/enrollment?${new URLSearchParams({ dept: 'dance', q: 'Body & Flexibility' }).toString()}`}
               className="liquid-glass-gold shimmer inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:w-auto sm:py-2.5"
             >
               {content.enrollment}
@@ -307,7 +303,7 @@ export default function BodyFlexibilityPage({
               href={`/${locale}`}
               className="mt-1 w-full text-center text-[11px] font-medium uppercase tracking-[0.22em] text-royal-gold/70 underline decoration-royal-gold/40 underline-offset-4 hover:text-royal-gold sm:mt-0 sm:w-auto sm:text-left"
             >
-              {isArabic ? "العودة للرئيسية" : "Back to Home"}
+              {isArabic ? 'العودة للرئيسية' : 'Back to Home'}
             </Link>
           </div>
         </div>
@@ -321,18 +317,18 @@ export default function BodyFlexibilityPage({
               className="liquid-glass h-full rounded-2xl border border-royal-cream/10 p-4 lg:p-4.5"
             >
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-royal-gold/70">
-                {isArabic ? "نظرة عامة" : "Overview"}
+                {isArabic ? 'نظرة عامة' : 'Overview'}
               </p>
               <h2
                 className={`mt-2.5 font-goudy text-2xl leading-tight text-royal-cream ${
-                  isArabic ? "text-right" : "text-left"
+                  isArabic ? 'text-right' : 'text-left'
                 }`}
               >
                 {card.title}
               </h2>
               <p
                 className={`mt-2.5 text-sm leading-6 font-semibold text-royal-cream/85 sm:text-[15px] ${
-                  isArabic ? "text-right" : "text-left"
+                  isArabic ? 'text-right' : 'text-left'
                 }`}
               >
                 {card.description}
@@ -348,7 +344,7 @@ export default function BodyFlexibilityPage({
               {card.footer && (
                 <p
                   className={`mt-3 text-sm leading-6 font-semibold text-royal-cream/70 ${
-                    isArabic ? "text-right" : "text-left"
+                    isArabic ? 'text-right' : 'text-left'
                   }`}
                 >
                   {card.footer}
@@ -358,7 +354,6 @@ export default function BodyFlexibilityPage({
           ))}
         </div>
       </section>
-
     </main>
   );
 }

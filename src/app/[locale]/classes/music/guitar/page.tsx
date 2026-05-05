@@ -124,7 +124,7 @@ export default function GuitarPage() {
   const [roomPreviewFocus, setRoomPreviewFocus] = useState({ x: 50, y: 50 });
   const locale = params?.locale ?? "en";
   const isArabic = locale === "ar";
-  const reservationHref = `/${locale}/reservation`;
+  const enrollmentHref = `/${locale}/enrollment`;
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -377,14 +377,10 @@ export default function GuitarPage() {
       className="relative min-h-screen overflow-hidden bg-cover bg-no-repeat"
       style={{
         backgroundImage: "url('/images/guitar.png')",
-        backgroundPosition: "center top",
+        backgroundPosition: 'center top',
       }}
     >
-      <audio
-        ref={audioRef}
-        preload="auto"
-        src="/images/bailandoguitar.mp3"
-      />
+      <audio ref={audioRef} preload="auto" src="/images/bailandoguitar.mp3" />
 
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.02)_0%,rgba(0,0,0,0.16)_68%,rgba(0,0,0,0.34)_100%)]" />
 
@@ -400,7 +396,7 @@ export default function GuitarPage() {
               width: star.size,
               height: star.size,
               boxShadow:
-                "0 0 10px rgba(255,246,220,0.95), 0 0 18px rgba(255,240,196,0.52)",
+                '0 0 10px rgba(255,246,220,0.95), 0 0 18px rgba(255,240,196,0.52)',
               animation: `guitar-star-blink ${star.duration} ease-in-out ${star.delay} infinite`,
             }}
           />
@@ -416,17 +412,21 @@ export default function GuitarPage() {
             <p
               className={`max-w-[18rem] text-center text-[13px] uppercase tracking-[0.2em] leading-6 text-royal-cream/88 sm:text-[14px]`}
             >
-              Sensational Spanish Guitar, Cover of Enrique Iglesias &quot;Bailando&quot;
+              Sensational Spanish Guitar, Cover of Enrique Iglesias
+              &quot;Bailando&quot;
             </p>
 
             <div className="liquid-glass flex items-center gap-2.5 rounded-full px-4 py-2.5">
               <GlassControlButton label="Play track" onClick={playAudio}>
-                <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
+                <Play
+                  size={12}
+                  className={isPlaying ? 'text-royal-cream' : ''}
+                />
               </GlassControlButton>
               <GlassControlButton label="Pause track" onClick={pauseAudio}>
                 <Pause
                   size={12}
-                  className={!isPlaying ? "text-royal-cream" : ""}
+                  className={!isPlaying ? 'text-royal-cream' : ''}
                 />
               </GlassControlButton>
             </div>
@@ -455,7 +455,7 @@ export default function GuitarPage() {
                 className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
               >
                 <span>{formatTime(currentTime)}</span>
-                <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
+                <span>{progress ? `${Math.round(progress)}%` : '0%'}</span>
                 <span>{formatTime(duration)}</span>
               </div>
             </div>
@@ -465,9 +465,11 @@ export default function GuitarPage() {
             <div
               className="rounded-[1.5rem] border px-6 py-6 sm:px-7 sm:py-7"
               style={GLASS_CARD_STYLE}
-              dir={isArabic ? "rtl" : "ltr"}
+              dir={isArabic ? 'rtl' : 'ltr'}
             >
-              <p className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem]`}>
+              <p
+                className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem]`}
+              >
                 <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
               </p>
 
@@ -478,10 +480,10 @@ export default function GuitarPage() {
                   {content.reserveHelper}
                 </p>
                 <Link
-                  href={reservationHref}
+                  href={enrollmentHref}
                   className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
                     isArabic,
-                )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
+                  )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
                 >
                   {content.reserveCta}
                 </Link>
@@ -491,7 +493,7 @@ export default function GuitarPage() {
                     onClick={handleRoomPreview}
                     className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
                       isArabic,
-                      "narrow",
+                      'narrow',
                     )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
                   >
                     {content.roomCta}
@@ -500,8 +502,8 @@ export default function GuitarPage() {
                   <div
                     className={`absolute left-1/2 top-full z-20 mt-3 h-48 w-48 -translate-x-1/2 overflow-hidden rounded-full border border-[#d9c0a1]/35 shadow-[0_18px_40px_rgba(0,0,0,0.34)] transition-all duration-300 sm:h-56 sm:w-56 lg:left-auto lg:right-full lg:top-1/2 lg:mt-0 lg:h-72 lg:w-72 lg:-translate-y-1/2 lg:translate-x-0 lg:mr-3 ${
                       showRoomPreview
-                        ? "pointer-events-auto scale-100 opacity-100"
-                        : "pointer-events-none scale-75 opacity-0"
+                        ? 'pointer-events-auto scale-100 opacity-100'
+                        : 'pointer-events-none scale-75 opacity-0'
                     }`}
                     style={GLASS_CARD_STYLE}
                     onMouseMove={handleRoomPreviewMove}
@@ -532,17 +534,18 @@ export default function GuitarPage() {
           <p
             className={`max-w-[18rem] text-center text-[13px] uppercase tracking-[0.2em] leading-6 text-royal-cream/88 sm:text-[14px]`}
           >
-            Sensational Spanish Guitar, Cover of Enrique Iglesias &quot;Bailando&quot;
+            Sensational Spanish Guitar, Cover of Enrique Iglesias
+            &quot;Bailando&quot;
           </p>
 
           <div className="liquid-glass flex items-center gap-2.5 rounded-full px-4 py-2.5">
             <GlassControlButton label="Play track" onClick={playAudio}>
-              <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
+              <Play size={12} className={isPlaying ? 'text-royal-cream' : ''} />
             </GlassControlButton>
             <GlassControlButton label="Pause track" onClick={pauseAudio}>
               <Pause
                 size={12}
-                className={!isPlaying ? "text-royal-cream" : ""}
+                className={!isPlaying ? 'text-royal-cream' : ''}
               />
             </GlassControlButton>
           </div>
@@ -571,7 +574,7 @@ export default function GuitarPage() {
               className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
             >
               <span>{formatTime(currentTime)}</span>
-              <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
+              <span>{progress ? `${Math.round(progress)}%` : '0%'}</span>
               <span>{formatTime(duration)}</span>
             </div>
           </div>
@@ -581,9 +584,11 @@ export default function GuitarPage() {
           <div
             className="rounded-[1.5rem] border px-6 py-6 sm:px-7 sm:py-7"
             style={GLASS_CARD_STYLE}
-            dir={isArabic ? "rtl" : "ltr"}
+            dir={isArabic ? 'rtl' : 'ltr'}
           >
-            <p className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem]`}>
+            <p
+              className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem]`}
+            >
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
             </p>
 
@@ -594,7 +599,7 @@ export default function GuitarPage() {
                 {content.reserveHelper}
               </p>
               <Link
-                href={reservationHref}
+                href={enrollmentHref}
                 className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
                   isArabic,
                 )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
@@ -607,7 +612,7 @@ export default function GuitarPage() {
                   onClick={handleRoomPreview}
                   className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
                     isArabic,
-                    "narrow",
+                    'narrow',
                   )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
                 >
                   {content.roomCta}
@@ -616,8 +621,8 @@ export default function GuitarPage() {
                 <div
                   className={`absolute left-1/2 top-full z-20 mt-3 h-48 w-48 -translate-x-1/2 overflow-hidden rounded-full border border-[#d9c0a1]/35 shadow-[0_18px_40px_rgba(0,0,0,0.34)] transition-all duration-300 sm:h-56 sm:w-56 lg:left-auto lg:right-full lg:top-1/2 lg:mt-0 lg:h-72 lg:w-72 lg:-translate-y-1/2 lg:translate-x-0 lg:mr-3 ${
                     showRoomPreview
-                      ? "pointer-events-auto scale-100 opacity-100"
-                      : "pointer-events-none scale-75 opacity-0"
+                      ? 'pointer-events-auto scale-100 opacity-100'
+                      : 'pointer-events-none scale-75 opacity-0'
                   }`}
                   style={GLASS_CARD_STYLE}
                   onMouseMove={handleRoomPreviewMove}

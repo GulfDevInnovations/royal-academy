@@ -55,7 +55,7 @@ export default function VocalPage() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [pointerProgress, setPointerProgress] = useState(0);
   const [completedCycles, setCompletedCycles] = useState(0);
-  const reservationHref = `/${locale}/reservation`;
+  const enrollmentHref = `/${locale}/enrollment`;
 
   const content = isArabic
     ? {
@@ -318,19 +318,19 @@ export default function VocalPage() {
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(255,240,214,0.18)_0%,rgba(40,21,14,0.88)_42%,rgba(10,8,14,1)_100%)] px-4 py-8 text-royal-cream sm:px-6 sm:py-10 lg:px-8 xl:px-10">
       <section
         className={`mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-6xl flex-col items-center justify-start gap-6 pt-[90px] lg:items-start lg:gap-8 xl:gap-10 ${
-          isArabic ? "lg:flex-row-reverse" : "lg:flex-row"
+          isArabic ? 'lg:flex-row-reverse' : 'lg:flex-row'
         }`}
       >
         <div
           className="order-2 w-full max-w-[26.5rem] rounded-[1.6rem] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.03)_100%)] px-5 py-6 shadow-[0_24px_80px_rgba(0,0,0,0.36)] backdrop-blur-xl sm:max-w-[30rem] sm:px-6 sm:py-7 lg:order-1"
-          dir={isArabic ? "rtl" : "ltr"}
+          dir={isArabic ? 'rtl' : 'ltr'}
         >
           <audio ref={ambientAudioRef} src="/images/vocal.mp3" preload="auto" />
 
           <div className="mx-auto max-w-3xl text-center">
             <h1
               className={`${musicTypography.title} text-royal-cream ${
-                isArabic ? "" : "uppercase"
+                isArabic ? '' : 'uppercase'
               }`}
             >
               {content.warmupTitle}
@@ -380,17 +380,35 @@ export default function VocalPage() {
                 className="h-auto w-full overflow-visible"
               >
                 <defs>
-                  <linearGradient id="vocal-arch-stroke" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <linearGradient
+                    id="vocal-arch-stroke"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="0%"
+                  >
                     <stop offset="0%" stopColor="rgba(214,181,139,0.32)" />
                     <stop offset="50%" stopColor="rgba(255,235,205,0.85)" />
                     <stop offset="100%" stopColor="rgba(214,181,139,0.32)" />
                   </linearGradient>
-                  <linearGradient id="vocal-hold-glass-fill" x1="18%" y1="18%" x2="82%" y2="82%">
+                  <linearGradient
+                    id="vocal-hold-glass-fill"
+                    x1="18%"
+                    y1="18%"
+                    x2="82%"
+                    y2="82%"
+                  >
                     <stop offset="0%" stopColor="rgba(196, 168, 130, 0.18)" />
                     <stop offset="50%" stopColor="rgba(196, 168, 130, 0.07)" />
                     <stop offset="100%" stopColor="rgba(196, 168, 130, 0.14)" />
                   </linearGradient>
-                  <filter id="vocal-pointer-glow" x="-120%" y="-120%" width="340%" height="340%">
+                  <filter
+                    id="vocal-pointer-glow"
+                    x="-120%"
+                    y="-120%"
+                    width="340%"
+                    height="340%"
+                  >
                     <feGaussianBlur stdDeviation="2.6" result="blur" />
                     <feMerge>
                       <feMergeNode in="blur" />
@@ -430,9 +448,12 @@ export default function VocalPage() {
                   cx="50"
                   cy="49"
                   r="12.2"
-                  className={phase === "hold" ? "vocal-hold-orb is-active" : "vocal-hold-orb"}
+                  className={
+                    phase === 'hold'
+                      ? 'vocal-hold-orb is-active'
+                      : 'vocal-hold-orb'
+                  }
                 />
-
               </svg>
             </div>
           </div>
@@ -442,11 +463,11 @@ export default function VocalPage() {
           <div
             className="rounded-[1.65rem] border px-5 py-5 sm:px-6 sm:py-6"
             style={GLASS_CARD_STYLE}
-            dir={isArabic ? "rtl" : "ltr"}
+            dir={isArabic ? 'rtl' : 'ltr'}
           >
             <p
               className={`text-[19px] leading-[2.1rem] text-royal-cream/90 sm:text-[21px] sm:leading-[2.35rem] ${
-                isArabic ? "text-right" : ""
+                isArabic ? 'text-right' : ''
               }`}
             >
               {content.paragraph}
@@ -454,22 +475,24 @@ export default function VocalPage() {
 
             <div
               className={`mt-4 flex w-full flex-col gap-3 ${
-                isArabic ? "items-end text-right" : "items-start"
+                isArabic ? 'items-end text-right' : 'items-start'
               }`}
             >
               <p
                 className={`w-full ${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
-                  isArabic ? "text-right" : ""
+                  isArabic ? 'text-right' : ''
                 }`}
               >
-                <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
+                <span style={TEXT_HIGHLIGHT_STYLE}>
+                  {content.reserveHelper}
+                </span>
               </p>
               <Link
-                href={reservationHref}
+                href={enrollmentHref}
                 className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 ${musicCtaTextClass(
                   isArabic,
                 )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
-                  isArabic ? "self-end text-right" : ""
+                  isArabic ? 'self-end text-right' : ''
                 }`}
               >
                 {content.reserveCta}
@@ -485,8 +508,7 @@ export default function VocalPage() {
           stroke: transparent;
           stroke-width: 0;
           transform-origin: 50px 49px;
-          filter:
-            drop-shadow(0 8px 18px rgba(0, 0, 0, 0.25))
+          filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.25))
             drop-shadow(0 0 12px rgba(196, 168, 130, 0.14));
           opacity: 1;
           transition:
@@ -497,8 +519,7 @@ export default function VocalPage() {
 
         .vocal-hold-orb.is-active {
           stroke: transparent;
-          filter:
-            drop-shadow(0 8px 18px rgba(0, 0, 0, 0.25))
+          filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.25))
             drop-shadow(0 0 18px rgba(255, 236, 196, 0.46))
             drop-shadow(0 0 42px rgba(196, 168, 130, 0.34));
           animation: vocal-hold-pulse 1.4s ease-in-out infinite;
@@ -509,8 +530,7 @@ export default function VocalPage() {
           100% {
             transform: scale(0.92);
             opacity: 0.62;
-            filter:
-              drop-shadow(0 8px 18px rgba(0, 0, 0, 0.25))
+            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.25))
               drop-shadow(0 0 12px rgba(255, 234, 194, 0.24))
               drop-shadow(0 0 24px rgba(236, 194, 124, 0.18));
           }
@@ -518,8 +538,7 @@ export default function VocalPage() {
           50% {
             transform: scale(1.26);
             opacity: 1;
-            filter:
-              drop-shadow(0 8px 18px rgba(0, 0, 0, 0.25))
+            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.25))
               drop-shadow(0 0 24px rgba(255, 243, 221, 0.64))
               drop-shadow(0 0 52px rgba(242, 204, 141, 0.46));
           }

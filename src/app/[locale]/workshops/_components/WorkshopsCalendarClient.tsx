@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useState, useMemo, useRef, useCallback, useEffect } from "react";
-import Link from "next/link";
 import {
+  Calendar,
   ChevronRight,
-  MapPin,
   Clock,
+  MapPin,
   Users,
   Wifi,
-  Calendar,
-} from "lucide-react";
+} from 'lucide-react';
+import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // ─────────────────────────────────────────────
 // Types
@@ -48,9 +48,9 @@ interface Props {
 // ─────────────────────────────────────────────
 
 function fmtTime(t: string) {
-  const [h, m] = t.split(":");
+  const [h, m] = t.split(':');
   const hour = parseInt(h);
-  return `${hour > 12 ? hour - 12 : hour}:${m} ${hour >= 12 ? "PM" : "AM"}`;
+  return `${hour > 12 ? hour - 12 : hour}:${m} ${hour >= 12 ? 'PM' : 'AM'}`;
 }
 
 function getDaysInMonth(year: number, month: number) {
@@ -58,24 +58,24 @@ function getDaysInMonth(year: number, month: number) {
 }
 
 function isoDateStr(year: number, month: number, day: number) {
-  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
 const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
-const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 // ─────────────────────────────────────────────
 // Media strip
@@ -84,10 +84,10 @@ const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 function MediaStrip({ workshop }: { workshop: Workshop }) {
   const [idx, setIdx] = useState(0);
   const media = [
-    ...workshop.imageUrls.map((url) => ({ type: "image" as const, url })),
-    ...workshop.videoUrls.map((url) => ({ type: "video" as const, url })),
+    ...workshop.imageUrls.map((url) => ({ type: 'image' as const, url })),
+    ...workshop.videoUrls.map((url) => ({ type: 'video' as const, url })),
     ...(workshop.coverUrl && !workshop.imageUrls.includes(workshop.coverUrl)
-      ? [{ type: "image" as const, url: workshop.coverUrl }]
+      ? [{ type: 'image' as const, url: workshop.coverUrl }]
       : []),
   ];
 
@@ -95,9 +95,9 @@ function MediaStrip({ workshop }: { workshop: Workshop }) {
     return (
       <div
         className="w-full h-full flex items-center justify-center"
-        style={{ background: "rgba(0,0,0,0.04)" }}
+        style={{ background: 'rgba(0,0,0,0.04)' }}
       >
-        <Calendar size={32} style={{ color: "rgba(0,0,0,0.15)" }} />
+        <Calendar size={32} style={{ color: 'rgba(0,0,0,0.15)' }} />
       </div>
     );
   }
@@ -105,7 +105,7 @@ function MediaStrip({ workshop }: { workshop: Workshop }) {
   const current = media[idx];
   return (
     <div className="relative w-full h-full overflow-hidden border-l border-white/12">
-      {current.type === "image" ? (
+      {current.type === 'image' ? (
         <img
           src={current.url}
           alt={workshop.title}
@@ -137,12 +137,12 @@ function MediaStrip({ workshop }: { workshop: Workshop }) {
                 height: 48,
                 border:
                   i === idx
-                    ? "2px solid rgba(0,0,0,0.6)"
-                    : "2px solid rgba(0,0,0,0.2)",
+                    ? '2px solid rgba(0,0,0,0.6)'
+                    : '2px solid rgba(0,0,0,0.2)',
                 opacity: i === idx ? 1 : 0.55,
               }}
             >
-              {m.type === "image" ? (
+              {m.type === 'image' ? (
                 <img
                   src={m.url}
                   alt=""
@@ -180,16 +180,16 @@ function DayBadge({
       style={{
         width: 80,
         borderRight: hasWorkshop
-          ? "1px solid rgba(255,255,255,0.15)"
-          : "1px solid rgba(0,0,0,0.1)",
-        alignSelf: "stretch",
+          ? '1px solid rgba(255,255,255,0.15)'
+          : '1px solid rgba(0,0,0,0.1)',
+        alignSelf: 'stretch',
       }}
     >
       <span
         className="text-[10px] font-semibold tracking-widest uppercase"
         style={{
           fontFamily: "'Arial', sans-serif",
-          color: hasWorkshop ? "rgba(196,168,120,0.85)" : "rgba(0,0,0,0.35)",
+          color: hasWorkshop ? 'rgba(196,168,120,0.85)' : 'rgba(0,0,0,0.35)',
         }}
       >
         {dayOfWeek}
@@ -197,8 +197,8 @@ function DayBadge({
       <span
         className="text-4xl font-bold leading-none"
         style={{
-          fontFamily: "var(--font-text, Georgia, serif)",
-          color: hasWorkshop ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.25)",
+          fontFamily: 'var(--font-text, Georgia, serif)',
+          color: hasWorkshop ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.25)',
         }}
       >
         {day}
@@ -221,13 +221,13 @@ function EmptyDayCard({ day, dayOfWeek }: { day: number; dayOfWeek: string }) {
       style={{
         height: expanded ? 140 : 60,
         borderRadius: 16,
-        overflow: "hidden",
-        border: "1px solid rgba(0,0,0,0.12)",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        transition: "height 0.4s cubic-bezier(0.4,0,0.2,1)",
+        overflow: 'hidden',
+        border: '1px solid rgba(0,0,0,0.12)',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        transition: 'height 0.4s cubic-bezier(0.4,0,0.2,1)',
       }}
     >
       <DayBadge day={day} dayOfWeek={dayOfWeek} hasWorkshop={false} />
@@ -236,13 +236,13 @@ function EmptyDayCard({ day, dayOfWeek }: { day: number; dayOfWeek: string }) {
         className="flex-1 px-6"
         style={{
           opacity: expanded ? 1 : 0,
-          transform: expanded ? "translateY(0)" : "translateY(5px)",
-          transition: "opacity 0.3s ease, transform 0.3s ease",
+          transform: expanded ? 'translateY(0)' : 'translateY(5px)',
+          transition: 'opacity 0.3s ease, transform 0.3s ease',
         }}
       >
         <p
           className="text-sm"
-          style={{ color: "rgba(0,0,0,0.3)", fontStyle: "italic" }}
+          style={{ color: 'rgba(0,0,0,0.3)', fontStyle: 'italic' }}
         >
           No workshop scheduled
         </p>
@@ -269,16 +269,14 @@ function pillPoint(
   const perimeter = 2 * straight + 2 * arc;
   let d = (((t % 1) + 1) % 1) * perimeter;
 
-  if (d < straight)
-    return { x: cx - straight / 2 + d, y: cy - r };
+  if (d < straight) return { x: cx - straight / 2 + d, y: cy - r };
   d -= straight;
   if (d < arc) {
     const a = -Math.PI / 2 + (d / arc) * Math.PI;
     return { x: cx + straight / 2 + r * Math.cos(a), y: cy + r * Math.sin(a) };
   }
   d -= arc;
-  if (d < straight)
-    return { x: cx + straight / 2 - d, y: cy + r };
+  if (d < straight) return { x: cx + straight / 2 - d, y: cy + r };
   d -= straight;
   const a = Math.PI / 2 + (d / arc) * Math.PI;
   return { x: cx - straight / 2 + r * Math.cos(a), y: cy + r * Math.sin(a) };
@@ -301,21 +299,28 @@ function WorkshopDayCard({
   const isFull = seatsLeft <= 0;
 
   // refs — avoid state updates in hot paths
-  const cardRef        = useRef<HTMLDivElement>(null);
-  const btnRef         = useRef<HTMLDivElement>(null);
-  const spotlightRef   = useRef<HTMLDivElement>(null);
-  const particleRefs   = useRef<(HTMLDivElement | null)[]>([]);
-  const rafRef         = useRef<number>(0);
-  const orbitRef       = useRef(0);
-  const hoveredRef     = useRef(false);
-  const orbitReadyRef  = useRef(false);
-  const gatherTimer    = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const btnRectCache   = useRef<{ x: number; y: number; w: number; h: number } | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLDivElement>(null);
+  const spotlightRef = useRef<HTMLDivElement>(null);
+  const particleRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const rafRef = useRef<number>(0);
+  const orbitRef = useRef(0);
+  const hoveredRef = useRef(false);
+  const orbitReadyRef = useRef(false);
+  const gatherTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
+  const btnRectCache = useRef<{
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+  } | null>(null);
 
   // Stable particles seeded by workshop id
   const particles = useMemo(() => {
     let seed = workshop.id
-      .split("")
+      .split('')
       .reduce((acc, c) => acc + c.charCodeAt(0), 0);
     const rand = () => {
       seed = (seed * 1664525 + 1013904223) >>> 0;
@@ -325,7 +330,7 @@ function WorkshopDayCard({
       id: i,
       rx: rand() * 620 + 20,
       ry: rand() * 420 + 20,
-      color: i % 3 === 0 ? "rgba(196,168,120,0.85)" : "rgba(255,255,255,0.55)",
+      color: i % 3 === 0 ? 'rgba(196,168,120,0.85)' : 'rgba(255,255,255,0.55)',
       size: 1.5 + rand() * 2,
     }));
   }, [workshop.id]);
@@ -334,12 +339,20 @@ function WorkshopDayCard({
   useEffect(() => {
     const animate = () => {
       rafRef.current = requestAnimationFrame(animate);
-      if (!orbitReadyRef.current || !hoveredRef.current || !btnRectCache.current) return;
+      if (
+        !orbitReadyRef.current ||
+        !hoveredRef.current ||
+        !btnRectCache.current
+      )
+        return;
       orbitRef.current += 0.00055; // very slow orbit
       particles.forEach((p, i) => {
         const el = particleRefs.current[i];
         if (!el) return;
-        const pt = pillPoint(btnRectCache.current!, i / particles.length + orbitRef.current);
+        const pt = pillPoint(
+          btnRectCache.current!,
+          i / particles.length + orbitRef.current,
+        );
         el.style.transform = `translate(${pt.x - p.size / 2}px, ${pt.y - p.size / 2}px)`;
       });
     };
@@ -353,11 +366,11 @@ function WorkshopDayCard({
     const bR = btnRef.current.getBoundingClientRect();
     btnRectCache.current = {
       x: bR.left - cR.left,
-      y: bR.top  - cR.top,
+      y: bR.top - cR.top,
       w: bR.width,
       h: bR.height,
     };
-    hoveredRef.current    = true;
+    hoveredRef.current = true;
     orbitReadyRef.current = false;
 
     // Phase 1 — CSS transition gather
@@ -367,9 +380,9 @@ function WorkshopDayCard({
       if (!el) return;
       const pt = pillPoint(btnRectCache.current!, i / n);
       el.style.transition = `transform 0.55s cubic-bezier(0.4,0,0.2,1) ${i * 20}ms, opacity 0.35s ease, box-shadow 0.35s ease`;
-      el.style.transform  = `translate(${pt.x - p.size / 2}px, ${pt.y - p.size / 2}px)`;
-      el.style.opacity    = "0.95";
-      el.style.boxShadow  = `0 0 5px ${p.color}`;
+      el.style.transform = `translate(${pt.x - p.size / 2}px, ${pt.y - p.size / 2}px)`;
+      el.style.opacity = '0.95';
+      el.style.boxShadow = `0 0 5px ${p.color}`;
     });
 
     // Phase 2 — hand off to RAF after last particle lands
@@ -378,14 +391,14 @@ function WorkshopDayCard({
       if (!hoveredRef.current) return;
       particles.forEach((_, i) => {
         const el = particleRefs.current[i];
-        if (el) el.style.transition = "none"; // RAF takes over
+        if (el) el.style.transition = 'none'; // RAF takes over
       });
       orbitReadyRef.current = true;
     }, lastDelay);
   }, [particles]);
 
   const handleMouseLeave = useCallback(() => {
-    hoveredRef.current    = false;
+    hoveredRef.current = false;
     orbitReadyRef.current = false;
     clearTimeout(gatherTimer.current);
 
@@ -394,14 +407,14 @@ function WorkshopDayCard({
       const el = particleRefs.current[i];
       if (!el) return;
       el.style.transition = `transform 0.7s cubic-bezier(0.4,0,0.2,1) ${i * 15}ms, opacity 0.4s ease, box-shadow 0.4s ease`;
-      el.style.transform  = `translate(${p.rx}px, ${p.ry}px)`;
-      el.style.opacity    = "0.5";
-      el.style.boxShadow  = "none";
+      el.style.transform = `translate(${p.rx}px, ${p.ry}px)`;
+      el.style.opacity = '0.5';
+      el.style.boxShadow = 'none';
     });
 
     // Fade spotlight
     if (spotlightRef.current) {
-      spotlightRef.current.style.background = "transparent";
+      spotlightRef.current.style.background = 'transparent';
     }
   }, [particles]);
 
@@ -411,15 +424,14 @@ function WorkshopDayCard({
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    spotlightRef.current.style.background =
-      `radial-gradient(circle 70px at ${x}px ${y}px, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 55%, transparent 100%)`;
+    spotlightRef.current.style.background = `radial-gradient(circle 70px at ${x}px ${y}px, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 55%, transparent 100%)`;
   }, []);
 
   return (
     <Link
       href={`/workshops/${workshop.slug}`}
       className="block"
-      style={{ cursor: "default" }}
+      style={{ cursor: 'default' }}
     >
       <div
         ref={cardRef}
@@ -427,11 +439,11 @@ function WorkshopDayCard({
         style={{
           height: 460,
           borderRadius: 16,
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "row",
-          cursor: "default",
-          position: "relative",
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'row',
+          cursor: 'default',
+          position: 'relative',
         }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -441,11 +453,11 @@ function WorkshopDayCard({
         <div
           ref={spotlightRef}
           style={{
-            position: "absolute",
+            position: 'absolute',
             inset: 0,
-            pointerEvents: "none",
+            pointerEvents: 'none',
             zIndex: 22,
-            transition: "background 0.08s linear",
+            transition: 'background 0.08s linear',
           }}
         />
 
@@ -453,14 +465,16 @@ function WorkshopDayCard({
         {particles.map((p, i) => (
           <div
             key={p.id}
-            ref={(el) => { particleRefs.current[i] = el; }}
+            ref={(el) => {
+              particleRefs.current[i] = el;
+            }}
             style={{
-              position: "absolute",
+              position: 'absolute',
               width: p.size,
               height: p.size,
-              borderRadius: "50%",
+              borderRadius: '50%',
               background: p.color,
-              pointerEvents: "none",
+              pointerEvents: 'none',
               zIndex: 21,
               left: 0,
               top: 0,
@@ -476,56 +490,102 @@ function WorkshopDayCard({
         {/* Center: info */}
         <div
           className="flex flex-col justify-between py-6 px-7"
-          style={{ width: 340, flexShrink: 0, overflow: "hidden", paddingBottom: 28 }}
+          style={{
+            width: 340,
+            flexShrink: 0,
+            overflow: 'hidden',
+            paddingBottom: 28,
+          }}
         >
           <div>
             <h3
               className="text-xl font-bold leading-snug mb-2"
-              style={{ fontFamily: "var(--font-text, Georgia, serif)", color: "rgba(255,255,255,0.95)" }}
+              style={{
+                fontFamily: 'var(--font-text, Georgia, serif)',
+                color: 'rgba(255,255,255,0.95)',
+              }}
             >
               {workshop.title}
             </h3>
             {workshop.description && (
-              <p className="text-sm leading-relaxed line-clamp-3" style={{ color: "rgba(255,255,255,0.5)" }}>
+              <p
+                className="text-sm leading-relaxed line-clamp-3"
+                style={{ color: 'rgba(255,255,255,0.5)' }}
+              >
                 {workshop.description}
               </p>
             )}
           </div>
 
           <div className="space-y-2 mt-4">
-            <div className="flex items-center gap-2 text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>
+            <div
+              className="flex items-center gap-2 text-xs"
+              style={{ color: 'rgba(255,255,255,0.6)' }}
+            >
               <Clock size={12} />
-              <span>{fmtTime(workshop.startTime)} – {fmtTime(workshop.endTime)}</span>
+              <span>
+                {fmtTime(workshop.startTime)} – {fmtTime(workshop.endTime)}
+              </span>
             </div>
 
             {workshop.isOnline ? (
-              <div className="flex items-center gap-2 text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>
-                <Wifi size={12} /><span>Online</span>
+              <div
+                className="flex items-center gap-2 text-xs"
+                style={{ color: 'rgba(255,255,255,0.6)' }}
+              >
+                <Wifi size={12} />
+                <span>Online</span>
               </div>
             ) : workshop.room ? (
-              <div className="flex items-center gap-2 text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>
+              <div
+                className="flex items-center gap-2 text-xs"
+                style={{ color: 'rgba(255,255,255,0.6)' }}
+              >
                 <MapPin size={12} />
-                <span>{workshop.room.name}{workshop.room.location && ` · ${workshop.room.location}`}</span>
+                <span>
+                  {workshop.room.name}
+                  {workshop.room.location && ` · ${workshop.room.location}`}
+                </span>
               </div>
             ) : null}
 
-            <div className="flex items-center gap-2 text-xs" style={{ color: isFull ? "#f87171" : "rgba(255,255,255,0.6)" }}>
+            <div
+              className="flex items-center gap-2 text-xs"
+              style={{ color: isFull ? '#f87171' : 'rgba(255,255,255,0.6)' }}
+            >
               <Users size={12} />
-              <span>{isFull ? "Fully booked" : `${seatsLeft} seat${seatsLeft !== 1 ? "s" : ""} left`}</span>
+              <span>
+                {isFull
+                  ? 'Fully booked'
+                  : `${seatsLeft} seat${seatsLeft !== 1 ? 's' : ''} left`}
+              </span>
             </div>
 
             {workshop.teacher && (
               <div className="flex items-center gap-2 mt-1">
                 {workshop.teacher.photoUrl ? (
-                  <img src={workshop.teacher.photoUrl} alt="" className="w-6 h-6 rounded-full object-cover"
-                    style={{ border: "1.5px solid rgba(255,255,255,0.2)" }} />
+                  <img
+                    src={workshop.teacher.photoUrl}
+                    alt=""
+                    className="w-6 h-6 rounded-full object-cover"
+                    style={{ border: '1.5px solid rgba(255,255,255,0.2)' }}
+                  />
                 ) : (
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold"
-                    style={{ background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.7)" }}>
-                    {workshop.teacher.firstName[0]}{workshop.teacher.lastName[0]}
+                  <div
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold"
+                    style={{
+                      background: 'rgba(255,255,255,0.12)',
+                      color: 'rgba(255,255,255,0.7)',
+                    }}
+                  >
+                    {workshop.teacher.firstName[0]}
+                    {workshop.teacher.lastName[0]}
                   </div>
                 )}
-                <span className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>
+                <span
+                  className="text-xs"
+                  style={{ color: 'rgba(255,255,255,0.6)' }}
+                >
                   {workshop.teacher.firstName} {workshop.teacher.lastName}
                 </span>
               </div>
@@ -533,10 +593,17 @@ function WorkshopDayCard({
           </div>
 
           {/* Price + CTA */}
-          <div className="flex items-center justify-between mt-5 pt-4"
-            style={{ borderTop: "1px solid rgba(255,255,255,0.12)" }}>
-            <span className="text-2xl font-bold"
-              style={{ fontFamily: "var(--font-text, Georgia, serif)", color: "rgba(196,168,120,0.95)" }}>
+          <div
+            className="flex items-center justify-between mt-5 pt-4"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.12)' }}
+          >
+            <span
+              className="text-2xl font-bold"
+              style={{
+                fontFamily: 'var(--font-text, Georgia, serif)',
+                color: 'rgba(196,168,120,0.95)',
+              }}
+            >
               {workshop.currency} {workshop.price.toFixed(3)}
             </span>
 
@@ -544,15 +611,19 @@ function WorkshopDayCard({
               ref={btnRef}
               className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase"
               style={{
-                background: isFull ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.1)",
-                border: "1.5px solid rgba(255,255,255,0.2)",
-                color: isFull ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.9)",
-                cursor: isFull ? "default" : "pointer",
-                position: "relative",
+                background: isFull
+                  ? 'rgba(255,255,255,0.05)'
+                  : 'rgba(255,255,255,0.1)',
+                border: '1.5px solid rgba(255,255,255,0.2)',
+                color: isFull
+                  ? 'rgba(255,255,255,0.25)'
+                  : 'rgba(255,255,255,0.9)',
+                cursor: isFull ? 'default' : 'pointer',
+                position: 'relative',
                 zIndex: 30,
               }}
             >
-              {isFull ? "Fully Booked" : "Register"}
+              {isFull ? 'Fully Booked' : 'Register'}
               {!isFull && <ChevronRight size={12} />}
             </div>
           </div>
@@ -587,8 +658,8 @@ function MonthSelector({
     <div
       className="liquid-glass backdrop-blur-xl inline-flex rounded-2xl p-1.5 gap-1"
       style={{
-        border: "1.5px solid rgba(255,255,255,0.12)",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+        border: '1.5px solid rgba(255,255,255,0.12)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
       }}
     >
       {options.map(({ year, month, hasWorkshops }) => {
@@ -600,18 +671,18 @@ function MonthSelector({
             disabled={!hasWorkshops && !isActive}
             className="px-5 py-2 rounded-xl text-sm font-medium tracking-wide transition-all"
             style={{
-              background: isActive ? "rgba(255,255,255,0.12)" : "transparent",
+              background: isActive ? 'rgba(255,255,255,0.12)' : 'transparent',
               boxShadow: isActive
-                ? "inset 0 1px 3px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.1)"
-                : "none",
+                ? 'inset 0 1px 3px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.1)'
+                : 'none',
               color: isActive
-                ? "rgba(255,255,255,0.95)"
+                ? 'rgba(255,255,255,0.95)'
                 : hasWorkshops
-                  ? "rgba(255,255,255,0.75)"
-                  : "rgba(255,255,255,0.3)",
-              fontFamily: "var(--font-text, Georgia, serif)",
-              cursor: !hasWorkshops && !isActive ? "default" : "pointer",
-              transform: isActive ? "translateY(0.5px)" : "translateY(0)",
+                  ? 'rgba(255,255,255,0.75)'
+                  : 'rgba(255,255,255,0.3)',
+              fontFamily: 'var(--font-text, Georgia, serif)',
+              cursor: !hasWorkshops && !isActive ? 'default' : 'pointer',
+              transform: isActive ? 'translateY(0.5px)' : 'translateY(0)',
             }}
           >
             {MONTH_NAMES[month]}
@@ -619,7 +690,9 @@ function MonthSelector({
               <span
                 className="ml-1.5 text-[9px]"
                 style={{
-                  color: isActive ? "rgba(196,168,120,0.8)" : "rgba(196,168,120,0.4)",
+                  color: isActive
+                    ? 'rgba(196,168,120,0.8)'
+                    : 'rgba(196,168,120,0.4)',
                 }}
               >
                 ✦
@@ -684,7 +757,7 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
   const workshopCount = days.filter((d) => d.workshop).length;
 
   return (
-    <div className="min-h-screen px-6 py-12" style={{ background: "#041703" }}>
+    <div className="min-h-screen px-6 py-12" style={{ background: '#041703' }}>
       <div className="max-w-4xl mx-auto">
         {/* Month selector + label — single row */}
         <div className="flex items-baseline gap-6 mb-6 justify-between pt-25">
@@ -692,8 +765,8 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
             <h2
               className="text-2xl font-semibold"
               style={{
-                fontFamily: "var(--font-text, Georgia, serif)",
-                color: "rgba(222,194,158,0.85)",
+                fontFamily: 'var(--font-text, Georgia, serif)',
+                color: 'rgba(222,194,158,0.85)',
               }}
             >
               {MONTH_NAMES[viewMonth]} {viewYear}
@@ -701,13 +774,13 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
             <span
               className="text-sm"
               style={{
-                color: "rgba(196,168,120,0.4)",
+                color: 'rgba(196,168,120,0.4)',
                 fontFamily: "'Arial', sans-serif",
               }}
             >
               {workshopCount === 0
-                ? "No workshops this month"
-                : `${workshopCount} workshop${workshopCount !== 1 ? "s" : ""}`}
+                ? 'No workshops this month'
+                : `${workshopCount} workshop${workshopCount !== 1 ? 's' : ''}`}
             </span>
           </div>
           <MonthSelector
@@ -746,10 +819,10 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
               <div
                 key={day}
                 style={{
-                  position: "relative",
+                  position: 'relative',
                   zIndex,
                   marginTop,
-                  transition: "margin 0.3s ease",
+                  transition: 'margin 0.3s ease',
                 }}
               >
                 {workshop ? (

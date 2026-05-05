@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { format, parseISO } from "date-fns";
-import { PaymentShell } from "@/components/payment/PaymentShell";
+import { format, parseISO } from 'date-fns';
+import { PaymentShell } from '@/components/payment/PaymentShell';
 
 export type TrialPaymentProps = {
   amount: number;
@@ -28,12 +28,12 @@ export function TrialPaymentClient({ data }: { data: TrialPaymentProps }) {
   const sessionDate = parseISO(data.sessionDate);
 
   const lineItems = [
-    { label: "Date", value: format(sessionDate, "EEEE, MMMM d, yyyy") },
-    { label: "Time", value: `${data.startTime} – ${data.endTime}` },
-    { label: "Duration", value: `${data.subClass.durationMinutes} minutes` },
-    { label: "Type", value: "Trial Session (one-time)" },
+    { label: 'Date', value: format(sessionDate, 'EEEE, MMMM d, yyyy') },
+    { label: 'Time', value: `${data.startTime} – ${data.endTime}` },
+    { label: 'Duration', value: `${data.subClass.durationMinutes} minutes` },
+    { label: 'Type', value: 'Trial Session (one-time)' },
     ...(data.subClass.level
-      ? [{ label: "Level", value: data.subClass.level }]
+      ? [{ label: 'Level', value: data.subClass.level }]
       : []),
   ];
 
@@ -50,7 +50,7 @@ export function TrialPaymentClient({ data }: { data: TrialPaymentProps }) {
       currency={data.currency}
       alreadyPaid={true}
       onConfirm={async () => ({ success: true })}
-      successRedirect="/reservation?success=1"
+      successRedirect="/enrollment?success=1"
     />
   );
 }

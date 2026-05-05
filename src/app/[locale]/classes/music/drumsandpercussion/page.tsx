@@ -401,7 +401,7 @@ export default function DrumsPage() {
   const activePadTimeoutRef = useRef<number | null>(null);
   const locale = params?.locale ?? "en";
   const isArabic = locale === "ar";
-  const reservationHref = `/${locale}/reservation`;
+  const enrollmentHref = `/${locale}/enrollment`;
   const content = isArabic
     ? {
         paragraph:
@@ -649,16 +649,16 @@ export default function DrumsPage() {
                     type="button"
                     onClick={() => void playDrumPad(pad)}
                     className={`aspect-square rounded-[1rem] border p-2 text-center transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e9c997] sm:rounded-[1.2rem] sm:p-2.5 ${
-                      isActive ? "scale-[1.02]" : "hover:scale-[1.01]"
+                      isActive ? 'scale-[1.02]' : 'hover:scale-[1.01]'
                     }`}
                     style={{
                       ...GLASS_CARD_STYLE,
                       background: isActive
-                        ? "linear-gradient(135deg, rgba(255,219,177,0.28) 0%, rgba(183,94,43,0.18) 100%)"
+                        ? 'linear-gradient(135deg, rgba(255,219,177,0.28) 0%, rgba(183,94,43,0.18) 100%)'
                         : `linear-gradient(135deg, ${pad.tint} 0%, rgba(255,255,255,0.04) 100%)`,
                       boxShadow: isActive
-                        ? "0 12px 28px rgba(114,56,21,0.28)"
-                        : "0 14px 28px rgba(0,0,0,0.22)",
+                        ? '0 12px 28px rgba(114,56,21,0.28)'
+                        : '0 14px 28px rgba(0,0,0,0.22)',
                     }}
                   >
                     <span className="flex h-full flex-col items-center justify-center rounded-[0.85rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.09),rgba(255,255,255,0.02)_58%,rgba(28,18,15,0.18)_100%)] px-2 sm:rounded-[1rem] sm:px-2.5">
@@ -668,13 +668,13 @@ export default function DrumsPage() {
                       <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#3b2418] sm:text-[13px]">
                         {pad.label}
                       </span>
-                    <span className="mt-1 text-[8px] uppercase tracking-[0.14em] text-royal-cream/80 sm:text-[11px]">
-                      <span style={PAD_SUBLABEL_HIGHLIGHT_STYLE}>
-                        {pad.family}
+                      <span className="mt-1 text-[8px] uppercase tracking-[0.14em] text-royal-cream/80 sm:text-[11px]">
+                        <span style={PAD_SUBLABEL_HIGHLIGHT_STYLE}>
+                          {pad.family}
+                        </span>
                       </span>
                     </span>
-                  </span>
-                </button>
+                  </button>
                 );
               })}
             </div>
@@ -684,12 +684,10 @@ export default function DrumsPage() {
         <aside
           className="order-1 mt-3 flex w-full max-w-[19rem] self-center flex-col rounded-[1.35rem] border px-3 py-2.5 sm:mt-4 sm:max-w-[30rem] sm:rounded-[1.5rem] sm:px-5 sm:py-4 lg:order-2 lg:mt-6 lg:max-w-[28.5rem] lg:self-auto lg:sticky lg:top-32 lg:translate-x-[200px] lg:px-6 lg:py-5"
           style={GLASS_CARD_STYLE}
-          dir={isArabic ? "rtl" : "ltr"}
+          dir={isArabic ? 'rtl' : 'ltr'}
         >
           <p className="mx-auto max-w-[15rem] text-center text-[13px] font-semibold leading-[1.5rem] text-royal-cream/90 sm:max-w-[23rem] sm:text-[18px] sm:leading-[2.2rem] lg:max-w-[24rem]">
-            <span style={TEXT_HIGHLIGHT_STYLE}>
-              {content.paragraph}
-            </span>
+            <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
           </p>
 
           <div className="mt-3 flex flex-col items-center gap-2 sm:mt-4 sm:gap-2.5">
@@ -702,26 +700,26 @@ export default function DrumsPage() {
                 {content.roomCta}
               </button>
 
-                <div
-                  className={`absolute left-1/2 top-full z-20 mt-3 h-48 w-48 -translate-x-1/2 overflow-hidden rounded-full border border-[#d9c0a1]/35 shadow-[0_18px_40px_rgba(0,0,0,0.34)] transition-all duration-300 sm:h-56 sm:w-56 lg:left-auto lg:right-full lg:top-1/2 lg:mt-0 lg:h-72 lg:w-72 lg:-translate-y-1/2 lg:translate-x-0 lg:mr-3 ${
-                    showRoomPreview
-                      ? "pointer-events-auto scale-100 opacity-100"
-                      : "pointer-events-none scale-75 opacity-0"
-                  }`}
-                  style={GLASS_CARD_STYLE}
-                  onMouseMove={handleRoomPreviewMove}
-                  onMouseLeave={resetRoomPreviewFocus}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/images/drumsroom.png"
-                    alt="Drums room"
-                    className="h-full w-full cursor-zoom-in object-cover transition-transform duration-150 hover:scale-150"
-                    style={{
-                      transformOrigin: `${roomPreviewFocus.x}% ${roomPreviewFocus.y}%`,
-                    }}
-                  />
-                </div>
+              <div
+                className={`absolute left-1/2 top-full z-20 mt-3 h-48 w-48 -translate-x-1/2 overflow-hidden rounded-full border border-[#d9c0a1]/35 shadow-[0_18px_40px_rgba(0,0,0,0.34)] transition-all duration-300 sm:h-56 sm:w-56 lg:left-auto lg:right-full lg:top-1/2 lg:mt-0 lg:h-72 lg:w-72 lg:-translate-y-1/2 lg:translate-x-0 lg:mr-3 ${
+                  showRoomPreview
+                    ? 'pointer-events-auto scale-100 opacity-100'
+                    : 'pointer-events-none scale-75 opacity-0'
+                }`}
+                style={GLASS_CARD_STYLE}
+                onMouseMove={handleRoomPreviewMove}
+                onMouseLeave={resetRoomPreviewFocus}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/drumsroom.png"
+                  alt="Drums room"
+                  className="h-full w-full cursor-zoom-in object-cover transition-transform duration-150 hover:scale-150"
+                  style={{
+                    transformOrigin: `${roomPreviewFocus.x}% ${roomPreviewFocus.y}%`,
+                  }}
+                />
+              </div>
             </div>
 
             <p
@@ -731,7 +729,7 @@ export default function DrumsPage() {
             </p>
 
             <Link
-              href={reservationHref}
+              href={enrollmentHref}
               className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 text-[0.92em] sm:px-5 sm:py-2.5 sm:text-[1.02em] ${musicCtaTextClass(
                 isArabic,
               )} text-[#3b2418] transition-transform duration-300 hover:scale-[1.03]`}
