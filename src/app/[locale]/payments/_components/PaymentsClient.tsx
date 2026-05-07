@@ -1,8 +1,8 @@
 // src/app/[locale]/payments/_components/PaymentsClient.tsx
-"use client";
+'use client';
 
-import { useState } from "react";
-import Link from "next/link";
+import { useState } from 'react';
+import Link from 'next/link';
 import {
   Crown,
   Share2,
@@ -22,13 +22,13 @@ import {
   FileText,
   Sparkles,
   Tag,
-} from "lucide-react";
+} from 'lucide-react';
 import type {
   StudentPaymentRecord,
   PaymentStatus,
-} from "@/lib/actions/student-payments";
-import InvoiceModal from "./InvoiceModal";
-import ShareModal from "./ShareModal";
+} from '@/lib/actions/student-payments';
+import InvoiceModal from './InvoiceModal';
+import ShareModal from './ShareModal';
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 
@@ -39,23 +39,23 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
   > = {
     PAID: {
       icon: <CheckCircle2 size={11} />,
-      label: "Paid",
-      cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+      label: 'Paid',
+      cls: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
     },
     FAILED: {
       icon: <XCircle size={11} />,
-      label: "Failed",
-      cls: "bg-red-500/15 text-red-300 border-red-500/30",
+      label: 'Failed',
+      cls: 'bg-red-500/15 text-red-300 border-red-500/30',
     },
     REFUNDED: {
       icon: <RefreshCw size={11} />,
-      label: "Refunded",
-      cls: "bg-blue-500/15 text-blue-300 border-blue-500/30",
+      label: 'Refunded',
+      cls: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
     },
     PARTIALLY_REFUNDED: {
       icon: <RefreshCw size={11} />,
-      label: "Partial Refund",
-      cls: "bg-purple-500/15 text-purple-300 border-purple-500/30",
+      label: 'Partial Refund',
+      cls: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
     },
   };
 
@@ -73,21 +73,21 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
 
 // ─── Type badge ───────────────────────────────────────────────────────────────
 
-function TypeBadge({ type }: { type: StudentPaymentRecord["type"] }) {
+function TypeBadge({ type }: { type: StudentPaymentRecord['type'] }) {
   const map = {
     MONTHLY: {
-      label: "Monthly",
-      cls: "text-royal-gold/70 border-royal-gold/20",
+      label: 'Monthly',
+      cls: 'text-royal-gold/70 border-royal-gold/20',
     },
     MULTI_MONTHLY: {
-      label: "Multi-Month",
-      cls: "text-amber-300/70 border-amber-500/20",
+      label: 'Multi-Month',
+      cls: 'text-amber-300/70 border-amber-500/20',
     },
-    TRIAL: { label: "Trial", cls: "text-violet-300/70 border-violet-500/20" },
-    WORKSHOP: { label: "Workshop", cls: "text-sky-300/70 border-sky-500/20" },
+    TRIAL: { label: 'Trial', cls: 'text-violet-300/70 border-violet-500/20' },
+    WORKSHOP: { label: 'Workshop', cls: 'text-sky-300/70 border-sky-500/20' },
     BOOKING: {
-      label: "Session",
-      cls: "text-royal-cream/50 border-royal-cream/15",
+      label: 'Session',
+      cls: 'text-royal-cream/50 border-royal-cream/15',
     },
   };
   const { label, cls } = map[type];
@@ -115,44 +115,44 @@ function PaymentCard({
   const [expanded, setExpanded] = useState(false);
 
   const continueHref =
-    payment.type === "WORKSHOP"
+    payment.type === 'WORKSHOP'
       ? `/workshops/${payment.workshopSlug ?? payment.subClassId}`
-      : `/reservation/${payment.subClassId}`;
+      : `/enrollment/${payment.subClassId}`;
 
   const detailRows = [
     {
       icon: <User size={10} />,
-      label: "Instructor",
+      label: 'Instructor',
       value: payment.teacherName,
     },
-    { icon: <Calendar size={10} />, label: "Days", value: payment.dayOfWeek },
+    { icon: <Calendar size={10} />, label: 'Days', value: payment.dayOfWeek },
     {
       icon: <Clock size={10} />,
-      label: "Time",
+      label: 'Time',
       value: payment.timeString ?? `${payment.startTime} – ${payment.endTime}`,
     },
     ...(payment.frequency
       ? [
           {
             icon: <RefreshCw size={10} />,
-            label: "Frequency",
+            label: 'Frequency',
             value: payment.frequency,
           },
         ]
       : []),
     ...(payment.level
-      ? [{ icon: <Star size={10} />, label: "Level", value: payment.level }]
+      ? [{ icon: <Star size={10} />, label: 'Level', value: payment.level }]
       : []),
     {
       icon: <MapPin size={10} />,
-      label: "Location",
-      value: "Royal Academy, Muscat",
+      label: 'Location',
+      value: 'Royal Academy, Muscat',
     },
     ...(payment.method
       ? [
           {
             icon: <CreditCard size={10} />,
-            label: "Method",
+            label: 'Method',
             value: payment.method,
           },
         ]
@@ -164,9 +164,9 @@ function PaymentCard({
       className="rounded-2xl overflow-hidden transition-shadow duration-300 hover:shadow-[0_8px_40px_rgba(0,0,0,0.3)]"
       style={{
         background:
-          "linear-gradient(135deg,rgba(255,255,255,0.08) 0%,rgba(255,255,255,0.02) 100%)",
-        backdropFilter: "blur(20px)",
-        border: "1px solid rgba(196,168,130,0.14)",
+          'linear-gradient(135deg,rgba(255,255,255,0.08) 0%,rgba(255,255,255,0.02) 100%)',
+        backdropFilter: 'blur(20px)',
+        border: '1px solid rgba(196,168,130,0.14)',
       }}
     >
       {/* Summary row */}
@@ -174,8 +174,8 @@ function PaymentCard({
         <div
           className="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center"
           style={{
-            background: "rgba(196,168,130,0.1)",
-            border: "1px solid rgba(196,168,130,0.22)",
+            background: 'rgba(196,168,130,0.1)',
+            border: '1px solid rgba(196,168,130,0.22)',
           }}
         >
           <CreditCard size={17} className="text-royal-gold" />
@@ -211,10 +211,10 @@ function PaymentCard({
           </div>
           {payment.paidAt && (
             <div className="text-royal-cream/30 text-xs">
-              {new Date(payment.paidAt).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
+              {new Date(payment.paidAt).toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
               })}
             </div>
           )}
@@ -232,7 +232,7 @@ function PaymentCard({
       {expanded && (
         <div
           className="border-t px-5 py-4 space-y-4"
-          style={{ borderColor: "rgba(196,168,130,0.1)" }}
+          style={{ borderColor: 'rgba(196,168,130,0.1)' }}
         >
           <div className="grid grid-cols-2 gap-3 text-xs">
             {detailRows.map(({ icon, label, value }) => (
@@ -254,9 +254,9 @@ function PaymentCard({
               onClick={() => onViewInvoice(payment)}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all hover:scale-[1.02]"
               style={{
-                background: "rgba(196,168,130,0.1)",
-                border: "1px solid rgba(196,168,130,0.22)",
-                color: "#c4a882",
+                background: 'rgba(196,168,130,0.1)',
+                border: '1px solid rgba(196,168,130,0.22)',
+                color: '#c4a882',
               }}
             >
               <FileText size={12} /> View Invoice
@@ -266,26 +266,29 @@ function PaymentCard({
               onClick={() => onShare(payment)}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all hover:scale-[1.02]"
               style={{
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                color: "rgba(222,194,171,0.7)",
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'rgba(222,194,171,0.7)',
               }}
             >
               <Share2 size={12} /> Share
             </button>
 
-            {payment.type !== "BOOKING" && (
+            {payment.type !== 'BOOKING' && (
               <Link
                 href={continueHref}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all hover:scale-[1.02] ml-auto"
                 style={{
                   background:
-                    "linear-gradient(135deg,rgba(196,168,130,0.28),rgba(196,168,130,0.08))",
-                  border: "1px solid rgba(196,168,130,0.38)",
-                  color: "#d4b896",
+                    'linear-gradient(135deg,rgba(196,168,130,0.28),rgba(196,168,130,0.08))',
+                  border: '1px solid rgba(196,168,130,0.38)',
+                  color: '#d4b896',
                 }}
               >
-                {payment.type === "WORKSHOP" ? "View Workshop" : "Continue Class"} <ArrowRight size={12} />
+                {payment.type === 'WORKSHOP'
+                  ? 'View Workshop'
+                  : 'Continue Class'}{' '}
+                <ArrowRight size={12} />
               </Link>
             )}
           </div>
@@ -301,23 +304,23 @@ function TrustBadges() {
   const items = [
     {
       icon: <Shield size={15} />,
-      title: "Secure Payments",
-      desc: "256-bit SSL on every transaction",
+      title: 'Secure Payments',
+      desc: '256-bit SSL on every transaction',
     },
     {
       icon: <Star size={15} />,
-      title: "Satisfaction Promise",
-      desc: "Trial refund if not satisfied",
+      title: 'Satisfaction Promise',
+      desc: 'Trial refund if not satisfied',
     },
     {
       icon: <RefreshCw size={15} />,
-      title: "Flexible Scheduling",
-      desc: "Reschedule up to 24 hrs prior",
+      title: 'Flexible Scheduling',
+      desc: 'Reschedule up to 24 hrs prior',
     },
     {
       icon: <Sparkles size={15} />,
-      title: "Certified Instructors",
-      desc: "Professionally trained & vetted",
+      title: 'Certified Instructors',
+      desc: 'Professionally trained & vetted',
     },
   ];
   return (
@@ -327,8 +330,8 @@ function TrustBadges() {
           key={i.title}
           className="rounded-xl p-4 text-center"
           style={{
-            background: "rgba(196,168,130,0.05)",
-            border: "1px solid rgba(196,168,130,0.1)",
+            background: 'rgba(196,168,130,0.05)',
+            border: '1px solid rgba(196,168,130,0.1)',
           }}
         >
           <div className="text-royal-gold mb-2 flex justify-center">
@@ -350,31 +353,31 @@ function TrustBadges() {
 
 function PaymentStats({ payments }: { payments: StudentPaymentRecord[] }) {
   const totalPaid = payments
-    .filter((p) => p.status === "PAID")
+    .filter((p) => p.status === 'PAID')
     .reduce((s, p) => s + p.amount, 0);
-  const paidCount = payments.filter((p) => p.status === "PAID").length;
-  const currency = payments[0]?.currency ?? "OMR";
+  const paidCount = payments.filter((p) => p.status === 'PAID').length;
+  const currency = payments[0]?.currency ?? 'OMR';
 
   return (
     <div className="grid grid-cols-3 gap-3">
       {[
         {
-          label: "Total Paid",
+          label: 'Total Paid',
           value: `${totalPaid} ${currency}`,
           sub: `${paidCount} transactions`,
         },
         {
-          label: "Classes",
+          label: 'Classes',
           value: String(new Set(payments.map((p) => p.subClassId)).size),
-          sub: "unique classes",
+          sub: 'unique classes',
         },
       ].map((s) => (
         <div
           key={s.label}
           className="rounded-xl p-4 text-center"
           style={{
-            background: "rgba(196,168,130,0.07)",
-            border: "1px solid rgba(196,168,130,0.15)",
+            background: 'rgba(196,168,130,0.07)',
+            border: '1px solid rgba(196,168,130,0.15)',
           }}
         >
           <div className="text-royal-gold font-bold text-lg">{s.value}</div>
@@ -390,8 +393,8 @@ function PaymentStats({ payments }: { payments: StudentPaymentRecord[] }) {
 
 // ─── Main client component ────────────────────────────────────────────────────
 
-type FilterStatus = PaymentStatus | "ALL";
-type FilterType = StudentPaymentRecord["type"] | "ALL";
+type FilterStatus = PaymentStatus | 'ALL';
+type FilterType = StudentPaymentRecord['type'] | 'ALL';
 
 export default function PaymentsClient({
   payments,
@@ -403,29 +406,29 @@ export default function PaymentsClient({
   const [sharePayment, setSharePayment] = useState<StudentPaymentRecord | null>(
     null,
   );
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>("ALL");
-  const [filterType, setFilterType] = useState<FilterType>("ALL");
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('ALL');
+  const [filterType, setFilterType] = useState<FilterType>('ALL');
 
   const filtered = payments.filter((p) => {
-    const statusOk = filterStatus === "ALL" || p.status === filterStatus;
-    const typeOk = filterType === "ALL" || p.type === filterType;
+    const statusOk = filterStatus === 'ALL' || p.status === filterStatus;
+    const typeOk = filterType === 'ALL' || p.type === filterType;
     return statusOk && typeOk;
   });
 
-  const statusTabs: FilterStatus[] = ["ALL", "PAID", "FAILED", "REFUNDED"];
+  const statusTabs: FilterStatus[] = ['ALL', 'PAID', 'FAILED', 'REFUNDED'];
   const typeTabs: Array<{ key: FilterType; label: string }> = [
-    { key: "ALL", label: "All Types" },
-    { key: "MONTHLY", label: "Monthly" },
-    { key: "MULTI_MONTHLY", label: "Multi-Month" },
-    { key: "TRIAL", label: "Trial" },
-    { key: "WORKSHOP", label: "Workshop" },
-    { key: "BOOKING", label: "Session" },
+    { key: 'ALL', label: 'All Types' },
+    { key: 'MONTHLY', label: 'Monthly' },
+    { key: 'MULTI_MONTHLY', label: 'Multi-Month' },
+    { key: 'TRIAL', label: 'Trial' },
+    { key: 'WORKSHOP', label: 'Workshop' },
+    { key: 'BOOKING', label: 'Session' },
   ];
 
   return (
     <div
       className="min-h-screen py-8 px-4"
-      style={{ backgroundColor: "var(--royal-purple)" }}
+      style={{ backgroundColor: 'var(--royal-purple)' }}
     >
       <div className="max-w-3xl mx-auto space-y-7">
         {/* Header */}
@@ -455,11 +458,11 @@ export default function PaymentsClient({
               onClick={() => setFilterStatus(t)}
               className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
                 filterStatus === t
-                  ? "bg-royal-gold text-royal-dark shadow-md"
-                  : "text-royal-cream/45 hover:text-royal-cream border border-royal-cream/10 hover:border-royal-cream/20"
+                  ? 'bg-royal-gold text-royal-dark shadow-md'
+                  : 'text-royal-cream/45 hover:text-royal-cream border border-royal-cream/10 hover:border-royal-cream/20'
               }`}
             >
-              {t === "ALL" ? "All" : t.charAt(0) + t.slice(1).toLowerCase()}
+              {t === 'ALL' ? 'All' : t.charAt(0) + t.slice(1).toLowerCase()}
             </button>
           ))}
         </div>
@@ -472,8 +475,8 @@ export default function PaymentsClient({
               onClick={() => setFilterType(key)}
               className={`px-3 py-1 rounded-full text-[11px] font-medium transition-all ${
                 filterType === key
-                  ? "bg-royal-mauve/60 text-royal-cream border border-royal-mauve"
-                  : "text-royal-cream/35 hover:text-royal-cream/60 border border-royal-cream/8"
+                  ? 'bg-royal-mauve/60 text-royal-cream border border-royal-mauve'
+                  : 'text-royal-cream/35 hover:text-royal-cream/60 border border-royal-cream/8'
               }`}
             >
               {label}
@@ -486,7 +489,7 @@ export default function PaymentsClient({
           {filtered.length === 0 ? (
             <div
               className="rounded-2xl py-16 text-center"
-              style={{ border: "1px dashed rgba(196,168,130,0.15)" }}
+              style={{ border: '1px dashed rgba(196,168,130,0.15)' }}
             >
               <Crown size={28} className="text-royal-gold/20 mx-auto mb-3" />
               <p className="text-royal-cream/25 text-sm">No payments found.</p>
@@ -518,8 +521,8 @@ export default function PaymentsClient({
           className="rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4"
           style={{
             background:
-              "linear-gradient(135deg,rgba(196,168,130,0.09),rgba(196,168,130,0.03))",
-            border: "1px solid rgba(196,168,130,0.16)",
+              'linear-gradient(135deg,rgba(196,168,130,0.09),rgba(196,168,130,0.03))',
+            border: '1px solid rgba(196,168,130,0.16)',
           }}
         >
           <div>
@@ -534,8 +537,8 @@ export default function PaymentsClient({
             href="/support"
             className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:scale-105"
             style={{
-              background: "linear-gradient(135deg,#c4a882,#d4b896)",
-              color: "#0a0f2c",
+              background: 'linear-gradient(135deg,#c4a882,#d4b896)',
+              color: '#0a0f2c',
             }}
           >
             Contact Support <ArrowRight size={13} />

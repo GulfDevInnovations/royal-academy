@@ -155,17 +155,17 @@ export default function PianoPage() {
   const content = isArabic
     ? {
         paragraph:
-          "اختُرع البيانو حوالي عام 1700 على يد صانع الآلات الموسيقية الإيطالي بارتولوميو كريستوفوري. وعلى خلاف آلات المفاتيح الأقدم مثل الهاربسيكورد والكلافيكورد، كان البيانو قادراً على إصدار الأصوات الهادئة والقوية معاً، ولهذا جاء اسمه الأصلي gravicembalo col piano e forte أي «آلة مفاتيح ناعمة وقوية». وخلال القرنين الثامن عشر والتاسع عشر، ساهم مؤلفون مثل لودفيغ فان بيتهوفن وفريدريك شوبان وفرانز ليست في جعل البيانو واحداً من أهم الآلات في الموسيقى الكلاسيكية.",
-        reservationLabel: "التسجيل",
-        rangeLabel: "Range",
-        rangeValue: "C4 → B5",
+          'اختُرع البيانو حوالي عام 1700 على يد صانع الآلات الموسيقية الإيطالي بارتولوميو كريستوفوري. وعلى خلاف آلات المفاتيح الأقدم مثل الهاربسيكورد والكلافيكورد، كان البيانو قادراً على إصدار الأصوات الهادئة والقوية معاً، ولهذا جاء اسمه الأصلي gravicembalo col piano e forte أي «آلة مفاتيح ناعمة وقوية». وخلال القرنين الثامن عشر والتاسع عشر، ساهم مؤلفون مثل لودفيغ فان بيتهوفن وفريدريك شوبان وفرانز ليست في جعل البيانو واحداً من أهم الآلات في الموسيقى الكلاسيكية.',
+        enrollmentLabel: 'التسجيل',
+        rangeLabel: 'Range',
+        rangeValue: 'C4 → B5',
       }
     : {
         paragraph:
           'The piano was invented around 1700 by the Italian instrument maker Bartolomeo Cristofori. Unlike earlier keyboard instruments like the Harpsichord and the Clavichord, the piano could play both soft and loud sounds, which is why its original name was gravicembalo col piano e forte ("soft and loud keyboard"). During the 18th and 19th centuries, composers such as Ludwig van Beethoven, Frederic Chopin, and Franz Liszt helped make the piano one of the most important instruments in classical music!',
-        reservationLabel: "Enrollment",
-        rangeLabel: "Range",
-        rangeValue: "C4 -> B5",
+        enrollmentLabel: 'Enrollment',
+        rangeLabel: 'Range',
+        rangeValue: 'C4 -> B5',
       };
 
   const createNoiseBuffer = (context: AudioContext) => {
@@ -349,7 +349,7 @@ export default function PianoPage() {
   return (
     <main
       className="relative min-h-screen overflow-hidden bg-[#0b1018] text-white"
-      style={{ direction: "ltr" }}
+      style={{ direction: 'ltr' }}
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(122,73,38,0.3)_0%,rgba(34,22,17,0.9)_44%,rgba(9,8,10,1)_100%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(133,87,49,0.05)_0%,transparent_36%,rgba(91,58,36,0.04)_100%)]" />
@@ -357,7 +357,7 @@ export default function PianoPage() {
 
       <section
         className="relative z-10 flex min-h-screen w-full flex-col justify-start px-4 pb-10 pt-27.5 sm:px-6 sm:pb-12 sm:pt-27.5 lg:px-[50px] lg:pb-14 lg:pt-27.5"
-        style={{ direction: "ltr" }}
+        style={{ direction: 'ltr' }}
       >
         <div className="flex w-full flex-col items-center gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
           <div className="order-2 flex h-[32rem] w-full items-center justify-center overflow-visible sm:h-[38rem] lg:order-1 lg:h-auto lg:w-full lg:max-w-[54rem] lg:justify-start">
@@ -369,7 +369,10 @@ export default function PianoPage() {
 
               <div
                 className="relative h-72 rounded-[1.55rem] border border-black/20 bg-[linear-gradient(180deg,rgba(17,10,8,0.92)_0%,rgba(36,23,17,0.95)_100%)] px-[2.2%] pb-[2.4%] pt-[1.6%] shadow-[inset_0_14px_24px_rgba(255,255,255,0.03)] sm:h-84"
-                style={{ transform: "perspective(1400px) rotateX(180deg)", transformStyle: "preserve-3d" }}
+                style={{
+                  transform: 'perspective(1400px) rotateX(180deg)',
+                  transformStyle: 'preserve-3d',
+                }}
               >
                 <div className="absolute inset-x-[2.2%] top-[4.6%] h-1.25 rounded-full bg-[linear-gradient(90deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.02)_18%,rgba(255,255,255,0.02)_82%,rgba(255,255,255,0.12)_100%)]" />
                 <div className="absolute inset-x-[2.2%] bottom-[2.4%] h-1 rounded-full bg-black/18" />
@@ -389,19 +392,19 @@ export default function PianoPage() {
           </div>
 
           <article
-            dir={isArabic ? "rtl" : "ltr"}
+            dir={isArabic ? 'rtl' : 'ltr'}
             className="order-1 mx-auto w-full max-w-[19rem] self-center rounded-[1.7rem] border border-[#d9c29b]/14 bg-[linear-gradient(180deg,rgba(95,62,37,0.26)_0%,rgba(33,22,17,0.34)_100%)] px-4 py-3 text-[#f1e1c4]/88 shadow-[0_28px_64px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:max-w-[22rem] sm:px-5 sm:py-4 lg:order-2 lg:ml-auto lg:mr-[100px] lg:max-w-[34rem] lg:px-6 lg:py-5"
           >
             <p
-              className={`text-[0.84rem] leading-6 sm:text-[0.95rem] sm:leading-7 lg:text-[1.28rem] lg:leading-[2.15rem] ${isArabic ? "font-layla text-right lg:text-right" : "text-center lg:text-left"}`}
+              className={`text-[0.84rem] leading-6 sm:text-[0.95rem] sm:leading-7 lg:text-[1.28rem] lg:leading-[2.15rem] ${isArabic ? 'font-layla text-right lg:text-right' : 'text-center lg:text-left'}`}
             >
               {content.paragraph}
             </p>
             <Link
-              href={`/${locale}/reservation`}
+              href={`/${locale}/enrollment`}
               className="mx-auto mt-4 inline-flex items-center rounded-full border border-[#d9c29b]/20 bg-[linear-gradient(180deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.05)_100%)] px-4 py-2 text-[0.76rem] uppercase tracking-[0.16em] text-[#f3dfbb] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-transform duration-200 hover:scale-[1.02] hover:bg-white/10 sm:px-5 sm:py-2.5 sm:text-[0.86rem] lg:mx-0 lg:mt-5 lg:px-6 lg:py-3 lg:text-[1.08rem]"
             >
-              {content.reservationLabel}
+              {content.enrollmentLabel}
             </Link>
           </article>
         </div>

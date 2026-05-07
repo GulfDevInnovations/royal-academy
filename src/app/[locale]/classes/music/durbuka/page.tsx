@@ -85,7 +85,7 @@ export default function DurbukaPage() {
   const params = useParams<{ locale: string }>();
   const locale = params?.locale ?? "en";
   const isArabic = locale === "ar";
-  const reservationHref = `/${locale}/reservation`;
+  const enrollmentHref = `/${locale}/enrollment`;
   const content = isArabic
     ? {
         paragraph:
@@ -327,12 +327,15 @@ export default function DurbukaPage() {
 
             <div className="liquid-glass flex items-center gap-2 rounded-full px-3 py-2">
               <GlassControlButton label="Play track" onClick={playAudio}>
-                <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
+                <Play
+                  size={12}
+                  className={isPlaying ? 'text-royal-cream' : ''}
+                />
               </GlassControlButton>
               <GlassControlButton label="Pause track" onClick={pauseAudio}>
                 <Pause
                   size={12}
-                  className={!isPlaying ? "text-royal-cream" : ""}
+                  className={!isPlaying ? 'text-royal-cream' : ''}
                 />
               </GlassControlButton>
             </div>
@@ -361,7 +364,7 @@ export default function DurbukaPage() {
                 className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
               >
                 <span>{formatTime(currentTime)}</span>
-                <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
+                <span>{progress ? `${Math.round(progress)}%` : '0%'}</span>
                 <span>{formatTime(duration)}</span>
               </div>
             </div>
@@ -371,11 +374,11 @@ export default function DurbukaPage() {
             <div
               className="rounded-[1.65rem] border px-6 py-6 sm:px-7 sm:py-7"
               style={GLASS_CARD_STYLE}
-              dir={isArabic ? "rtl" : "ltr"}
+              dir={isArabic ? 'rtl' : 'ltr'}
             >
               <p
                 className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem] ${
-                  isArabic ? "text-right" : ""
+                  isArabic ? 'text-right' : ''
                 }`}
               >
                 <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
@@ -383,22 +386,24 @@ export default function DurbukaPage() {
 
               <div
                 className={`mt-4 flex w-full flex-col gap-3 ${
-                  isArabic ? "items-end text-right" : "items-start"
+                  isArabic ? 'items-end text-right' : 'items-start'
                 }`}
               >
                 <p
                   className={`w-full ${musicHelperTextClass(isArabic)} text-[14px] text-royal-gold/65 sm:text-[15px] ${
-                    isArabic ? "text-right" : ""
+                    isArabic ? 'text-right' : ''
                   }`}
                 >
-                  <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
+                  <span style={TEXT_HIGHLIGHT_STYLE}>
+                    {content.reserveHelper}
+                  </span>
                 </p>
                 <Link
-                  href={reservationHref}
+                  href={enrollmentHref}
                   className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-7 py-3 ${musicCtaTextClass(
                     isArabic,
                   )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px] ${
-                    isArabic ? "self-end text-right" : ""
+                    isArabic ? 'self-end text-right' : ''
                   }`}
                 >
                   {content.reserveCta}
@@ -422,12 +427,12 @@ export default function DurbukaPage() {
 
           <div className="liquid-glass flex items-center gap-2 rounded-full px-3 py-2">
             <GlassControlButton label="Play track" onClick={playAudio}>
-              <Play size={12} className={isPlaying ? "text-royal-cream" : ""} />
+              <Play size={12} className={isPlaying ? 'text-royal-cream' : ''} />
             </GlassControlButton>
             <GlassControlButton label="Pause track" onClick={pauseAudio}>
               <Pause
                 size={12}
-                className={!isPlaying ? "text-royal-cream" : ""}
+                className={!isPlaying ? 'text-royal-cream' : ''}
               />
             </GlassControlButton>
           </div>
@@ -456,7 +461,7 @@ export default function DurbukaPage() {
               className={`mt-2 flex items-center justify-between ${musicTypography.metaCaps} text-royal-cream/75`}
             >
               <span>{formatTime(currentTime)}</span>
-              <span>{progress ? `${Math.round(progress)}%` : "0%"}</span>
+              <span>{progress ? `${Math.round(progress)}%` : '0%'}</span>
               <span>{formatTime(duration)}</span>
             </div>
           </div>
@@ -464,11 +469,11 @@ export default function DurbukaPage() {
           <div
             className="w-full max-w-[26rem] rounded-[1.65rem] border px-6 py-6 sm:max-w-[28rem] sm:px-7 sm:py-7"
             style={GLASS_CARD_STYLE}
-            dir={isArabic ? "rtl" : "ltr"}
+            dir={isArabic ? 'rtl' : 'ltr'}
           >
             <p
               className={`${musicTypography.body} text-[18px] leading-[2rem] text-royal-cream/90 sm:text-[19px] sm:leading-[2.15rem] ${
-                isArabic ? "text-right" : ""
+                isArabic ? 'text-right' : ''
               }`}
             >
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.paragraph}</span>
@@ -476,22 +481,24 @@ export default function DurbukaPage() {
 
             <div
               className={`mt-4 flex w-full flex-col gap-3 ${
-                isArabic ? "items-end text-right" : "items-start"
+                isArabic ? 'items-end text-right' : 'items-start'
               }`}
             >
               <p
                 className={`w-full ${musicHelperTextClass(isArabic)} text-[14px] text-royal-gold/65 sm:text-[15px] ${
-                  isArabic ? "text-right" : ""
+                  isArabic ? 'text-right' : ''
                 }`}
               >
-                <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
+                <span style={TEXT_HIGHLIGHT_STYLE}>
+                  {content.reserveHelper}
+                </span>
               </p>
               <Link
-                href={reservationHref}
+                href={enrollmentHref}
                 className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-7 py-3 ${musicCtaTextClass(
                   isArabic,
                 )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px] ${
-                  isArabic ? "self-end text-right" : ""
+                  isArabic ? 'self-end text-right' : ''
                 }`}
               >
                 {content.reserveCta}

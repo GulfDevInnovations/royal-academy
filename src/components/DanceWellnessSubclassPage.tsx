@@ -1,5 +1,5 @@
-import Image from "next/image";
-import Link from "next/link";
+import Image from 'next/image';
+import Link from 'next/link';
 
 type LocalizedText = {
   en: string;
@@ -7,7 +7,7 @@ type LocalizedText = {
 };
 
 function pickText(locale: string, value: LocalizedText) {
-  if (locale === "ar") return value.ar ?? value.en;
+  if (locale === 'ar') return value.ar ?? value.en;
   return value.en;
 }
 
@@ -17,35 +17,38 @@ export default function DanceWellnessSubclassPage({
   description,
   highlights,
   imgSrc,
-  reservationQuery,
+  enrollmentQuery,
 }: {
   locale: string;
   title: LocalizedText;
   description: LocalizedText;
   highlights: LocalizedText[];
   imgSrc: string;
-  reservationQuery?: {
+  enrollmentQuery?: {
     q?: string;
   };
 }) {
-  const isArabic = locale === "ar";
+  const isArabic = locale === 'ar';
   const titleText = pickText(locale, title);
   const descriptionText = pickText(locale, description);
 
-  const reservationHref = (() => {
+  const enrollmentHref = (() => {
     const params = new URLSearchParams();
-    params.set("dept", "dance");
-    if (reservationQuery?.q) params.set("q", reservationQuery.q);
+    params.set('dept', 'dance');
+    if (enrollmentQuery?.q) params.set('q', enrollmentQuery.q);
     const queryString = params.toString();
     return queryString
-      ? `/${locale}/reservation?${queryString}`
-      : `/${locale}/reservation`;
+      ? `/${locale}/enrollment?${queryString}`
+      : `/${locale}/enrollment`;
   })();
   const contactHref = `/${locale}/contact`;
   const rootHref = `/${locale}`;
 
   return (
-    <main dir={isArabic ? "rtl" : "ltr"} className="min-h-screen bg-royal-purple">
+    <main
+      dir={isArabic ? 'rtl' : 'ltr'}
+      className="min-h-screen bg-royal-purple"
+    >
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <Image
@@ -61,9 +64,9 @@ export default function DanceWellnessSubclassPage({
         </div>
 
         <div className="relative mx-auto w-full max-w-6xl px-4 pt-24 pb-14 sm:px-6 sm:pt-28 sm:pb-16 md:pt-32 md:pb-20">
-          <div className={isArabic ? "text-right" : "text-left"}>
+          <div className={isArabic ? 'text-right' : 'text-left'}>
             <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-royal-gold/75">
-              {isArabic ? "الرقص والعافية" : "Dance & Wellness"}
+              {isArabic ? 'الرقص والعافية' : 'Dance & Wellness'}
             </p>
             <h1 className="mt-4 font-goudy text-4xl leading-[1.05] text-royal-cream sm:text-5xl md:text-6xl">
               {titleText}
@@ -74,22 +77,22 @@ export default function DanceWellnessSubclassPage({
 
             <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <Link
-                href={reservationHref}
+                href={enrollmentHref}
                 className="liquid-glass-gold shimmer inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:w-auto sm:py-2.5"
               >
-                {isArabic ? "التسجيل" : "Enrollment"}
+                {isArabic ? 'التسجيل' : 'Enrollment'}
               </Link>
               <Link
                 href={contactHref}
                 className="liquid-glass shimmer inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-royal-cream/85 transition-transform duration-300 hover:scale-[1.03] sm:w-auto sm:py-2.5"
               >
-                {isArabic ? "تواصل معنا" : "Contact"}
+                {isArabic ? 'تواصل معنا' : 'Contact'}
               </Link>
               <Link
                 href={rootHref}
                 className="mt-1 w-full text-center text-[11px] font-medium uppercase tracking-[0.22em] text-royal-gold/70 underline decoration-royal-gold/40 underline-offset-4 hover:text-royal-gold sm:mt-0 sm:w-auto sm:text-left"
               >
-                {isArabic ? "العودة للرئيسية" : "Back to Home"}
+                {isArabic ? 'العودة للرئيسية' : 'Back to Home'}
               </Link>
             </div>
           </div>
@@ -100,18 +103,18 @@ export default function DanceWellnessSubclassPage({
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3 md:items-stretch">
           <div className="liquid-glass h-full rounded-2xl border border-royal-cream/10 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-royal-gold/70">
-              {isArabic ? "نظرة عامة" : "Overview"}
+              {isArabic ? 'نظرة عامة' : 'Overview'}
             </p>
             <p className="mt-3 text-sm leading-7 text-royal-cream/85 sm:text-[15px]">
               {isArabic
-                ? "جلسات تركز على التقنية، اللياقة، والإحساس بالحركة — مع مسارات تناسب جميع المستويات."
-                : "Sessions focused on technique, fitness, and mindful movement — with pathways for all levels."}
+                ? 'جلسات تركز على التقنية، اللياقة، والإحساس بالحركة — مع مسارات تناسب جميع المستويات.'
+                : 'Sessions focused on technique, fitness, and mindful movement — with pathways for all levels.'}
             </p>
           </div>
 
           <div className="liquid-glass h-full rounded-2xl border border-royal-cream/10 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-royal-gold/70">
-              {isArabic ? "ماذا ستتعلم" : "What You'll Learn"}
+              {isArabic ? 'ماذا ستتعلم' : "What You'll Learn"}
             </p>
             <ul className="mt-3 space-y-2 text-sm text-royal-cream/85 sm:text-[15px]">
               {highlights.map((item) => (
@@ -125,18 +128,18 @@ export default function DanceWellnessSubclassPage({
 
           <div className="liquid-glass h-full rounded-2xl border border-royal-cream/10 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-royal-gold/70">
-              {isArabic ? "الحجز" : "Booking"}
+              {isArabic ? 'الحجز' : 'Booking'}
             </p>
             <p className="mt-3 text-sm leading-7 text-royal-cream/85 sm:text-[15px]">
               {isArabic
-                ? "يمكنك حجز صف تجريبي أو اشتراك شهري من صفحة الحجز."
-                : "You can book a trial class or monthly enrollment from the reservation page."}
+                ? 'يمكنك حجز صف تجريبي أو اشتراك شهري من صفحة الحجز.'
+                : 'You can book a trial class or monthly enrollment from the enrollment page.'}
             </p>
             <Link
-              href={reservationHref}
+              href={enrollmentHref}
               className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-royal-gold/90 hover:text-royal-gold"
             >
-              {isArabic ? "التسجيل" : "Enrollment"}
+              {isArabic ? 'التسجيل' : 'Enrollment'}
               <span aria-hidden="true">→</span>
             </Link>
           </div>
@@ -144,12 +147,12 @@ export default function DanceWellnessSubclassPage({
 
         <div className="mt-10 border-t border-royal-cream/10 pt-10">
           <p className="text-xs uppercase tracking-[0.28em] text-royal-gold/60">
-            {isArabic ? "ملاحظة" : "Note"}
+            {isArabic ? 'ملاحظة' : 'Note'}
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-royal-cream/70">
             {isArabic
-              ? "سيتم تحديث تفاصيل المحتوى والمستويات والجدول قريباً."
-              : "Class details, levels, and scheduling notes will be updated soon."}
+              ? 'سيتم تحديث تفاصيل المحتوى والمستويات والجدول قريباً.'
+              : 'Class details, levels, and scheduling notes will be updated soon.'}
           </p>
         </div>
       </section>

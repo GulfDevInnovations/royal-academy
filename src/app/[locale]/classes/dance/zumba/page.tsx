@@ -1,4 +1,4 @@
-import DanceWellnessSubclassPage from "@/components/DanceWellnessSubclassPage";
+import DanceWellnessSubclassPage from '@/components/DanceWellnessSubclassPage';
 
 export default async function ZumbaPage({
   params,
@@ -10,16 +10,16 @@ export default async function ZumbaPage({
   return (
     <DanceWellnessSubclassPage
       locale={locale}
-      title={{ en: "Zumba" }}
-      reservationQuery={{ q: "Zumba" }}
+      title={{ en: 'Zumba' }}
+      enrollmentQuery={{ q: 'Zumba' }}
       description={{
-        en: "A joyful cardio-dance workout with upbeat playlists — perfect for improving endurance while having fun.",
+        en: 'A joyful cardio-dance workout with upbeat playlists — perfect for improving endurance while having fun.',
       }}
       highlights={[
-        { en: "Full-body cardio + calorie burn" },
-        { en: "Easy-to-follow rhythmic combinations" },
-        { en: "Coordination and agility" },
-        { en: "Energy, mood, and community" },
+        { en: 'Full-body cardio + calorie burn' },
+        { en: 'Easy-to-follow rhythmic combinations' },
+        { en: 'Coordination and agility' },
+        { en: 'Energy, mood, and community' },
       ]}
       imgSrc="/images/dance/zumba.jpg"
     />

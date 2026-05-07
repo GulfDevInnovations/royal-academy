@@ -1,4 +1,4 @@
-import BalletSubclassPage from "@/components/BalletSubclassPage";
+import BalletSubclassPage from '@/components/BalletSubclassPage';
 
 export default async function RadBalletPage({
   params,
@@ -10,16 +10,25 @@ export default async function RadBalletPage({
   return (
     <BalletSubclassPage
       locale={locale}
-      title={{ en: "RAD Ballet", ar: "باليه RAD" }}
-      reservationQuery={{ q: "RAD Ballet" }}
+      title={{ en: 'RAD Ballet', ar: 'باليه RAD' }}
+      enrollmentQuery={{ q: 'RAD Ballet' }}
       description={{
-        en: "Structured ballet training inspired by Royal Academy of Dance standards — building strong technique and artistry.",
-        ar: "تدريب باليه منظم مستوحى من معايير Royal Academy of Dance — لبناء تقنية قوية وحس فني.",
+        en: 'Structured ballet training inspired by Royal Academy of Dance standards — building strong technique and artistry.',
+        ar: 'تدريب باليه منظم مستوحى من معايير Royal Academy of Dance — لبناء تقنية قوية وحس فني.',
       }}
       highlights={[
-        { en: "Technique, alignment, and turnout basics", ar: "تقنية ومحاذاة وأساسيات الدوران" },
-        { en: "Graceful port de bras and musical phrasing", ar: "حركات ذراعين رشيقة وتعبير موسيقي" },
-        { en: "Progressive combinations and confidence", ar: "تركيبات تدريجية وثقة" },
+        {
+          en: 'Technique, alignment, and turnout basics',
+          ar: 'تقنية ومحاذاة وأساسيات الدوران',
+        },
+        {
+          en: 'Graceful port de bras and musical phrasing',
+          ar: 'حركات ذراعين رشيقة وتعبير موسيقي',
+        },
+        {
+          en: 'Progressive combinations and confidence',
+          ar: 'تركيبات تدريجية وثقة',
+        },
       ]}
       img="/images/dance/rad-ballet.jpg"
     />

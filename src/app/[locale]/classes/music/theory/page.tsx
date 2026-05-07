@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import Image from 'next/image';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 import {
   musicCtaTextClass,
   musicHelperTextClass,
   musicTypography,
-} from "@/lib/musicTypography";
+} from '@/lib/musicTypography';
 
 type TheoryItem = {
   key: string;
@@ -18,55 +18,115 @@ type TheoryItem = {
 };
 
 const THEORY_ITEMS: TheoryItem[] = [
-  { key: "semibreve", label: "Semibreve", labelAr: "روند", imageSrc: "/images/semi-breve.png" },
-  { key: "minim", label: "Minim", labelAr: "بلانش", imageSrc: "/images/minim.png" },
-  { key: "crotchet", label: "Crotchet", labelAr: "نوار", imageSrc: "/images/crotchet.png" },
-  { key: "quaver", label: "Quaver", labelAr: "كروش", imageSrc: "/images/quaver.png" },
-  { key: "semiquaver", label: "Semiquaver", labelAr: "دبل كروش", imageSrc: "/images/semi-quaver.png" },
-  { key: "sharp", label: "Sharp", labelAr: "دييز", imageSrc: "/images/sharp.png" },
-  { key: "flat", label: "Flat", labelAr: "بيمول", imageSrc: "/images/flat.png" },
-  { key: "treble-clef", label: "Treble Clef", labelAr: "مفتاح صول", imageSrc: "/images/treble-clef.png" },
   {
-    key: "semibreve-rest",
-    label: "Semibreve Rest",
-    labelAr: "سكتة روند",
-    imageSrc: "/images/semibreve-rest.png",
+    key: 'semibreve',
+    label: 'Semibreve',
+    labelAr: 'روند',
+    imageSrc: '/images/semi-breve.png',
   },
   {
-    key: "minim-rest",
-    label: "Minim Rest",
-    labelAr: "سكتة بلانش",
-    imageSrc: "/images/minim-rest.png",
+    key: 'minim',
+    label: 'Minim',
+    labelAr: 'بلانش',
+    imageSrc: '/images/minim.png',
   },
   {
-    key: "crotchet-rest",
-    label: "Crotchet Rest",
-    labelAr: "سكتة نوار",
-    imageSrc: "/images/crotchet-rest.png",
+    key: 'crotchet',
+    label: 'Crotchet',
+    labelAr: 'نوار',
+    imageSrc: '/images/crotchet.png',
   },
   {
-    key: "quaver-rest",
-    label: "Quaver Rest",
-    labelAr: "سكتة كروش",
-    imageSrc: "/images/quaver-rest.png",
+    key: 'quaver',
+    label: 'Quaver',
+    labelAr: 'كروش',
+    imageSrc: '/images/quaver.png',
   },
-  { key: "bass-clef", label: "Bass Clef", labelAr: "مفتاح فا", imageSrc: "/images/bass-clif.png" },
-  { key: "stave", label: "Stave", labelAr: "المدرج", imageSrc: "/images/stave.png" },
-  { key: "bar-line", label: "Bar Line", labelAr: "خط الميزان", imageSrc: "/images/barline.png" },
-  { key: "dotted-note", label: "Dotted Note", labelAr: "نغمة منقوطة", imageSrc: "/images/dotted-note.png" },
+  {
+    key: 'semiquaver',
+    label: 'Semiquaver',
+    labelAr: 'دبل كروش',
+    imageSrc: '/images/semi-quaver.png',
+  },
+  {
+    key: 'sharp',
+    label: 'Sharp',
+    labelAr: 'دييز',
+    imageSrc: '/images/sharp.png',
+  },
+  {
+    key: 'flat',
+    label: 'Flat',
+    labelAr: 'بيمول',
+    imageSrc: '/images/flat.png',
+  },
+  {
+    key: 'treble-clef',
+    label: 'Treble Clef',
+    labelAr: 'مفتاح صول',
+    imageSrc: '/images/treble-clef.png',
+  },
+  {
+    key: 'semibreve-rest',
+    label: 'Semibreve Rest',
+    labelAr: 'سكتة روند',
+    imageSrc: '/images/semibreve-rest.png',
+  },
+  {
+    key: 'minim-rest',
+    label: 'Minim Rest',
+    labelAr: 'سكتة بلانش',
+    imageSrc: '/images/minim-rest.png',
+  },
+  {
+    key: 'crotchet-rest',
+    label: 'Crotchet Rest',
+    labelAr: 'سكتة نوار',
+    imageSrc: '/images/crotchet-rest.png',
+  },
+  {
+    key: 'quaver-rest',
+    label: 'Quaver Rest',
+    labelAr: 'سكتة كروش',
+    imageSrc: '/images/quaver-rest.png',
+  },
+  {
+    key: 'bass-clef',
+    label: 'Bass Clef',
+    labelAr: 'مفتاح فا',
+    imageSrc: '/images/bass-clif.png',
+  },
+  {
+    key: 'stave',
+    label: 'Stave',
+    labelAr: 'المدرج',
+    imageSrc: '/images/stave.png',
+  },
+  {
+    key: 'bar-line',
+    label: 'Bar Line',
+    labelAr: 'خط الميزان',
+    imageSrc: '/images/barline.png',
+  },
+  {
+    key: 'dotted-note',
+    label: 'Dotted Note',
+    labelAr: 'نغمة منقوطة',
+    imageSrc: '/images/dotted-note.png',
+  },
 ];
 
 const LOOP_DURATION_MS = 34000;
 const GLASS_CARD_STYLE = {
-  borderColor: "rgba(255,255,255,0.12)",
+  borderColor: 'rgba(255,255,255,0.12)',
   background:
-    "linear-gradient(160deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.05) 100%)",
-  boxShadow: "0 24px 64px rgba(0,0,0,0.28)",
-  backdropFilter: "blur(12px)",
+    'linear-gradient(160deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.05) 100%)',
+  boxShadow: '0 24px 64px rgba(0,0,0,0.28)',
+  backdropFilter: 'blur(12px)',
 } as const;
 const TEXT_HIGHLIGHT_STYLE = {
   background:
-    "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(228,195,145,0.16) 58%, rgba(255,255,255,0) 100%)",
+    'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(228,195,145,0.16) 58%, rgba(255,255,255,0) 100%)',
 } as const;
 
 function wrapProgress(value: number) {
@@ -79,9 +139,9 @@ function wrapProgress(value: number) {
 
 export default function TheoryPage() {
   const params = useParams<{ locale: string }>();
-  const locale = params?.locale ?? "en";
-  const isArabic = locale === "ar";
-  const reservationHref = `/${locale}/reservation`;
+  const locale = params?.locale ?? 'en';
+  const isArabic = locale === 'ar';
+  const enrollmentHref = `/${locale}/enrollment`;
   const loopItems = [...THEORY_ITEMS, ...THEORY_ITEMS];
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [loopProgress, setLoopProgress] = useState(0);
@@ -93,101 +153,101 @@ export default function TheoryPage() {
   const itemStep = THEORY_ITEMS.length ? 1 / THEORY_ITEMS.length : 0;
   const content = isArabic
     ? {
-        cardTitle: "مرحبًا بك في مادة النظرية الموسيقية",
+        cardTitle: 'مرحبًا بك في مادة النظرية الموسيقية',
         intro:
-          "اكتشف اللغة الكامنة وراء الموسيقى وافتح كامل إمكاناتك الإبداعية. في هذه الحصة لن تكتفي بعزف الموسيقى، بل ستفهمها أيضًا.",
+          'اكتشف اللغة الكامنة وراء الموسيقى وافتح كامل إمكاناتك الإبداعية. في هذه الحصة لن تكتفي بعزف الموسيقى، بل ستفهمها أيضًا.',
         sections: [
           {
-            title: "1. قراءة الموسيقى وكتابتها",
-            body: "تعلّم قراءة وكتابة النوتة الموسيقية، بما في ذلك النغمات والسكتات والإيقاعات والميزان الزمني، وهي أساس كل موسيقى.",
+            title: '1. قراءة الموسيقى وكتابتها',
+            body: 'تعلّم قراءة وكتابة النوتة الموسيقية، بما في ذلك النغمات والسكتات والإيقاعات والميزان الزمني، وهي أساس كل موسيقى.',
           },
           {
-            title: "2. السلالم والمفاتيح",
-            body: "استكشف السلالم الكبرى والصغرى، وعلامات المفاتيح، والمقامات المختلفة لفهم كيفية بناء الألحان.",
+            title: '2. السلالم والمفاتيح',
+            body: 'استكشف السلالم الكبرى والصغرى، وعلامات المفاتيح، والمقامات المختلفة لفهم كيفية بناء الألحان.',
           },
           {
-            title: "3. التآلفات والهارموني",
-            body: "ابنِ التآلفات وتعلّم كيف تعمل معًا لخلق المشاعر والحركة في الموسيقى.",
+            title: '3. التآلفات والهارموني',
+            body: 'ابنِ التآلفات وتعلّم كيف تعمل معًا لخلق المشاعر والحركة في الموسيقى.',
           },
           {
-            title: "4. تدريب الأذن",
-            body: "طوّر مهارات الاستماع لديك من خلال تمييز النغمات والمسافات والألحان بالسمع.",
+            title: '4. تدريب الأذن',
+            body: 'طوّر مهارات الاستماع لديك من خلال تمييز النغمات والمسافات والألحان بالسمع.',
           },
           {
-            title: "5. المسافات والعلاقات",
-            body: "افهم المسافة بين النغمات وكيف تشكّل هذه العلاقات صوت الموسيقى وطابعها.",
+            title: '5. المسافات والعلاقات',
+            body: 'افهم المسافة بين النغمات وكيف تشكّل هذه العلاقات صوت الموسيقى وطابعها.',
           },
           {
-            title: "6. أساسيات التأليف",
-            body: "ابدأ في ابتكار موسيقاك الخاصة من خلال كتابة الألحان وبناء هارموني بسيط.",
+            title: '6. أساسيات التأليف',
+            body: 'ابدأ في ابتكار موسيقاك الخاصة من خلال كتابة الألحان وبناء هارموني بسيط.',
           },
           {
-            title: "7. التحليل",
-            body: "حلّل مقطوعات موسيقية حقيقية لترى كيف تتكامل جميع العناصر معًا.",
+            title: '7. التحليل',
+            body: 'حلّل مقطوعات موسيقية حقيقية لترى كيف تتكامل جميع العناصر معًا.',
           },
           {
-            title: "8. تاريخ الموسيقى",
-            body: "استكشف أنماطًا وتقاليد موسيقية مختلفة لتوسيع فهمك ومصادرك الإلهامية.",
+            title: '8. تاريخ الموسيقى',
+            body: 'استكشف أنماطًا وتقاليد موسيقية مختلفة لتوسيع فهمك ومصادرك الإلهامية.',
           },
         ],
         closing:
-          "ابدأ رحلتك اليوم، وتعلّم ليس فقط أن تعزف الموسيقى، بل أن تفهمها حقًا.",
-        reserveHelper: "احجز حصتك في النظرية الموسيقية",
-        reserveCta: "التسجيل",
+          'ابدأ رحلتك اليوم، وتعلّم ليس فقط أن تعزف الموسيقى، بل أن تفهمها حقًا.',
+        reserveHelper: 'احجز حصتك في النظرية الموسيقية',
+        reserveCta: 'التسجيل',
       }
     : {
-        cardTitle: "Welcome to Music Theory",
+        cardTitle: 'Welcome to Music Theory',
         intro:
           "Discover the language behind music and unlock your full creative potential. In this class, you won't just play music, you'll understand it.",
         sections: [
           {
-            title: "1. Reading & Writing Music",
-            body: "Learn how to read and write musical notation, including notes, rests, rhythms, and time signatures, the foundation of all music.",
+            title: '1. Reading & Writing Music',
+            body: 'Learn how to read and write musical notation, including notes, rests, rhythms, and time signatures, the foundation of all music.',
           },
           {
-            title: "2. Scales & Keys",
-            body: "Explore major and minor scales, key signatures, and modes to understand how melodies are structured.",
+            title: '2. Scales & Keys',
+            body: 'Explore major and minor scales, key signatures, and modes to understand how melodies are structured.',
           },
           {
-            title: "3. Chords & Harmony",
-            body: "Build chords and learn how they work together to create emotion and movement in music.",
+            title: '3. Chords & Harmony',
+            body: 'Build chords and learn how they work together to create emotion and movement in music.',
           },
           {
-            title: "4. Ear Training",
-            body: "Develop your listening skills by identifying notes, intervals, and melodies by ear.",
+            title: '4. Ear Training',
+            body: 'Develop your listening skills by identifying notes, intervals, and melodies by ear.',
           },
           {
-            title: "5. Intervals & Relationships",
-            body: "Understand the distance between notes and how these relationships shape the sound of music.",
+            title: '5. Intervals & Relationships',
+            body: 'Understand the distance between notes and how these relationships shape the sound of music.',
           },
           {
-            title: "6. Composition Basics",
-            body: "Start creating your own music by writing melodies and building simple harmonies.",
+            title: '6. Composition Basics',
+            body: 'Start creating your own music by writing melodies and building simple harmonies.',
           },
           {
-            title: "7. Analysis",
-            body: "Break down real pieces of music to see how everything fits together.",
+            title: '7. Analysis',
+            body: 'Break down real pieces of music to see how everything fits together.',
           },
           {
-            title: "8. Music History",
-            body: "Explore different musical styles and traditions to broaden your understanding and inspiration.",
+            title: '8. Music History',
+            body: 'Explore different musical styles and traditions to broaden your understanding and inspiration.',
           },
         ],
         closing:
-          "Start your journey today, learn not just to play music, but to truly understand it.",
-        reserveHelper: "Reserve your theory class",
-        reserveCta: "Enrollment",
+          'Start your journey today, learn not just to play music, but to truly understand it.',
+        reserveHelper: 'Reserve your theory class',
+        reserveCta: 'Enrollment',
       };
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const updatePreference = () => setPrefersReducedMotion(mediaQuery.matches);
 
     updatePreference();
-    mediaQuery.addEventListener("change", updatePreference);
+    mediaQuery.addEventListener('change', updatePreference);
 
     return () => {
-      mediaQuery.removeEventListener("change", updatePreference);
+      mediaQuery.removeEventListener('change', updatePreference);
     };
   }, []);
 
@@ -203,11 +263,11 @@ export default function TheoryPage() {
 
     const resizeObserver = new ResizeObserver(updateWidth);
     resizeObserver.observe(node);
-    window.addEventListener("resize", updateWidth);
+    window.addEventListener('resize', updateWidth);
 
     return () => {
       resizeObserver.disconnect();
-      window.removeEventListener("resize", updateWidth);
+      window.removeEventListener('resize', updateWidth);
     };
   }, []);
 
@@ -313,13 +373,13 @@ export default function TheoryPage() {
                     )
                   }
                   aria-pressed={selectedKey === item.key}
-                className={`flex h-[6.9rem] w-[6.9rem] shrink-0 flex-col items-center justify-center rounded-full border border-white/10 px-2.5 py-2.5 text-center shadow-[0_16px_34px_rgba(8,6,9,0.24)] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-royal-gold/70 sm:h-[10.15rem] sm:w-[10.15rem] sm:px-4.5 sm:py-5 ${
-                  selectedKey === item.key
-                    ? "scale-[1.12] border-royal-gold/40 bg-[linear-gradient(160deg,rgba(196,168,130,0.28)_0%,rgba(255,255,255,0.08)_100%)] brightness-125 shadow-[0_18px_46px_rgba(8,6,9,0.34),0_0_26px_rgba(228,194,138,0.26)]"
-                    : index % 3 === 0
-                      ? "bg-[linear-gradient(160deg,rgba(196,168,130,0.18)_0%,rgba(255,255,255,0.04)_100%)]"
-                      : "bg-[linear-gradient(160deg,rgba(255,255,255,0.11)_0%,rgba(255,255,255,0.03)_100%)]"
-                }`}
+                  className={`flex h-[6.9rem] w-[6.9rem] shrink-0 flex-col items-center justify-center rounded-full border border-white/10 px-2.5 py-2.5 text-center shadow-[0_16px_34px_rgba(8,6,9,0.24)] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-royal-gold/70 sm:h-[10.15rem] sm:w-[10.15rem] sm:px-4.5 sm:py-5 ${
+                    selectedKey === item.key
+                      ? 'scale-[1.12] border-royal-gold/40 bg-[linear-gradient(160deg,rgba(196,168,130,0.28)_0%,rgba(255,255,255,0.08)_100%)] brightness-125 shadow-[0_18px_46px_rgba(8,6,9,0.34),0_0_26px_rgba(228,194,138,0.26)]'
+                      : index % 3 === 0
+                        ? 'bg-[linear-gradient(160deg,rgba(196,168,130,0.18)_0%,rgba(255,255,255,0.04)_100%)]'
+                        : 'bg-[linear-gradient(160deg,rgba(255,255,255,0.11)_0%,rgba(255,255,255,0.03)_100%)]'
+                  }`}
                 >
                   <div className="flex h-12 items-center justify-center sm:h-[5.4rem]">
                     <Image
@@ -334,7 +394,9 @@ export default function TheoryPage() {
                   <p
                     dir="ltr"
                     className="w-full px-1 text-center text-[0.64rem] font-semibold uppercase leading-tight tracking-[0.06em] text-royal-cream sm:text-[0.86rem] sm:tracking-[0.08em]"
-                    style={{ fontFamily: 'Arial, "Helvetica Neue", sans-serif' }}
+                    style={{
+                      fontFamily: 'Arial, "Helvetica Neue", sans-serif',
+                    }}
                   >
                     {item.label}
                   </p>
@@ -347,9 +409,9 @@ export default function TheoryPage() {
         <div
           className="relative -top-[30px] mt-5 mb-10 w-full rounded-[1.35rem] border px-4 py-4 sm:rounded-[1.65rem] sm:px-5 sm:py-5"
           style={GLASS_CARD_STYLE}
-          dir={isArabic ? "rtl" : "ltr"}
+          dir={isArabic ? 'rtl' : 'ltr'}
         >
-          <div className={`${isArabic ? "text-right" : ""}`}>
+          <div className={`${isArabic ? 'text-right' : ''}`}>
             <p className="font-goudy text-[1.3rem] text-royal-cream sm:text-[1.55rem]">
               {content.cardTitle}
             </p>
@@ -362,7 +424,10 @@ export default function TheoryPage() {
               </div>
 
               {content.sections.map((section) => (
-                <div key={section.title} className="mb-4 break-inside-avoid space-y-1.5">
+                <div
+                  key={section.title}
+                  className="mb-4 break-inside-avoid space-y-1.5"
+                >
                   <p className="font-semibold text-royal-cream sm:text-[1.02rem]">
                     {section.title}
                   </p>
@@ -382,22 +447,22 @@ export default function TheoryPage() {
 
           <div
             className={`mt-5 flex w-full flex-col gap-3 ${
-              isArabic ? "items-end text-right" : "items-end text-right"
+              isArabic ? 'items-end text-right' : 'items-end text-right'
             }`}
           >
             <p
               className={`${musicHelperTextClass(isArabic)} text-royal-gold/65 ${
-                isArabic ? "self-end text-right" : "w-full text-right"
+                isArabic ? 'self-end text-right' : 'w-full text-right'
               }`}
             >
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
             </p>
             <Link
-              href={reservationHref}
+              href={enrollmentHref}
               className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 ${musicCtaTextClass(
                 isArabic,
               )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
-                isArabic ? "self-end text-right" : "self-end"
+                isArabic ? 'self-end text-right' : 'self-end'
               }`}
             >
               {content.reserveCta}

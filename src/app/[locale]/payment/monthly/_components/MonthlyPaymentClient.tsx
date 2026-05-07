@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { PaymentShell } from "@/components/payment/PaymentShell";
-import { DayOfWeek, FrequencyType } from "@prisma/client";
+import { useRouter } from 'next/navigation';
+import { PaymentShell } from '@/components/payment/PaymentShell';
+import { DayOfWeek, FrequencyType } from '@prisma/client';
 
 export type MonthlyPaymentProps = {
   month: number;
@@ -27,34 +27,34 @@ export type MonthlyPaymentProps = {
 };
 
 const MONTH_NAMES = [
-  "",
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  '',
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 
 const DAY_LABELS: Record<string, string> = {
-  MONDAY: "Monday",
-  TUESDAY: "Tuesday",
-  WEDNESDAY: "Wednesday",
-  THURSDAY: "Thursday",
-  FRIDAY: "Friday",
-  SATURDAY: "Saturday",
-  SUNDAY: "Sunday",
+  MONDAY: 'Monday',
+  TUESDAY: 'Tuesday',
+  WEDNESDAY: 'Wednesday',
+  THURSDAY: 'Thursday',
+  FRIDAY: 'Friday',
+  SATURDAY: 'Saturday',
+  SUNDAY: 'Sunday',
 };
 
 const FREQUENCY_LABELS: Record<string, string> = {
-  ONCE_PER_WEEK: "Once a Week",
-  TWICE_PER_WEEK: "Twice a Week",
+  ONCE_PER_WEEK: 'Once a Week',
+  TWICE_PER_WEEK: 'Twice a Week',
 };
 
 export function MonthlyPaymentClient({ data }: { data: MonthlyPaymentProps }) {
@@ -62,19 +62,19 @@ export function MonthlyPaymentClient({ data }: { data: MonthlyPaymentProps }) {
   const monthLabel = `${MONTH_NAMES[data.month]} ${data.year}`;
   const daysLabel = data.preferredDays
     .map((d) => DAY_LABELS[d] ?? d)
-    .join(" & ");
-  const sessionsCount = data.frequency === "ONCE_PER_WEEK" ? 4 : 8;
+    .join(' & ');
+  const sessionsCount = data.frequency === 'ONCE_PER_WEEK' ? 4 : 8;
 
   const lineItems = [
-    { label: "Month", value: monthLabel },
+    { label: 'Month', value: monthLabel },
     {
-      label: "Schedule",
+      label: 'Schedule',
       value: `${FREQUENCY_LABELS[data.frequency]} · ${daysLabel}`,
     },
-    { label: "Sessions", value: `${sessionsCount} sessions` },
-    { label: "Duration", value: `${data.subClass.durationMinutes} min each` },
+    { label: 'Sessions', value: `${sessionsCount} sessions` },
+    { label: 'Duration', value: `${data.subClass.durationMinutes} min each` },
     ...(data.subClass.level
-      ? [{ label: "Level", value: data.subClass.level }]
+      ? [{ label: 'Level', value: data.subClass.level }]
       : []),
   ];
 
@@ -91,7 +91,7 @@ export function MonthlyPaymentClient({ data }: { data: MonthlyPaymentProps }) {
       currency={data.currency}
       alreadyPaid={true}
       onConfirm={async () => ({ success: true })}
-      successRedirect="/reservation?success=1"
+      successRedirect="/enrollment?success=1"
     />
   );
 }

@@ -34,9 +34,20 @@ interface HeroProps {
 // ─── Media ────────────────────────────────────────────────────────────────────
 
 const MEDIA_ITEMS: MediaItem[] = [
-  { type: 'video', src: 'xxx' },
-  { type: 'image', src: 'xxx', alt: 'Royal Academy' },
-  { type: 'image', src: 'xx', alt: 'Royal Academy 2' },
+  {
+    type: 'video',
+    src: '/videos/royalAcademyPart1.webm',
+  },
+  {
+    type: 'video',
+    src: '/videos/royalAcademyPart2.webm',
+  },
+  {
+    type: 'video',
+    src: '/videos/royalAcademyPart3.webm',
+  },
+  // { type: 'image', src: 'xxx', alt: 'Royal Academy' },
+  // { type: 'image', src: 'xx', alt: 'Royal Academy 2' },
 ];
 
 const SIDEBAR_W = 150;
@@ -55,13 +66,26 @@ export default function HeroSection({
   const [current, setCurrent] = useState(0);
   const [isTransitioning, setTrans] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
-  // Reset + replay video every time the slider lands back on it
+  // Play current video and lazily preload the next one
   useEffect(() => {
-    if (MEDIA_ITEMS[current].type === 'video' && videoRef.current) {
-      videoRef.current.currentTime = 0;
-      videoRef.current.play().catch(() => {});
+    if (MEDIA_ITEMS[current].type !== 'video') return;
+    const cur = videoRefs.current[current];
+    if (cur) {
+      cur.currentTime = 0;
+      cur.play().catch(() => {});
+    }
+    // Start preloading the next video so it's buffered before it's needed
+    const nextIdx = (current + 1) % MEDIA_ITEMS.length;
+    const nxt = videoRefs.current[nextIdx];
+    if (
+      nxt &&
+      MEDIA_ITEMS[nextIdx].type === 'video' &&
+      nxt.preload === 'none'
+    ) {
+      nxt.preload = 'auto';
+      nxt.load();
     }
   }, [current]);
   const currentRef = useRef(0);
@@ -111,6 +135,7 @@ export default function HeroSection({
           height: '100vh',
           overflow: 'hidden',
           background: '#0e0d0b',
+          [isAr ? 'marginRight' : 'marginLeft']: SIDEBAR_W,
         }}
       >
         {/* Background media */}
@@ -127,9 +152,11 @@ export default function HeroSection({
           >
             {item.type === 'video' ? (
               <video
-                ref={videoRef}
+                ref={(el) => {
+                  videoRefs.current[i] = el;
+                }}
                 src={item.src}
-                autoPlay
+                preload={i === 0 ? 'auto' : 'none'}
                 muted
                 playsInline
                 onEnded={next}
@@ -152,7 +179,7 @@ export default function HeroSection({
           aria-label="Previous slide"
           style={{
             position: 'absolute',
-            [isAr ? 'right' : 'left']: SIDEBAR_W + 20,
+            [isAr ? 'right' : 'left']: 20,
             top: '50%',
             transform: 'translateY(-50%)',
             zIndex: 10,

@@ -1,10 +1,10 @@
 // src/app/[locale]/payment/_components/PaymentPageClient.tsx
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { format, parseISO } from "date-fns";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { format, parseISO } from 'date-fns';
 import {
   Calendar,
   Clock,
@@ -13,9 +13,9 @@ import {
   ShieldCheck,
   ChevronLeft,
   Loader2,
-} from "lucide-react";
-import { confirmPayment } from "@/lib/actions/payment";
-import { SuccessToast } from "./SuccessToast";
+} from 'lucide-react';
+import { confirmPayment } from '@/lib/actions/payment';
+import { SuccessToast } from './SuccessToast';
 
 type PaymentData = {
   studentId: string;
@@ -43,13 +43,13 @@ type PaymentData = {
 };
 
 const CLASS_ACCENT: Record<string, string> = {
-  Dance: "#A855F7",
-  Ballet: "#EC4899",
-  Violin: "#3B82F6",
-  Guitar: "#10B981",
-  Painting: "#F97316",
-  Singing: "#EF4444",
-  default: "#C9A84C",
+  Dance: '#A855F7',
+  Ballet: '#EC4899',
+  Violin: '#3B82F6',
+  Guitar: '#10B981',
+  Painting: '#F97316',
+  Singing: '#EF4444',
+  default: '#C9A84C',
 };
 
 export function PaymentPageClient({ data }: { data: PaymentData }) {
@@ -72,7 +72,7 @@ export function PaymentPageClient({ data }: { data: PaymentData }) {
       });
       if (result.success) {
         setPaid(true);
-        setTimeout(() => router.push("/reservation?success=1"), 1800);
+        setTimeout(() => router.push('/enrollment?success=1'), 1800);
       }
     } catch (err) {
       console.error(err);
@@ -90,7 +90,7 @@ export function PaymentPageClient({ data }: { data: PaymentData }) {
           className="flex items-center gap-1.5 text-royal-cream/40 hover:text-royal-cream text-sm mb-8 transition-colors group"
         >
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-          Back to reservation
+          Back to enrollment
         </button>
 
         {/* Page title */}
@@ -153,7 +153,7 @@ export function PaymentPageClient({ data }: { data: PaymentData }) {
               <DetailRow
                 icon={<Calendar className="w-4 h-4" />}
                 label="Date"
-                value={format(sessionDate, "EEEE, MMMM d, yyyy")}
+                value={format(sessionDate, 'EEEE, MMMM d, yyyy')}
               />
               <DetailRow
                 icon={<Clock className="w-4 h-4" />}
@@ -183,9 +183,9 @@ export function PaymentPageClient({ data }: { data: PaymentData }) {
                 }}
               >
                 {data.studentName
-                  .split(" ")
+                  .split(' ')
                   .map((n) => n[0])
-                  .join("")
+                  .join('')
                   .slice(0, 2)}
               </div>
               <div>
@@ -225,7 +225,7 @@ export function PaymentPageClient({ data }: { data: PaymentData }) {
             <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
               <span className="font-bold text-royal-cream">Total</span>
               <span className="text-xl font-bold text-royal-gold font-goudy">
-                {amountDisplay}{" "}
+                {amountDisplay}{' '}
                 <span className="text-sm font-normal text-royal-cream/50">
                   {data.currency}
                 </span>
