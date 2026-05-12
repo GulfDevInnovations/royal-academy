@@ -1041,6 +1041,23 @@ function MobileSidebarNav({
           <p style={{ margin: '0 0 14px', fontSize: 13, color: '#333' }}>
             {contactContent.address}
           </p>
+
+          <div
+            style={{
+              width: '100%',
+              height: 200,
+              borderRadius: 4,
+              overflow: 'hidden',
+              border: '.5px solid rgba(0,0,0,.15)',
+              position: 'relative',
+            }}
+          >
+            <PastelMap
+              lat={23.602072674553607}
+              lng={58.368280024961884}
+              isAr={isAr}
+            />
+          </div>
         </div>
       </div>
 

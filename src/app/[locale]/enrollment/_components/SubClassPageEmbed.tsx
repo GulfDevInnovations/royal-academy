@@ -11,7 +11,14 @@ function normalize(str: string): string {
 
 // Registry maps "{normalizedClassName}/{normalizedSubClassName}" → page component.
 // Add an entry here whenever a new custom subclass page is created under /classes/.
-const REGISTRY: Record<string, ComponentType> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const REGISTRY: Record<string, ComponentType<any>> = {
+  // ── Art (one shared page for all art subclasses) ───────────────────────────
+  'art': dynamic(
+    () => import('../../classes/art/page'),
+    { ssr: false },
+  ),
+
   // ── Music ──────────────────────────────────────────────────────────────────
   'music/handpan': dynamic(
     () => import('../../classes/music/handpan/page'),
@@ -116,8 +123,9 @@ export function SubClassPageEmbed({
   className: string;
   subClassName: string;
 }) {
-  const key = `${normalize(className)}/${normalize(subClassName)}`;
-  const Component = REGISTRY[key];
+  const normalizedClass = normalize(className);
+  const key = `${normalizedClass}/${normalize(subClassName)}`;
+  const Component = REGISTRY[key] ?? REGISTRY[normalizedClass];
   if (!Component) return null;
   return <Component />;
 }

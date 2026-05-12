@@ -1,8 +1,8 @@
 // src/app/[locale]/payments/_components/InvoiceModal.tsx
-"use client";
+'use client';
 
-import { Printer, X, Crown } from "lucide-react";
-import type { StudentPaymentRecord } from "@/lib/actions/student-payments";
+import { Printer, X, Crown } from 'lucide-react';
+import type { StudentPaymentRecord } from '@/lib/actions/student-payments';
 
 interface Props {
   payment: StudentPaymentRecord;
@@ -15,36 +15,36 @@ export default function InvoiceModal({ payment, onClose }: Props) {
   const period = payment.month
     ? `${payment.month} ${payment.year}`
     : payment.eventDate
-      ? new Date(payment.eventDate).toLocaleDateString("en-GB", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
+      ? new Date(payment.eventDate).toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
         })
       : null;
 
   const rows: Array<[string, string | undefined | null]> = [
-    ["Class", payment.className],
-    ["Sub-class", payment.subClassName],
-    ["Instructor", payment.teacherName],
+    ['Class', payment.className],
+    ['Sub-class', payment.subClassName],
+    ['Instructor', payment.teacherName],
     [
-      "Schedule",
+      'Schedule',
       `${payment.dayOfWeek}, ${payment.startTime}–${payment.endTime}`,
     ],
-    ["Frequency", payment.frequency],
-    ["Period", period],
-    ["Level", payment.level],
-    ["Age Group", payment.ageGroup],
-    ["Location", "Royal Academy · Muscat, Sultanate of Oman"],
-    ["Payment Method", payment.method],
+    ['Frequency', payment.frequency],
+    ['Period', period],
+    ['Level', payment.level],
+    ['Age Group', payment.ageGroup],
+    ['Location', 'Royal Academy · Muscat, Sultanate of Oman'],
+    ['Payment Method', payment.method],
   ].filter(([, v]) => Boolean(v)) as Array<[string, string]>;
 
   const issuedDate = payment.paidAt
-    ? new Date(payment.paidAt).toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
+    ? new Date(payment.paidAt).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
       })
-    : "Awaiting Payment";
+    : 'Awaiting Payment';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
@@ -58,7 +58,7 @@ export default function InvoiceModal({ payment, onClose }: Props) {
       <div
         id="invoice-print"
         className="relative z-10 bg-white text-gray-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl my-4 print:shadow-none print:rounded-none print:my-0 print:max-w-full"
-        style={{ fontFamily: "var(--font-text)" }}
+        style={{ fontFamily: 'var(--font-text)' }}
       >
         {/* ── Header ── */}
         <div className="bg-gradient-to-br from-[#0a0f2c] via-[#111a3e] to-[#5c2d4a] px-8 py-7 text-white">
@@ -101,12 +101,12 @@ export default function InvoiceModal({ payment, onClose }: Props) {
           <div className="flex justify-end">
             <span
               className={`... ${
-                payment.status === "PAID"
-                  ? "bg-emerald-100 text-emerald-700"
-                  : payment.status === "REFUNDED" ||
-                      payment.status === "PARTIALLY_REFUNDED"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-red-100 text-red-700" // FAILED
+                payment.status === 'PAID'
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : payment.status === 'REFUNDED' ||
+                      payment.status === 'PARTIALLY_REFUNDED'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'bg-red-100 text-red-700' // FAILED
               }`}
             >
               {payment.status}
@@ -142,7 +142,7 @@ export default function InvoiceModal({ payment, onClose }: Props) {
                 Total Amount
               </div>
               <div className="text-3xl font-bold text-[#c4a882]">
-                {payment.amount}{" "}
+                {payment.amount}{' '}
                 <span className="text-base font-normal text-white/60">
                   {payment.currency}
                 </span>
@@ -161,7 +161,7 @@ export default function InvoiceModal({ payment, onClose }: Props) {
           {/* Footer */}
           <div className="text-center text-gray-400 text-[11px] space-y-0.5 pt-1 border-t border-gray-100 pt-4">
             <p>Royal Academy · Muscat, Sultanate of Oman</p>
-            <p>info@royalacademy.om · +968 XXXX XXXX · www.royalacademy.om</p>
+            <p>info@radma.om · +968 XXXX XXXX · www.radma.om</p>
             <p className="text-gray-300 italic pt-1">
               &quot;Thank you for choosing Royal Academy — where excellence
               meets art.&quot;
@@ -175,8 +175,8 @@ export default function InvoiceModal({ payment, onClose }: Props) {
             onClick={handlePrint}
             className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90"
             style={{
-              background: "linear-gradient(135deg,#0a0f2c,#5c2d4a)",
-              color: "#c4a882",
+              background: 'linear-gradient(135deg,#0a0f2c,#5c2d4a)',
+              color: '#c4a882',
             }}
           >
             <Printer size={15} />

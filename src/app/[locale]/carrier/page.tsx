@@ -1,121 +1,121 @@
 const content = {
   en: {
-    label: "Careers",
-    title: "Who Can Work With Us",
+    label: 'Careers',
+    title: 'Who Can Work With Us',
     intro:
-      "Royal Academy brings together exceptional people who share a commitment to excellence in education. We welcome those who meet our standards — regardless of background.",
+      'Royal Academy brings together exceptional people who share a commitment to excellence in education. We welcome those who meet our standards — regardless of background.',
     profiles: [
       {
-        index: "I",
-        title: "Educators & Instructors",
+        index: 'I',
+        title: 'Educators & Instructors',
         description:
-          "Subject-matter experts with proven teaching experience. Whether you come from academia, professional practice, or independent instruction, we value depth of knowledge and the ability to communicate it clearly.",
-        tags: ["Academic", "Professional", "Independent"],
+          'Subject-matter experts with proven teaching experience. Whether you come from academia, professional practice, or independent instruction, we value depth of knowledge and the ability to communicate it clearly.',
+        tags: ['Academic', 'Professional', 'Independent'],
       },
       {
-        index: "II",
-        title: "Curriculum Designers",
+        index: 'II',
+        title: 'Curriculum Designers',
         description:
-          "Specialists who can translate complex knowledge into structured, learner-centered programs. Experience in instructional design, learning outcomes, and assessment frameworks is highly valued.",
-        tags: ["Instructional Design", "Assessment", "Learning Outcomes"],
+          'Specialists who can translate complex knowledge into structured, learner-centered programs. Experience in instructional design, learning outcomes, and assessment frameworks is highly valued.',
+        tags: ['Instructional Design', 'Assessment', 'Learning Outcomes'],
       },
       {
-        index: "III",
-        title: "Education Technology Professionals",
+        index: 'III',
+        title: 'Education Technology Professionals',
         description:
-          "Developers, UX designers, and digital specialists who understand the unique demands of educational platforms. We build tools that serve learners — technical excellence must serve a human purpose.",
-        tags: ["Development", "UX", "EdTech"],
+          'Developers, UX designers, and digital specialists who understand the unique demands of educational platforms. We build tools that serve learners — technical excellence must serve a human purpose.',
+        tags: ['Development', 'UX', 'EdTech'],
       },
       {
-        index: "IV",
-        title: "Administrative & Operations Staff",
+        index: 'IV',
+        title: 'Administrative & Operations Staff',
         description:
-          "Organized, detail-oriented professionals who keep institutions running smoothly. Roles in student services, academic coordination, and institutional operations are central to our mission.",
-        tags: ["Operations", "Student Services", "Coordination"],
+          'Organized, detail-oriented professionals who keep institutions running smoothly. Roles in student services, academic coordination, and institutional operations are central to our mission.',
+        tags: ['Operations', 'Student Services', 'Coordination'],
       },
       {
-        index: "V",
-        title: "Research & Academic Advisors",
+        index: 'V',
+        title: 'Research & Academic Advisors',
         description:
-          "Scholars and practitioners who contribute to the intellectual life of the Academy. We seek those who bring rigorous thinking, a spirit of inquiry, and genuine expertise in their field.",
-        tags: ["Research", "Advisory", "Scholarship"],
+          'Scholars and practitioners who contribute to the intellectual life of the Academy. We seek those who bring rigorous thinking, a spirit of inquiry, and genuine expertise in their field.',
+        tags: ['Research', 'Advisory', 'Scholarship'],
       },
     ],
     requirements: {
-      heading: "What We Look For in Everyone",
+      heading: 'What We Look For in Everyone',
       items: [
-        "A genuine commitment to education and learner success",
-        "Professionalism and integrity in all interactions",
-        "Fluency in Arabic or English (bilingual preferred)",
+        'A genuine commitment to education and learner success',
+        'Professionalism and integrity in all interactions',
+        'Fluency in Arabic or English (bilingual preferred)',
         "Alignment with Royal Academy's values and mission",
-        "Eligibility to work in the Sultanate of Oman",
+        'Eligibility to work in the Sultanate of Oman',
       ],
     },
-    cta: "Ready to join us?",
-    ctaLink: "Apply Now",
-    ctaEmail: "careers@royalacademy.om",
+    cta: 'Ready to join us?',
+    ctaLink: 'Apply Now',
+    ctaEmail: 'careers@radma.om',
   },
   ar: {
-    label: "الوظائف",
-    title: "من يمكنه العمل معنا",
+    label: 'الوظائف',
+    title: 'من يمكنه العمل معنا',
     intro:
-      "تجمع الأكاديمية الملكية نخبة من المتميزين الذين يشتركون في الالتزام بالتميز التعليمي. نرحب بكل من يستوفي معاييرنا — بصرف النظر عن خلفيته.",
+      'تجمع الأكاديمية الملكية نخبة من المتميزين الذين يشتركون في الالتزام بالتميز التعليمي. نرحب بكل من يستوفي معاييرنا — بصرف النظر عن خلفيته.',
     profiles: [
       {
-        index: "١",
-        title: "المعلمون والمدربون",
+        index: '١',
+        title: 'المعلمون والمدربون',
         description:
-          "خبراء متخصصون يمتلكون خبرة تدريسية موثّقة. سواء أتيت من الأوساط الأكاديمية أو الممارسة المهنية أو التعليم المستقل، نُقدّر عمق المعرفة والقدرة على إيصالها بوضوح.",
-        tags: ["أكاديمي", "مهني", "مستقل"],
+          'خبراء متخصصون يمتلكون خبرة تدريسية موثّقة. سواء أتيت من الأوساط الأكاديمية أو الممارسة المهنية أو التعليم المستقل، نُقدّر عمق المعرفة والقدرة على إيصالها بوضوح.',
+        tags: ['أكاديمي', 'مهني', 'مستقل'],
       },
       {
-        index: "٢",
-        title: "مصممو المناهج",
+        index: '٢',
+        title: 'مصممو المناهج',
         description:
-          "متخصصون قادرون على تحويل المعرفة المعقدة إلى برامج منظمة تمحورت حول المتعلم. تُقدَّر الخبرة في التصميم التعليمي ونتائج التعلم وأطر التقييم تقديراً عالياً.",
-        tags: ["التصميم التعليمي", "التقييم", "نتائج التعلم"],
+          'متخصصون قادرون على تحويل المعرفة المعقدة إلى برامج منظمة تمحورت حول المتعلم. تُقدَّر الخبرة في التصميم التعليمي ونتائج التعلم وأطر التقييم تقديراً عالياً.',
+        tags: ['التصميم التعليمي', 'التقييم', 'نتائج التعلم'],
       },
       {
-        index: "٣",
-        title: "متخصصو تكنولوجيا التعليم",
+        index: '٣',
+        title: 'متخصصو تكنولوجيا التعليم',
         description:
-          "مطورون ومصممو تجربة مستخدم ومتخصصون رقميون يفهمون المتطلبات الفريدة للمنصات التعليمية. نبني أدوات تخدم المتعلمين — والتميز التقني يجب أن يخدم غرضاً إنسانياً.",
-        tags: ["التطوير", "تجربة المستخدم", "تقنية التعليم"],
+          'مطورون ومصممو تجربة مستخدم ومتخصصون رقميون يفهمون المتطلبات الفريدة للمنصات التعليمية. نبني أدوات تخدم المتعلمين — والتميز التقني يجب أن يخدم غرضاً إنسانياً.',
+        tags: ['التطوير', 'تجربة المستخدم', 'تقنية التعليم'],
       },
       {
-        index: "٤",
-        title: "الكوادر الإدارية والتشغيلية",
+        index: '٤',
+        title: 'الكوادر الإدارية والتشغيلية',
         description:
-          "محترفون منظمون يتقنون التفاصيل ويُديمون سير المؤسسات بسلاسة. تُشكّل أدوار خدمات الطلاب والتنسيق الأكاديمي والعمليات المؤسسية ركائز أساسية في مهمتنا.",
-        tags: ["العمليات", "خدمات الطلاب", "التنسيق"],
+          'محترفون منظمون يتقنون التفاصيل ويُديمون سير المؤسسات بسلاسة. تُشكّل أدوار خدمات الطلاب والتنسيق الأكاديمي والعمليات المؤسسية ركائز أساسية في مهمتنا.',
+        tags: ['العمليات', 'خدمات الطلاب', 'التنسيق'],
       },
       {
-        index: "٥",
-        title: "الباحثون والمستشارون الأكاديميون",
+        index: '٥',
+        title: 'الباحثون والمستشارون الأكاديميون',
         description:
-          "علماء وممارسون يُسهمون في الحياة الفكرية للأكاديمية. نبحث عمّن يجلب تفكيراً رصيناً وروحاً استقصائية وخبرة حقيقية في مجاله.",
-        tags: ["البحث", "الاستشارة", "الأعمال الأكاديمية"],
+          'علماء وممارسون يُسهمون في الحياة الفكرية للأكاديمية. نبحث عمّن يجلب تفكيراً رصيناً وروحاً استقصائية وخبرة حقيقية في مجاله.',
+        tags: ['البحث', 'الاستشارة', 'الأعمال الأكاديمية'],
       },
     ],
     requirements: {
-      heading: "ما نبحث عنه في الجميع",
+      heading: 'ما نبحث عنه في الجميع',
       items: [
-        "التزام حقيقي بالتعليم ونجاح المتعلم",
-        "الاحترافية والنزاهة في جميع التعاملات",
-        "إتقان اللغة العربية أو الإنجليزية (يُفضَّل الثنائية اللغوية)",
-        "التوافق مع قيم الأكاديمية الملكية ورسالتها",
-        "الأهلية للعمل في سلطنة عُمان",
+        'التزام حقيقي بالتعليم ونجاح المتعلم',
+        'الاحترافية والنزاهة في جميع التعاملات',
+        'إتقان اللغة العربية أو الإنجليزية (يُفضَّل الثنائية اللغوية)',
+        'التوافق مع قيم الأكاديمية الملكية ورسالتها',
+        'الأهلية للعمل في سلطنة عُمان',
       ],
     },
-    cta: "مستعد للانضمام إلينا؟",
-    ctaLink: "قدّم طلبك الآن",
-    ctaEmail: "careers@royalacademy.om",
+    cta: 'مستعد للانضمام إلينا؟',
+    ctaLink: 'قدّم طلبك الآن',
+    ctaEmail: 'careers@radma.om',
   },
 };
 
 export default function CareersWhoPage({ isArabic = false }) {
   const t = isArabic ? content.ar : content.en;
-  const dir = isArabic ? "rtl" : "ltr";
+  const dir = isArabic ? 'rtl' : 'ltr';
 
   return (
     <div

@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { X, Share2, Mail, MessageCircle, Send } from "lucide-react";
-import type { StudentPaymentRecord } from "@/lib/actions/student-payments";
+import { X, Share2, Mail, MessageCircle, Send } from 'lucide-react';
+import type { StudentPaymentRecord } from '@/lib/actions/student-payments';
 
 interface Props {
   payment: StudentPaymentRecord;
@@ -12,21 +12,21 @@ export default function ShareModal({ payment, onClose }: Props) {
   const period = payment.month
     ? `${payment.month} ${payment.year}`
     : payment.eventDate
-      ? new Date(payment.eventDate).toLocaleDateString("en-GB", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
+      ? new Date(payment.eventDate).toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
         })
-      : "";
+      : '';
 
   const text = encodeURIComponent(
     `🎓 Royal Academy — Invoice ${payment.invoiceNo}\n\n` +
       `Class: ${payment.subClassName}\n` +
-      (period ? `Period: ${period}\n` : "") +
+      (period ? `Period: ${period}\n` : '') +
       `Instructor: ${payment.teacherName}\n` +
       `Amount: ${payment.amount} ${payment.currency}\n` +
       `Status: ${payment.status}\n\n` +
-      `Royal Academy · Muscat, Oman\nwww.royalacademy.om`,
+      `Royal Academy · Muscat, Oman\nwww.radma.om`,
   );
 
   const subject = encodeURIComponent(
@@ -35,22 +35,22 @@ export default function ShareModal({ payment, onClose }: Props) {
 
   const options = [
     {
-      label: "Gmail",
+      label: 'Gmail',
       icon: <Mail size={18} />,
-      cls: "from-red-600/25 to-red-800/15 border-red-500/25 text-red-300 hover:border-red-400/40",
+      cls: 'from-red-600/25 to-red-800/15 border-red-500/25 text-red-300 hover:border-red-400/40',
       href: `https://mail.google.com/mail/?view=cm&su=${subject}&body=${text}`,
     },
     {
-      label: "WhatsApp",
+      label: 'WhatsApp',
       icon: <MessageCircle size={18} />,
-      cls: "from-green-600/25 to-green-800/15 border-green-500/25 text-green-300 hover:border-green-400/40",
+      cls: 'from-green-600/25 to-green-800/15 border-green-500/25 text-green-300 hover:border-green-400/40',
       href: `https://wa.me/?text=${text}`,
     },
     {
-      label: "Telegram",
+      label: 'Telegram',
       icon: <Send size={18} />,
-      cls: "from-sky-600/25 to-sky-800/15 border-sky-500/25 text-sky-300 hover:border-sky-400/40",
-      href: `https://t.me/share/url?url=${encodeURIComponent("https://royalacademy.om")}&text=${text}`,
+      cls: 'from-sky-600/25 to-sky-800/15 border-sky-500/25 text-sky-300 hover:border-sky-400/40',
+      href: `https://t.me/share/url?url=${encodeURIComponent('https://radma.om')}&text=${text}`,
     },
   ];
 
@@ -64,10 +64,10 @@ export default function ShareModal({ payment, onClose }: Props) {
         className="relative z-10 w-full max-w-xs rounded-2xl p-6"
         style={{
           background:
-            "linear-gradient(135deg,rgba(255,255,255,0.1) 0%,rgba(255,255,255,0.03) 100%)",
-          backdropFilter: "blur(24px)",
-          border: "1px solid rgba(196,168,130,0.25)",
-          boxShadow: "0 24px 60px rgba(0,0,0,0.5)",
+            'linear-gradient(135deg,rgba(255,255,255,0.1) 0%,rgba(255,255,255,0.03) 100%)',
+          backdropFilter: 'blur(24px)',
+          border: '1px solid rgba(196,168,130,0.25)',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
         }}
       >
         <button
