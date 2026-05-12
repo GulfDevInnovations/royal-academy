@@ -1012,3 +1012,19 @@ model Room {
 
   @@map("rooms")
 }
+
+// ─────────────────────────────────────────────
+// newsletter_subscribes
+// ─────────────────────────────────────────────
+
+model NewsletterSubscriber {
+  id     String @id @default(cuid())
+  email  String @unique
+  source String @default("other")
+
+  status          String   @default("active")
+  subscribedAt    DateTime @default(now())
+  unsubscribedAt  DateTime?
+
+  @@map("newsletter_subscribers")
+}

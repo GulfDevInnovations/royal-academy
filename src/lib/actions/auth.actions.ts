@@ -42,9 +42,15 @@ export async function signUp(formData: FormData) {
   const phone = normalizeOmanPhoneToE164(phoneRaw);
   const locale = getSafeLocale(formData);
 
-  // Check if email already exists
   const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) return { error: 'An account with this email already exists.' };
+  if (existing)
+    return { error: 'An account with this email already exists.', code: 'DUPLICATE_EMAIL' as const };
+
+  if (phone) {
+    const existingPhone = await prisma.user.findUnique({ where: { phone } });
+    if (existingPhone)
+      return { error: 'This phone number is already linked to another account.', code: 'DUPLICATE_PHONE' as const };
+  }
 
   const passwordHash = await bcrypt.hash(password, 12);
 
@@ -52,21 +58,33 @@ export async function signUp(formData: FormData) {
   const verifyToken = crypto.randomBytes(32).toString('hex');
   const verifyTokenExpiry = new Date(Date.now() + 1000 * 60 * 60 * 24); // 24 hours
 
-  const user = await prisma.user.create({
-    data: {
-      email,
-      phone,
-      passwordHash,
-      role: 'STUDENT',
-      isActive: true,
-      isVerified: false,
-      resetToken: verifyToken,
-      resetTokenExpiry: verifyTokenExpiry,
-      studentProfile: {
-        create: { firstName, lastName },
+  let user: { id: string };
+  try {
+    user = await prisma.user.create({
+      data: {
+        email,
+        phone,
+        passwordHash,
+        role: 'STUDENT',
+        isActive: true,
+        isVerified: false,
+        resetToken: verifyToken,
+        resetTokenExpiry: verifyTokenExpiry,
+        studentProfile: {
+          create: { firstName, lastName },
+        },
       },
-    },
-  });
+    });
+  } catch (err: unknown) {
+    if (err && typeof err === 'object' && 'code' in err && err.code === 'P2002') {
+      const target = (err as { meta?: { target?: string[] } }).meta?.target ?? [];
+      if (target.includes('email'))
+        return { error: 'An account with this email already exists.', code: 'DUPLICATE_EMAIL' as const };
+      if (target.includes('phone'))
+        return { error: 'This phone number is already linked to another account.', code: 'DUPLICATE_PHONE' as const };
+    }
+    return { error: 'Something went wrong. Please try again.', code: 'UNKNOWN' as const };
+  }
 
   // Send verification email via Resend
   const verifyUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/verify-email?token=${verifyToken}&userId=${user.id}&locale=${locale}`;
@@ -123,7 +141,7 @@ export async function signIn(formData: FormData) {
   if (!passwordMatch) return { error: 'Invalid email or password.' };
 
   if (!user.isVerified) {
-    return { error: 'Please verify your email before logging in.' };
+    return { error: 'Please verify your email before signing in.', code: 'EMAIL_NOT_VERIFIED' as const };
   }
 
   if (!user.isActive) {

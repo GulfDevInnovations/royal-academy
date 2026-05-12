@@ -93,6 +93,10 @@ const layla = localFont({
   variable: "--font-layla",
 });
 
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
 export const metadata: Metadata = {
   title: "Royal Academy",
   description: "Excellence in Education | التميز في التعليم",
