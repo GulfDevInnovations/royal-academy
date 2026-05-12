@@ -1,46 +1,46 @@
-"use client";
+'use client';
 
-import { Bell, Search, ChevronDown, LogOut, User, Home } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
-import { signOut } from "@/lib/actions/auth.actions";
-import { usePathname, useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { signOut } from '@/lib/actions/auth.actions';
+import { ChevronDown, Home, LogOut, User } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
 interface AdminHeaderProps {
   adminName?: string;
   locale: string;
 }
 
 export default function AdminHeader({
-  adminName = "Admin",
+  adminName = 'Admin',
   locale,
 }: AdminHeaderProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const t = useTranslations("admin");
+  const t = useTranslations('admin');
   const router = useRouter();
   const pathname = usePathname();
-  const isArabic = locale === "ar";
-  const [active, setActive] = useState<"en" | "ar">(isArabic ? "ar" : "en");
+  const isArabic = locale === 'ar';
+  const [active, setActive] = useState<'en' | 'ar'>(isArabic ? 'ar' : 'en');
 
   const switchLanguage = () => {
-    const newLocale = isArabic ? "en" : "ar";
-    const pathWithoutLocale = pathname.replace(`/${locale}`, "") || "/";
+    const newLocale = isArabic ? 'en' : 'ar';
+    const pathWithoutLocale = pathname.replace(`/${locale}`, '') || '/';
     router.push(`/${newLocale}${pathWithoutLocale}`);
   };
 
   const activeStyle = {
-    background: "rgba(251,191,36,0.15)",
-    color: "#fbbf24",
-    border: "0.5px solid rgba(251,191,36,0.35)",
+    background: 'rgba(251,191,36,0.15)',
+    color: '#fbbf24',
+    border: '0.5px solid rgba(251,191,36,0.35)',
   } as const;
 
   const inactiveStyle = {
-    background: "transparent",
-    color: "rgba(255,255,255,0.45)",
-    border: "0.5px solid transparent",
+    background: 'transparent',
+    color: 'rgba(255,255,255,0.45)',
+    border: '0.5px solid transparent',
   } as const;
 
-  const handleSelect = (lang: "en" | "ar") => {
+  const handleSelect = (lang: 'en' | 'ar') => {
     setActive(lang);
     switchLanguage(); // your existing function
   };
@@ -48,17 +48,17 @@ export default function AdminHeader({
   return (
     <header
       className="h-14 flex items-center justify-between px-6 shrink-0 border-b border-white/6"
-      style={{ background: "#13161f" }}
+      style={{ background: '#13161f' }}
     >
       {/* ── Search ── */}
-      <div className="relative w-64">
+      {/* <div className="relative w-64">
         <Search
           className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5"
-          style={{ color: "rgba(255,255,255,0.2)" }}
+          style={{ color: 'rgba(255,255,255,0.2)' }}
         />
         <input
           type="text"
-          placeholder={t("search")}
+          placeholder={t('search')}
           className="
             w-full pl-9 pr-4 py-1.5 text-sm rounded-lg
             border border-white/[0.07] bg-white/4
@@ -67,19 +67,19 @@ export default function AdminHeader({
             transition-all duration-150
           "
         />
-      </div>
+      </div> */}
       {/* Language switcher */}
       <div
         className="flex items-center gap-1 p-1 rounded-xl"
         style={{
-          background: "rgba(255,255,255,0.06)",
-          border: "0.5px solid rgba(255,255,255,0.1)",
+          background: 'rgba(255,255,255,0.06)',
+          border: '0.5px solid rgba(255,255,255,0.1)',
         }}
       >
         <button
-          onClick={() => handleSelect("en")}
+          onClick={() => handleSelect('en')}
           className="flex items-center gap-2 px-4 py-2 rounded-[9px] text-sm font-medium transition-all duration-200"
-          style={active === "en" ? activeStyle : inactiveStyle}
+          style={active === 'en' ? activeStyle : inactiveStyle}
         >
           <svg
             width="20"
@@ -101,9 +101,9 @@ export default function AdminHeader({
         </button>
 
         <button
-          onClick={() => handleSelect("ar")}
+          onClick={() => handleSelect('ar')}
           className="flex items-center gap-2 px-4 py-2 rounded-[9px] text-sm font-medium transition-all duration-200"
-          style={active === "ar" ? activeStyle : inactiveStyle}
+          style={active === 'ar' ? activeStyle : inactiveStyle}
         >
           <svg
             width="20"
@@ -131,13 +131,13 @@ export default function AdminHeader({
         </Link>
 
         {/* Notifications */}
-        <button className="relative p-2 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors">
+        {/* <button className="relative p-2 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors">
           <Bell size={16} />
           <span
             className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full"
             style={{ background: "#f59e0b" }}
           />
-        </button>
+        </button> */}
 
         {/* User menu */}
         <div className="relative">
@@ -149,7 +149,7 @@ export default function AdminHeader({
             <div
               className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0"
               style={{
-                background: "linear-gradient(135deg, #f59e0b, #d97706)",
+                background: 'linear-gradient(135deg, #f59e0b, #d97706)',
               }}
             >
               {adminName.charAt(0).toUpperCase()}
@@ -169,11 +169,11 @@ export default function AdminHeader({
               />
               <div
                 className="absolute right-0 top-full mt-1 w-44 rounded-xl z-20 py-1 overflow-hidden shadow-2xl border border-white/[0.08]"
-                style={{ background: "#1a1d27" }}
+                style={{ background: '#1a1d27' }}
               >
                 <button className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-white/50 hover:text-white/80 hover:bg-white/[0.05] transition-colors">
                   <User size={14} className="text-white/30" />
-                  {t("profile")}
+                  {t('profile')}
                 </button>
                 <div className="my-1 border-t border-white/[0.06]" />
                 {/* Server action — needs a form to pass locale */}
@@ -182,22 +182,22 @@ export default function AdminHeader({
                   <button
                     type="submit"
                     className="w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors"
-                    style={{ color: "rgba(251,191,36,0.7)" }}
+                    style={{ color: 'rgba(251,191,36,0.7)' }}
                     onMouseEnter={(e) => {
                       (e.currentTarget as HTMLButtonElement).style.background =
-                        "rgba(245,158,11,0.08)";
+                        'rgba(245,158,11,0.08)';
                       (e.currentTarget as HTMLButtonElement).style.color =
-                        "rgba(251,191,36,1)";
+                        'rgba(251,191,36,1)';
                     }}
                     onMouseLeave={(e) => {
                       (e.currentTarget as HTMLButtonElement).style.background =
-                        "transparent";
+                        'transparent';
                       (e.currentTarget as HTMLButtonElement).style.color =
-                        "rgba(251,158,11,0.7)";
+                        'rgba(251,158,11,0.7)';
                     }}
                   >
                     <LogOut size={14} />
-                    {t("signOut")}
+                    {t('signOut')}
                   </button>
                 </form>
               </div>

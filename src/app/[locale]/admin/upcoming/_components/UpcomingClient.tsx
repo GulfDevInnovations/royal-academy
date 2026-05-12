@@ -40,6 +40,7 @@ import {
 } from "@/lib/actions/admin/content.actions";
 import { toggleWorkshopActive } from "@/lib/actions/admin/Workshops.actions";
 import ContentFormModal from "./ContentFormModal";
+import type { ClassWithSubClasses } from "../../offers/_components/OffersClient";
 import { useTranslations } from "next-intl";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -90,8 +91,10 @@ const STATUS_VARIANT: Record<
 
 export default function UpcomingClient({
   initialItems,
+  classes = [],
 }: {
   initialItems: SerializedUpcoming[];
+  classes?: ClassWithSubClasses[];
 }) {
   const [items, setItems] = useState(initialItems);
   const [modal, setModal] = useState<Modal | null>(null);
@@ -563,6 +566,7 @@ export default function UpcomingClient({
         <ContentFormModal
           kind="upcoming"
           data={modal.type === "edit" ? modal.data : null}
+          classes={classes}
           onSuccess={handleSuccess}
           onClose={() => setModal(null)}
         />

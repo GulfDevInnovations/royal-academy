@@ -1,6 +1,7 @@
 'use client';
 
 import NotificationBell from '@/components/NotificationBell';
+import { useNewsletterForm } from '@/context/useNewsletterForm';
 import { signOut } from '@/lib/actions/auth.actions';
 import {
   getMyNotifications,
@@ -77,7 +78,7 @@ function buildNav(locale: string, navClasses: NavClass[]): NavItem[] {
       id: `sub-${sub.id}`,
       labelEn: sub.name,
       labelAr: sub.name_ar ?? sub.name,
-      href: classHref,
+      href: `/${locale}/enrollment/${sub.id}`,
     }));
     return subItems.length > 0
       ? {
@@ -128,12 +129,6 @@ function buildNav(locale: string, navClasses: NavClass[]): NavItem[] {
       labelEn: 'Gallery',
       labelAr: 'المعرض',
       href: `/${locale}/gallery`,
-    },
-    {
-      id: 'our-bg',
-      labelEn: 'Our Background',
-      labelAr: 'خلفيتنا',
-      href: `/${locale}/about`,
     },
     {
       id: 'contact-us',
@@ -188,7 +183,7 @@ function buildBreadcrumbs(
     if (segments[1]) {
       const slug = segments[1];
       const cls = navClasses.find((c) => toSlug(c.name) === slug);
-      const name = cls ? (isAr ? cls.name_ar ?? cls.name : cls.name) : slug;
+      const name = cls ? (isAr ? (cls.name_ar ?? cls.name) : cls.name) : slug;
       crumbs.push({ label: name, href: pathname });
     }
   } else if (pageLabels[page]) {
@@ -208,6 +203,9 @@ const CONTACT_W = 380;
 const USER_W = 260;
 const BELL_W = 340;
 
+// ─── Mobile top bar height ────────────────────────────────────────────────────
+export const MOBILE_TOPBAR_H = 56;
+
 // ─── Notifications type ───────────────────────────────────────────────────────
 
 interface AppNotification {
@@ -220,33 +218,31 @@ interface AppNotification {
   createdAt: Date | string;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ─── useIsMobile ──────────────────────────────────────────────────────────────
+// Uses matchMedia so DevTools "Toggle Device Toolbar" is detected correctly.
+// window.innerWidth + resize events do NOT fire in that mode.
 
-export default function SidebarNav({
-  sessionUser = null,
-  navClasses = [],
-}: SidebarNavProps) {
-  const params = useParams();
-  const router = useRouter();
-  const pathname = usePathname();
-  const locale = (params?.locale as string) ?? 'en';
-  const isAr = locale === 'ar';
+function useIsMobile(breakpoint = 768) {
+  // matchMedia mirrors exactly what CSS media queries use, so DevTools
+  // device emulation triggers re-renders — unlike 'resize' events which
+  // DevTools emulation does not reliably dispatch.
+  const query = `(max-width: ${breakpoint - 1}px)`;
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
+  useEffect(() => {
+    const mql = window.matchMedia(query);
+    setIsMobile(mql.matches); // sync in case viewport changed before mount
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, [query]);
+  return isMobile;
+}
 
-  const NAV_ITEMS = buildNav(locale, navClasses);
+// ─── Shared notification fetching hook ────────────────────────────────────────
 
-  // Drawer open states
-  const [d1Open, setD1Open] = useState(false);
-  const [activeL1, setActiveL1] = useState<string | null>(null);
-  const [activeL2, setActiveL2] = useState<string | null>(null);
-  const [contactOpen, setContactOpen] = useState(false);
-  const [userPanelOpen, setUserPanelOpen] = useState(false);
-  const [bellOpen, setBellOpen] = useState(false);
-
-  // ── Notifications ────────────────────────────────────────────────────────
-
+function useNotifications(sessionUser: SessionUser | null) {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [notifLoading, setNotifLoading] = useState(false);
-  const [notifQuery, setNotifQuery] = useState('');
   const [, startNotifTransition] = useTransition();
 
   const fetchNotifications = useCallback(async () => {
@@ -269,10 +265,6 @@ export default function SidebarNav({
     window.addEventListener('notification:new', handler);
     return () => window.removeEventListener('notification:new', handler);
   }, [fetchNotifications]);
-
-  useEffect(() => {
-    if (!bellOpen) setNotifQuery('');
-  }, [bellOpen]);
 
   const unreadCount = notifications.filter((n) => !n.readAt).length;
 
@@ -297,6 +289,130 @@ export default function SidebarNav({
         prev.map((n) => ({ ...n, readAt: new Date().toISOString() })),
       );
     });
+  };
+
+  return {
+    notifications,
+    notifLoading,
+    unreadCount,
+    handleNotifClick,
+    handleMarkAllRead,
+  };
+}
+
+// ─── Mobile SidebarNav ────────────────────────────────────────────────────────
+
+type MobileDrawer = 'none' | 'l1' | 'l2' | 'l3' | 'contact' | 'user' | 'bell';
+
+function MobileSidebarNav({
+  sessionUser = null,
+  navClasses = [],
+}: SidebarNavProps) {
+  const params = useParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = (params?.locale as string) ?? 'en';
+  const isAr = locale === 'ar';
+
+  const NAV_ITEMS = buildNav(locale, navClasses);
+
+  const [drawer, setDrawer] = useState<MobileDrawer>('none');
+  const [activeL1, setActiveL1] = useState<NavItem | null>(null);
+  const [activeL2, setActiveL2] = useState<NavItem | null>(null);
+  // Track slide direction: 'down' = enters from top, 'up' = exits to top
+  const [slideDir, setSlideDir] = useState<'down' | 'up'>('down');
+  const [notifQuery, setNotifQuery] = useState('');
+
+  const isOpen = drawer !== 'none';
+  const isLoggedIn = !!sessionUser;
+  const isAdmin = sessionUser?.role === 'ADMIN';
+  const avatarSrc = sessionUser?.image ?? '/images/user.png';
+  const isExternalAvatar = avatarSrc.startsWith('http');
+  const userDisplayName = sessionUser?.name ?? (isAr ? 'المستخدم' : 'User');
+  const loginHref = `/${locale}/login?redirectTo=${encodeURIComponent(pathname ?? '/')}`;
+
+  const {
+    notifications,
+    notifLoading,
+    unreadCount,
+    handleNotifClick,
+    handleMarkAllRead,
+  } = useNotifications(sessionUser);
+
+  const { email, setEmail, state, errorMsg, handleSubmit } =
+    useNewsletterForm('sidebar');
+
+  // Close on outside tap via overlay
+  const closeAll = () => {
+    setDrawer('none');
+    setActiveL1(null);
+    setActiveL2(null);
+    setNotifQuery('');
+  };
+
+  const switchLocale = () => {
+    const target = isAr ? 'en' : 'ar';
+    router.push(window.location.pathname.replace(`/${locale}`, `/${target}`));
+  };
+
+  const lbl = (item: NavItem) => (isAr ? item.labelAr : item.labelEn);
+
+  // Navigate deeper: L1 → L2
+  const openL1 = () => {
+    setSlideDir('down');
+    setDrawer('l1');
+    setActiveL1(null);
+    setActiveL2(null);
+  };
+
+  const handleBurger = () => {
+    if (isOpen) {
+      closeAll();
+    } else {
+      openL1();
+    }
+  };
+
+  const handleL1Click = (item: NavItem) => {
+    if (item.isContact) {
+      setSlideDir('down');
+      setDrawer('contact');
+      setActiveL1(null);
+    } else if (item.children) {
+      // L1 slides up, L2 comes down
+      setActiveL1(item);
+      setSlideDir('down');
+      setDrawer('l2');
+    } else if (item.href) {
+      router.push(item.href);
+      closeAll();
+    }
+  };
+
+  const handleL2Click = (item: NavItem) => {
+    if (item.children) {
+      setActiveL2(item);
+      setSlideDir('down');
+      setDrawer('l3');
+    } else if (item.href) {
+      router.push(item.href);
+      closeAll();
+    }
+  };
+
+  const handleBack = () => {
+    setSlideDir('up');
+    if (drawer === 'l2') {
+      setActiveL1(null);
+      setDrawer('l1');
+    } else if (drawer === 'l3') {
+      setActiveL2(null);
+      setDrawer('l2');
+    } else if (drawer === 'contact') {
+      setDrawer('l1');
+    } else {
+      closeAll();
+    }
   };
 
   const filteredNotifs = (() => {
@@ -331,22 +447,1245 @@ export default function SidebarNav({
       : `${Math.floor(diff / 86400)}d ago`;
   }
 
-  // ── Misc state ───────────────────────────────────────────────────────────
+  const userLinks = [
+    {
+      href: `/${locale}/profile-setting`,
+      label: isAr ? 'الملف الشخصي' : 'Profile Settings',
+      icon: faUser,
+    },
+    {
+      href: `/${locale}/my-classes`,
+      label: isAr ? 'دروسي' : 'My Classes',
+      icon: faBookOpen,
+    },
+    {
+      href: `/${locale}/payments`,
+      label: isAr ? 'المدفوعات' : 'Payments',
+      icon: faCreditCard,
+    },
+  ];
+  if (isAdmin) {
+    userLinks.unshift({
+      href: `/${locale}/admin`,
+      label: isAr ? 'لوحة التحكم' : 'Admin Panel',
+      icon: faPalette,
+    });
+  }
+
+  const socials = [
+    {
+      label: isAr ? 'اتصل بنا' : 'Call Us',
+      href: 'tel:+96893276767',
+      icon: faPhone,
+    },
+    {
+      label: isAr ? 'واتساب' : 'WhatsApp',
+      href: 'https://wa.me/96893276767',
+      icon: faWhatsapp,
+    },
+    {
+      label: isAr ? 'اینستاکرام' : 'Instagram',
+      href: 'https://www.instagram.com/royal_academy_mct?igsh=MXhxdXI5OXEwbnc1ZA%3D%3D&utm_source=qr',
+      icon: faInstagram,
+    },
+    {
+      label: 'YouTube',
+      href: 'https://www.youtube.com/channel/UCBltWo91oBYJkW9k4r9iZCg',
+      icon: faYoutube,
+    },
+    {
+      label: 'LinkedIn',
+      href: 'https://www.linkedin.com/in/royal-academy-4729aa3a9',
+      icon: faLinkedinIn,
+    },
+    {
+      label: 'TikTok',
+      href: 'https://www.tiktok.com/@royalacademymct?is_from_webapp=1&sender_device=pc',
+      icon: faTiktok,
+    },
+  ];
+
+  const contactContent = isAr
+    ? {
+        title: 'تواصل معنا',
+        subtitle: 'يمكنك التواصل مع الأكاديمية عبر الأرقام والمنصات التالية.',
+        phone1: 'استفسارات الإنجليزية وواتساب',
+        phone2: 'استفسارات العربية',
+        landline: 'الهاتف الأرضي',
+        platforms: 'المنصات',
+        address: 'شارع 18 نوفمبر، مسقط',
+      }
+    : {
+        title: 'Contact Us',
+        subtitle:
+          'Reach Royal Academy through the following contact numbers and platforms.',
+        phone1: 'English Inquiries & WhatsApp',
+        phone2: 'Arabic Inquiries',
+        landline: 'Landline',
+        platforms: 'Platforms',
+        address: '18th November St, Muscat',
+      };
+
+  const contactPhones = [
+    {
+      label: contactContent.phone1,
+      value: '+968 9327 6767',
+      href: 'tel:+96893276767',
+    },
+    {
+      label: contactContent.phone2,
+      value: '+968 9886 2343',
+      href: 'tel:+96898862343',
+    },
+    {
+      label: contactContent.landline,
+      value: '+968 2449 7033',
+      href: 'tel:+96824497033',
+    },
+  ];
+
+  const contactPlatforms = [
+    {
+      label: isAr ? 'واتساب' : 'WhatsApp',
+      href: 'https://wa.me/96893276767',
+      icon: faWhatsapp,
+    },
+    {
+      label: isAr ? 'اینستاکرام' : 'Instagram',
+      href: 'https://www.instagram.com/royal_academy_mct?igsh=MXhxdXI5OXEwbnc1ZA%3D%3D&utm_source=qr',
+      icon: faInstagram,
+    },
+    {
+      label: 'YouTube',
+      href: 'https://www.youtube.com/channel/UCBltWo91oBYJkW9k4r9iZCg',
+      icon: faYoutube,
+    },
+    {
+      label: 'LinkedIn',
+      href: 'https://www.linkedin.com/in/royal-academy-4729aa3a9',
+      icon: faLinkedinIn,
+    },
+    {
+      label: 'TikTok',
+      href: 'https://www.tiktok.com/@royalacademymct?is_from_webapp=1&sender_device=pc',
+      icon: faTiktok,
+    },
+  ];
+
+  // Which drawers are visible
+  const showL1 = drawer === 'l1';
+  const showL2 = drawer === 'l2';
+  const showL3 = drawer === 'l3';
+  const showContact = drawer === 'contact';
+  const showUser = drawer === 'user';
+  const showBell = drawer === 'bell';
+
+  // Animation: entering drawers always slide down from top.
+  // When going "back", the leaving drawer slides up (translateY(-100%)) and
+  // the entering one also comes from top.
+  // We use CSS transitions with a key trick: whenever the drawer changes,
+  // the new panel re-mounts with opacity 0 / translateY(-100%) then transitions in.
+
+  const drawerStyle = (visible: boolean): React.CSSProperties => ({
+    position: 'fixed',
+    top: MOBILE_TOPBAR_H,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 350,
+    overflowY: 'auto',
+    transform: visible ? 'translateY(0)' : 'translateY(-100%)',
+    opacity: visible ? 1 : 0,
+    transition: 'transform 0.38s cubic-bezier(.4,0,.2,1), opacity 0.28s ease',
+    visibility: visible ? 'visible' : 'hidden',
+    pointerEvents: visible ? 'auto' : 'none',
+  });
+
+  const fontFamily = isAr
+    ? "'Layla','Noto Naskh Arabic',serif"
+    : "'Goudy Old Style','GoudyOlSt-BT',Georgia,serif";
+
+  const mobileItemStyle = (active = false): React.CSSProperties => ({
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    padding: '18px 24px',
+    background: active ? 'rgba(0,0,0,.06)' : 'transparent',
+    border: 'none',
+    borderBottom: '.5px solid rgba(0,0,0,.07)',
+    cursor: 'pointer',
+    textAlign: isAr ? 'right' : 'left',
+    color: '#592c41',
+    fontSize: 22,
+    fontFamily,
+    letterSpacing: '.02em',
+    direction: isAr ? 'rtl' : 'ltr',
+  });
+
+  // Back button label
+  const backLabel = isAr ? '← رجوع' : '← Back';
+
+  return (
+    <div
+      style={{
+        fontFamily,
+        direction: isAr ? 'rtl' : 'ltr',
+      }}
+    >
+      <style>{`
+        @keyframes mob-fade-in { from { opacity: 0; } to { opacity: 1; } }
+      `}</style>
+
+      {/* ── TOP BAR ────────────────────────────────────────────────────── */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: MOBILE_TOPBAR_H,
+          zIndex: 400,
+          background: '#ffffff',
+          boxShadow: '0 2px 12px rgba(0,0,0,.08)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 8px',
+        }}
+      >
+        {/* Logo (left) */}
+        <Link
+          href={`/${locale}`}
+          onClick={closeAll}
+          style={{ flexShrink: 0, padding: '0 4px' }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/logo/logo-black.png"
+            alt="Royal Academy"
+            style={{
+              width: 40,
+              height: 40,
+              objectFit: 'contain',
+              display: 'block',
+            }}
+          />
+        </Link>
+
+        {/* Right icons */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {/* Language toggle */}
+          <button
+            onClick={switchLocale}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: 40,
+              padding: '0 8px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 700,
+              letterSpacing: '.08em',
+              color: '#777',
+              fontFamily,
+            }}
+          >
+            {isAr ? 'EN' : 'عربی'}
+          </button>
+
+          {/* Notification Bell */}
+          {isLoggedIn ? (
+            <NotificationBell
+              unread={unreadCount}
+              open={showBell}
+              onToggle={(v) => {
+                setDrawer(v ? 'bell' : 'none');
+                setNotifQuery('');
+              }}
+            />
+          ) : (
+            <button
+              disabled
+              aria-label="Notifications"
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'not-allowed',
+                padding: 6,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="rgba(0,0,0,.22)"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+            </button>
+          )}
+
+          {/* User / Sign up */}
+          {!isLoggedIn ? (
+            <Link
+              href={loginHref}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 40,
+                height: 40,
+                textDecoration: 'none',
+              }}
+            >
+              <FontAwesomeIcon
+                icon={faUser}
+                style={{ fontSize: 20, color: '#1a1a1a' }}
+              />
+            </Link>
+          ) : (
+            <button
+              onClick={() => setDrawer(showUser ? 'none' : 'user')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 40,
+                height: 40,
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+              }}
+            >
+              <FontAwesomeIcon
+                icon={faUser}
+                style={{ fontSize: 20, color: showUser ? '#555' : '#1a1a1a' }}
+              />
+            </button>
+          )}
+
+          {/* Burger / Close */}
+          <button
+            onClick={handleBurger}
+            aria-label="Toggle menu"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 40,
+              height: 40,
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+            }}
+          >
+            <MobileBurgerIcon
+              open={isOpen && (showL1 || showL2 || showL3 || showContact)}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* ── OVERLAY (dims page behind drawers) ─────────────────────────── */}
+      {isOpen && (
+        <div
+          onClick={closeAll}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            top: MOBILE_TOPBAR_H,
+            zIndex: 340,
+            background: 'rgba(0,0,0,.18)',
+            animation: 'mob-fade-in .2s ease',
+          }}
+        />
+      )}
+
+      {/* ── L1 DRAWER ──────────────────────────────────────────────────── */}
+      <div style={{ ...drawerStyle(showL1), background: '#f5f5f5' }}>
+        <nav style={{ padding: '8px 0 16px' }}>
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleL1Click(item)}
+              style={mobileItemStyle()}
+            >
+              {lbl(item)}
+            </button>
+          ))}
+        </nav>
+
+        {/* Newsletter + socials footer */}
+        <div
+          style={{
+            padding: '20px 24px 32px',
+            borderTop: '.5px solid rgba(0,0,0,.12)',
+          }}
+        >
+          <MobileNewsletter
+            isAr={isAr}
+            email={email}
+            setEmail={setEmail}
+            state={state}
+            errorMsg={errorMsg}
+            handleSubmit={handleSubmit}
+            fontFamily={fontFamily}
+          />
+          <div
+            style={{
+              display: 'flex',
+              gap: 16,
+              flexWrap: 'wrap',
+              marginTop: 18,
+            }}
+          >
+            {socials.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={s.label}
+                style={{ color: '#777', fontSize: 22, textDecoration: 'none' }}
+              >
+                <FontAwesomeIcon icon={s.icon} />
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── L2 DRAWER ──────────────────────────────────────────────────── */}
+      <div style={{ ...drawerStyle(showL2), background: '#e8e8e8' }}>
+        <button onClick={handleBack} style={backBtnStyle(fontFamily, isAr)}>
+          {backLabel}
+        </button>
+        {activeL1 && (
+          <div
+            style={{
+              padding: '6px 24px 10px',
+              fontSize: 11,
+              letterSpacing: '.18em',
+              textTransform: 'uppercase',
+              color: '#999',
+              fontFamily,
+            }}
+          >
+            {lbl(activeL1)}
+          </div>
+        )}
+        <nav style={{ paddingBottom: 32 }}>
+          {(activeL1?.children ?? []).map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleL2Click(item)}
+              style={{ ...mobileItemStyle(), color: '#1a1a1a' }}
+            >
+              {lbl(item)}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {/* ── L3 DRAWER ──────────────────────────────────────────────────── */}
+      <div style={{ ...drawerStyle(showL3), background: '#d5d5d5' }}>
+        <button onClick={handleBack} style={backBtnStyle(fontFamily, isAr)}>
+          {backLabel}
+        </button>
+        {activeL2 && (
+          <div
+            style={{
+              padding: '6px 24px 10px',
+              fontSize: 11,
+              letterSpacing: '.18em',
+              textTransform: 'uppercase',
+              color: '#999',
+              fontFamily,
+            }}
+          >
+            {lbl(activeL2)}
+          </div>
+        )}
+        <nav style={{ paddingBottom: 32 }}>
+          {(activeL2?.children ?? []).map((item) => (
+            <button
+              key={item.id}
+              onClick={() => {
+                if (item.href) {
+                  router.push(item.href);
+                  closeAll();
+                }
+              }}
+              style={{ ...mobileItemStyle(), color: '#1a1a1a', fontSize: 20 }}
+            >
+              {lbl(item)}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {/* ── CONTACT DRAWER ─────────────────────────────────────────────── */}
+      <div style={{ ...drawerStyle(showContact), background: '#e8e8e8' }}>
+        <button onClick={handleBack} style={backBtnStyle(fontFamily, isAr)}>
+          {backLabel}
+        </button>
+        <div style={{ padding: '8px 28px 40px', fontFamily }}>
+          <p style={{ margin: '0 0 6px', fontSize: 20, color: '#1a1a1a' }}>
+            {contactContent.title}
+          </p>
+          <p
+            style={{
+              margin: '0 0 24px',
+              fontSize: 13,
+              color: '#777',
+              lineHeight: 1.6,
+            }}
+          >
+            {contactContent.subtitle}
+          </p>
+
+          <div style={{ marginBottom: 26 }}>
+            {contactPhones.map((p) => (
+              <a
+                key={p.href}
+                href={p.href}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: '12px 0',
+                  borderBottom: '.5px solid rgba(0,0,0,.1)',
+                  textDecoration: 'none',
+                  gap: 4,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 10,
+                    color: '#777',
+                    letterSpacing: '.12em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {p.label}
+                </span>
+                <span
+                  style={{
+                    fontSize: 16,
+                    color: '#1a1a1a',
+                    fontFamily: 'monospace',
+                    letterSpacing: '.06em',
+                  }}
+                >
+                  {p.value}
+                </span>
+              </a>
+            ))}
+          </div>
+
+          <p
+            style={{
+              margin: '0 0 14px',
+              fontSize: 10,
+              color: '#777',
+              letterSpacing: '.18em',
+              textTransform: 'uppercase',
+            }}
+          >
+            {contactContent.platforms}
+          </p>
+          <div
+            style={{
+              display: 'flex',
+              gap: 18,
+              flexWrap: 'wrap',
+              marginBottom: 32,
+            }}
+          >
+            {contactPlatforms.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#777', fontSize: 24, textDecoration: 'none' }}
+              >
+                <FontAwesomeIcon icon={s.icon} />
+              </a>
+            ))}
+          </div>
+
+          <p
+            style={{
+              margin: '0 0 10px',
+              fontSize: 10,
+              color: '#777',
+              letterSpacing: '.18em',
+              textTransform: 'uppercase',
+            }}
+          >
+            {isAr ? 'الموقع' : 'Location'}
+          </p>
+          <p style={{ margin: '0 0 14px', fontSize: 13, color: '#333' }}>
+            {contactContent.address}
+          </p>
+        </div>
+      </div>
+
+      {/* ── USER PANEL ─────────────────────────────────────────────────── */}
+      {isLoggedIn && (
+        <div style={{ ...drawerStyle(showUser), background: '#f5f5f5' }}>
+          {/* Header */}
+          <div
+            style={{
+              padding: '20px 24px 16px',
+              borderBottom: '.5px solid rgba(0,0,0,.12)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              fontFamily,
+            }}
+          >
+            <span
+              style={{
+                position: 'relative',
+                display: 'block',
+                width: 44,
+                height: 44,
+                borderRadius: '50%',
+                overflow: 'hidden',
+                flexShrink: 0,
+                border: '2px solid rgba(0,0,0,.18)',
+              }}
+            >
+              <Image
+                src={avatarSrc}
+                alt="User"
+                fill
+                sizes="44px"
+                style={{ objectFit: 'contain', opacity: 0.9 }}
+                unoptimized={isExternalAvatar}
+              />
+            </span>
+            <span style={{ fontSize: 17, color: '#333', lineHeight: 1.4 }}>
+              {isAr ? `مرحباً ${userDisplayName}` : `Hi, ${userDisplayName}`}
+            </span>
+          </div>
+
+          <nav style={{ paddingBottom: 24 }}>
+            {userLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={closeAll}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 14,
+                  padding: '16px 24px',
+                  textDecoration: 'none',
+                  color: '#1a1a1a',
+                  fontSize: 20,
+                  fontFamily,
+                  borderBottom: '.5px solid rgba(0,0,0,.07)',
+                  direction: isAr ? 'rtl' : 'ltr',
+                }}
+              >
+                <span
+                  style={{
+                    width: 18,
+                    textAlign: 'center',
+                    color: '#777',
+                    flexShrink: 0,
+                  }}
+                >
+                  <FontAwesomeIcon icon={link.icon} />
+                </span>
+                {link.label}
+              </Link>
+            ))}
+
+            <form action={signOut}>
+              <input type="hidden" name="locale" value={locale} />
+              <button
+                type="submit"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 14,
+                  padding: '16px 24px',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: '.5px solid rgba(0,0,0,.07)',
+                  cursor: 'pointer',
+                  color: '#1a1a1a',
+                  fontSize: 20,
+                  width: '100%',
+                  textAlign: isAr ? 'right' : 'left',
+                  fontFamily,
+                  direction: isAr ? 'rtl' : 'ltr',
+                }}
+              >
+                <span
+                  style={{
+                    width: 18,
+                    textAlign: 'center',
+                    color: '#777',
+                    flexShrink: 0,
+                  }}
+                >
+                  <FontAwesomeIcon icon={faPowerOff} />
+                </span>
+                {isAr ? 'تسجيل الخروج' : 'Sign Out'}
+              </button>
+            </form>
+          </nav>
+        </div>
+      )}
+
+      {/* ── NOTIFICATIONS PANEL ────────────────────────────────────────── */}
+      {isLoggedIn && (
+        <div style={{ ...drawerStyle(showBell), background: '#f5f5f5' }}>
+          {/* Header */}
+          <div
+            style={{
+              padding: '16px 24px',
+              borderBottom: '.5px solid rgba(0,0,0,.12)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontFamily,
+            }}
+          >
+            <span style={{ fontSize: 18, color: '#1a1a1a' }}>
+              {isAr ? 'الإشعارات' : 'Notifications'}
+            </span>
+            {unreadCount > 0 && (
+              <button
+                onClick={handleMarkAllRead}
+                style={{
+                  fontSize: 11,
+                  color: '#592c41',
+                  textTransform: 'uppercase',
+                  letterSpacing: '.12em',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontFamily,
+                }}
+              >
+                {isAr ? 'قراءة الكل' : 'Mark all read'}
+              </button>
+            )}
+          </div>
+
+          {/* Search */}
+          <div
+            style={{
+              padding: '10px 16px',
+              borderBottom: '.5px solid rgba(0,0,0,.08)',
+            }}
+          >
+            <div style={{ position: 'relative' }}>
+              <svg
+                style={{
+                  position: 'absolute',
+                  left: 10,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#aaa',
+                  pointerEvents: 'none',
+                }}
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                type="text"
+                value={notifQuery}
+                onChange={(e) => setNotifQuery(e.target.value)}
+                placeholder={
+                  isAr ? 'ابحث في الإشعارات...' : 'Search notifications...'
+                }
+                style={{
+                  width: '100%',
+                  paddingLeft: 30,
+                  paddingRight: notifQuery ? 28 : 12,
+                  paddingTop: 9,
+                  paddingBottom: 9,
+                  borderRadius: 8,
+                  border: '1px solid rgba(0,0,0,.12)',
+                  background: '#fff',
+                  fontSize: 14,
+                  color: '#1a1a1a',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  fontFamily,
+                }}
+              />
+              {notifQuery && (
+                <button
+                  onClick={() => setNotifQuery('')}
+                  style={{
+                    position: 'absolute',
+                    right: 8,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#999',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: 0,
+                  }}
+                >
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* List */}
+          <div style={{ overflowY: 'auto', flex: 1 }}>
+            {notifLoading && (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  padding: '48px 0',
+                }}
+              >
+                <div
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: '50%',
+                    border: '2px solid rgba(89,44,65,.15)',
+                    borderTopColor: '#592c41',
+                    animation: 'nb-spin .7s linear infinite',
+                  }}
+                />
+              </div>
+            )}
+            {!notifLoading && filteredNotifs.length === 0 && (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  padding: '56px 24px',
+                  gap: 10,
+                  color: '#bbb',
+                  fontFamily,
+                }}
+              >
+                <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                >
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
+                <span style={{ fontSize: 14 }}>
+                  {notifQuery
+                    ? isAr
+                      ? 'لا توجد نتائج'
+                      : 'No results'
+                    : isAr
+                      ? 'لا توجد إشعارات'
+                      : 'No notifications yet'}
+                </span>
+              </div>
+            )}
+            {!notifLoading &&
+              filteredNotifs.map((n) => {
+                const isUnread = !n.readAt;
+                const hasLink = !!n.linkUrl;
+                return (
+                  <button
+                    key={n.id}
+                    onClick={() => handleNotifClick(n)}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      textAlign: isAr ? 'right' : 'left',
+                      padding: '16px 20px',
+                      background: 'transparent',
+                      border: 'none',
+                      borderBottom: '.5px solid rgba(0,0,0,.06)',
+                      cursor: hasLink ? 'pointer' : 'default',
+                      fontFamily,
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: 12,
+                        alignItems: 'flex-start',
+                        flexDirection: isAr ? 'row-reverse' : 'row',
+                      }}
+                    >
+                      {n.imageUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={n.imageUrl}
+                          alt={n.subject ?? ''}
+                          style={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: 8,
+                            objectFit: 'cover',
+                            flexShrink: 0,
+                          }}
+                        />
+                      )}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            justifyContent: 'space-between',
+                            gap: 6,
+                            marginBottom: 4,
+                            flexDirection: isAr ? 'row-reverse' : 'row',
+                          }}
+                        >
+                          {n.subject && (
+                            <span
+                              style={{
+                                fontSize: 14,
+                                fontWeight: isUnread ? 600 : 400,
+                                color: isUnread ? '#1a1a1a' : '#888',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                flex: 1,
+                              }}
+                            >
+                              {n.subject}
+                            </span>
+                          )}
+                          {isUnread && (
+                            <span
+                              style={{
+                                width: 7,
+                                height: 7,
+                                borderRadius: '50%',
+                                background: '#592c41',
+                                flexShrink: 0,
+                                marginTop: 5,
+                              }}
+                            />
+                          )}
+                        </div>
+                        <span
+                          style={{
+                            fontSize: 13,
+                            color: isUnread ? '#555' : '#aaa',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            lineHeight: 1.55,
+                          }}
+                        >
+                          {n.body}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: '#bbb',
+                            letterSpacing: '.06em',
+                            marginTop: 6,
+                            display: 'block',
+                          }}
+                        >
+                          {notifTimeAgo(n.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+          </div>
+
+          <style>{`@keyframes nb-spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Mobile helper components ─────────────────────────────────────────────────
+
+function MobileBurgerIcon({ open }: { open: boolean }) {
+  return (
+    <svg width="22" height="14" viewBox="0 0 22 14" fill="none">
+      <rect
+        y="0"
+        width="22"
+        height="1.5"
+        rx="1"
+        fill="#1a1a1a"
+        style={{
+          transformOrigin: '11px 0.75px',
+          transform: open ? 'translateY(5.75px) rotate(45deg)' : 'none',
+          transition: 'transform .35s cubic-bezier(.4,0,.2,1)',
+        }}
+      />
+      <rect
+        y="12.5"
+        width="22"
+        height="1.5"
+        rx="1"
+        fill="#1a1a1a"
+        style={{
+          transformOrigin: '11px 13.25px',
+          transform: open ? 'translateY(-6.5px) rotate(-45deg)' : 'none',
+          transition: 'transform .35s cubic-bezier(.4,0,.2,1)',
+        }}
+      />
+    </svg>
+  );
+}
+
+function backBtnStyle(fontFamily: string, isAr: boolean): React.CSSProperties {
+  return {
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    padding: '14px 24px',
+    background: 'none',
+    border: 'none',
+    borderBottom: '.5px solid rgba(0,0,0,.1)',
+    cursor: 'pointer',
+    fontSize: 13,
+    letterSpacing: '.12em',
+    color: '#888',
+    fontFamily,
+    textAlign: isAr ? 'right' : 'left',
+    direction: isAr ? 'rtl' : 'ltr',
+  };
+}
+
+function MobileNewsletter({
+  isAr,
+  email,
+  setEmail,
+  state,
+  errorMsg,
+  handleSubmit,
+  fontFamily,
+}: {
+  isAr: boolean;
+  email: string;
+  setEmail: (v: string) => void;
+  state: 'idle' | 'loading' | 'success' | 'error';
+  errorMsg: string;
+  handleSubmit: (e: React.FormEvent) => void;
+  fontFamily: string;
+}) {
+  return (
+    <div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          marginBottom: 10,
+        }}
+      >
+        <EnvelopeIcon />
+        <span
+          style={{
+            fontSize: 10,
+            letterSpacing: '.15em',
+            textTransform: 'uppercase',
+            color: '#666',
+          }}
+        >
+          {isAr ? 'اشترك في نشرتنا' : 'Subscribe to our newsletter'}
+        </span>
+      </div>
+      <form
+        onSubmit={handleSubmit}
+        style={{ display: 'flex', flexDirection: 'column', gap: 4 }}
+      >
+        <div style={{ display: 'flex' }}>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={isAr ? 'بريدك الإلكتروني' : 'Your email'}
+            disabled={state === 'loading' || state === 'success'}
+            style={{
+              flex: 1,
+              padding: '9px 12px',
+              fontSize: 14,
+              border: '.5px solid rgba(0,0,0,.2)',
+              borderRight: isAr ? '.5px solid rgba(0,0,0,.2)' : 'none',
+              borderLeft: isAr ? 'none' : undefined,
+              background: 'rgba(255,255,255,.7)',
+              color: '#1a1a1a',
+              outline: 'none',
+              fontFamily,
+              borderRadius: isAr ? '0 2px 2px 0' : '2px 0 0 2px',
+            }}
+          />
+          <button
+            type="submit"
+            disabled={state === 'loading' || state === 'success'}
+            style={{
+              padding: '9px 14px',
+              background: state === 'success' ? '#22c55e' : '#888',
+              border: 'none',
+              color: '#fff',
+              fontSize: 13,
+              cursor:
+                state === 'loading' || state === 'success'
+                  ? 'default'
+                  : 'pointer',
+              letterSpacing: '.08em',
+              fontFamily,
+              borderRadius: isAr ? '2px 0 0 2px' : '0 2px 2px 0',
+              minWidth: 52,
+            }}
+          >
+            {state === 'loading'
+              ? '...'
+              : state === 'success'
+                ? '✓'
+                : isAr
+                  ? 'أرسل'
+                  : 'Send'}
+          </button>
+        </div>
+        {state === 'success' && (
+          <span style={{ fontSize: 11, color: '#22c55e', paddingLeft: 2 }}>
+            {isAr ? 'تم الاشتراك!' : 'Subscribed!'}
+          </span>
+        )}
+        {state === 'error' && (
+          <span style={{ fontSize: 11, color: '#ef4444', paddingLeft: 2 }}>
+            {errorMsg}
+          </span>
+        )}
+      </form>
+    </div>
+  );
+}
+
+// ─── Desktop SidebarNav (original, unchanged) ─────────────────────────────────
+
+function DesktopSidebarNav({
+  sessionUser = null,
+  navClasses = [],
+}: SidebarNavProps) {
+  const params = useParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = (params?.locale as string) ?? 'en';
+  const isAr = locale === 'ar';
+
+  const NAV_ITEMS = buildNav(locale, navClasses);
+
+  const [d1Open, setD1Open] = useState(false);
+  const [activeL1, setActiveL1] = useState<string | null>(null);
+  const [activeL2, setActiveL2] = useState<string | null>(null);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [userPanelOpen, setUserPanelOpen] = useState(false);
+  const [bellOpen, setBellOpen] = useState(false);
+
+  const {
+    notifications,
+    notifLoading,
+    unreadCount,
+    handleNotifClick,
+    handleMarkAllRead,
+  } = useNotifications(sessionUser);
+
+  const [notifQuery, setNotifQuery] = useState('');
+
+  useEffect(() => {
+    if (!bellOpen) setNotifQuery('');
+  }, [bellOpen]);
+
+  const filteredNotifs = (() => {
+    const q = notifQuery.trim().toLowerCase();
+    const byTime = (a: AppNotification, b: AppNotification) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    if (!q) return [...notifications].sort(byTime);
+    const titleHits = notifications.filter((n) =>
+      n.subject?.toLowerCase().includes(q),
+    );
+    const bodyHits = notifications.filter(
+      (n) =>
+        !n.subject?.toLowerCase().includes(q) &&
+        n.body.toLowerCase().includes(q),
+    );
+    return [...titleHits.sort(byTime), ...bodyHits.sort(byTime)];
+  })();
+
+  function notifTimeAgo(date: Date | string): string {
+    const diff = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+    if (diff < 60) return isAr ? 'الآن' : 'just now';
+    if (diff < 3600)
+      return isAr
+        ? `${Math.floor(diff / 60)} د`
+        : `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400)
+      return isAr
+        ? `${Math.floor(diff / 3600)} س`
+        : `${Math.floor(diff / 3600)}h ago`;
+    return isAr
+      ? `${Math.floor(diff / 86400)} ي`
+      : `${Math.floor(diff / 86400)}d ago`;
+  }
 
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const [email, setEmail] = useState('');
+  const { email, setEmail, state, errorMsg, handleSubmit } =
+    useNewsletterForm('sidebar');
   const [d2FadeKey, setD2FadeKey] = useState(0);
   const [d3FadeKey, setD3FadeKey] = useState(0);
-
-  // ── Auth-derived values ──────────────────────────────────────────────────
 
   const isLoggedIn = !!sessionUser;
   const isAdmin = sessionUser?.role === 'ADMIN';
   const avatarSrc = sessionUser?.image ?? '/images/user.png';
   const isExternalAvatar = avatarSrc.startsWith('http');
   const userDisplayName = sessionUser?.name ?? (isAr ? 'المستخدم' : 'User');
-
-  // ── Outside-click handler ────────────────────────────────────────────────
 
   useEffect(() => {
     const fn = (e: MouseEvent) => {
@@ -364,8 +1703,6 @@ export default function SidebarNav({
     document.addEventListener('mousedown', fn);
     return () => document.removeEventListener('mousedown', fn);
   }, []);
-
-  // ── Helpers ──────────────────────────────────────────────────────────────
 
   const switchLocale = () => {
     const target = isAr ? 'en' : 'ar';
@@ -429,8 +1766,6 @@ export default function SidebarNav({
     setActiveL2(null);
     setContactOpen(false);
   };
-
-  // ── Derived values ───────────────────────────────────────────────────────
 
   const loginHref = `/${locale}/login?redirectTo=${encodeURIComponent(pathname ?? '/')}`;
 
@@ -568,8 +1903,6 @@ export default function SidebarNav({
     },
   ];
 
-  // ── Translate values ─────────────────────────────────────────────────────
-
   const userPanelHideTranslate = isAr
     ? `translateX(${SIDEBAR_W + USER_W}px)`
     : `translateX(-${SIDEBAR_W + USER_W}px)`;
@@ -611,11 +1944,8 @@ export default function SidebarNav({
     fontFamily: 'inherit',
     letterSpacing: '.02em',
     transition: 'background .18s, color .18s',
-    // suppress unused param warning:
     ...(bg ? {} : {}),
   });
-
-  // ── Render ───────────────────────────────────────────────────────────────
 
   return (
     <div
@@ -645,7 +1975,6 @@ export default function SidebarNav({
               : '4px 0 20px rgba(0,0,0,.08)',
           }}
         >
-          {/* Burger */}
           <button
             onClick={handleBurger}
             aria-label="Toggle menu"
@@ -668,7 +1997,6 @@ export default function SidebarNav({
             <BurgerIcon open={d1Open} />
           </button>
 
-          {/* Lang toggle */}
           <button
             onClick={switchLocale}
             style={{
@@ -696,7 +2024,6 @@ export default function SidebarNav({
             style={{ width: 20, height: 0.5, background: 'rgba(0,0,0,.12)' }}
           />
 
-          {/* Logo + breadcrumbs */}
           <div
             style={{
               flex: 1,
@@ -736,7 +2063,11 @@ export default function SidebarNav({
                 {breadcrumbs.map((crumb, i) => (
                   <span
                     key={crumb.href}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 3,
+                    }}
                   >
                     {i > 0 && (
                       <span
@@ -775,7 +2106,6 @@ export default function SidebarNav({
             style={{ width: 36, height: 0.5, background: 'rgba(0,0,0,.12)' }}
           />
 
-          {/* Notification bell */}
           <div
             style={{
               position: 'relative',
@@ -831,7 +2161,6 @@ export default function SidebarNav({
             )}
           </div>
 
-          {/* Auth section */}
           {!isLoggedIn ? (
             <Link
               href={loginHref}
@@ -957,12 +2286,12 @@ export default function SidebarNav({
                     color: '#592c41',
                     borderLeft: !isAr
                       ? active
-                        ? '2px solid #592c41'
+                        ? '2px solid #ff751f'
                         : '2px solid transparent'
                       : 'none',
                     borderRight: isAr
                       ? active
-                        ? '2px solid #592c41'
+                        ? '2px solid #ff751f'
                         : '2px solid transparent'
                       : 'none',
                   }}
@@ -984,7 +2313,6 @@ export default function SidebarNav({
             })}
           </nav>
 
-          {/* Footer — newsletter + socials */}
           <div
             style={{
               padding: '18px 24px 26px',
@@ -1016,54 +2344,82 @@ export default function SidebarNav({
                 </span>
               </div>
               <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setEmail('');
-                }}
-                style={{ display: 'flex' }}
+                onSubmit={handleSubmit}
+                style={{ display: 'flex', flexDirection: 'column', gap: 4 }}
               >
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={isAr ? 'بريدك الإلكتروني' : 'Your email'}
-                  style={{
-                    flex: 1,
-                    padding: '7px 10px',
-                    fontSize: 12,
-                    border: '.5px solid rgba(0,0,0,.2)',
-                    borderRight: isAr ? '.5px solid rgba(0,0,0,.2)' : 'none',
-                    borderLeft: isAr ? 'none' : undefined,
-                    background: 'rgba(255,255,255,.7)',
-                    color: '#1a1a1a',
-                    outline: 'none',
-                    fontFamily: 'inherit',
-                    borderRadius: isAr ? '0 2px 2px 0' : '2px 0 0 2px',
-                  }}
-                />
-                <button
-                  type="submit"
-                  style={{
-                    padding: '7px 12px',
-                    background: '#888888',
-                    border: 'none',
-                    color: '#fff',
-                    fontSize: 11,
-                    cursor: 'pointer',
-                    letterSpacing: '.08em',
-                    fontFamily: 'inherit',
-                    borderRadius: isAr ? '2px 0 0 2px' : '0 2px 2px 0',
-                    transition: 'background .2s',
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = '#555555')
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = '#888888')
-                  }
-                >
-                  {isAr ? 'أرسل' : 'Send'}
-                </button>
+                <div style={{ display: 'flex' }}>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={isAr ? 'بريدك الإلكتروني' : 'Your email'}
+                    disabled={state === 'loading' || state === 'success'}
+                    style={{
+                      flex: 1,
+                      padding: '7px 10px',
+                      fontSize: 12,
+                      border: '.5px solid rgba(0,0,0,.2)',
+                      borderRight: isAr ? '.5px solid rgba(0,0,0,.2)' : 'none',
+                      borderLeft: isAr ? 'none' : undefined,
+                      background: 'rgba(255,255,255,.7)',
+                      color: '#1a1a1a',
+                      outline: 'none',
+                      fontFamily: 'inherit',
+                      borderRadius: isAr ? '0 2px 2px 0' : '2px 0 0 2px',
+                      opacity: state === 'success' ? 0.6 : 1,
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={state === 'loading' || state === 'success'}
+                    style={{
+                      padding: '7px 12px',
+                      background: state === 'success' ? '#22c55e' : '#888888',
+                      border: 'none',
+                      color: '#fff',
+                      fontSize: 11,
+                      cursor:
+                        state === 'loading' || state === 'success'
+                          ? 'default'
+                          : 'pointer',
+                      letterSpacing: '.08em',
+                      fontFamily: 'inherit',
+                      borderRadius: isAr ? '2px 0 0 2px' : '0 2px 2px 0',
+                      transition: 'background .2s',
+                      minWidth: 48,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (state === 'idle')
+                        e.currentTarget.style.background = '#555555';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (state === 'idle')
+                        e.currentTarget.style.background = '#888888';
+                    }}
+                  >
+                    {state === 'loading'
+                      ? '...'
+                      : state === 'success'
+                        ? '✓'
+                        : isAr
+                          ? 'أرسل'
+                          : 'Send'}
+                  </button>
+                </div>
+                {state === 'success' && (
+                  <span
+                    style={{ fontSize: 10, color: '#22c55e', paddingLeft: 2 }}
+                  >
+                    {isAr ? 'تم الاشتراك!' : 'Subscribed!'}
+                  </span>
+                )}
+                {state === 'error' && (
+                  <span
+                    style={{ fontSize: 10, color: '#ef4444', paddingLeft: 2 }}
+                  >
+                    {errorMsg}
+                  </span>
+                )}
               </form>
             </div>
             <div
@@ -1173,7 +2529,7 @@ export default function SidebarNav({
                         left: 0,
                         width: '100%',
                         height: 2,
-                        background: '#592c41',
+                        background: '#ff751f',
                         transformOrigin: isAr ? 'right center' : 'left center',
                         animation:
                           'ra-underline .35s cubic-bezier(.4,0,.2,1) forwards',
@@ -1900,7 +3256,23 @@ export default function SidebarNav({
   );
 }
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
+// ─── Root export — switches between mobile and desktop ────────────────────────
+
+export default function SidebarNav(props: SidebarNavProps) {
+  const isMobile = useIsMobile(768);
+  // Avoid hydration mismatch: render nothing until client knows viewport
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+
+  return isMobile ? (
+    <MobileSidebarNav {...props} />
+  ) : (
+    <DesktopSidebarNav {...props} />
+  );
+}
+
+// ─── Icons (shared) ───────────────────────────────────────────────────────────
 
 function BurgerIcon({ open }: { open: boolean }) {
   return (

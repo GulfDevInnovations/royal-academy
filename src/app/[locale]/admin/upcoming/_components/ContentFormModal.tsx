@@ -49,6 +49,19 @@ export default function ContentFormModal({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [isExternal, setIsExternal] = useState(data?.isExternal ?? false);
+
+  const initialLinkMode = (() => {
+    if (!data?.linkUrl) return "none" as const;
+    if (data.linkUrl.startsWith("/") || data.linkUrl.startsWith("#")) return "internal" as const;
+    return "external" as const;
+  })();
+  const [linkMode, setLinkMode] = useState<"none" | "internal" | "external">(initialLinkMode);
+  const [selectedInternal, setSelectedInternal] = useState(
+    initialLinkMode === "internal" ? (data?.linkUrl ?? "") : "",
+  );
+  const [externalUrl, setExternalUrl] = useState(
+    initialLinkMode === "external" ? (data?.linkUrl ?? "") : "",
+  );
   const [newThumbnailFile, setNewThumbnailFile] = useState<File | null>(null);
   const [langTab, setLangTab] = useState<"en" | "ar">("en");
   const t = useTranslations("admin");
@@ -133,7 +146,14 @@ export default function ContentFormModal({
       return;
     }
 
-    // Inject controlled state that isn't in native inputs
+    // Inject controlled link state
+    const finalLinkUrl =
+      linkMode === "internal"
+        ? selectedInternal
+        : linkMode === "external"
+          ? externalUrl
+          : "";
+    fd.set("linkUrl", finalLinkUrl);
     fd.set("isExternal", isExternal ? "true" : "false");
 
     // Existing image URLs (after removals)
@@ -560,43 +580,125 @@ export default function ContentFormModal({
           </div>
 
           {/* Link */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-3">
             <div className="space-y-1.5">
               <label className="text-l" style={labelStyle}>
-                Link URL
+                Link
               </label>
-              <input
-                name="linkUrl"
-                defaultValue={data?.linkUrl ?? ""}
-                placeholder="https:// or /page"
-                className="w-full text-l rounded-lg border px-3 py-2 outline-none"
-                style={inputStyle}
-              />
+              {/* Mode toggle */}
+              <div
+                className="flex gap-1 p-1 rounded-lg w-fit"
+                style={{ background: "rgba(255,255,255,0.05)" }}
+              >
+                {(["none", "internal", "external"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => {
+                      setLinkMode(mode);
+                      if (mode === "external") setIsExternal(true);
+                      if (mode === "internal") setIsExternal(false);
+                    }}
+                    className="px-3 py-1 rounded-md text-xs font-medium transition-all capitalize"
+                    style={{
+                      background:
+                        linkMode === mode
+                          ? "rgba(251,191,36,0.15)"
+                          : "transparent",
+                      color:
+                        linkMode === mode ? "#fbbf24" : adminColors.textMuted,
+                      border:
+                        linkMode === mode
+                          ? "1px solid rgba(251,191,36,0.3)"
+                          : "1px solid transparent",
+                    }}
+                  >
+                    {mode === "none"
+                      ? "None"
+                      : mode === "internal"
+                        ? "Internal"
+                        : "External"}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-l" style={labelStyle}>
-                Link Label
-              </label>
-              <input
-                name="linkLabel"
-                defaultValue={data?.linkLabel ?? ""}
-                placeholder="e.g. Learn More"
-                className="w-full text-l rounded-lg border px-3 py-2 outline-none"
-                style={inputStyle}
-              />
-            </div>
-          </div>
 
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isExternal}
-              onChange={(e) => setIsExternal(e.target.checked)}
-            />
-            <span className="text-l" style={labelStyle}>
-              Open link in new tab (external)
-            </span>
-          </label>
+            {/* Internal — dropdown */}
+            {linkMode === "internal" && (
+              <select
+                value={selectedInternal}
+                onChange={(e) => setSelectedInternal(e.target.value)}
+                className="w-full text-l rounded-lg border px-2.5 py-2 outline-none"
+                style={inputStyle}
+              >
+                <option value="">— Select a page —</option>
+                <optgroup label="Pages">
+                  <option value="/">Home</option>
+                  <option value="/contact">Contact</option>
+                  <option value="/gallery">Gallery</option>
+                  <option value="/workshops">Workshops</option>
+                  <option value="/carrier">Career</option>
+                  <option value="/principals">About / Principals</option>
+                  <option value="/support">Support</option>
+                  <option value="/terms">Terms &amp; Conditions</option>
+                  <option value="/privacy">Privacy Policy</option>
+                </optgroup>
+                {classes.map((cls) =>
+                  cls.subClasses.length > 0 ? (
+                    <optgroup key={cls.id} label={cls.name}>
+                      {cls.subClasses.map((sc) => (
+                        <option
+                          key={sc.id}
+                          value={`/enrollment/${sc.id}`}
+                        >
+                          {sc.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ) : null,
+                )}
+              </select>
+            )}
+
+            {/* External — text input */}
+            {linkMode === "external" && (
+              <input
+                value={externalUrl}
+                onChange={(e) => setExternalUrl(e.target.value)}
+                placeholder="https://example.com"
+                className="w-full text-l rounded-lg border px-3 py-2 outline-none"
+                style={inputStyle}
+              />
+            )}
+
+            {/* Link label + open-in-new-tab (only when a link is set) */}
+            {linkMode !== "none" && (
+              <>
+                <div className="space-y-1.5">
+                  <label className="text-l" style={labelStyle}>
+                    Link Label
+                  </label>
+                  <input
+                    name="linkLabel"
+                    defaultValue={data?.linkLabel ?? ""}
+                    placeholder="e.g. Learn More"
+                    className="w-full text-l rounded-lg border px-3 py-2 outline-none"
+                    style={inputStyle}
+                  />
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isExternal}
+                    onChange={(e) => setIsExternal(e.target.checked)}
+                  />
+                  <span className="text-l" style={labelStyle}>
+                    Open link in new tab
+                  </span>
+                </label>
+              </>
+            )}
+          </div>
 
           {/* Offers: discount fields */}
           {kind === "offers" && (

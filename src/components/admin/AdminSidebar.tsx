@@ -1,64 +1,65 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { useLocale } from "next-intl";
-import { useState } from "react";
 import {
-  LayoutDashboard,
+  Bell,
   BookOpen,
-  Users,
-  GraduationCap,
+  BriefcaseBusiness,
+  CalendarClock,
   CalendarDays,
-  Sparkles,
   ClipboardList,
   CreditCard,
-  Bell,
+  GraduationCap,
+  LayoutDashboard,
+  Mail,
+  Newspaper,
   PanelLeftClose,
   PanelLeftOpen,
-  CalendarClock,
-  Newspaper,
+  Sparkles,
   Tag,
-  BriefcaseBusiness,
-} from "lucide-react";
-import { useTranslations } from "next-intl";
+  Users,
+} from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 const navGroups = [
   {
-    label: "Overview",
-    items: [{ label: "Dashboard", href: "/admin", icon: LayoutDashboard }],
+    label: 'Overview',
+    items: [{ label: 'Dashboard', href: '/admin', icon: LayoutDashboard }],
   },
   {
-    label: "contents",
+    label: 'contents',
     items: [
-      { label: "news", href: "/admin/news", icon: Newspaper },
-      { label: "upcomings", href: "/admin/upcoming", icon: CalendarClock },
-      { label: "Offers", href: "/admin/offers", icon: Tag },
+      { label: 'news', href: '/admin/news', icon: Newspaper },
+      { label: 'upcomings', href: '/admin/upcoming', icon: CalendarClock },
+      { label: 'Offers', href: '/admin/offers', icon: Tag },
+      { label: 'Gallery', href: '/admin/gallery', icon: Sparkles },
     ],
   },
   {
-    label: "Studio",
+    label: 'Studio',
     items: [
-      { label: "Classes", href: "/admin/classes", icon: BookOpen },
-      { label: "Teachers", href: "/admin/teachers", icon: GraduationCap },
-      { label: "Students", href: "/admin/students", icon: Users },
-      { label: "Gallery", href: "/admin/gallery", icon: Sparkles },
+      { label: 'Classes', href: '/admin/classes', icon: BookOpen },
+      { label: 'Teachers', href: '/admin/teachers', icon: GraduationCap },
+      { label: 'Students', href: '/admin/students', icon: Users },
     ],
   },
   {
-    label: "Scheduling",
+    label: 'Scheduling',
     items: [
-      { label: "Schedules", href: "/admin/schedules", icon: CalendarDays },
-      { label: "Workshops", href: "/admin/workshops", icon: BriefcaseBusiness },
+      { label: 'Schedules', href: '/admin/schedules', icon: CalendarDays },
+      { label: 'Workshops', href: '/admin/workshops', icon: BriefcaseBusiness },
     ],
   },
   {
-    label: "Operations",
+    label: 'Operations',
     items: [
-      { label: "Enrollments", href: "/admin/enrollments", icon: ClipboardList },
-      { label: "Payments", href: "/admin/payments", icon: CreditCard },
-      { label: "Notifications", href: "/admin/notifications", icon: Bell },
+      { label: 'Enrollments', href: '/admin/enrollments', icon: ClipboardList },
+      { label: 'Payments', href: '/admin/payments', icon: CreditCard },
+      { label: 'Notifications', href: '/admin/notifications', icon: Bell },
+      { label: 'newsletter', href: '/admin/newsletter', icon: Mail },
     ],
   },
 ];
@@ -67,11 +68,11 @@ export default function AdminSidebar() {
   const locale = useLocale(); // ✅ from next-intl, no prop needed
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const t = useTranslations("admin");
+  const t = useTranslations('admin');
 
   const isActive = (href: string) => {
     const fullPath = `/${locale}${href}`;
-    if (href === "/admin") return pathname === fullPath;
+    if (href === '/admin') return pathname === fullPath;
     return pathname.startsWith(fullPath);
   };
 
@@ -80,9 +81,9 @@ export default function AdminSidebar() {
       className={`
         relative flex flex-col h-full border-r border-white/6
         transition-all duration-300 ease-in-out shrink-0
-        ${collapsed ? "w-16" : "w-55"}
+        ${collapsed ? 'w-16' : 'w-55'}
       `}
-      style={{ background: "#0f1117" }}
+      style={{ background: '#0f1117' }}
     >
       <div>
         {/* Logo */}
@@ -142,11 +143,11 @@ export default function AdminSidebar() {
                     className={`
                       group relative flex items-center gap-3 rounded-lg text-sm
                       transition-all duration-150 font-medium
-                      ${collapsed ? "px-0 py-2.5 justify-center" : "px-3 py-2"}
+                      ${collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2'}
                       ${
                         active
-                          ? "text-amber-300"
-                          : "text-white/50 hover:text-white/75 hover:bg-white/3"
+                          ? 'text-amber-300'
+                          : 'text-white/50 hover:text-white/75 hover:bg-white/3'
                       }
                     `}
                   >
@@ -154,14 +155,14 @@ export default function AdminSidebar() {
                     {active && (
                       <span
                         className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full"
-                        style={{ background: "#f59e0b" }}
+                        style={{ background: '#f59e0b' }}
                       />
                     )}
                     {/* Subtle amber bg glow */}
                     {active && (
                       <span
                         className="absolute inset-0 rounded-lg"
-                        style={{ background: "rgba(245,158,11,0.08)" }}
+                        style={{ background: 'rgba(245,158,11,0.08)' }}
                       />
                     )}
 
@@ -170,8 +171,8 @@ export default function AdminSidebar() {
                       strokeWidth={active ? 2.5 : 2}
                       className={`shrink-0 transition-colors duration-150 ${
                         active
-                          ? "text-amber-400"
-                          : "text-white/30 group-hover:text-white/55"
+                          ? 'text-amber-400'
+                          : 'text-white/30 group-hover:text-white/55'
                       }`}
                     />
 
@@ -190,7 +191,7 @@ export default function AdminSidebar() {
                           opacity-0 group-hover:opacity-100 pointer-events-none
                           transition-opacity duration-150 border border-white/10
                         "
-                        style={{ background: "#1c1f2e" }}
+                        style={{ background: '#1c1f2e' }}
                       >
                         {item.label}
                       </div>
@@ -211,7 +212,7 @@ export default function AdminSidebar() {
             w-full flex items-center rounded-lg py-2
             text-white/25 hover:text-white/55 hover:bg-white/4
             transition-all duration-150 text-xs font-medium
-            ${collapsed ? "justify-center px-0" : "gap-2.5 px-3"}
+            ${collapsed ? 'justify-center px-0' : 'gap-2.5 px-3'}
           `}
         >
           {collapsed ? (
@@ -219,7 +220,7 @@ export default function AdminSidebar() {
           ) : (
             <>
               <PanelLeftClose size={15} />
-              <span>{t("collapse")}</span>
+              <span>{t('collapse')}</span>
             </>
           )}
         </button>

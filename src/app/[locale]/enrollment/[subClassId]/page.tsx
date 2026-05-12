@@ -2,6 +2,7 @@
 import { notFound } from 'next/navigation';
 import { getSubClassDetail } from '@/lib/actions/classes';
 import { SubClassDetailClient } from '../_components/SubClassDetailClient';
+import { SubClassPageEmbed } from '../_components/SubClassPageEmbed';
 
 export default async function SubClassDetailPage({
   params,
@@ -13,5 +14,13 @@ export default async function SubClassDetailPage({
 
   if (!subClass) notFound();
 
-  return <SubClassDetailClient subClass={subClass} />;
+  return (
+    <>
+      <SubClassDetailClient subClass={subClass} />
+      <SubClassPageEmbed
+        className={subClass.class.name}
+        subClassName={subClass.name}
+      />
+    </>
+  );
 }

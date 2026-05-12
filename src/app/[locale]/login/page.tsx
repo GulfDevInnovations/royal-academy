@@ -5,11 +5,14 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { signIn } from "@/lib/actions/auth.actions";
+import { signIn, resendVerification } from "@/lib/actions/auth.actions";
 import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
+  const [attemptedEmail, setAttemptedEmail] = useState<string>("");
+  const [resendState, setResendState] = useState<"idle" | "sending" | "sent">("idle");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const searchParams = useSearchParams();
@@ -22,14 +25,24 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setErrorCode(null);
     const formData = new FormData(e.currentTarget);
+    setAttemptedEmail(formData.get("email") as string);
     const result = await signIn(formData);
     if (result?.error) {
       setError(result.error);
+      setErrorCode(result.code ?? null);
       setLoading(false);
     } else if (result?.redirectTo) {
       window.location.href = result.redirectTo;
     }
+  }
+
+  async function handleResend() {
+    if (!attemptedEmail || resendState !== "idle") return;
+    setResendState("sending");
+    await resendVerification(attemptedEmail);
+    setResendState("sent");
   }
 
   return (
@@ -163,7 +176,7 @@ export default function LoginPage() {
 
               <AnimatePresence>
                 {error && (
-                  <motion.p
+                  <motion.div
                     initial={{ opacity: 0, y: -6 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
@@ -174,8 +187,27 @@ export default function LoginPage() {
                       border: "1px solid rgba(248,113,113,0.20)",
                     }}
                   >
-                    {error}
-                  </motion.p>
+                    <p>{error}</p>
+                    {errorCode === "EMAIL_NOT_VERIFIED" && (
+                      <p className="mt-1.5">
+                        {resendState === "sent" ? (
+                          <span style={{ color: "#86efac" }}>
+                            ✓ Verification email sent — check your inbox.
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={handleResend}
+                            disabled={resendState === "sending"}
+                            className="underline underline-offset-2 hover:opacity-80 transition-opacity disabled:opacity-50"
+                            style={{ color: "#f87171" }}
+                          >
+                            {resendState === "sending" ? "Sending…" : "Resend verification email"}
+                          </button>
+                        )}
+                      </p>
+                    )}
+                  </motion.div>
                 )}
               </AnimatePresence>
 

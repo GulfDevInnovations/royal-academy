@@ -16,6 +16,47 @@
     "hero_title": "Welcome to Royal Academy",
     "hero_subtitle": "Excellence in Education"
   },
+  "heroSection": {
+    "upcoming": "Upcoming",
+    "news": "News",
+    "offers": "Offers",
+    "viewAllClasses": "View All Classes",
+    "learnMore": "Learn more",
+    "prevSlide": "Previous",
+    "nextSlide": "Next"
+  },
+  "aboutSection": {
+    "spiritOf": "The Spirit of",
+    "theAcademy": "the Academy",
+    "historyLabel": "Our Story",
+    "historyHeading": "Founded on a Vision of Excellence",
+    "historyBody": "Royal Academy was founded in Muscat with a singular conviction: that the arts are not a luxury, but a language — one that shapes character, refines the spirit, and connects humanity across centuries. From its earliest days, the Academy has drawn together masters of ballet, music, dance, and visual art under one roof.",
+    "philosophyLabel": "Teaching Philosophy",
+    "philosophyHeading": "Discipline as Liberation",
+    "philosophyBody": "True creative freedom is born not from the absence of structure, but from a profound mastery of it. Every student is guided through a rigorous yet nurturing curriculum — one that honours classical traditions while encouraging original expression. Our teachers are mentors who see the full potential of each student.",
+    "valuesLabel": "Core Values",
+    "valuesHeading": "Excellence · Integrity · Community · Heritage",
+    "valuesBody": "We hold ourselves to the highest standards as a form of respect for the art. We teach with honesty and celebrate progress over perfection. The Academy is a place of belonging — for students, families, and the wider cultural life of Oman. We preserve great traditions, ensuring they are passed with care to the next generation."
+  },
+  "footer": {
+    "brandName": "Royal Academy",
+    "address": "18th November St, Muscat, Sultanate of Oman",
+    "contact": "Contact",
+    "phoneEnglishLabel": "English Inquiries & WhatsApp",
+    "phoneArabicLabel": "Arabic Inquiries",
+    "phoneLandlineLabel": "Landline",
+    "stayInTouch": "Stay in touch",
+    "newsletterDesc": "Subscribe to receive the latest news and offers from Royal Academy.",
+    "emailPlaceholder": "Your email",
+    "send": "Send",
+    "subscribed": "Subscribed!",
+    "developedBy": "Developed by",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "careers": "Careers",
+    "errorNetwork": "Network error. Please try again.",
+    "errorGeneral": "Something went wrong."
+  },
   "hero": {
     "tagline": "Where Art Finds Its Voice",
     "dance": "Dance",
@@ -48,7 +89,8 @@
       "Workshops": "Workshops",
       "Enrollments": "Enrollments",
       "Payments": "Payments",
-      "Notifications": "Notifications"
+      "Notifications": "Notifications",
+      "newsletter": "newsletter"
     },
     "name": "Name",
     "type": "Type",

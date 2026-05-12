@@ -9,6 +9,7 @@ import { useLocale } from "next-intl";
 
 export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const locale = useLocale();
@@ -17,10 +18,12 @@ export default function SignUpPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setErrorCode(null);
     const formData = new FormData(e.currentTarget);
     const result = await signUp(formData);
     if (result?.error) {
       setError(result.error);
+      setErrorCode(result.code ?? null);
       setLoading(false);
     }
   }
@@ -155,7 +158,7 @@ export default function SignUpPage() {
               {/* Error */}
               <AnimatePresence>
                 {error && (
-                  <motion.p
+                  <motion.div
                     initial={{ opacity: 0, y: -6 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
@@ -166,8 +169,19 @@ export default function SignUpPage() {
                       border: "1px solid rgba(248,113,113,0.20)",
                     }}
                   >
-                    {error}
-                  </motion.p>
+                    <p>{error}</p>
+                    {errorCode === "DUPLICATE_EMAIL" && (
+                      <p className="mt-1" style={{ color: "rgba(248,113,113,0.75)" }}>
+                        <Link
+                          href={`/${locale}/login`}
+                          className="underline underline-offset-2 hover:opacity-80 transition-opacity"
+                          style={{ color: "#f87171" }}
+                        >
+                          Sign in instead
+                        </Link>
+                      </p>
+                    )}
+                  </motion.div>
                 )}
               </AnimatePresence>
 
