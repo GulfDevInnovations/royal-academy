@@ -375,9 +375,19 @@ export default function WorkshopDetailClient({ workshop }: Props) {
                   Fully Booked
                 </div>
               ) : (
+                // <button
+                //   className="liquid-glass-green shimmer w-full py-3 rounded-xl text-sm font-bold tracking-widest uppercase transition-all"
+                //   style={{ color: "var(--color-royal-green, #1a5c3a)" }}
+                // >
+                //   Register Now
+                // </button>
                 <button
-                  className="liquid-glass-green shimmer w-full py-3 rounded-xl text-sm font-bold tracking-widest uppercase transition-all"
-                  style={{ color: "var(--color-royal-green, #1a5c3a)" }}
+                  disabled
+                  className="w-full py-3 rounded-xl text-sm font-bold tracking-widest uppercase cursor-not-allowed opacity-40"
+                  style={{
+                    background: "rgba(255,255,255,0.05)",
+                    color: "rgba(222,194,158,0.35)",
+                  }}
                 >
                   Register Now
                 </button>

@@ -3,7 +3,7 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export const FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL ?? 'Royal Academy <no-reply@royalacademy.om>';
+  process.env.RESEND_FROM_EMAIL ?? 'Royal Academy <no-reply@radma.om>';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Verification email
@@ -122,9 +122,9 @@ function buildVerificationHtml({
             <td style="background:#0a0f2c;border-radius:0 0 16px 16px;padding:20px 36px;text-align:center;">
               <p style="margin:0 0 4px;color:#c4a882aa;font-size:11px;">Royal Academy · Muscat, Sultanate of Oman</p>
               <p style="margin:0;color:#c4a882aa;font-size:11px;">
-                <a href="mailto:info@royalacademy.om" style="color:#c4a882;text-decoration:none;">info@royalacademy.om</a>
+                <a href="mailto:info@radma.om" style="color:#c4a882;text-decoration:none;">info@radma.om</a>
                 &nbsp;·&nbsp;
-                <a href="${process.env.NEXT_PUBLIC_APP_URL ?? 'https://royalacademy.om'}" style="color:#c4a882;text-decoration:none;">royalacademy.om</a>
+                <a href="${process.env.NEXT_PUBLIC_APP_URL ?? 'https://radma.om'}" style="color:#c4a882;text-decoration:none;">radma.om</a>
               </p>
               <p style="margin:12px 0 0;color:#c4a882aa;font-size:10px;font-style:italic;">"Where excellence meets art."</p>
             </td>
@@ -192,9 +192,9 @@ function buildPasswordResetHtml({ resetUrl }: { resetUrl: string }) {
             <td style="background:#0a0f2c;border-radius:0 0 16px 16px;padding:20px 36px;text-align:center;">
               <p style="margin:0 0 4px;color:#c4a882aa;font-size:11px;">Royal Academy · Muscat, Sultanate of Oman</p>
               <p style="margin:0;color:#c4a882aa;font-size:11px;">
-                <a href="mailto:info@royalacademy.om" style="color:#c4a882;text-decoration:none;">info@royalacademy.om</a>
+                <a href="mailto:info@radma.om" style="color:#c4a882;text-decoration:none;">info@radma.om</a>
                 &nbsp;·&nbsp;
-                <a href="${process.env.NEXT_PUBLIC_APP_URL ?? 'https://royalacademy.om'}" style="color:#c4a882;text-decoration:none;">royalacademy.om</a>
+                <a href="${process.env.NEXT_PUBLIC_APP_URL ?? 'https://radma.om'}" style="color:#c4a882;text-decoration:none;">radma.om</a>
               </p>
               <p style="margin:12px 0 0;color:#c4a882aa;font-size:10px;font-style:italic;">"Where excellence meets art."</p>
             </td>
@@ -305,7 +305,7 @@ function buildTicketReplyHtml({
 
               <!-- CTA -->
               <div style="text-align:center;margin-bottom:24px;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL ?? 'https://royalacademy.om'}/support"
+                <a href="${process.env.NEXT_PUBLIC_APP_URL ?? 'https://radma.om'}/support"
                    style="display:inline-block;background:linear-gradient(135deg,#c4a882,#d4b896);color:#0a0f2c;font-size:13px;font-weight:bold;text-decoration:none;padding:12px 28px;border-radius:10px;letter-spacing:0.05em;">
                   View Full Conversation
                 </a>
@@ -323,9 +323,9 @@ function buildTicketReplyHtml({
             <td style="background:#0a0f2c;border-radius:0 0 16px 16px;padding:20px 36px;text-align:center;">
               <p style="margin:0 0 4px;color:#c4a882aa;font-size:11px;">Royal Academy · Muscat, Sultanate of Oman</p>
               <p style="margin:0;color:#c4a882aa;font-size:11px;">
-                <a href="mailto:info@royalacademy.om" style="color:#c4a882;text-decoration:none;">info@royalacademy.om</a>
+                <a href="mailto:info@radma.om" style="color:#c4a882;text-decoration:none;">info@radma.om</a>
                 &nbsp;·&nbsp;
-                <a href="${process.env.NEXT_PUBLIC_APP_URL ?? 'https://royalacademy.om'}" style="color:#c4a882;text-decoration:none;">royalacademy.om</a>
+                <a href="${process.env.NEXT_PUBLIC_APP_URL ?? 'https://radma.om'}" style="color:#c4a882;text-decoration:none;">radma.om</a>
               </p>
               <p style="margin:12px 0 0;color:#c4a882aa;font-size:10px;font-style:italic;">
                 "Where excellence meets art."

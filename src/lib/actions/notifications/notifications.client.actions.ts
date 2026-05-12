@@ -1,8 +1,8 @@
-"use server";
+'use server';
 
-import { prisma } from "@/lib/prisma";
-import { sendTicketReplyEmail } from "@/lib/email";
-import { sendSms } from "@/lib/sms";
+import { sendTicketReplyEmail } from '@/lib/email';
+import { prisma } from '@/lib/prisma';
+import { sendSms } from '@/lib/sms';
 
 // ─────────────────────────────────────────────
 // GET notifications for a logged-in user
@@ -13,18 +13,18 @@ export async function getMyNotifications(userId: string) {
   return prisma.notification.findMany({
     where: {
       userId,
-      type: "INAPP",
+      type: 'INAPP',
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: { createdAt: 'desc' },
     take: 50,
     select: {
-      id:          true,
-      subject:     true,
-      body:        true,
-      imageUrl:    true,
-      linkUrl:     true,
-      readAt:      true,
-      createdAt:   true,
+      id: true,
+      subject: true,
+      body: true,
+      imageUrl: true,
+      linkUrl: true,
+      readAt: true,
+      createdAt: true,
     },
   });
 }
@@ -36,7 +36,7 @@ export async function getMyNotifications(userId: string) {
 export async function markNotificationRead(id: string, userId: string) {
   await prisma.notification.updateMany({
     where: { id, userId, readAt: null },
-    data:  { readAt: new Date() },
+    data: { readAt: new Date() },
   });
   return { success: true };
 }
@@ -47,8 +47,8 @@ export async function markNotificationRead(id: string, userId: string) {
 
 export async function markAllNotificationsRead(userId: string) {
   await prisma.notification.updateMany({
-    where: { userId, type: "INAPP", readAt: null },
-    data:  { readAt: new Date() },
+    where: { userId, type: 'INAPP', readAt: null },
+    data: { readAt: new Date() },
   });
   return { success: true };
 }
@@ -59,21 +59,18 @@ export async function markAllNotificationsRead(userId: string) {
 
 export async function getUnreadCount(userId: string) {
   const count = await prisma.notification.count({
-    where: { userId, type: "INAPP", readAt: null },
+    where: { userId, type: 'INAPP', readAt: null },
   });
   return count;
 }
-
-
-
 
 export async function replyToTicket(
   ticketId: string,
   adminUserId: string,
   body: string,
-  ticketOwnerUserId: string,   // ← pass ticket.user.id from TicketDetail
+  ticketOwnerUserId: string, // ← pass ticket.user.id from TicketDetail
 ) {
-  if (!body.trim()) return { error: "Reply cannot be empty." };
+  if (!body.trim()) return { error: 'Reply cannot be empty.' };
 
   // ── 1. Fetch the ticket owner's contact details ───────────────────────────
   const owner = await prisma.user.findUnique({
@@ -95,40 +92,41 @@ export async function replyToTicket(
   const ownerName = owner?.studentProfile
     ? `${owner.studentProfile.firstName} ${owner.studentProfile.lastName}`
     : owner?.teacherProfile
-    ? `${owner.teacherProfile.firstName} ${owner.teacherProfile.lastName}`
-    : "there";
+      ? `${owner.teacherProfile.firstName} ${owner.teacherProfile.lastName}`
+      : 'there';
 
-  const ticketSubject = ticket?.subject ?? "Your support ticket";
+  const ticketSubject = ticket?.subject ?? 'Your support ticket';
 
   // ── 3. DB writes in a single transaction ─────────────────────────────────
   await prisma.$transaction([
     // Reply record
     prisma.ticketReply.create({
-  data: {
-    ticketId,
-    userId: adminUserId,
-    body: body.trim(),
-  },
-}),
+      data: {
+        ticketId,
+        userId: adminUserId,
+        body: body.trim(),
+      },
+    }),
 
     // Move ticket to IN_PROGRESS
     prisma.supportTicket.update({
       where: { id: ticketId },
-      data: { status: "IN_PROGRESS", updatedAt: new Date() },
+      data: { status: 'IN_PROGRESS', updatedAt: new Date() },
     }),
 
     // InApp notification — picked up by NotificationBell polling
     prisma.notification.create({
       data: {
-        userId:  ticketOwnerUserId,
-        type:    "INAPP",
-        status:  "SENT",
-        subject: "Support reply received",
-        body:    body.trim().length > 120
-          ? body.trim().slice(0, 117) + "…"
-          : body.trim(),
-        linkUrl: "/support",
-        sentAt:  new Date(),
+        userId: ticketOwnerUserId,
+        type: 'INAPP',
+        status: 'SENT',
+        subject: 'Support reply received',
+        body:
+          body.trim().length > 120
+            ? body.trim().slice(0, 117) + '…'
+            : body.trim(),
+        linkUrl: '/support',
+        sentAt: new Date(),
       },
     }),
   ]);
@@ -136,26 +134,26 @@ export async function replyToTicket(
   // ── 4. Email (outside transaction — network call, non-blocking on failure) ─
   if (owner?.email) {
     const emailResult = await sendTicketReplyEmail({
-      toEmail:       owner.email,
-      toName:        ownerName,
+      toEmail: owner.email,
+      toName: ownerName,
       ticketSubject,
-      replyBody:     body.trim(),
+      replyBody: body.trim(),
     });
     if (!emailResult.success) {
       // Log but don't fail the whole action — reply is already saved
-      console.error("Ticket reply email failed:", emailResult.error);
+      console.error('Ticket reply email failed:', emailResult.error);
     }
   }
 
   // ── 5. SMS (outside transaction — scaffolded, logs until provider is wired) ─
   if (owner?.phone) {
     const smsBody =
-      `Royal Academy Support: Your ticket "${ticketSubject.slice(0, 40)}${ticketSubject.length > 40 ? "…" : ""}" has a new reply. ` +
-      `Visit royalacademy.om/support to read it.`;
+      `Royal Academy Support: Your ticket "${ticketSubject.slice(0, 40)}${ticketSubject.length > 40 ? '…' : ''}" has a new reply. ` +
+      `Visit radma.om/support to read it.`;
 
     const smsResult = await sendSms({ to: owner.phone, body: smsBody });
     if (!smsResult.success) {
-      console.error("Ticket reply SMS failed:", smsResult.error);
+      console.error('Ticket reply SMS failed:', smsResult.error);
     }
   }
 

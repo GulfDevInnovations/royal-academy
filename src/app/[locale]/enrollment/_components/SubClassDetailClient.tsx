@@ -1258,10 +1258,14 @@ export function SubClassDetailClient({
                 </AnimatePresence>
 
                 {/* CTA */}
-                <button
+                {/* <button
                   onClick={handleProceed}
                   disabled={!canProceed || isLoading}
-                  className="w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]" */}
+                <button
+                  onClick={handleProceed}
+                  disabled={true}
+                  className="w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
                   style={
                     canProceed
                       ? {
