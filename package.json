@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "postinstall": "prisma generate",
-    "prebuild": "prisma generate && node scripts/prisma-migrate-deploy-if-env.cjs",
+    "prebuild": "node scripts/create-env.cjs && prisma generate && node scripts/prisma-migrate-deploy-if-env.cjs",
     "predev": "prisma generate && prisma db push",
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
