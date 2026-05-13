@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -102,12 +102,15 @@ export const metadata: Metadata = {
   description: "Excellence in Education | التميز في التعليم",
   applicationName: "Royal Academy",
   manifest: "/manifest.webmanifest",
-  themeColor: "#000000",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Royal Academy",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
 };
 
 export default async function LocaleLayout({

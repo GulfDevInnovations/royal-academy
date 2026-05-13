@@ -1,4 +1,6 @@
 // src/app/[locale]/support/page.tsx
+export const dynamic = 'force-dynamic';
+
 import { getMyTickets } from "@/lib/actions/student-tickets";
 import SupportClient from "./_components/SupportClient";
 
