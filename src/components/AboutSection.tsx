@@ -541,7 +541,20 @@ function RoyalMediaPlayer({
   const containerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [inView, setInView] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  // Pause slideshow when scrolled out of view
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0.1 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   const item = MEDIA[current];
 
@@ -579,7 +592,7 @@ function RoyalMediaPlayer({
   }, []);
 
   useEffect(() => {
-    if (!playing || item.type === 'video') {
+    if (!playing || !inView || item.type === 'video') {
       if (timerRef.current) clearTimeout(timerRef.current);
       return;
     }
@@ -587,7 +600,7 @@ function RoyalMediaPlayer({
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [playing, current, item.type, goNext]);
+  }, [playing, current, item.type, goNext, inView]);
 
   // On desktop the player fills its grid cell; on mobile it uses old sizing
   return (
