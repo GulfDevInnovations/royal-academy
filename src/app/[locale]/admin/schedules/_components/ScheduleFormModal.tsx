@@ -1,0 +1,496 @@
+"use client";
+
+import { useRef, useState, useTransition } from "react";
+import { X, Loader2, AlertTriangle, RefreshCw } from "lucide-react";
+import {
+  createSchedule,
+  updateSchedule,
+} from "@/lib/actions/admin/Schedules.actions";
+import type { SerializedSchedule } from "../page";
+import {
+  AdminInput,
+  AdminSelect,
+  AdminButton,
+  adminColors,
+} from "@/components/admin/ui";
+import { useTranslations } from "next-intl";
+import DatePicker from "@/components/date-time/DatePicker";
+import TimePicker from "@/components/date-time/TimePicker";
+
+const DAYS = [
+  "MONDAY",
+  "TUESDAY",
+  "WEDNESDAY",
+  "THURSDAY",
+  "FRIDAY",
+  "SATURDAY",
+  "SUNDAY",
+] as const;
+
+const DAY_LABELS: Record<string, string> = {
+  MONDAY: "Monday",
+  TUESDAY: "Tuesday",
+  WEDNESDAY: "Wednesday",
+  THURSDAY: "Thursday",
+  FRIDAY: "Friday",
+  SATURDAY: "Saturday",
+  SUNDAY: "Sunday",
+};
+
+const STATUS_OPTIONS = [
+  { value: "ACTIVE", label: "Active" },
+  { value: "SUSPENDED", label: "Suspended" },
+  { value: "CANCELLED", label: "Cancelled" },
+  { value: "COMPLETED", label: "Completed" },
+];
+
+interface SubClassOption {
+  id: string;
+  name: string;
+  isReschedulable: boolean;
+  sessionType: string; // ← add this
+  class: { id: string; name: string };
+  teachers: { teacher: { id: string; firstName: string; lastName: string } }[];
+}
+
+interface TeacherOption {
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface Props {
+  editing?: SerializedSchedule | null;
+  onClose: () => void;
+  onSuccess: () => void;
+  subClasses: SubClassOption[];
+  teachers: TeacherOption[];
+}
+
+export default function ScheduleFormModal({
+  editing,
+  onClose,
+  onSuccess,
+  subClasses,
+  teachers,
+}: Props) {
+  const formRef = useRef<HTMLFormElement>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const t = useTranslations("admin");
+
+  const [selectedSubClassId, setSelectedSubClassId] = useState<string>(
+    editing?.subClassId ?? "",
+  );
+
+  const selectedSubClass = subClasses.find((s) => s.id === selectedSubClassId);
+  const isPrivate = ["PRIVATE"].includes(selectedSubClass?.sessionType ?? "");
+
+  const availableTeachers = selectedSubClass?.teachers.length
+    ? selectedSubClass.teachers.map((t) => t.teacher)
+    : teachers;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    const fd = new FormData(formRef.current!);
+    startTransition(async () => {
+      const result = editing
+        ? await updateSchedule(editing.id, fd)
+        : await createSchedule(fd);
+      if (result.error) setError(result.error);
+      else onSuccess();
+    });
+  };
+
+  const startDateVal = editing
+    ? new Date(editing.startDate).toISOString().split("T")[0]
+    : "";
+  const endDateVal = editing?.endDate
+    ? new Date(editing.endDate).toISOString().split("T")[0]
+    : "";
+
+  // isReschedulable for the currently selected sub-class
+  const isReschedulable = editing
+    ? ((editing.subClass as any).isReschedulable ?? false)
+    : (selectedSubClass?.isReschedulable ?? false);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div
+        className="relative w-full max-w-2xl rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[92vh] flex flex-col"
+        style={{ background: "#1a1d27" }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] shrink-0">
+          <div>
+            <h2
+              className="text-sm font-semibold"
+              style={{ color: adminColors.textPrimary }}
+            >
+              {editing ? "Edit Schedule" : "New Schedule"}
+            </h2>
+            <p
+              className="text-xs mt-0.5"
+              style={{ color: adminColors.textMuted }}
+            >
+              {editing
+                ? "Update this recurring class slot"
+                : "Creates recurring sessions automatically"}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+          >
+            <X size={16} style={{ color: adminColors.pinkText }} />
+          </button>
+        </div>
+
+        <div className="overflow-y-auto flex-1">
+          <form
+            ref={formRef}
+            onSubmit={handleSubmit}
+            className="px-6 py-5 space-y-5"
+          >
+            {/* ── Class & Teacher ── */}
+            <Section title="Class Assignment">
+              {!editing ? (
+                <AdminSelect
+                  label="Sub-class *"
+                  name="subClassId"
+                  value={selectedSubClassId}
+                  onChange={(e) => setSelectedSubClassId(e.target.value)}
+                  required
+                >
+                  <option className="text-black" value="">
+                    Select a sub-class…
+                  </option>
+                  {subClasses.map((s) => (
+                    <option className="text-black" key={s.id} value={s.id}>
+                      {s.class.name} → {s.name}
+                    </option>
+                  ))}
+                </AdminSelect>
+              ) : (
+                <div
+                  className="px-3 py-2 rounded-lg border border-white/[0.06] text-sm"
+                  style={{ color: adminColors.textSecondary }}
+                >
+                  {editing.subClass.class.name} → {editing.subClass.name}
+                  <input
+                    type="hidden"
+                    name="subClassId"
+                    value={editing.subClassId}
+                  />
+                </div>
+              )}
+
+              {/* isReschedulable read-only indicator */}
+              {(selectedSubClassId || editing) && (
+                <div
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg"
+                  style={{
+                    background: isReschedulable
+                      ? "rgba(52,211,153,0.06)"
+                      : "rgba(255,255,255,0.03)",
+                    border: `1px solid ${isReschedulable ? "rgba(52,211,153,0.2)" : "rgba(255,255,255,0.07)"}`,
+                  }}
+                >
+                  <div
+                    className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{
+                      background: isReschedulable
+                        ? "#34d399"
+                        : "rgba(255,255,255,0.2)",
+                    }}
+                  />
+                  <div>
+                    <p
+                      className="text-xs font-medium"
+                      style={{
+                        color: isReschedulable
+                          ? "#34d399"
+                          : adminColors.textMuted,
+                      }}
+                    >
+                      {isReschedulable
+                        ? "Rescheduling enabled"
+                        : "Rescheduling disabled"}
+                    </p>
+                    <p
+                      className="text-[10px]"
+                      style={{ color: adminColors.textMuted }}
+                    >
+                      {isReschedulable
+                        ? "Students can reschedule individual sessions (private class)"
+                        : "Fixed group class — students cannot reschedule"}
+                    </p>
+                  </div>
+                  <RefreshCw
+                    size={12}
+                    className="ml-auto flex-shrink-0"
+                    style={{
+                      color: isReschedulable
+                        ? "#34d399"
+                        : "rgba(255,255,255,0.15)",
+                    }}
+                  />
+                </div>
+              )}
+
+              <AdminSelect
+                label="Teacher *"
+                name="teacherId"
+                defaultValue={editing?.teacherId ?? ""}
+                required
+              >
+                <option className="text-black" value="">
+                  Select a teacher…
+                </option>
+                {availableTeachers.map((t) => (
+                  <option className="text-black" key={t.id} value={t.id}>
+                    {t.firstName} {t.lastName}
+                  </option>
+                ))}
+              </AdminSelect>
+
+              {selectedSubClass && selectedSubClass.teachers.length === 0 && (
+                <div
+                  className="flex items-start gap-2 px-3 py-2 rounded-lg"
+                  style={{
+                    background: "rgba(245,158,11,0.06)",
+                    border: "1px solid rgba(245,158,11,0.2)",
+                  }}
+                >
+                  <AlertTriangle
+                    size={13}
+                    className="flex-shrink-0 mt-0.5"
+                    style={{ color: "#f59e0b" }}
+                  />
+                  <p
+                    className="text-xs"
+                    style={{ color: "rgba(245,158,11,0.8)" }}
+                  >
+                    No teachers assigned to this sub-class yet. Showing all
+                    teachers. Assign teachers in the Teachers section first.
+                  </p>
+                </div>
+              )}
+            </Section>
+
+            {/* ── Timing ── */}
+            <Section title="Timing">
+              <AdminSelect
+                label="Day of Week *"
+                name="dayOfWeek"
+                defaultValue={editing?.dayOfWeek ?? ""}
+                required
+              >
+                <option className="text-black" value="">
+                  Select day…
+                </option>
+                {DAYS.map((d) => (
+                  <option className="text-black" key={d} value={d}>
+                    {DAY_LABELS[d]}
+                  </option>
+                ))}
+              </AdminSelect>
+
+              <div className="grid grid-cols-2 gap-3">
+                <TimePicker
+                  id="startTime"
+                  name="startTime"
+                  label="Start Time"
+                  defaultValue={editing?.startTime ?? ""}
+                  required
+                  theme="dark"
+                  fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
+                  inputStyle={{ borderColor: adminColors.border }}
+                />
+                <TimePicker
+                  id="endTime"
+                  name="endTime"
+                  label="End Time"
+                  defaultValue={editing?.endTime ?? ""}
+                  required
+                  theme="dark"
+                  fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
+                  inputStyle={{ borderColor: adminColors.border }}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <DatePicker
+                  id="startDate"
+                  name="startDate"
+                  label="Start Date"
+                  defaultValue={startDateVal}
+                  required
+                  theme="dark"
+                  fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
+                  inputStyle={{ borderColor: adminColors.border }}
+                />
+                <div className="space-y-1">
+                  <DatePicker
+                    id="endDate"
+                    name="endDate"
+                    label="End Date"
+                    defaultValue={endDateVal}
+                    theme="dark"
+                    fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
+                    inputStyle={{ borderColor: adminColors.border }}
+                  />
+                  <p
+                    className="text-l"
+                    style={{ color: adminColors.textMuted }}
+                  >
+                    Leave blank for open-ended
+                  </p>
+                </div>
+              </div>
+
+              {!editing && (
+                <div
+                  className="flex items-start gap-2 px-3 py-2 rounded-lg"
+                  style={{
+                    background: "rgba(96,165,250,0.06)",
+                    border: "1px solid rgba(96,165,250,0.15)",
+                  }}
+                >
+                  <p
+                    className="text-xs"
+                    style={{ color: "rgba(96,165,250,0.8)" }}
+                  >
+                    Sessions are generated once per week on the selected day. To
+                    support{" "}
+                    <strong style={{ color: "#93c5fd" }}>twice-per-week</strong>{" "}
+                    enrollment, create a second schedule for the same sub-class
+                    on a different day (e.g. Monday + Wednesday).
+                  </p>
+                </div>
+              )}
+            </Section>
+
+            {/* ── Settings ── */}
+            <Section title="Settings">
+              <div className="grid grid-cols-2 gap-3">
+                <AdminInput
+                  label="Max Capacity"
+                  name="maxCapacity"
+                  type="number"
+                  min="1"
+                  max="100"
+                  defaultValue={String(editing?.maxCapacity ?? 10)}
+                />
+                {(selectedSubClassId || editing) && (
+                  <div
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg"
+                    style={{
+                      background: isPrivate
+                        ? "rgba(167,139,250,0.06)"
+                        : "rgba(96,165,250,0.06)",
+                      border: `1px solid ${isPrivate ? "rgba(167,139,250,0.2)" : "rgba(96,165,250,0.2)"}`,
+                    }}
+                  >
+                    <p
+                      className="text-xs font-medium"
+                      style={{ color: isPrivate ? "#a78bfa" : "#60a5fa" }}
+                    >
+                      {isPrivate
+                        ? "Private class — capacity locked to 1"
+                        : "Public group class"}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <AdminSelect
+                label="Recurring"
+                name="isRecurring"
+                defaultValue={editing?.isRecurring !== false ? "true" : "false"}
+              >
+                <option className="text-black" value="true">
+                  Yes — weekly recurring
+                </option>
+                <option className="text-black" value="false">
+                  No — one-off
+                </option>
+              </AdminSelect>
+
+              <AdminInput
+                label="Online Link (optional)"
+                name="onlineLink"
+                type="url"
+                placeholder="https://meet.google.com/…"
+                defaultValue={editing?.onlineLink ?? ""}
+              />
+
+              {editing && (
+                <AdminSelect
+                  label="Status"
+                  name="status"
+                  defaultValue={editing.status}
+                >
+                  {STATUS_OPTIONS.map((s) => (
+                    <option
+                      className="text-black"
+                      key={s.value}
+                      value={s.value}
+                    >
+                      {s.label}
+                    </option>
+                  ))}
+                </AdminSelect>
+              )}
+            </Section>
+
+            {error && (
+              <div className="flex items-start gap-2 px-3 py-2.5 rounded-lg bg-red-500/10 border border-red-500/20">
+                <AlertTriangle
+                  size={13}
+                  className="flex-shrink-0 mt-0.5 text-red-400"
+                />
+                <p className="text-xs text-red-400">{error}</p>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-1">
+              <AdminButton type="button" variant="ghost" onClick={onClose}>
+                Cancel
+              </AdminButton>
+              <AdminButton type="submit" variant="primary" disabled={isPending}>
+                {isPending && <Loader2 size={13} className="animate-spin" />}
+                {editing ? "Save Changes" : "Create Schedule"}
+              </AdminButton>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-3">
+      <p
+        className="text-[10px] font-semibold tracking-widest uppercase"
+        style={{ color: "rgba(245,158,11,0.6)" }}
+      >
+        {title}
+      </p>
+      {children}
+    </div>
+  );
+}

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Royal Academy | Offline</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background:
+          radial-gradient(circle at top, rgba(177, 139, 86, 0.16), transparent 38%),
+          linear-gradient(180deg, #130b08 0%, #070505 100%);
+        color: #f2dfc7;
+        font-family: Georgia, "Times New Roman", serif;
+      }
+
+      .panel {
+        width: min(100%, 680px);
+        border: 1px solid rgba(214, 186, 142, 0.24);
+        border-radius: 28px;
+        padding: 40px 28px;
+        background: rgba(20, 14, 10, 0.82);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+        text-align: center;
+      }
+
+      .logo {
+        width: 96px;
+        height: 96px;
+        object-fit: contain;
+        margin: 0 auto 24px;
+        display: block;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      p {
+        margin: 0 auto;
+        max-width: 42rem;
+        font-size: 1rem;
+        line-height: 1.8;
+        color: rgba(242, 223, 199, 0.86);
+      }
+
+      .actions {
+        margin-top: 28px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 14px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 160px;
+        padding: 13px 18px;
+        border-radius: 999px;
+        border: 1px solid rgba(214, 186, 142, 0.34);
+        background: linear-gradient(180deg, rgba(119, 86, 46, 0.65), rgba(47, 30, 16, 0.84));
+        color: #f2dfc7;
+        text-decoration: none;
+        font-size: 0.98rem;
+        letter-spacing: 0.04em;
+      }
+
+      .hint {
+        margin-top: 18px;
+        font-size: 0.92rem;
+        color: rgba(242, 223, 199, 0.64);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="panel">
+      <img class="logo" src="/images/logo/Logo-White.png" alt="Royal Academy" />
+      <h1>You're Offline</h1>
+      <p>
+        Royal Academy is temporarily unavailable because your internet connection
+        is offline. Once the connection returns, reload the page to continue.
+      </p>
+      <div class="actions">
+        <a class="button" href="/en">Open English Home</a>
+        <a class="button" href="/ar">افتح الصفحة العربية</a>
+      </div>
+      <p class="hint">Public pages you visited before may still open from cache.</p>
+    </main>
+  </body>
+</html>
