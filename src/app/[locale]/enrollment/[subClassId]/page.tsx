@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // src/app/[locale]/enrollment/[subClassId]/page.tsx
 import { notFound } from 'next/navigation';
 import { getSubClassDetail } from '@/lib/actions/classes';

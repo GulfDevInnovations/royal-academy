@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // src/app/[locale]/enrollment/page.tsx
 import { getSubClassCards } from '@/lib/actions/classes';
 import { EnrollmentCardsClient } from './_components/EnrollmentCardsClient';

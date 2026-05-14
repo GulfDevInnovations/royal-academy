@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // src/app/[locale]/payments/page.tsx
 import { getStudentPayments } from '@/lib/actions/student-payments';
 import { auth } from '@/lib/auth';

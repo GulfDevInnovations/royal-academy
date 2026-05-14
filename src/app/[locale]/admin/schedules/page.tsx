@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // src/app/[locale]/admin/schedules/page.tsx
 
 import {

@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import GalleryPageClient from '@/components/GalleryPageClient';
 import { getPublishedGalleryItems } from '@/lib/actions/gallery.public.actions';
 

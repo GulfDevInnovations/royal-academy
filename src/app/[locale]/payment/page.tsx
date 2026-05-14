@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // src/app/[locale]/payment/page.tsx
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';

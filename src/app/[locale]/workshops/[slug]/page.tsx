@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // src/app/[locale]/workshops/[slug]/page.tsx
 
 import { notFound } from "next/navigation";

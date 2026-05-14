@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // src/app/[locale]/admin/classes/page.tsx
 // Server component — fetches data and serializes before passing to client.
 // Prisma returns Decimal and Date objects which can't cross the
