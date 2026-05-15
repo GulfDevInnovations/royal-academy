@@ -661,7 +661,7 @@ function MobileSidebarNav({
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/images/logo/logo-black.png"
+            src="/images/logo/Logo-Black.png"
             alt="Royal Academy"
             style={{
               width: 40,
@@ -2054,7 +2054,7 @@ function DesktopSidebarNav({
             <Link href={`/${locale}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/logo/logo-black.png"
+                src="/images/logo/Logo-Black.png"
                 alt="Royal Academy"
                 style={{
                   width: 120,
@@ -3405,8 +3405,8 @@ function PastelMap({
       mapInstance.current = map;
 
       L.tileLayer(
-        'https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}{r}.png',
-        { maxZoom: 19 },
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        { maxZoom: 19, attribution: '© OpenStreetMap contributors' },
       ).addTo(map);
 
       setTimeout(() => {

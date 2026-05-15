@@ -46,9 +46,9 @@ interface HeroProps {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const MEDIA_ITEMS: MediaItem[] = [
-  { type: 'video', src: '/videos/royalAcademyPart1.webm' },
-  { type: 'video', src: '/videos/royalAcademyPart2.webm' },
-  { type: 'video', src: '/videos/royalAcademyPart3.webm' },
+  { type: 'video', src: '/videos/royalAcademyPart1.mp4' },
+  { type: 'video', src: '/videos/royalAcademyPart2.mp4' },
+  { type: 'video', src: '/videos/royalAcademyPart3.mp4' },
 ];
 
 const SIDEBAR_W = 150;
@@ -188,7 +188,6 @@ export default function HeroSection({
                     ref={(el) => {
                       videoRefs.current[i] = el;
                     }}
-                    src={item.src}
                     preload={i === 0 ? 'auto' : 'none'}
                     autoPlay
                     muted
@@ -200,7 +199,9 @@ export default function HeroSection({
                       objectFit: 'cover',
                       display: 'block',
                     }}
-                  />
+                  >
+                    <source src={item.src} type="video/mp4" />
+                  </video>
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -318,14 +319,15 @@ export default function HeroSection({
                 ref={(el) => {
                   videoRefs.current[i] = el;
                 }}
-                src={item.src}
                 preload={i === 0 ? 'auto' : 'none'}
                 autoPlay
                 muted
                 playsInline
                 onEnded={nextSlide}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
+              >
+                <source src={item.src} type="video/mp4" />
+              </video>
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
               <img
