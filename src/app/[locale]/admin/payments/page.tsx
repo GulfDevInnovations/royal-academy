@@ -4,8 +4,8 @@ import {
   getEnrollmentPayments,
   getOtherPayments,
   getPaymentStats,
-} from "@/lib/actions/admin/payments.actions";
-import PaymentsClient from "./_components/PaymentsClient";
+} from '@/lib/actions/admin/payments.actions';
+import PaymentsClient from './_components/PaymentsClient';
 
 function serializeEnrollmentPayments(
   payments: Awaited<ReturnType<typeof getEnrollmentPayments>>,

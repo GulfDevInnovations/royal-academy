@@ -3,8 +3,8 @@
 import {
   getSchedules,
   getScheduleFormOptions,
-} from "@/lib/actions/admin/Schedules.actions";
-import SchedulesClient from "./_components/ScheduleClient";
+} from '@/lib/actions/admin/Schedules.actions';
+import SchedulesClient from './_components/ScheduleClient';
 
 function serializeSchedules(
   schedules: Awaited<ReturnType<typeof getSchedules>>,

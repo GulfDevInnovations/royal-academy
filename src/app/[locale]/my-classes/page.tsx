@@ -181,14 +181,25 @@ export default async function MyClassesPage() {
     }
     reschedulesBySubClass.get(subClassId)!.push({
       logId: log.id,
-      requestedAt: log.requestedAt instanceof Date ? log.requestedAt.toISOString() : log.requestedAt,
+      requestedAt:
+        log.requestedAt instanceof Date
+          ? log.requestedAt.toISOString()
+          : log.requestedAt,
       wasLost: log.wasLost,
       lostReason: log.lostReason ?? null,
-      oldSessionDate: log.oldSession?.sessionDate ? (log.oldSession.sessionDate instanceof Date ? log.oldSession.sessionDate.toISOString() : log.oldSession.sessionDate) : null,
+      oldSessionDate: log.oldSession?.sessionDate
+        ? log.oldSession.sessionDate instanceof Date
+          ? log.oldSession.sessionDate.toISOString()
+          : log.oldSession.sessionDate
+        : null,
       oldStartTime: log.oldSession?.startTime ?? null,
       oldEndTime: log.oldSession?.endTime ?? null,
       oldDayOfWeek: log.oldSession?.schedule?.dayOfWeek ?? null,
-      newSessionDate: log.newSession?.sessionDate ? (log.newSession.sessionDate instanceof Date ? log.newSession.sessionDate.toISOString() : log.newSession.sessionDate) : null,
+      newSessionDate: log.newSession?.sessionDate
+        ? log.newSession.sessionDate instanceof Date
+          ? log.newSession.sessionDate.toISOString()
+          : log.newSession.sessionDate
+        : null,
       newStartTime: log.newSession?.startTime ?? null,
       newEndTime: log.newSession?.endTime ?? null,
       newDayOfWeek: log.newSession?.schedule?.dayOfWeek ?? null,

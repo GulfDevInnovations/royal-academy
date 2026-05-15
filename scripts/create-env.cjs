@@ -14,6 +14,7 @@ LOCAL_STORAGE_ROOT=${process.env.LOCAL_STORAGE_ROOT}
 LOCAL_MEDIA_BASE_URL=${process.env.LOCAL_MEDIA_BASE_URL}
 RESEND_API_KEY=${process.env.RESEND_API_KEY}
 RESEND_FROM_EMAIL=${process.env.RESEND_FROM_EMAIL}
+AUTH_TRUST_HOST=true
 `.trim();
 
 fs.writeFileSync('.env', envContent);
