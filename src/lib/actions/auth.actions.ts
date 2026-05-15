@@ -125,6 +125,20 @@ export async function resendVerification(email: string) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// GOOGLE SIGN IN
+// ─────────────────────────────────────────────────────────────
+export async function signInWithGoogle(formData: FormData) {
+  const locale = getSafeLocale(formData);
+  const redirectTo = formData.get('redirectTo') as string | null;
+  const safeRedirect =
+    redirectTo && redirectTo.startsWith('/') && !redirectTo.startsWith('//')
+      ? redirectTo
+      : `/${locale}`;
+  // nextAuthSignIn('google') throws NEXT_REDIRECT — Next.js handles it
+  await nextAuthSignIn('google', { redirectTo: safeRedirect });
+}
+
+// ─────────────────────────────────────────────────────────────
 // SIGN IN
 // ─────────────────────────────────────────────────────────────
 export async function signIn(formData: FormData) {
