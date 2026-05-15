@@ -1,21 +1,19 @@
-export const dynamic = 'force-dynamic';
-
 // src/app/[locale]/workshops/page.tsx
 
-import { prisma } from "@/lib/prisma";
-import WorkshopsCalendarClient from "./_components/WorkshopsCalendarClient";
-import { parseJsonArray } from "@/utils/parseJson";
+import { prisma } from '@/lib/prisma';
+import WorkshopsCalendarClient from './_components/WorkshopsCalendarClient';
+import { parseJsonArray } from '@/utils/parseJson';
 
-export const metadata = { title: "Workshops | Royal Academy" };
+export const metadata = { title: 'Workshops | Royal Academy' };
 
 export default async function WorkshopsPage() {
   const workshops = await prisma.workshop.findMany({
     where: { isActive: true },
-    orderBy: { eventDate: "asc" },
+    orderBy: { eventDate: 'asc' },
     include: {
       teacher: { select: { firstName: true, lastName: true, photoUrl: true } },
       room: { select: { name: true, location: true } },
-      bookings: { where: { status: "CONFIRMED" }, select: { id: true } },
+      bookings: { where: { status: 'CONFIRMED' }, select: { id: true } },
     },
   });
 

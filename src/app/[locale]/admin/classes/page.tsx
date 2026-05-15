@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic';
-
 // src/app/[locale]/admin/classes/page.tsx
 // Server component — fetches data and serializes before passing to client.
 // Prisma returns Decimal and Date objects which can't cross the
@@ -8,8 +6,8 @@ export const dynamic = 'force-dynamic';
 import {
   getClasses,
   getTeachersForSelect,
-} from "@/lib/actions/admin/classes.actions";
-import ClassesClient from "./_components/ClassesClient";
+} from '@/lib/actions/admin/classes.actions';
+import ClassesClient from './_components/ClassesClient';
 
 function serializeClasses(classes: Awaited<ReturnType<typeof getClasses>>) {
   return classes.map((cls) => ({
@@ -33,7 +31,7 @@ function serializeClasses(classes: Awaited<ReturnType<typeof getClasses>>) {
 
 export type SerializedClasses = ReturnType<typeof serializeClasses>;
 export type SerializedClass = SerializedClasses[number];
-export type SerializedSubClass = SerializedClass["subClasses"][number];
+export type SerializedSubClass = SerializedClass['subClasses'][number];
 
 export default async function AdminClassesPage() {
   const [rawClasses, teachers] = await Promise.all([

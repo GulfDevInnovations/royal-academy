@@ -1,13 +1,11 @@
-export const dynamic = 'force-dynamic';
-
 // src/app/[locale]/admin/enrollments/page.tsx
 import {
   getEnrollments,
   getCapacitySummary,
   getEnrollmentFormOptions,
   getMultiMonthEnrollments,
-} from "@/lib/actions/admin/Enrollments.actions";
-import EnrollmentsClient from "./_components/EnrollmentsClient";
+} from '@/lib/actions/admin/Enrollments.actions';
+import EnrollmentsClient from './_components/EnrollmentsClient';
 
 const now = new Date();
 

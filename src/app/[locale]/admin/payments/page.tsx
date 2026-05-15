@@ -1,13 +1,11 @@
-export const dynamic = 'force-dynamic';
-
 // src/app/[locale]/admin/payments/page.tsx
 
 import {
   getEnrollmentPayments,
   getOtherPayments,
   getPaymentStats,
-} from "@/lib/actions/admin/payments.actions";
-import PaymentsClient from "./_components/PaymentsClient";
+} from '@/lib/actions/admin/payments.actions';
+import PaymentsClient from './_components/PaymentsClient';
 
 function serializeEnrollmentPayments(
   payments: Awaited<ReturnType<typeof getEnrollmentPayments>>,

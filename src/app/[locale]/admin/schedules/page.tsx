@@ -1,12 +1,10 @@
-export const dynamic = 'force-dynamic';
-
 // src/app/[locale]/admin/schedules/page.tsx
 
 import {
   getSchedules,
   getScheduleFormOptions,
-} from "@/lib/actions/admin/Schedules.actions";
-import SchedulesClient from "./_components/ScheduleClient";
+} from '@/lib/actions/admin/Schedules.actions';
+import SchedulesClient from './_components/ScheduleClient';
 
 function serializeSchedules(
   schedules: Awaited<ReturnType<typeof getSchedules>>,

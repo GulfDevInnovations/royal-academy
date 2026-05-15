@@ -1,11 +1,9 @@
-export const dynamic = 'force-dynamic';
-
 // src/app/[locale]/workshops/[slug]/page.tsx
 
-import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import WorkshopDetailClient from "./_components/WorkshopDetailClient";
-import { parseJsonArray } from "@/utils/parseJson";
+import { notFound } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
+import WorkshopDetailClient from './_components/WorkshopDetailClient';
+import { parseJsonArray } from '@/utils/parseJson';
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>;
@@ -17,7 +15,7 @@ export async function generateMetadata({ params }: Props) {
     where: { slug },
     select: { title: true, description: true, coverUrl: true },
   });
-  if (!workshop) return { title: "Workshop Not Found" };
+  if (!workshop) return { title: 'Workshop Not Found' };
   return {
     title: workshop.title,
     description: workshop.description ?? undefined,
@@ -45,7 +43,7 @@ export default async function WorkshopPage({ params }: Props) {
         select: { id: true, name: true, location: true, capacity: true },
       },
       bookings: {
-        where: { status: "CONFIRMED" },
+        where: { status: 'CONFIRMED' },
         select: { id: true },
       },
     },

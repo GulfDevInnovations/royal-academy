@@ -1,12 +1,10 @@
-export const dynamic = 'force-dynamic';
-
 // src/app/[locale]/admin/students/page.tsx
 
 import {
   getStudents,
   getStudentFilterOptions,
-} from "@/lib/actions/admin/students.actions";
-import StudentsClient from "./_components/StudentsClient";
+} from '@/lib/actions/admin/students.actions';
+import StudentsClient from './_components/StudentsClient';
 
 function serializeStudents(students: Awaited<ReturnType<typeof getStudents>>) {
   return students.map((s) => ({

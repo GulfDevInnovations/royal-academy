@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic';
-
 // src/app/[locale]/admin/notifications/page.tsx
 
 import {

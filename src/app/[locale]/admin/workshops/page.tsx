@@ -1,14 +1,12 @@
-export const dynamic = 'force-dynamic';
-
 // src/app/[locale]/admin/workshops/page.tsx
 
 import {
   getWorkshops,
   getRooms,
   getTeachersForSelect,
-} from "@/lib/actions/admin/Workshops.actions";
-import { parseJsonArray } from "@/utils/parseJson";
-import WorkshopsClient from "./_components/WorkshopClient";
+} from '@/lib/actions/admin/Workshops.actions';
+import { parseJsonArray } from '@/utils/parseJson';
+import WorkshopsClient from './_components/WorkshopClient';
 
 function serializeWorkshops(
   workshops: Awaited<ReturnType<typeof getWorkshops>>,
@@ -49,7 +47,7 @@ function serializeWorkshops(
 }
 
 export type SerializedWorkshop = ReturnType<typeof serializeWorkshops>[number];
-export type SerializedBooking = SerializedWorkshop["bookings"][number];
+export type SerializedBooking = SerializedWorkshop['bookings'][number];
 
 export default async function AdminWorkshopsPage() {
   const [workshops, rooms, teachers] = await Promise.all([

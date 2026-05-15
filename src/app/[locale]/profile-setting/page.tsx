@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic';
-
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
@@ -290,7 +288,9 @@ export default async function ProfileSettingPage({
       {requiredMessage}
     </p>
   );
-  const getFieldA11y = (fieldName: string): { 'aria-invalid'?: true; 'aria-describedby'?: string } => ({
+  const getFieldA11y = (
+    fieldName: string,
+  ): { 'aria-invalid'?: true; 'aria-describedby'?: string } => ({
     'aria-invalid': missingSet.has(fieldName) ? true : undefined,
     'aria-describedby': missingSet.has(fieldName)
       ? `${fieldName}__required`

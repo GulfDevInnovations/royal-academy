@@ -16,10 +16,15 @@ export async function middleware(request: NextRequest) {
   const intlResponse = intlMiddleware(request);
   const response = intlResponse || NextResponse.next({ request });
 
-  // Read JWT from cookie
+  // In production behind a reverse proxy (Nginx → HTTPS), Auth.js creates
+  // '__Secure-authjs.session-token' (secure prefix) while getToken() defaults
+  // to looking for 'authjs.session-token' (no prefix), so the cookie is never
+  // found and getToken returns null. Passing secureCookie=true fixes the
+  // cookie name and the JWE salt to match what Auth.js wrote.
   const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET!,
+    secureCookie: process.env.NODE_ENV === 'production',
   });
 
   const locale = pathname.startsWith('/ar') ? 'ar' : 'en';

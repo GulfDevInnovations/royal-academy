@@ -1,14 +1,12 @@
-export const dynamic = 'force-dynamic';
-
 // src/app/[locale]/admin/teachers/page.tsx
 
 import {
   getTeachers,
   getSubClassesForAssignment,
-} from "@/lib/actions/admin/teachers.actions";
-import { parseJsonArray } from "@/utils/parseJson";
-import TeachersClient from "./_components/TeachersClient";
-import { jsonToStringArray } from "@/utils/prisma-json";
+} from '@/lib/actions/admin/teachers.actions';
+import { parseJsonArray } from '@/utils/parseJson';
+import TeachersClient from './_components/TeachersClient';
+import { jsonToStringArray } from '@/utils/prisma-json';
 
 function serializeTeachers(teachers: Awaited<ReturnType<typeof getTeachers>>) {
   return teachers.map((t) => ({
