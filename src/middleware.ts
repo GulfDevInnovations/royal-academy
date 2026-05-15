@@ -16,14 +16,14 @@ export async function middleware(request: NextRequest) {
   const intlResponse = intlMiddleware(request);
   const response = intlResponse || NextResponse.next({ request });
 
-  // In production behind a reverse proxy (Nginx → HTTPS), Auth.js creates
-  // '__Secure-authjs.session-token' (secure prefix) while getToken() defaults
-  // to looking for 'authjs.session-token' (no prefix), so the cookie is never
-  // found and getToken returns null. Passing secureCookie=true fixes the
-  // cookie name and the JWE salt to match what Auth.js wrote.
+  // Auth.js v5 prefers AUTH_SECRET over NEXTAUTH_SECRET. Use the same
+  // resolution order here so getToken decrypts with the same key Auth.js used.
+  // In production behind a proxy the cookie gets the __Secure- prefix, so
+  // secureCookie must be true or getToken looks for the wrong cookie name.
+  const secret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET!;
   const token = await getToken({
     req: request,
-    secret: process.env.NEXTAUTH_SECRET!,
+    secret,
     secureCookie: process.env.NODE_ENV === 'production',
   });
 
