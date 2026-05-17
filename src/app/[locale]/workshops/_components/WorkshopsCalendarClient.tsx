@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 
 // ─────────────────────────────────────────────
 // Types
@@ -61,21 +62,6 @@ function isoDateStr(year: number, month: number, day: number) {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
-const MONTH_NAMES = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-];
-const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 // ─────────────────────────────────────────────
 // Media strip
@@ -213,6 +199,7 @@ function DayBadge({
 
 function EmptyDayCard({ day, dayOfWeek }: { day: number; dayOfWeek: string }) {
   const [expanded, setExpanded] = useState(false);
+  const t = useTranslations('workshops');
 
   return (
     <div
@@ -244,7 +231,7 @@ function EmptyDayCard({ day, dayOfWeek }: { day: number; dayOfWeek: string }) {
           className="text-sm"
           style={{ color: 'rgba(0,0,0,0.3)', fontStyle: 'italic' }}
         >
-          No workshop scheduled
+          {t('noWorkshopScheduled')}
         </p>
       </div>
     </div>
@@ -295,6 +282,7 @@ function WorkshopDayCard({
   dayOfWeek: string;
   workshop: Workshop;
 }) {
+  const t = useTranslations('workshops');
   const seatsLeft = workshop.capacity - workshop.enrolledCount;
   const isFull = seatsLeft <= 0;
 
@@ -534,7 +522,7 @@ function WorkshopDayCard({
                 style={{ color: 'rgba(255,255,255,0.6)' }}
               >
                 <Wifi size={12} />
-                <span>Online</span>
+                <span>{t('online')}</span>
               </div>
             ) : workshop.room ? (
               <div
@@ -556,8 +544,10 @@ function WorkshopDayCard({
               <Users size={12} />
               <span>
                 {isFull
-                  ? 'Fully booked'
-                  : `${seatsLeft} seat${seatsLeft !== 1 ? 's' : ''} left`}
+                  ? t('fullyBooked')
+                  : seatsLeft === 1
+                    ? t('seatLeft')
+                    : t('seatsLeft', { count: seatsLeft })}
               </span>
             </div>
 
@@ -623,7 +613,7 @@ function WorkshopDayCard({
                 zIndex: 30,
               }}
             >
-              {isFull ? 'Fully Booked' : 'Register'}
+              {isFull ? t('fullyBookedBtn') : t('register')}
               {!isFull && <ChevronRight size={12} />}
             </div>
           </div>
@@ -648,11 +638,13 @@ function MonthSelector({
   activeYear,
   activeMonth,
   onChange,
+  monthNames,
 }: {
   options: { year: number; month: number; hasWorkshops: boolean }[];
   activeYear: number;
   activeMonth: number;
   onChange: (year: number, month: number) => void;
+  monthNames: string[];
 }) {
   return (
     <div
@@ -685,7 +677,7 @@ function MonthSelector({
               transform: isActive ? 'translateY(0.5px)' : 'translateY(0)',
             }}
           >
-            {MONTH_NAMES[month]}
+            {monthNames[month]}
             {hasWorkshops && (
               <span
                 className="ml-1.5 text-[9px]"
@@ -710,9 +702,31 @@ function MonthSelector({
 // ─────────────────────────────────────────────
 
 export default function WorkshopsCalendarClient({ workshops }: Props) {
+  const t = useTranslations('workshops');
+  const locale = useLocale();
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
+
+  const monthNames = useMemo(
+    () =>
+      Array.from({ length: 12 }, (_, i) =>
+        new Intl.DateTimeFormat(locale, { month: 'long' }).format(
+          new Date(2024, i, 1),
+        ),
+      ),
+    [locale],
+  );
+
+  const dayNames = useMemo(
+    () =>
+      Array.from({ length: 7 }, (_, i) =>
+        new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(
+          new Date(2024, 0, 7 + i), // Jan 7 2024 is Sunday → index 0
+        ),
+      ),
+    [locale],
+  );
 
   const workshopByDate = useMemo(() => {
     const map = new Map<string, Workshop>();
@@ -748,11 +762,11 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
       const dow = new Date(viewYear, viewMonth, day).getDay();
       return {
         day,
-        dayOfWeek: DAY_NAMES[dow],
+        dayOfWeek: dayNames[dow],
         workshop: workshopByDate.get(key) ?? null,
       };
     });
-  }, [viewYear, viewMonth, workshopByDate]);
+  }, [viewYear, viewMonth, workshopByDate, dayNames]);
 
   const workshopCount = days.filter((d) => d.workshop).length;
 
@@ -769,7 +783,7 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
                 color: 'rgba(222,194,158,0.85)',
               }}
             >
-              {MONTH_NAMES[viewMonth]} {viewYear}
+              {monthNames[viewMonth]} {viewYear}
             </h2>
             <span
               className="text-sm"
@@ -779,8 +793,10 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
               }}
             >
               {workshopCount === 0
-                ? 'No workshops this month'
-                : `${workshopCount} workshop${workshopCount !== 1 ? 's' : ''}`}
+                ? t('noWorkshopsThisMonth')
+                : workshopCount === 1
+                  ? t('workshop')
+                  : t('workshops', { count: workshopCount })}
             </span>
           </div>
           <MonthSelector
@@ -791,6 +807,7 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
               setViewYear(y);
               setViewMonth(m);
             }}
+            monthNames={monthNames}
           />
         </div>
 

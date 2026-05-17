@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, X } from "lucide-react";
 
 export function SuccessToast() {
+  const t = useTranslations('enrollment');
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -47,10 +49,10 @@ export function SuccessToast() {
           {/* Text */}
           <div className="flex-1">
             <p className="font-bold text-royal-cream text-sm font-goudy">
-              Booking Confirmed!
+              {t('success.title')}
             </p>
             <p className="text-royal-cream/50 text-xs mt-0.5">
-              Your class has been reserved successfully.
+              {t('success.description')}
             </p>
           </div>
 

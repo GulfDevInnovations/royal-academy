@@ -18,6 +18,7 @@ import {
 import {
   faBookOpen,
   faCreditCard,
+  faHeadset,
   faPalette,
   faPhone,
   faPowerOff,
@@ -169,6 +170,7 @@ function buildBreadcrumbs(
     'profile-setting': isAr ? 'الملف الشخصي' : 'Profile',
     'my-classes': isAr ? 'دروسي' : 'My Classes',
     payments: isAr ? 'المدفوعات' : 'Payments',
+    support: isAr ? 'الدعم' : 'Support',
     signup: isAr ? 'إنشاء حساب' : 'Sign Up',
     'forgot-password': isAr ? 'نسيت كلمة المرور' : 'Forgot Password',
   };
@@ -462,6 +464,11 @@ function MobileSidebarNav({
       href: `/${locale}/payments`,
       label: isAr ? 'المدفوعات' : 'Payments',
       icon: faCreditCard,
+    },
+    {
+      href: `/${locale}/support`,
+      label: isAr ? 'الدعم' : 'Support',
+      icon: faHeadset,
     },
   ];
   if (isAdmin) {
@@ -1801,6 +1808,11 @@ function DesktopSidebarNav({
       href: `/${locale}/payments`,
       label: isAr ? 'المدفوعات' : 'Payments',
       icon: faCreditCard,
+    },
+    {
+      href: `/${locale}/support`,
+      label: isAr ? 'الدعم' : 'Support',
+      icon: faHeadset,
     },
   ];
   if (isAdmin) {

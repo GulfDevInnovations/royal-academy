@@ -10,6 +10,7 @@ import AvatarUploadField from './_components/AvatarUploadField';
 import CountryCityFields from './_components/CountryCityFields';
 import GlassSelectField from './_components/GlassSelectField';
 import InlineRequiredValidation from './_components/InlineRequiredValidation';
+import LiveProgressBar from './_components/LiveProgressBar';
 import MedicalConditionField from './_components/MedicalConditionField';
 import ScrollToMissingField from './_components/ScrollToMissingField';
 import TermsConsentField from './_components/TermsConsentField';
@@ -383,15 +384,11 @@ export default async function ProfileSettingPage({
       (value) => String(value ?? '').trim().length === 0,
     ).length + (agreePolicy ? 0 : 1);
   const requiredCompletedCount = requiredTotal - requiredMissingCount;
-  const completionPercent =
-    requiredTotal > 0
-      ? Math.round((requiredCompletedCount / requiredTotal) * 100)
-      : 0;
 
   const content = isArabic
     ? {
-        title: 'إعدادات الملف الشخصي',
-        subtitle: 'حدّث معلوماتك بالكامل من خلال النموذج التالي.',
+        title: 'ملف تسجيل الطالب',
+        subtitle: 'أكمل بيانات الطالب أدناه للتسجيل في الأكاديمية.',
         saved: 'تم حفظ الملف الشخصي بنجاح.',
         requiredError:
           'يرجى تعبئة جميع الحقول المطلوبة قبل حفظ إعدادات الملف الشخصي.',
@@ -463,9 +460,9 @@ export default async function ProfileSettingPage({
         addressPlaceholder: 'انقر واختر حيتك',
       }
     : {
-        title: 'Profile Settings',
+        title: 'Student Enrollment Profile',
         subtitle:
-          'Update your complete profile information using the form below.',
+          'Complete the students information below to enroll them in the academy.',
         saved: 'Profile saved successfully.',
         requiredError:
           'Please fill all required fields before saving profile settings.',
@@ -590,8 +587,50 @@ export default async function ProfileSettingPage({
           opacity: 0.009,
         }}
       />
-
       <section className="relative z-10 mx-auto w-full max-w-5xl rounded-3xl p-6 md:p-8">
+        {/* Notice banner */}
+        <div
+          className="mb-8 flex items-start gap-3 rounded-2xl px-5 py-4 border"
+          style={{
+            background:
+              'linear-gradient(135deg, rgba(228,208,181,0.12) 0%, rgba(228,208,181,0.07) 100%)',
+            borderColor: 'rgba(228,208,181,0.3)',
+          }}
+        >
+          {/* Icon */}
+          <div className="flex-shrink-0 mt-0.5">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              className="w-5 h-5"
+              stroke="#e4d0b5"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4M12 16h.01" />
+            </svg>
+          </div>
+          <div className="space-y-1">
+            <p
+              className="text-sm font-semibold tracking-wide"
+              style={{ color: '#e4d0b5' }}
+            >
+              {isArabic
+                ? 'تنبيه: يُرجى إدخال بيانات الطالب، وليس بياناتك الشخصية'
+                : "Important: Please fill in the student's information, not your own"}
+            </p>
+            <p
+              className="text-xs leading-relaxed"
+              style={{ color: 'rgba(228,208,181,0.7)' }}
+            >
+              {isArabic
+                ? 'إذا كنت تُسجّل نيابةً عن طفلك أو أحد أفراد العائلة، تأكد من إدخال اسمه وتاريخ ميلاده وجميع بياناته الشخصية — وليس بياناتك أنت. بيانات التواصل والطوارئ يمكن أن تكون بياناتك.'
+                : 'If you are registering on behalf of your child or a family member, make sure to enter their name, date of birth, and personal details — not yours. Contact and emergency information can be your own.'}
+            </p>
+          </div>
+        </div>
         <h1
           className="text-3xl font-light tracking-widest mb-2"
           style={{ color: '#e4d0b5' }}
@@ -602,40 +641,11 @@ export default async function ProfileSettingPage({
           {content.subtitle}
         </p>
 
-        <div className="mb-6 rounded-xl px-4 py-3 ">
-          <div className="flex items-center justify-between">
-            <p className="text-sm" style={{ color: '#e4d0b5' }}>
-              {isArabic ? 'تقدم الحقول المطلوبة' : 'Required Fields Progress'}
-            </p>
-            <p className="text-xs" style={{ color: 'rgba(228,208,181,0.75)' }}>
-              {requiredCompletedCount}/{requiredTotal}
-            </p>
-          </div>
-          <div
-            className="mt-2 h-2 w-full rounded-full overflow-hidden"
-            style={{ border: '1px solid rgba(228,208,181,0.22)' }}
-          >
-            <div
-              className="h-full rounded-full"
-              style={{
-                width: `${completionPercent}%`,
-                background: 'rgba(228,208,181,0.55)',
-              }}
-            />
-          </div>
-          <p
-            className="mt-2 text-xs"
-            style={{ color: 'rgba(228,208,181,0.75)' }}
-          >
-            {requiredMissingCount === 0
-              ? isArabic
-                ? 'تم إكمال جميع الحقول المطلوبة.'
-                : 'All required fields are complete.'
-              : isArabic
-                ? `يوجد ${requiredMissingCount} حقول مطلوبة ناقصة.`
-                : `${requiredMissingCount} required fields missing.`}
-          </p>
-        </div>
+        <LiveProgressBar
+          initialCompleted={requiredCompletedCount}
+          initialTotal={requiredTotal}
+          isArabic={isArabic}
+        />
 
         {query.saved === '1' && (
           <TimedAlert message={content.saved} tone="success" />
@@ -678,7 +688,13 @@ export default async function ProfileSettingPage({
           noValidate
         >
           <InlineRequiredValidation fieldIds={requiredFieldIds} />
-          <UnsavedChangesGuard formId="profile-settings-form" />
+          <UnsavedChangesGuard
+            formId="profile-settings-form"
+            title={isArabic ? 'تغييرات غير محفوظة' : 'Unsaved Changes'}
+            body={isArabic ? 'لديك تغييرات غير محفوظة. هل أنت متأكد أنك تريد المغادرة؟' : 'You have unsaved changes. Are you sure you want to leave?'}
+            leaveLabel={isArabic ? 'مغادرة' : 'Leave'}
+            stayLabel={isArabic ? 'البقاء' : 'Stay'}
+          />
           <input type="hidden" name="locale" value={locale} />
           <MobileSection title={content.personal}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -735,7 +751,6 @@ export default async function ProfileSettingPage({
                   />
                   {renderRequiredMessage('dateOfBirth')}
                 </div>
-                {renderRequiredMessage('dateOfBirth')}
               </label>
               <label htmlFor="genderDisplay" className="block">
                 <span className="text-sm">

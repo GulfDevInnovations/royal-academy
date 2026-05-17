@@ -121,7 +121,10 @@ export default function GlassSelectField({
         aria-invalid={ariaInvalid}
         aria-describedby={ariaDescribedBy}
         onFocus={() => {
-          if (!disabled) setOpen(true);
+          if (!disabled) {
+            setQuery('');
+            setOpen(true);
+          }
         }}
         onChange={(event) => {
           const next = event.target.value;

@@ -695,7 +695,7 @@ function MobileCardSection({
           borderRadius: 4,
           overflow: 'hidden',
           boxShadow: hasMedia ? '0 4px 20px rgba(0,0,0,0.12)' : 'none',
-          background: hasMedia ? undefined : 'transparent',
+          background: 'transparent',
         }}
       >
         {hasMedia &&
@@ -1250,7 +1250,7 @@ function DesktopContentSection({
                 position: 'relative',
                 width: '100%',
                 height: '100%',
-                background: '#fff',
+                background: 'transparent',
                 boxShadow:
                   '0 2px 4px rgba(0,0,0,0.06), 0 8px 28px rgba(0,0,0,0.1)',
                 borderRadius: 2,
@@ -1510,7 +1510,7 @@ function DesktopSingleRow({
               position: 'relative',
               width: '100%',
               height: '100%',
-              background: '#fff',
+              background: 'transparent',
               cursor: 'pointer',
               borderRadius: 2,
               overflow: 'hidden',

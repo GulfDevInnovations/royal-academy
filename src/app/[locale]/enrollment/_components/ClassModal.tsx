@@ -3,6 +3,7 @@
 import { SessionForCalendar } from '@/lib/actions/reservation';
 import { format, parseISO } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import {
   AlertCircle,
   Award,
@@ -39,6 +40,7 @@ export function ClassModal({
   isBooking,
   bookingError,
 }: ClassModalProps) {
+  const t = useTranslations('enrollment');
   const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -163,7 +165,7 @@ export function ClassModal({
 
                 <div>
                   <div className="text-xs text-royal-cream/40 uppercase tracking-wider mb-0.5">
-                    Instructor
+                    {t('modal.instructorLabel')}
                   </div>
                   <div className="font-bold text-royal-cream font-goudy">
                     {session.teacher.firstName} {session.teacher.lastName}
@@ -200,14 +202,14 @@ export function ClassModal({
               <div className="grid grid-cols-2 gap-3">
                 <DetailChip
                   icon={<Clock className="w-3.5 h-3.5" />}
-                  label="Duration"
-                  value={`${session.subClass.durationMinutes} minutes`}
+                  label={t('detail.duration')}
+                  value={`${session.subClass.durationMinutes} ${t('detail.minutes')}`}
                 />
 
                 {session.subClass.level && (
                   <DetailChip
                     icon={<Award className="w-3.5 h-3.5" />}
-                    label="Level"
+                    label={t('detail.level')}
                     value={session.subClass.level}
                   />
                 )}
@@ -215,7 +217,7 @@ export function ClassModal({
                 {session.subClass.ageGroup && (
                   <DetailChip
                     icon={<Users className="w-3.5 h-3.5" />}
-                    label="Age Group"
+                    label={t('detail.ageGroup')}
                     value={session.subClass.ageGroup}
                   />
                 )}
@@ -225,7 +227,7 @@ export function ClassModal({
                 <div className="mt-4 p-4 rounded-xl bg-white/[0.03] border border-white/5">
                   <div className="flex items-center gap-2 text-xs text-royal-cream/40 uppercase tracking-wider mb-2">
                     <BookOpen className="w-3.5 h-3.5" />
-                    About this class
+                    {t('modal.aboutClass')}
                   </div>
                   <p className="text-sm text-royal-cream/70 leading-relaxed">
                     {session.subClass.description}
@@ -244,7 +246,7 @@ export function ClassModal({
                 <div className="flex items-center justify-between text-xs mb-1.5">
                   <div className="flex items-center gap-1.5 text-royal-cream/50">
                     <Users className="w-3.5 h-3.5" />
-                    <span>Availability</span>
+                    <span>{t('modal.availability')}</span>
                   </div>
                   <span
                     className={`font-semibold ${
@@ -256,8 +258,8 @@ export function ClassModal({
                     }`}
                   >
                     {isFull
-                      ? 'Class Full'
-                      : `${session.spotsLeft} of ${session.subClass.capacity} spots left`}
+                      ? t('modal.classFull')
+                      : t('modal.spotsLeft', { spots: session.spotsLeft, capacity: session.subClass.capacity })}
                   </span>
                 </div>
                 <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
@@ -280,7 +282,7 @@ export function ClassModal({
               <div className="flex items-center gap-4">
                 <div>
                   <div className="text-xs text-royal-cream/40 uppercase tracking-wider">
-                    Price
+                    {t('modal.price')}
                   </div>
                   <div className="text-2xl font-bold text-royal-gold font-goudy">
                     {session.subClass.price}{' '}
@@ -324,12 +326,12 @@ export function ClassModal({
                   {isBooking ? (
                     <span className="flex items-center justify-center gap-2">
                       <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                      Booking…
+                      {t('modal.booking')}
                     </span>
                   ) : isFull ? (
-                    'Class Full'
+                    t('modal.classFull')
                   ) : (
-                    'Book This Class'
+                    t('modal.bookClass')
                   )}
                 </button>
               </div>

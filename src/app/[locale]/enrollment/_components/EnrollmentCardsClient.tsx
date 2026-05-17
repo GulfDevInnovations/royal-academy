@@ -2,20 +2,21 @@
 
 import { SubClassCard } from '@/lib/actions/classes';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { PrivateClassCard } from './PrivateClassCard';
 import { SubClassCardTile } from './SubClassCardtile';
 
-const FILTERS = [
+const FILTER_KEYS = [
   'All',
   'Music',
   'Dance & Wellness',
   'Art',
   'Ballet',
   'Workshops',
-];
+] as const;
 
 const CLASS_COLORS: Record<
   string,
@@ -42,9 +43,22 @@ interface EnrollmentCardsClientProps {
 export function EnrollmentCardsClient({
   subClasses,
 }: EnrollmentCardsClientProps) {
+  const t = useTranslations('enrollment');
   const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
+
+  const filterLabel = (key: string) => {
+    switch (key) {
+      case 'All': return t('filters.all');
+      case 'Music': return t('filters.music');
+      case 'Dance & Wellness': return t('filters.danceWellness');
+      case 'Art': return t('filters.art');
+      case 'Ballet': return t('filters.ballet');
+      case 'Workshops': return t('filters.workshops');
+      default: return key;
+    }
+  };
   // teacherId from ?teacher= param — null means no filter
   const [teacherId, setTeacherId] = useState<string | null>(null);
   const [teacherName, setTeacherName] = useState<string | null>(null);
@@ -172,14 +186,13 @@ export function EnrollmentCardsClient({
           </div>
 
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-royal-gold mb-3">
-            Royal Academy
+            {t('page.subtitle')}
           </p>
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-royal-cream font-goudy leading-none">
-            Our Classes
+            {t('page.heading')}
           </h1>
           <p className="text-royal-cream/50 mt-4 text-lg max-w-xl mx-auto leading-relaxed">
-            Discover the art of mastery. Choose your discipline, your pace, your
-            journey.
+            {t('page.description')}
           </p>
 
           <div className="flex items-center justify-center gap-4 mt-6">
@@ -204,7 +217,7 @@ export function EnrollmentCardsClient({
             >
               <div className="w-1.5 h-1.5 rounded-full bg-royal-gold" />
               <span className="text-royal-cream/70 text-sm font-goudy tracking-wide">
-                Showing classes by{' '}
+                {t('teacherBanner.showingBy')}{' '}
                 <span className="text-royal-gold font-semibold">
                   {teacherName}
                 </span>
@@ -214,7 +227,7 @@ export function EnrollmentCardsClient({
                 className="ml-auto flex items-center gap-1.5 text-royal-cream/40 hover:text-royal-cream/80 transition-colors text-xs tracking-widest uppercase"
               >
                 <X className="w-3 h-3" />
-                Clear
+                {t('teacherBanner.clear')}
               </button>
             </motion.div>
           )}
@@ -232,7 +245,7 @@ export function EnrollmentCardsClient({
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-royal-cream/30" />
             <input
               type="text"
-              placeholder="Search classes, teachers, levels…"
+              placeholder={t('searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="
@@ -249,7 +262,7 @@ export function EnrollmentCardsClient({
           {/* Filter pills */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
             <SlidersHorizontal className="w-4 h-4 text-royal-cream/30 shrink-0" />
-            {FILTERS.map((f) => (
+            {FILTER_KEYS.map((f) => (
               <button
                 key={f}
                 onClick={() => setActiveFilter(f)}
@@ -263,7 +276,7 @@ export function EnrollmentCardsClient({
                   }
                 `}
               >
-                {f}
+                {filterLabel(f)}
               </button>
             ))}
           </div>
@@ -281,19 +294,19 @@ export function EnrollmentCardsClient({
             >
               <div className="text-5xl mb-4 opacity-30">✦</div>
               <p className="text-royal-cream/40 text-lg font-goudy">
-                No classes found
+                {t('empty.title')}
               </p>
               <p className="text-royal-cream/25 text-sm mt-1">
                 {teacherName
-                  ? `${teacherName} has no available classes`
-                  : 'Try adjusting your search or filter'}
+                  ? `${teacherName} ${t('empty.noTeacherClasses')}`
+                  : t('empty.adjustSearch')}
               </p>
               {teacherId && (
                 <button
                   onClick={clearTeacherFilter}
                   className="mt-6 text-royal-gold/60 hover:text-royal-gold text-xs tracking-widest uppercase transition-colors"
                 >
-                  Clear teacher filter
+                  {t('empty.clearFilter')}
                 </button>
               )}
             </motion.div>
@@ -346,7 +359,7 @@ export function EnrollmentCardsClient({
                 >
                   <div className="flex items-center gap-4 mb-6">
                     <h2 className="text-2xl font-bold text-royal-cream font-goudy whitespace-nowrap">
-                      Private Classes
+                      {t('privateClassesSection')}
                     </h2>
                     <div className="h-px flex-1 bg-linear-to-r from-royal-gold/30 to-transparent" />
                   </div>
