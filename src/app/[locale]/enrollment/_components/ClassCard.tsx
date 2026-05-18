@@ -1,7 +1,8 @@
 "use client";
 
 import { SessionForCalendar } from "@/lib/actions/reservation";
-import { Clock, Users, MapPin, Wifi, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Clock, Users, ChevronRight } from "lucide-react";
 
 interface ClassCardProps {
   session: SessionForCalendar;
@@ -25,6 +26,7 @@ const CLASS_ACCENT: Record<string, string> = {
 };
 
 export function ClassCard({ session, onClick }: ClassCardProps) {
+  const t = useTranslations('enrollment');
   const accent =
     CLASS_ACCENT[session.subClass.class.name] ?? CLASS_ACCENT.default;
   const spotsPercent = Math.max(
@@ -77,7 +79,7 @@ export function ClassCard({ session, onClick }: ClassCardProps) {
 
             {/* Teacher */}
             <p className="text-sm text-royal-cream/60 mt-0.5">
-              with {session.teacher.firstName} {session.teacher.lastName}
+              {t('card.with')} {session.teacher.firstName} {session.teacher.lastName}
             </p>
           </div>
 
@@ -145,9 +147,9 @@ export function ClassCard({ session, onClick }: ClassCardProps) {
             <div className="flex items-center gap-1 text-xs text-royal-cream/50">
               <Users className="w-3 h-3" />
               {isFull ? (
-                <span className="text-red-400 font-semibold">Full</span>
+                <span className="text-red-400 font-semibold">{t('card.full')}</span>
               ) : (
-                <span>{session.spotsLeft} left</span>
+                <span>{session.spotsLeft} {t('card.spotsLeft')}</span>
               )}
             </div>
           </div>

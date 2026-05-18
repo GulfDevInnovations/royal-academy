@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Phone, X, Crown } from "lucide-react";
 
 export function PrivateClassCard() {
+  const t = useTranslations('enrollment');
   const [showContact, setShowContact] = useState(false);
 
   return (
@@ -40,18 +42,17 @@ export function PrivateClassCard() {
           </div>
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-royal-gold mb-1">
-              Exclusive
+              {t('private.exclusive')}
             </p>
             <h3 className="text-lg font-bold text-royal-cream font-goudy mb-2">
-              Private Classes
+              {t('private.title')}
             </h3>
             <p className="text-xs text-royal-cream/40 leading-relaxed">
-              Tailored one-on-one sessions crafted around your goals and
-              schedule.
+              {t('private.description')}
             </p>
           </div>
           <div className="px-5 py-2.5 rounded-full border border-royal-gold/40 text-royal-gold text-xs font-semibold uppercase tracking-widest hover:bg-royal-gold/10 transition-colors">
-            Enquire Now
+            {t('private.enquire')}
           </div>
         </div>
 
@@ -110,14 +111,13 @@ export function PrivateClassCard() {
                 </div>
 
                 <p className="text-xs font-bold uppercase tracking-widest text-royal-gold mb-2">
-                  Private Classes
+                  {t('private.modalTitle')}
                 </p>
                 <h3 className="text-2xl font-bold text-royal-cream font-goudy mb-2">
-                  Let's Craft Your Journey
+                  {t('private.modalHeading')}
                 </h3>
                 <p className="text-royal-cream/50 text-sm leading-relaxed mb-8">
-                  Reach out to our team and we'll design a private programme
-                  tailored to your aspirations.
+                  {t('private.modalDescription')}
                 </p>
 
                 {/* Phone CTA */}
@@ -130,11 +130,11 @@ export function PrivateClassCard() {
                   }}
                 >
                   <Phone className="w-4 h-4" />
-                  Call +968 1234 5678
+                  {t('private.call')}
                 </a>
 
                 <p className="text-royal-cream/30 text-xs">
-                  Available Sun – Thu, 9am – 6pm
+                  {t('private.hours')}
                 </p>
               </div>
             </motion.div>

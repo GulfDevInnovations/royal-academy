@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { SubClassCard } from '@/lib/actions/classes';
-import { Clock, Star, Users, ChevronRight } from 'lucide-react';
+import { Clock, ChevronRight } from 'lucide-react';
 
 const CLASS_ACCENT: Record<string, string> = {
   Music: '#C9A84C',
@@ -23,20 +24,21 @@ const CLASS_GLOW: Record<string, string> = {
   default: 'rgba(148,163,184,0.15)',
 };
 
-const SESSION_TYPE_LABEL: Record<string, string> = {
-  PUBLIC: 'Monthly',
-  MUSIC: 'Monthly',
-  TRIAL: 'Trial',
-  WORKSHOP: 'Workshop',
-  PRIVATE: 'Private',
-};
-
 interface SubClassCardTileProps {
   subClass: SubClassCard;
 }
 
 export function SubClassCardTile({ subClass }: SubClassCardTileProps) {
+  const t = useTranslations('enrollment');
   const accent = CLASS_ACCENT[subClass.class.name] ?? CLASS_ACCENT.default;
+
+  const sessionTypeLabel: Record<string, string> = {
+    PUBLIC: t('card.monthly'),
+    MUSIC: t('card.monthly'),
+    TRIAL: t('card.trial'),
+    WORKSHOP: t('card.workshop'),
+    PRIVATE: t('card.private'),
+  };
   const glow = CLASS_GLOW[subClass.class.name] ?? CLASS_GLOW.default;
   const hasTeachers = subClass.teachers.length > 0;
 
@@ -149,7 +151,7 @@ export function SubClassCardTile({ subClass }: SubClassCardTileProps) {
                 border: `1px solid ${accent}40`,
               }}
             >
-              {SESSION_TYPE_LABEL[subClass.sessionType] ?? subClass.sessionType}
+              {sessionTypeLabel[subClass.sessionType] ?? subClass.sessionType}
             </span>
           </div>
 
@@ -157,7 +159,7 @@ export function SubClassCardTile({ subClass }: SubClassCardTileProps) {
           {subClass.isTrialAvailable && (
             <div className="absolute top-3 right-3">
               <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-royal-gold/20 text-royal-gold border border-royal-gold/30">
-                Trial
+                {t('card.trialBadge')}
               </span>
             </div>
           )}
@@ -206,7 +208,7 @@ export function SubClassCardTile({ subClass }: SubClassCardTileProps) {
               <span className="text-xs text-royal-cream/50">
                 {subClass.teachers.length === 1
                   ? `${subClass.teachers[0].firstName} ${subClass.teachers[0].lastName}`
-                  : `${subClass.teachers.length} instructors`}
+                  : `${subClass.teachers.length} ${t('card.instructors')}`}
               </span>
             </div>
           )}
@@ -244,7 +246,7 @@ export function SubClassCardTile({ subClass }: SubClassCardTileProps) {
               {lowestPrice ? (
                 <>
                   <p className="text-[10px] text-royal-cream/30 uppercase tracking-wider">
-                    from
+                    {t('card.from')}
                   </p>
                   <p
                     className="text-xl font-bold font-goudy"
@@ -252,14 +254,14 @@ export function SubClassCardTile({ subClass }: SubClassCardTileProps) {
                   >
                     {lowestPrice}{' '}
                     <span className="text-xs font-normal text-royal-cream/40">
-                      {subClass.currency}/mo
+                      {subClass.currency}{t('card.perMonth')}
                     </span>
                   </p>
                 </>
               ) : (
                 <>
                   <p className="text-[10px] text-royal-cream/30 uppercase tracking-wider">
-                    trial
+                    {t('card.trial')}
                   </p>
                   <p
                     className="text-xl font-bold font-goudy"

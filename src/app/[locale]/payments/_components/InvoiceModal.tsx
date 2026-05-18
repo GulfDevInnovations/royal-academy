@@ -61,17 +61,17 @@ export default function InvoiceModal({ payment, onClose }: Props) {
         style={{ fontFamily: 'var(--font-text)' }}
       >
         {/* ── Header ── */}
-        <div className="bg-gradient-to-br from-[#0a0f2c] via-[#111a3e] to-[#5c2d4a] px-8 py-7 text-white">
+        <div className="px-8 py-7 text-white" style={{ background: '#111111' }}>
           <div className="flex justify-between items-start">
             {/* Logo — swap Crown for <img src="/logo-color.png" /> when ready */}
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center">
                 {/* <img src="/logo-color.png" alt="Royal Academy" className="w-9 h-9 object-contain" /> */}
-                <Crown size={26} className="text-[#c4a882]" />
+                <Crown size={26} style={{ color: '#ff751f' }} />
               </div>
               <div>
                 <div
-                  className="text-[#c4a882] font-bold text-lg tracking-[0.12em]"
+                  className="font-bold text-lg tracking-[0.12em]" style={{ color: '#ff751f' }}
                   style={{ fontFamily: "'Palatino Linotype', Palatino, serif" }}
                 >
                   ROYAL ACADEMY
@@ -84,7 +84,7 @@ export default function InvoiceModal({ payment, onClose }: Props) {
 
             {/* Invoice meta */}
             <div className="text-right">
-              <div className="text-[#c4a882] text-[10px] uppercase tracking-widest mb-0.5">
+              <div className="text-[10px] uppercase tracking-widest mb-0.5" style={{ color: '#ff751f' }}>
                 Invoice
               </div>
               <div className="text-white font-bold text-base">
@@ -125,7 +125,7 @@ export default function InvoiceModal({ payment, onClose }: Props) {
                 key={label}
                 className="flex border-b border-gray-50 last:border-0 px-5 py-2.5"
               >
-                <span className="text-gray-400 text-sm w-36 flex-shrink-0">
+                <span className="text-gray-400 text-sm w-36 shrink-0">
                   {label}
                 </span>
                 <span className="text-gray-800 text-sm font-medium">
@@ -136,12 +136,12 @@ export default function InvoiceModal({ payment, onClose }: Props) {
           </div>
 
           {/* Amount block */}
-          <div className="bg-gradient-to-r from-[#0a0f2c] to-[#5c2d4a] rounded-xl px-6 py-5 flex justify-between items-center text-white">
+          <div className="rounded-xl px-6 py-5 flex justify-between items-center text-white" style={{ background: '#111111' }}>
             <div>
               <div className="text-white/50 text-[10px] uppercase tracking-widest mb-1">
                 Total Amount
               </div>
-              <div className="text-3xl font-bold text-[#c4a882]">
+              <div className="text-3xl font-bold" style={{ color: '#ff751f' }}>
                 {payment.amount}{' '}
                 <span className="text-base font-normal text-white/60">
                   {payment.currency}
@@ -159,7 +159,7 @@ export default function InvoiceModal({ payment, onClose }: Props) {
           </div>
 
           {/* Footer */}
-          <div className="text-center text-gray-400 text-[11px] space-y-0.5 pt-1 border-t border-gray-100 pt-4">
+          <div className="text-center text-gray-400 text-[11px] space-y-0.5 pt-4 border-t border-gray-100">
             <p>Royal Academy · Muscat, Sultanate of Oman</p>
             <p>info@radma.om · +968 XXXX XXXX · www.radma.om</p>
             <p className="text-gray-300 italic pt-1">
@@ -175,8 +175,8 @@ export default function InvoiceModal({ payment, onClose }: Props) {
             onClick={handlePrint}
             className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90"
             style={{
-              background: 'linear-gradient(135deg,#0a0f2c,#5c2d4a)',
-              color: '#c4a882',
+              background: '#ff751f',
+              color: '#fff',
             }}
           >
             <Printer size={15} />

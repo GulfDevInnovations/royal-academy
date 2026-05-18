@@ -15,6 +15,7 @@
 
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, CheckCircle2, Clock3 } from "lucide-react";
 import type {
   SubClassTeacherInfo,
@@ -38,21 +39,6 @@ export function slotKey(s: AvailableSlot): SlotKey {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
 const JS_DAY_TO_ENUM: Record<number, string> = {
   0: "SUNDAY",
   1: "MONDAY",
@@ -62,8 +48,6 @@ const JS_DAY_TO_ENUM: Record<number, string> = {
   5: "FRIDAY",
   6: "SATURDAY",
 };
-
-const DAY_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -126,7 +110,19 @@ export function TeacherAvailabilityPicker({
   selected,
   onSelect,
 }: Props) {
+  const t = useTranslations('enrollment');
   const now = new Date();
+
+  const MONTH_NAMES = [
+    t('cal.jan'), t('cal.feb'), t('cal.mar'), t('cal.apr'),
+    t('cal.may'), t('cal.jun'), t('cal.jul'), t('cal.aug'),
+    t('cal.sep'), t('cal.oct'), t('cal.nov'), t('cal.dec'),
+  ];
+
+  const DAY_SHORT = [
+    t('cal.mon'), t('cal.tue'), t('cal.wed'), t('cal.thu'),
+    t('cal.fri'), t('cal.sat'), t('cal.sun'),
+  ];
   const todayStr = isoDate(now);
 
   const [navYear, setNavYear] = useState(now.getFullYear());
@@ -200,10 +196,10 @@ export function TeacherAvailabilityPicker({
       >
         <div>
           <p className="text-[13px] font-semibold text-gray-400 uppercase tracking-widest">
-            Schedule a lesson
+            {t('cal.scheduleLesson')}
           </p>
           <p className="text-[22px] font-bold text-gray-900 leading-tight mt-0.5">
-            Pick a date & time
+            {t('cal.pickDateTime')}
           </p>
         </div>
         {selected && (
@@ -214,7 +210,7 @@ export function TeacherAvailabilityPicker({
             style={{ background: accentLight, color: accent }}
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
-            Booked
+            {t('cal.booked')}
           </motion.div>
         )}
       </div>
@@ -344,13 +340,13 @@ export function TeacherAvailabilityPicker({
               style={{ background: accent }}
             />
             <span className="text-[11px] text-gray-400 font-medium">
-              Available
+              {t('cal.available')}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-gray-200" />
             <span className="text-[11px] text-gray-400 font-medium">
-              Unavailable
+              {t('cal.unavailable')}
             </span>
           </div>
           {selectedDate && (
@@ -363,7 +359,7 @@ export function TeacherAvailabilityPicker({
                 className="text-[11px] font-semibold"
                 style={{ color: accent }}
               >
-                Selected
+                {t('cal.selected')}
               </span>
             </div>
           )}
@@ -458,7 +454,7 @@ export function TeacherAvailabilityPicker({
                   {formatSelectedSummary(selected)}
                 </p>
                 <p className="text-[11px] text-gray-400 mt-0.5">
-                  First session · tap another date to change
+                  {t('cal.firstSession')}
                 </p>
               </div>
             </motion.div>

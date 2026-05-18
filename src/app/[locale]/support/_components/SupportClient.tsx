@@ -13,15 +13,12 @@ import {
   MessageSquare,
   AlertCircle,
   Loader2,
-  Sparkles,
-  BookOpen,
   HelpCircle,
   X,
-  ShieldCheck,
-  RefreshCw,
-  User,
 } from "lucide-react";
 import { submitStudentTicket } from "@/lib/actions/student-tickets";
+
+const ORANGE = "#ff751f";
 
 const FAQ_ITEMS = [
   {
@@ -128,7 +125,6 @@ interface SerializedTicket {
   updatedAt: string;
   replies: SerializedReply[];
   user: {
-    // ← ADD THIS
     id: string;
     email: string | null;
     phone: string | null;
@@ -160,7 +156,7 @@ function TicketStatusBadge({ status }: { status: TicketStatus }) {
   const { label, cls } = map[status] ?? map.OPEN;
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${cls}`}
+      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${cls}`}
     >
       {label}
     </span>
@@ -184,86 +180,91 @@ function FaqPanel({ onClose }: { onClose: () => void }) {
   return (
     <div
       className="rounded-2xl overflow-hidden"
-      style={{
-        background:
-          "linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))",
-        backdropFilter: "blur(20px)",
-        border: "1px solid rgba(196,168,130,0.18)",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
-      }}
+      style={{ background: "#141414", border: "1px solid #222" }}
     >
+      {/* Panel header */}
       <div
-        className="flex items-center justify-between px-5 py-4 border-b"
-        style={{ borderColor: "rgba(196,168,130,0.12)" }}
+        className="flex items-center justify-between px-6 py-5 border-b"
+        style={{ borderColor: "#222" }}
       >
-        <div className="flex items-center gap-2">
-          <HelpCircle size={15} className="text-royal-gold" />
-          <span
-            className="text-royal-cream font-semibold text-sm"
-            style={{ fontFamily: "'Palatino Linotype',Palatino,serif" }}
-          >
+        <div className="flex items-center gap-3">
+          <HelpCircle size={18} style={{ color: ORANGE }} />
+          <span className="font-semibold text-base" style={{ color: "#f0f0f0" }}>
             Frequently Asked Questions
           </span>
-          <span className="text-royal-cream/30 text-[10px]">
+          <span className="text-xs" style={{ color: "#555" }}>
             {FAQ_ITEMS.reduce((s, c) => s + c.items.length, 0)} questions
           </span>
         </div>
         <button
           onClick={onClose}
-          className="text-royal-cream/30 hover:text-royal-cream/60 transition-colors p-1"
+          className="p-1 transition-colors"
+          style={{ color: "#555" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#999")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#555")}
         >
-          <X size={15} />
+          <X size={18} />
         </button>
       </div>
 
-      <div className="px-5 pt-4 pb-2">
+      {/* Search */}
+      <div className="px-6 pt-5 pb-3">
         <div
-          className="flex items-center gap-2 rounded-xl px-4 py-2.5"
-          style={{
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(196,168,130,0.15)",
-          }}
+          className="flex items-center gap-3 rounded-xl px-5 py-3"
+          style={{ background: "#1a1a1a", border: "1px solid #2a2a2a" }}
         >
-          <Search size={13} className="text-royal-cream/30 flex-shrink-0" />
+          <Search size={15} className="shrink-0" style={{ color: "#555" }} />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search questions…"
-            className="flex-1 bg-transparent text-sm text-royal-cream placeholder:text-royal-cream/25 outline-none"
+            className="flex-1 bg-transparent text-base outline-none"
+            style={{ color: "#f0f0f0" }}
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="text-royal-cream/30 hover:text-royal-cream/60 transition-colors"
+              className="transition-colors"
+              style={{ color: "#555" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#999")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#555")}
             >
-              <X size={12} />
+              <X size={14} />
             </button>
           )}
         </div>
       </div>
 
-      <div className="px-5 pb-5 pt-2 space-y-5 max-h-[480px] overflow-y-auto">
+      {/* FAQ list */}
+      <div className="px-6 pb-6 pt-3 space-y-6 max-h-150 overflow-y-auto">
         {filtered.length === 0 ? (
-          <div className="text-center py-8">
-            <HelpCircle size={28} className="text-royal-gold/20 mx-auto mb-2" />
-            <p className="text-royal-cream/35 text-sm">
-              No matches for "{searchQuery}"
+          <div className="text-center py-10">
+            <HelpCircle
+              size={36}
+              className="mx-auto mb-3"
+              style={{ color: "rgba(255,117,31,0.18)" }}
+            />
+            <p className="text-base" style={{ color: "#555" }}>
+              No matches for &quot;{searchQuery}&quot;
             </p>
-            <p className="text-royal-cream/20 text-xs mt-1">
+            <p className="text-sm mt-1" style={{ color: "#3a3a3a" }}>
               Try a different word or submit a ticket below.
             </p>
           </div>
         ) : (
           filtered.map((cat) => (
             <div key={cat.category}>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm">{cat.icon}</span>
-                <span className="text-royal-gold/60 text-[10px] uppercase tracking-widest font-semibold">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-base">{cat.icon}</span>
+                <span
+                  className="text-xs uppercase tracking-widest font-semibold"
+                  style={{ color: `rgba(255,117,31,0.55)` }}
+                >
                   {cat.category}
                 </span>
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 {cat.items.map((item) => {
                   const key = `${cat.category}-${item.q}`;
                   const isOpen = openKey === key;
@@ -272,34 +273,32 @@ function FaqPanel({ onClose }: { onClose: () => void }) {
                       key={key}
                       className="rounded-xl overflow-hidden transition-all duration-200"
                       style={{
-                        background: isOpen
-                          ? "linear-gradient(135deg,rgba(196,168,130,0.1),rgba(196,168,130,0.04))"
-                          : "rgba(255,255,255,0.03)",
+                        background: isOpen ? `rgba(255,117,31,0.06)` : "#1a1a1a",
                         border: isOpen
-                          ? "1px solid rgba(196,168,130,0.25)"
-                          : "1px solid rgba(255,255,255,0.06)",
+                          ? `1px solid rgba(255,117,31,0.22)`
+                          : "1px solid #222",
                       }}
                     >
                       <button
                         onClick={() => setOpenKey(isOpen ? null : key)}
-                        className="w-full flex items-center justify-between px-4 py-3 text-left"
+                        className="w-full flex items-center justify-between px-5 py-4 text-left"
                       >
                         <span
-                          className={`text-sm transition-colors ${isOpen ? "text-royal-gold" : "text-royal-cream/75"}`}
+                          className="text-base transition-colors"
+                          style={{ color: isOpen ? ORANGE : "rgba(255,255,255,0.7)" }}
                         >
                           {item.q}
                         </span>
-                        <span className="text-royal-cream/30 flex-shrink-0 ml-3">
-                          {isOpen ? (
-                            <ChevronUp size={14} />
-                          ) : (
-                            <ChevronDown size={14} />
-                          )}
+                        <span className="shrink-0 ml-4" style={{ color: "#555" }}>
+                          {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </span>
                       </button>
                       {isOpen && (
-                        <div className="px-4 pb-3">
-                          <p className="text-royal-cream/55 text-sm leading-relaxed border-t border-royal-gold/10 pt-3">
+                        <div className="px-5 pb-4">
+                          <p
+                            className="text-base leading-relaxed border-t pt-4"
+                            style={{ color: "rgba(255,255,255,0.5)", borderColor: "#1f1f1f" }}
+                          >
                             {item.a}
                           </p>
                         </div>
@@ -320,71 +319,75 @@ function MyTickets({ tickets }: { tickets: SerializedTicket[] }) {
   const [openId, setOpenId] = useState<string | null>(null);
   if (tickets.length === 0) return null;
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {tickets.map((t) => {
         const isOpen = openId === t.id;
         return (
           <div
             key={t.id}
             className="rounded-2xl overflow-hidden"
-            style={{
-              background:
-                "linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))",
-              border: "1px solid rgba(196,168,130,0.12)",
-            }}
+            style={{ background: "#141414", border: "1px solid #222" }}
           >
             <button
               onClick={() => setOpenId(isOpen ? null : t.id)}
-              className="w-full flex items-center gap-3 p-4 text-left"
+              className="w-full flex items-center gap-4 p-5 text-left"
             >
               <MessageSquare
-                size={14}
-                className="text-royal-gold/50 flex-shrink-0"
+                size={18}
+                className="shrink-0"
+                style={{ color: `rgba(255,117,31,0.5)` }}
               />
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                  <span className="text-royal-cream/80 text-sm font-medium truncate">
+                <div className="flex items-center gap-2.5 flex-wrap mb-1">
+                  <span
+                    className="text-base font-medium truncate"
+                    style={{ color: "rgba(255,255,255,0.8)" }}
+                  >
                     {t.subject}
                   </span>
                   <TicketStatusBadge status={t.status} />
                 </div>
-                <div className="text-royal-cream/30 text-xs">
+                <div className="text-sm" style={{ color: "#555" }}>
                   {new Date(t.createdAt).toLocaleDateString("en-GB", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",
                   })}
                   {t.replies.length > 0 && (
-                    <span className="ml-2 text-royal-gold/50">
+                    <span className="ml-2" style={{ color: `rgba(255,117,31,0.5)` }}>
                       · {t.replies.length}{" "}
                       {t.replies.length === 1 ? "reply" : "replies"}
                     </span>
                   )}
                 </div>
               </div>
-              <span className="text-royal-cream/25 flex-shrink-0">
-                {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              <span className="shrink-0" style={{ color: "#444" }}>
+                {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
               </span>
             </button>
+
             {isOpen && (
               <div
-                className="border-t px-4 py-4 space-y-3"
-                style={{ borderColor: "rgba(196,168,130,0.1)" }}
+                className="border-t px-5 py-5 space-y-4"
+                style={{ borderColor: "#222" }}
               >
+                {/* Original message */}
                 <div
-                  className="rounded-xl p-3.5"
-                  style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.07)",
-                  }}
+                  className="rounded-xl p-5"
+                  style={{ background: "#1a1a1a", border: "1px solid #252525" }}
                 >
-                  <div className="text-royal-cream/35 text-[10px] uppercase tracking-widest mb-2">
+                  <div
+                    className="text-xs uppercase tracking-widest mb-2.5"
+                    style={{ color: "#555" }}
+                  >
                     Your message
                   </div>
-                  <p className="text-royal-cream/65 text-sm leading-relaxed">
+                  <p className="text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.6)" }}>
                     {t.body}
                   </p>
                 </div>
+
+                {/* Replies */}
                 {t.replies.map((r) => {
                   const isAdmin = r.user.role === "ADMIN";
                   const name = isAdmin
@@ -395,23 +398,22 @@ function MyTickets({ tickets }: { tickets: SerializedTicket[] }) {
                   return (
                     <div
                       key={r.id}
-                      className={`rounded-xl p-3.5 ${isAdmin ? "" : "ml-4"}`}
+                      className={`rounded-xl p-5 ${isAdmin ? "" : "ml-6"}`}
                       style={{
-                        background: isAdmin
-                          ? "linear-gradient(135deg,rgba(196,168,130,0.1),rgba(196,168,130,0.04))"
-                          : "rgba(255,255,255,0.04)",
+                        background: isAdmin ? `rgba(255,117,31,0.06)` : "#1a1a1a",
                         border: isAdmin
-                          ? "1px solid rgba(196,168,130,0.2)"
-                          : "1px solid rgba(255,255,255,0.07)",
+                          ? `1px solid rgba(255,117,31,0.15)`
+                          : "1px solid #252525",
                       }}
                     >
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center justify-between mb-2.5">
                         <span
-                          className={`text-[10px] uppercase tracking-widest font-semibold ${isAdmin ? "text-royal-gold/70" : "text-royal-cream/35"}`}
+                          className="text-xs uppercase tracking-widest font-semibold"
+                          style={{ color: isAdmin ? `rgba(255,117,31,0.65)` : "#555" }}
                         >
                           {name}
                         </span>
-                        <span className="text-royal-cream/25 text-[10px]">
+                        <span className="text-xs" style={{ color: "#444" }}>
                           {new Date(r.createdAt).toLocaleDateString("en-GB", {
                             day: "numeric",
                             month: "short",
@@ -420,15 +422,16 @@ function MyTickets({ tickets }: { tickets: SerializedTicket[] }) {
                           })}
                         </span>
                       </div>
-                      <p className="text-royal-cream/70 text-sm leading-relaxed">
+                      <p className="text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>
                         {r.body}
                       </p>
                     </div>
                   );
                 })}
+
                 {t.replies.length === 0 && t.status === "OPEN" && (
-                  <div className="flex items-center gap-2 text-royal-cream/30 text-xs px-1">
-                    <Clock size={11} />
+                  <div className="flex items-center gap-2.5 text-sm px-1" style={{ color: "#555" }}>
+                    <Clock size={13} />
                     Our team typically responds within 1 business day.
                   </div>
                 )}
@@ -467,27 +470,22 @@ function TicketForm() {
   if (success)
     return (
       <div
-        className="rounded-2xl p-8 text-center"
-        style={{
-          background:
-            "linear-gradient(135deg,rgba(196,168,130,0.1),rgba(196,168,130,0.03))",
-          border: "1px solid rgba(196,168,130,0.22)",
-        }}
+        className="rounded-2xl p-10 text-center"
+        style={{ background: "#141414", border: `1px solid rgba(255,117,31,0.2)` }}
       >
-        <CheckCircle2 size={36} className="text-emerald-400 mx-auto mb-3" />
-        <h3
-          className="text-royal-cream font-semibold text-lg mb-1"
-          style={{ fontFamily: "'Palatino Linotype',Palatino,serif" }}
-        >
+        <CheckCircle2 size={44} className="text-emerald-400 mx-auto mb-4" />
+        <h3 className="font-semibold text-xl mb-2" style={{ color: "#f0f0f0" }}>
           Ticket Submitted
         </h3>
-        <p className="text-royal-cream/50 text-sm mb-4">
-          We&apos;ve received your message and will respond within 1 business
-          day.
+        <p className="text-base mb-5" style={{ color: "#666" }}>
+          We&apos;ve received your message and will respond within 1 business day.
         </p>
         <button
           onClick={() => setSuccess(false)}
-          className="text-royal-gold/70 text-xs underline underline-offset-2 hover:text-royal-gold transition-colors"
+          className="text-sm underline underline-offset-2 transition-colors"
+          style={{ color: `rgba(255,117,31,0.65)` }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = ORANGE)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = `rgba(255,117,31,0.65)`)}
         >
           Submit another ticket
         </button>
@@ -495,9 +493,9 @@ function TicketForm() {
     );
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-1.5">
-        <label className="text-royal-cream/50 text-xs uppercase tracking-widest">
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <label className="text-sm uppercase tracking-widest" style={{ color: "#666" }}>
           Subject
         </label>
         <input
@@ -506,24 +504,18 @@ function TicketForm() {
           onChange={(e) => setSubject(e.target.value)}
           placeholder="e.g. Unable to reschedule my ballet class"
           maxLength={120}
-          className="w-full rounded-xl px-4 py-3 text-sm text-royal-cream placeholder:text-royal-cream/25 outline-none transition-all"
-          style={{
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(196,168,130,0.18)",
-          }}
-          onFocus={(e) =>
-            (e.currentTarget.style.borderColor = "rgba(196,168,130,0.45)")
-          }
-          onBlur={(e) =>
-            (e.currentTarget.style.borderColor = "rgba(196,168,130,0.18)")
-          }
+          className="w-full rounded-xl px-5 py-4 text-base outline-none transition-all"
+          style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#f0f0f0" }}
+          onFocus={(e) => (e.currentTarget.style.borderColor = ORANGE)}
+          onBlur={(e) => (e.currentTarget.style.borderColor = "#2a2a2a")}
         />
-        <div className="text-right text-royal-cream/25 text-[10px]">
+        <div className="text-right text-xs" style={{ color: "#444" }}>
           {subject.length}/120
         </div>
       </div>
-      <div className="space-y-1.5">
-        <label className="text-royal-cream/50 text-xs uppercase tracking-widest">
+
+      <div className="space-y-2">
+        <label className="text-sm uppercase tracking-widest" style={{ color: "#666" }}>
           Message
         </label>
         <textarea
@@ -531,55 +523,42 @@ function TicketForm() {
           onChange={(e) => setBody(e.target.value)}
           placeholder="Describe your issue in detail — the more context you give, the faster we can help."
           maxLength={2000}
-          rows={5}
-          className="w-full rounded-xl px-4 py-3 text-sm text-royal-cream placeholder:text-royal-cream/25 outline-none resize-none transition-all"
-          style={{
-            background: "rgba(255,255,255,0.05)",
-            border: "1px solid rgba(196,168,130,0.18)",
-          }}
-          onFocus={(e) =>
-            (e.currentTarget.style.borderColor = "rgba(196,168,130,0.45)")
-          }
-          onBlur={(e) =>
-            (e.currentTarget.style.borderColor = "rgba(196,168,130,0.18)")
-          }
+          rows={6}
+          className="w-full rounded-xl px-5 py-4 text-base outline-none resize-none transition-all"
+          style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#f0f0f0" }}
+          onFocus={(e) => (e.currentTarget.style.borderColor = ORANGE)}
+          onBlur={(e) => (e.currentTarget.style.borderColor = "#2a2a2a")}
         />
-        <div className="flex justify-between text-[10px]">
-          <span className="text-royal-cream/25">
-            Be as specific as possible
-          </span>
-          <span className="text-royal-cream/25">{body.length}/2000</span>
+        <div className="flex justify-between text-xs" style={{ color: "#444" }}>
+          <span>Be as specific as possible</span>
+          <span>{body.length}/2000</span>
         </div>
       </div>
+
       {error && (
         <div
-          className="flex items-center gap-2 rounded-xl px-4 py-3 text-sm text-red-300"
-          style={{
-            background: "rgba(239,68,68,0.1)",
-            border: "1px solid rgba(239,68,68,0.2)",
-          }}
+          className="flex items-center gap-2.5 rounded-xl px-5 py-4 text-base text-red-300"
+          style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}
         >
-          <AlertCircle size={14} className="flex-shrink-0" />
+          <AlertCircle size={16} className="shrink-0" />
           {error}
         </div>
       )}
+
       <button
         onClick={handleSubmit}
         disabled={isPending}
-        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-semibold text-sm transition-all hover:scale-[1.01] disabled:opacity-60 disabled:cursor-not-allowed"
-        style={{
-          background: "linear-gradient(135deg,#c4a882,#d4b896)",
-          color: "#0a0f2c",
-        }}
+        className="w-full flex items-center justify-center gap-2.5 py-4 rounded-xl font-semibold text-base transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+        style={{ background: ORANGE, color: "#fff" }}
       >
         {isPending ? (
           <>
-            <Loader2 size={15} className="animate-spin" />
+            <Loader2 size={17} className="animate-spin" />
             Submitting…
           </>
         ) : (
           <>
-            <Send size={15} />
+            <Send size={17} />
             Send to Support Team
           </>
         )}
@@ -599,20 +578,12 @@ function Section({
 }) {
   return (
     <div
-      className="rounded-2xl p-6 space-y-5"
-      style={{
-        background:
-          "linear-gradient(135deg,rgba(255,255,255,0.07) 0%,rgba(255,255,255,0.02) 100%)",
-        backdropFilter: "blur(20px)",
-        border: "1px solid rgba(196,168,130,0.13)",
-      }}
+      className="rounded-2xl p-8 space-y-6"
+      style={{ background: "#141414", border: "1px solid #222" }}
     >
-      <div className="flex items-center gap-2">
-        <span className="text-royal-gold">{icon}</span>
-        <h2
-          className="text-royal-cream font-semibold text-base"
-          style={{ fontFamily: "'Palatino Linotype',Palatino,serif" }}
-        >
+      <div className="flex items-center gap-3">
+        <span style={{ color: ORANGE }}>{icon}</span>
+        <h2 className="font-semibold text-lg" style={{ color: "#f0f0f0" }}>
           {title}
         </h2>
       </div>
@@ -632,22 +603,20 @@ export default function SupportClient({
   );
 
   return (
-    <div
-      className="min-h-screen py-8 px-4"
-      style={{ backgroundColor: "var(--royal-purple)" }}
-    >
-      <div className="max-w-2xl mx-auto space-y-7">
+    <div className="min-h-screen py-10 px-6" style={{ backgroundColor: "#0d0d0d" }}>
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* Header */}
         <div>
-          <div className="flex items-center gap-1.5 text-royal-gold/55 text-[10px] uppercase tracking-[0.2em] mb-2">
-            <Crown size={10} /> Royal Academy
-          </div>
-          <h1
-            className="text-3xl font-bold text-royal-cream"
-            style={{ fontFamily: "'Palatino Linotype',Palatino,serif" }}
+          <div
+            className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] mb-3"
+            style={{ color: `rgba(255,117,31,0.55)` }}
           >
+            <Crown size={12} /> Royal Academy
+          </div>
+          <h1 className="text-4xl font-bold" style={{ color: "#f0f0f0" }}>
             Help & Support
           </h1>
-          <p className="text-royal-cream/40 text-sm mt-1">
+          <p className="text-base mt-2" style={{ color: "#666" }}>
             Find answers or reach our team — we&apos;re here to help.
           </p>
         </div>
@@ -656,47 +625,41 @@ export default function SupportClient({
         <div>
           <button
             onClick={() => setFaqOpen((v) => !v)}
-            className="w-full flex items-center justify-between px-5 py-4 rounded-2xl transition-all hover:shadow-lg group"
+            className="w-full flex items-center justify-between px-6 py-5 rounded-2xl transition-all hover:shadow-lg"
             style={{
-              background: faqOpen
-                ? "linear-gradient(135deg,rgba(196,168,130,0.14),rgba(196,168,130,0.06))"
-                : "linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))",
-              border: faqOpen
-                ? "1px solid rgba(196,168,130,0.3)"
-                : "1px solid rgba(196,168,130,0.13)",
+              background: faqOpen ? `rgba(255,117,31,0.07)` : "#141414",
+              border: faqOpen ? `1px solid rgba(255,117,31,0.25)` : "1px solid #222",
             }}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
                 style={{
-                  background: "rgba(196,168,130,0.12)",
-                  border: "1px solid rgba(196,168,130,0.2)",
+                  background: `rgba(255,117,31,0.1)`,
+                  border: `1px solid rgba(255,117,31,0.18)`,
                 }}
               >
-                <HelpCircle size={16} className="text-royal-gold" />
+                <HelpCircle size={22} style={{ color: ORANGE }} />
               </div>
               <div className="text-left">
-                <div
-                  className="text-royal-cream font-semibold text-sm"
-                  style={{ fontFamily: "'Palatino Linotype',Palatino,serif" }}
-                >
+                <div className="font-semibold text-base" style={{ color: "#f0f0f0" }}>
                   Frequently Asked Questions
                 </div>
-                <div className="text-royal-cream/35 text-xs">
+                <div className="text-sm mt-0.5" style={{ color: "#555" }}>
                   {FAQ_ITEMS.reduce((s, c) => s + c.items.length, 0)} questions
                   across {FAQ_ITEMS.length} categories — searchable
                 </div>
               </div>
             </div>
             <span
-              className="text-royal-cream/40 group-hover:text-royal-cream/70 transition-colors flex-shrink-0"
+              className="shrink-0"
               style={{
+                color: "#555",
                 transform: faqOpen ? "rotate(180deg)" : "rotate(0deg)",
                 transition: "transform 0.3s ease",
               }}
             >
-              <ChevronDown size={18} />
+              <ChevronDown size={22} />
             </span>
           </button>
 
@@ -709,19 +672,16 @@ export default function SupportClient({
 
         {/* My tickets */}
         {myTickets.length > 0 && (
-          <Section
-            title="My Support Tickets"
-            icon={<MessageSquare size={15} />}
-          >
+          <Section title="My Support Tickets" icon={<MessageSquare size={18} />}>
             {hasOpenTickets && (
               <div
-                className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs text-sky-300"
+                className="flex items-center gap-3 rounded-xl px-5 py-3.5 text-sm text-sky-300"
                 style={{
                   background: "rgba(14,165,233,0.08)",
                   border: "1px solid rgba(14,165,233,0.18)",
                 }}
               >
-                <Clock size={12} className="flex-shrink-0" />
+                <Clock size={14} className="shrink-0" />
                 You have open tickets — we&apos;ll reply within 1 business day.
               </div>
             )}
@@ -730,24 +690,20 @@ export default function SupportClient({
         )}
 
         {/* Submit ticket */}
-        <Section title="Contact Support" icon={<Send size={15} />}>
-          <p className="text-royal-cream/40 text-sm -mt-2">
-            Didn&apos;t find your answer? Send us a message and our team will
-            get back to you.
+        <Section title="Contact Support" icon={<Send size={18} />}>
+          <p className="text-base -mt-2" style={{ color: "#666" }}>
+            Didn&apos;t find your answer? Send us a message and our team will get back to you.
           </p>
           <TicketForm />
           <div
-            className="flex items-center gap-2.5 rounded-xl px-4 py-3"
-            style={{
-              background: "rgba(196,168,130,0.06)",
-              border: "1px solid rgba(196,168,130,0.1)",
-            }}
+            className="flex items-center gap-3 rounded-xl px-5 py-4"
+            style={{ background: "#1a1a1a", border: "1px solid #222" }}
           >
-            <Clock size={13} className="text-royal-gold/50 flex-shrink-0" />
-            <p className="text-royal-cream/40 text-xs">
+            <Clock size={15} className="shrink-0" style={{ color: `rgba(255,117,31,0.5)` }} />
+            <p className="text-sm" style={{ color: "#666" }}>
               Our team responds within{" "}
-              <span className="text-royal-cream/65">1 business day</span> —
-              Sunday through Thursday, 9 AM – 6 PM GST.
+              <span style={{ color: "rgba(255,255,255,0.6)" }}>1 business day</span>
+              {" "}— Sunday through Thursday, 9 AM – 6 PM GST.
             </p>
           </div>
         </Section>

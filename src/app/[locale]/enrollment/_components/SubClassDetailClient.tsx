@@ -8,6 +8,7 @@ import {
 } from '@/lib/actions/enrollment';
 import { addMonths, format, startOfMonth } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import {
   AlertCircle,
   Award,
@@ -39,15 +40,6 @@ const CLASS_ACCENT: Record<string, string> = {
   default: '#C9A84C',
 };
 
-const DAY_LABELS: Record<string, string> = {
-  MONDAY: 'Mon',
-  TUESDAY: 'Tue',
-  WEDNESDAY: 'Wed',
-  THURSDAY: 'Thu',
-  FRIDAY: 'Fri',
-  SATURDAY: 'Sat',
-  SUNDAY: 'Sun',
-};
 
 const DAY_ORDER = [
   'MONDAY',
@@ -99,8 +91,19 @@ export function SubClassDetailClient({
 }: {
   subClass: SubClassDetail;
 }) {
+  const t = useTranslations('enrollment');
   const router = useRouter();
   const accent = CLASS_ACCENT[subClass.class.name] ?? CLASS_ACCENT.default;
+
+  const DAY_LABELS: Record<string, string> = {
+    MONDAY: t('cal.mon'),
+    TUESDAY: t('cal.tue'),
+    WEDNESDAY: t('cal.wed'),
+    THURSDAY: t('cal.thu'),
+    FRIDAY: t('cal.fri'),
+    SATURDAY: t('cal.sat'),
+    SUNDAY: t('cal.sun'),
+  };
 
   // ── State ──────────────────────────────────────────────────────
   const [selectedTeacher, setSelectedTeacher] =
@@ -335,33 +338,37 @@ export function SubClassDetailClient({
 
       router.push(result.redirectTo);
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError(t('detail.error'));
     } finally {
       setIsLoading(false);
     }
   };
 
   const ctaLabel = useMemo(() => {
-    if (!selectedTeacher) return 'Select an Instructor';
-    if (!plan) return 'Select a Plan';
+    if (!selectedTeacher) return t('detail.ctaSelectInstructor');
+    if (!plan) return t('detail.ctaSelectPlan');
     if (plan === 'TRIAL')
-      return selectedSlot ? 'Book Trial Session' : 'Pick a Session Date';
+      return selectedSlot ? t('detail.ctaBookTrial') : t('detail.ctaPickSession');
     if (plan === 'ONCE') {
-      if (!selectedMonth) return 'Select Starting Month';
-      if (selectedSlotKeys.length < 1) return 'Choose Your Preferred Day';
+      if (!selectedMonth) return t('detail.ctaSelectMonth');
+      if (selectedSlotKeys.length < 1) return t('detail.ctaChooseDay');
       return isMultiMonth
-        ? `Enroll for ${totalMonths} Months`
-        : 'Proceed to Payment';
+        ? t('detail.ctaEnrollFor', { count: totalMonths })
+        : t('detail.ctaProceed');
     }
     if (plan === 'TWICE') {
-      if (selectedSlotKeys.length < 2)
-        return `Choose ${2 - selectedSlotKeys.length} More Slot${2 - selectedSlotKeys.length > 1 ? 's' : ''}`;
-      if (!selectedMonth) return 'Select Starting Month';
+      if (selectedSlotKeys.length < 2) {
+        const remaining = 2 - selectedSlotKeys.length;
+        return remaining === 1
+          ? t('detail.ctaMoreSlot', { count: remaining })
+          : t('detail.ctaMoreSlots', { count: remaining });
+      }
+      if (!selectedMonth) return t('detail.ctaSelectMonth');
       return isMultiMonth
-        ? `Enroll for ${totalMonths} Months`
-        : 'Proceed to Payment';
+        ? t('detail.ctaEnrollFor', { count: totalMonths })
+        : t('detail.ctaProceed');
     }
-    return 'Proceed to Payment';
+    return t('detail.ctaProceed');
   }, [
     selectedTeacher,
     plan,
@@ -370,6 +377,7 @@ export function SubClassDetailClient({
     selectedSlotKeys,
     isMultiMonth,
     totalMonths,
+    t,
   ]);
 
   return (
@@ -395,7 +403,7 @@ export function SubClassDetailClient({
           className="flex items-center gap-1.5 text-royal-cream/40 hover:text-royal-cream text-sm mb-10 transition-colors group"
         >
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-          All Classes
+          {t('detail.back')}
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 lg:gap-12">
@@ -481,14 +489,14 @@ export function SubClassDetailClient({
             <div className="grid grid-cols-2 gap-3 mb-10">
               <Chip
                 icon={<Clock className="w-4 h-4" />}
-                label="Duration"
-                value={`${subClass.durationMinutes} minutes`}
+                label={t('detail.duration')}
+                value={`${subClass.durationMinutes} ${t('detail.minutes')}`}
                 accent={accent}
               />
               {subClass.level && (
                 <Chip
                   icon={<Award className="w-4 h-4" />}
-                  label="Level"
+                  label={t('detail.level')}
                   value={subClass.level}
                   accent={accent}
                 />
@@ -496,7 +504,7 @@ export function SubClassDetailClient({
               {subClass.ageGroup && (
                 <Chip
                   icon={<Users className="w-4 h-4" />}
-                  label="Age Group"
+                  label={t('detail.ageGroup')}
                   value={subClass.ageGroup}
                   accent={accent}
                 />
@@ -512,8 +520,8 @@ export function SubClassDetailClient({
                     style={{ color: accent }}
                   >
                     {subClass.teachers.length === 1
-                      ? 'Instructor'
-                      : 'Choose Your Instructor'}
+                      ? t('detail.instructor')
+                      : t('detail.chooseInstructor')}
                   </p>
                   <div
                     className="h-px flex-1"
@@ -657,9 +665,11 @@ export function SubClassDetailClient({
                                   className="text-[10px] mt-2"
                                   style={{ color: '#f59e0b' }}
                                 >
-                                  Schedule available for{' '}
-                                  {teacher.maxBookableMonths} more month
-                                  {teacher.maxBookableMonths !== 1 ? 's' : ''}
+                                  {t('detail.scheduleFor')}{' '}
+                                  {teacher.maxBookableMonths}{' '}
+                                  {teacher.maxBookableMonths !== 1
+                                    ? t('detail.moreMonths')
+                                    : t('detail.moreMonth')}
                                 </p>
                               )}
                           </div>
@@ -706,12 +716,12 @@ export function SubClassDetailClient({
 
               <div className="p-6">
                 <h2 className="text-xl font-bold text-royal-cream font-goudy mb-1">
-                  Book This Class
+                  {t('detail.bookTitle')}
                 </h2>
                 <p className="text-xs text-royal-cream/40 mb-6">
                   {!selectedTeacher
-                    ? 'Start by choosing an instructor'
-                    : "Choose how you'd like to join"}
+                    ? t('detail.bookSubtitleStart')
+                    : t('detail.bookSubtitleChoose')}
                 </p>
 
                 {/* Selected teacher reminder */}
@@ -747,7 +757,7 @@ export function SubClassDetailClient({
                         )}
                         <div className="flex-1 min-w-0">
                           <p className="text-xs text-royal-cream/40 leading-none mb-0.5">
-                            Instructor
+                            {t('detail.instructor')}
                           </p>
                           <p
                             className="text-sm font-semibold truncate"
@@ -770,7 +780,7 @@ export function SubClassDetailClient({
                             }}
                             className="text-[10px] text-royal-cream/30 hover:text-royal-cream/60 transition-colors flex-shrink-0"
                           >
-                            Change
+                            {t('detail.change')}
                           </button>
                         )}
                       </div>
@@ -789,7 +799,7 @@ export function SubClassDetailClient({
                     >
                       <div className="flex items-center gap-3 mb-4">
                         <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 whitespace-nowrap">
-                          Choose Plan
+                          {t('detail.choosePlan')}
                         </p>
                         <div className="h-px flex-1 bg-white/[0.06]" />
                       </div>
@@ -807,10 +817,10 @@ export function SubClassDetailClient({
                             }}
                             accent={accent}
                             icon={<Sparkles className="w-4 h-4" />}
-                            title="Trial Session"
-                            subtitle="One-time taster class"
+                            title={t('detail.trialTitle')}
+                            subtitle={t('detail.trialSubtitle')}
                             price={`${subClass.trialPrice} ${subClass.currency}`}
-                            badge="One-time"
+                            badge={t('detail.trialBadge')}
                           />
                         )}
                         {subClass.oncePriceMonthly && (
@@ -825,8 +835,8 @@ export function SubClassDetailClient({
                             }}
                             accent={accent}
                             icon={<Calendar className="w-4 h-4" />}
-                            title="Once a Week"
-                            subtitle="4 sessions per month"
+                            title={t('detail.onceTitle')}
+                            subtitle={t('detail.onceSubtitle')}
                             price={`${subClass.oncePriceMonthly} ${subClass.currency}/mo`}
                           />
                         )}
@@ -843,10 +853,10 @@ export function SubClassDetailClient({
                             }}
                             accent={accent}
                             icon={<Crown className="w-4 h-4" />}
-                            title="Twice a Week"
-                            subtitle="8 sessions per month"
+                            title={t('detail.twiceTitle')}
+                            subtitle={t('detail.twiceSubtitle')}
                             price={`${subClass.twicePriceMonthly} ${subClass.currency}/mo`}
-                            badge="Best value"
+                            badge={t('detail.twiceBadge')}
                           />
                         )}
                       </div>
@@ -864,7 +874,7 @@ export function SubClassDetailClient({
                           >
                             <div className="flex items-center gap-3 mb-4">
                               <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 whitespace-nowrap">
-                                Pick Your Session
+                                {t('detail.pickSession')}
                               </p>
                               <div className="h-px flex-1 bg-white/[0.06]" />
                             </div>
@@ -891,7 +901,7 @@ export function SubClassDetailClient({
                           >
                             {/* Step 1: Starting month */}
                             <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 mb-3">
-                              Starting Month
+                              {t('detail.startingMonth')}
                             </p>
                             <div className="grid grid-cols-2 gap-2 mb-5">
                               {availableMonthsForOnce.map((month) => {
@@ -939,7 +949,7 @@ export function SubClassDetailClient({
                                 >
                                   <div className="flex items-center gap-3 mb-3">
                                     <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 whitespace-nowrap">
-                                      Preferred Day &amp; Time
+                                      {t('detail.preferredDay')}
                                     </p>
                                     <div className="h-px flex-1 bg-white/[0.06]" />
                                   </div>
@@ -1039,12 +1049,12 @@ export function SubClassDetailClient({
                           >
                             <div className="flex items-center gap-3 mb-3">
                               <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 whitespace-nowrap">
-                                Choose Two Sessions
+                                {t('detail.chooseTwoSessions')}
                               </p>
                               <div className="h-px flex-1 bg-white/[0.06]" />
                             </div>
                             <p className="text-[11px] text-royal-cream/35 mb-3">
-                              Select two weekly slots from all available times.
+                              {t('detail.selectTwoSlots')}
                             </p>
                             <div className="flex flex-wrap gap-2 mb-5">
                               {availableSlots.map((slot) => {
@@ -1104,7 +1114,7 @@ export function SubClassDetailClient({
                                   className="overflow-hidden"
                                 >
                                   <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50 mb-3">
-                                    Starting Month
+                                    {t('detail.startingMonth')}
                                   </p>
                                   <div className="grid grid-cols-2 gap-2 mb-5">
                                     {availableMonthsForTwice.map((month) => {
@@ -1183,7 +1193,7 @@ export function SubClassDetailClient({
                             <>
                               <div className="flex items-center justify-between mb-1">
                                 <span className="text-sm text-royal-cream/60">
-                                  Total ({totalMonths} months)
+                                  {t('detail.totalMonths', { count: totalMonths })}
                                 </span>
                                 <span
                                   className="text-2xl font-bold font-goudy"
@@ -1210,7 +1220,7 @@ export function SubClassDetailClient({
                             <>
                               <div className="flex items-center justify-between">
                                 <span className="text-sm text-royal-cream/60">
-                                  Total
+                                  {t('detail.total')}
                                 </span>
                                 <span
                                   className="text-2xl font-bold font-goudy"
@@ -1282,7 +1292,7 @@ export function SubClassDetailClient({
                   {isLoading ? (
                     <span className="flex items-center justify-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Processing…
+                      {t('detail.processing')}
                     </span>
                   ) : (
                     ctaLabel
@@ -1428,6 +1438,7 @@ function DurationPicker({
   selectedMonth: Date | null;
   onChange: (n: number) => void;
 }) {
+  const t = useTranslations('enrollment');
   if (maxMonths <= 1) return null;
   const lastMonth = selectedMonth
     ? addMonths(selectedMonth, maxMonths - 1)
@@ -1437,11 +1448,13 @@ function DurationPicker({
       <div className="flex items-center justify-between mb-3">
         <div>
           <p className="text-xs font-bold uppercase tracking-widest text-royal-cream/50">
-            Duration
+            {t('detail.durationLabel')}
           </p>
           <p className="text-[10px] text-royal-cream/30 mt-0.5">
-            Up to {maxMonths} month{maxMonths !== 1 ? 's' : ''}
-            {lastMonth ? ` · ends ${format(lastMonth, 'MMM yyyy')}` : ''}
+            {maxMonths === 1
+              ? t('detail.upToMonth', { count: maxMonths })
+              : t('detail.upToMonths', { count: maxMonths })}
+            {lastMonth ? ` · ${t('detail.ends')} ${format(lastMonth, 'MMM yyyy')}` : ''}
           </p>
         </div>
         <div
@@ -1484,7 +1497,7 @@ function DurationPicker({
             {' → '}
             {format(addMonths(selectedMonth, totalMonths - 1), 'MMM yyyy')}
             <span className="text-royal-cream/40 ml-1">
-              · {totalMonths} months
+              · {totalMonths} {totalMonths === 1 ? t('detail.monthSingular') : t('detail.monthPlural')}
             </span>
           </p>
         </div>

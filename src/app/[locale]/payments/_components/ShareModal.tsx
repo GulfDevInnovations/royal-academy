@@ -3,6 +3,8 @@
 import { X, Share2, Mail, MessageCircle, Send } from 'lucide-react';
 import type { StudentPaymentRecord } from '@/lib/actions/student-payments';
 
+const ORANGE = '#ff751f';
+
 interface Props {
   payment: StudentPaymentRecord;
   onClose: () => void;
@@ -63,27 +65,31 @@ export default function ShareModal({ payment, onClose }: Props) {
       <div
         className="relative z-10 w-full max-w-xs rounded-2xl p-6"
         style={{
-          background:
-            'linear-gradient(135deg,rgba(255,255,255,0.1) 0%,rgba(255,255,255,0.03) 100%)',
-          backdropFilter: 'blur(24px)',
-          border: '1px solid rgba(196,168,130,0.25)',
-          boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+          background: '#141414',
+          border: '1px solid #2a2a2a',
+          boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
         }}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-royal-cream/40 hover:text-royal-cream transition-colors"
+          className="absolute top-4 right-4 transition-colors"
+          style={{ color: '#555' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#f0f0f0')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = '#555')}
         >
           <X size={16} />
         </button>
 
         <div className="flex items-center gap-2 mb-1">
-          <Share2 size={14} className="text-royal-gold" />
-          <span className="text-royal-gold text-xs font-semibold uppercase tracking-widest">
+          <Share2 size={14} style={{ color: ORANGE }} />
+          <span
+            className="text-xs font-semibold uppercase tracking-widest"
+            style={{ color: ORANGE }}
+          >
             Share Invoice
           </span>
         </div>
-        <p className="text-royal-cream/40 text-xs mb-5">
+        <p className="text-xs mb-5" style={{ color: '#555' }}>
           {payment.invoiceNo} · {payment.subClassName}
         </p>
 
