@@ -46,9 +46,11 @@ interface HeroProps {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const MEDIA_ITEMS: MediaItem[] = [
-  { type: 'video', src: '/videos/royalAcademyPart1.mp4' },
-  { type: 'video', src: '/videos/royalAcademyPart2.mp4' },
-  { type: 'video', src: '/videos/royalAcademyPart3.mp4' },
+  { type: 'video', src: '/videos/RoyalAcademywebsiteBallet.mp4' },
+  { type: 'video', src: '/videos/RoyalAcademywebsiteKids.mp4' },
+  { type: 'video', src: '/videos/RoyalAcademywebsiteArt.mp4' },
+  { type: 'video', src: '/videos/RoyalAcademywebsitemusic.mp4' },
+  { type: 'video', src: '/videos/RoyalAcademywebsiteWellness.mp4' },
 ];
 
 const SIDEBAR_W = 150;
@@ -97,36 +99,48 @@ export default function HeroSection({
 
   // ── Video slider ──────────────────────────────────────────────────────────
   const [current, setCurrent] = useState(0);
+  // All 5 videos are queued for preload immediately — they total ~13 MB which
+  // is acceptable for a hero, and ensures zero buffering on any transition.
+  const [preloadSet] = useState<Set<number>>(
+    () => new Set(MEDIA_ITEMS.map((_, i) => i)),
+  );
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const currentRef = useRef(0);
   const transRef = useRef(false);
 
+  // After first render, explicitly call .load() on every video so mobile
+  // browsers (especially Safari) actually start downloading and don't just
+  // honor the preload="auto" attribute lazily.
+  useEffect(() => {
+    videoRefs.current.forEach((v) => {
+      if (v) v.load();
+    });
+  }, []);
+
   const goTo = useCallback((idx: number) => {
     if (transRef.current) return;
     transRef.current = true;
-    setTimeout(() => {
-      const n =
-        ((idx % MEDIA_ITEMS.length) + MEDIA_ITEMS.length) % MEDIA_ITEMS.length;
-      currentRef.current = n;
-      setCurrent(n);
-      transRef.current = false;
-    }, 400);
+    const n =
+      ((idx % MEDIA_ITEMS.length) + MEDIA_ITEMS.length) % MEDIA_ITEMS.length;
+    currentRef.current = n;
+    setCurrent(n);
+    transRef.current = false;
   }, []);
 
   const nextSlide = useCallback(() => goTo(currentRef.current + 1), [goTo]);
 
   useEffect(() => {
     if (MEDIA_ITEMS[current].type !== 'video') return;
+
+    // Pause every video that is not the current one
+    videoRefs.current.forEach((v, i) => {
+      if (v && i !== current) v.pause();
+    });
+
     const cur = videoRefs.current[current];
     if (cur) {
       cur.currentTime = 0;
       cur.play().catch(() => {});
-    }
-    const ni = (current + 1) % MEDIA_ITEMS.length;
-    const nxt = videoRefs.current[ni];
-    if (nxt && MEDIA_ITEMS[ni].type === 'video' && nxt.preload === 'none') {
-      nxt.preload = 'auto';
-      nxt.load();
     }
   }, [current]);
 
@@ -188,8 +202,7 @@ export default function HeroSection({
                     ref={(el) => {
                       videoRefs.current[i] = el;
                     }}
-                    preload={i === 0 ? 'auto' : 'none'}
-                    autoPlay
+                    preload={preloadSet.has(i) ? 'auto' : 'none'}
                     muted
                     playsInline
                     onEnded={nextSlide}
@@ -319,8 +332,7 @@ export default function HeroSection({
                 ref={(el) => {
                   videoRefs.current[i] = el;
                 }}
-                preload={i === 0 ? 'auto' : 'none'}
-                autoPlay
+                preload={preloadSet.has(i) ? 'auto' : 'none'}
                 muted
                 playsInline
                 onEnded={nextSlide}

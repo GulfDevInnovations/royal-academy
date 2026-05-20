@@ -89,6 +89,7 @@ type SearchableSelectProps = {
   noResultsText: string;
   inputClassName: string;
   inputStyle: CSSProperties;
+  required?: boolean;
   onChange: (value: string) => void;
 };
 
@@ -105,6 +106,7 @@ function SearchableSelect({
   noResultsText,
   inputClassName,
   inputStyle,
+  required = false,
   onChange,
 }: SearchableSelectProps) {
   const [open, setOpen] = useState(false);
@@ -141,7 +143,9 @@ function SearchableSelect({
 
   return (
     <label htmlFor={id} className="block">
-      <span className="text-sm">{label}</span>
+      <span className="text-sm">
+        {label}{required && <span style={{ color: '#f87171' }}> *</span>}
+      </span>
       <div ref={wrapperRef} className="relative">
         {/* Hidden input carries the canonical English value for form submission */}
         <input type="hidden" name={name} value={value} />
@@ -321,6 +325,7 @@ export default function CountryCityFields({
         noResultsText={noResultsText}
         inputClassName={inputClassName}
         inputStyle={inputStyle}
+        required
         onChange={handleCountryChange}
       />
 
@@ -335,12 +340,13 @@ export default function CountryCityFields({
         noResultsText={noResultsText}
         inputClassName={inputClassName}
         inputStyle={inputStyle}
+        required
         onChange={handleCityChange}
       />
 
       {showDistrict && (
         <SearchableSelect
-          id="district"
+          id="address"
           name="address"
           label={districtLabel}
           value={district}
@@ -349,6 +355,7 @@ export default function CountryCityFields({
           noResultsText={noResultsText}
           inputClassName={inputClassName}
           inputStyle={inputStyle}
+          required
           onChange={setDistrict}
         />
       )}

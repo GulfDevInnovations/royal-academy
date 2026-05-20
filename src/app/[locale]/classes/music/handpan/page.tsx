@@ -365,12 +365,6 @@ export default function HandpanPage() {
                   <p className="text-[14px] uppercase tracking-[0.22em] text-[#d8bc92]/68 sm:text-[15px]">
                     {content.reserveHelper}
                   </p>
-                  <Link
-                    href={`/${locale}/enrollment/sub-handpan`}
-                    className="liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-7 py-3 text-[14px] font-medium uppercase tracking-[0.18em] text-[#eadfc9]/88 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]"
-                  >
-                    {content.reserveCta}
-                  </Link>
                 </div>
               </div>
             </div>

@@ -77,12 +77,6 @@ export default function BalletSubclassPage({
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <Link
-                href={enrollmentHref}
-                className="liquid-glass shimmer inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-royal-cream/85 transition-transform duration-300 hover:scale-[1.03] sm:w-auto sm:py-2.5"
-              >
-                {isArabic ? 'التسجيل' : 'Enrollment'}
-              </Link>
-              <Link
                 href={contactHref}
                 className="liquid-glass shimmer inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-royal-cream/85 transition-transform duration-300 hover:scale-[1.03] sm:w-auto sm:py-2.5"
               >

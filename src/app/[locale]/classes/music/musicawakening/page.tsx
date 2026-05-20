@@ -77,12 +77,6 @@ export default function MusicAwakeningPage() {
             <div
               className={`mt-5 flex ${isArabic ? 'justify-start' : 'justify-end'} sm:mt-6`}
             >
-              <Link
-                href={enrollmentHref}
-                className="shimmer inline-flex max-w-full items-center rounded-full border border-[#3a2500]/20 bg-white/20 px-4 py-2.5 text-center font-goudy text-[0.9rem] text-[#3a2500] shadow-[0_12px_28px_rgba(255,214,10,0.18),inset_0_1px_0_rgba(255,255,255,0.35)] backdrop-blur-[10px] transition-transform duration-300 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-300/80 sm:px-5 sm:text-[0.95rem]"
-              >
-                {content.reserveCta}
-              </Link>
             </div>
           </div>
         </div>

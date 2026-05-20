@@ -435,14 +435,6 @@ export default function SightReadingPage() {
         </div>
       </section>
 
-      <div className="absolute bottom-8 right-8 z-20">
-        <Link
-          href={`/${locale}/enrollment/sub-sightreading`}
-          className="liquid-glass-gold shimmer inline-flex items-center rounded-full px-5 py-2.5 font-goudy text-[0.95rem] text-[#f4dec5] transition-transform duration-300 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-royal-gold/70 sm:px-6 sm:text-[1rem]"
-        >
-          {content.reserveCta}
-        </Link>
-      </div>
 
       <style jsx>{`
         @keyframes sightreading-note-rain {

@@ -457,16 +457,6 @@ export default function TheoryPage() {
             >
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
             </p>
-            <Link
-              href={enrollmentHref}
-              className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 ${musicCtaTextClass(
-                isArabic,
-              )} text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] ${
-                isArabic ? 'self-end text-right' : 'self-end'
-              }`}
-            >
-              {content.reserveCta}
-            </Link>
           </div>
         </div>
       </section>

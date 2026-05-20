@@ -400,12 +400,6 @@ export default function PianoPage() {
             >
               {content.paragraph}
             </p>
-            <Link
-              href={`/${locale}/enrollment`}
-              className="mx-auto mt-4 inline-flex items-center rounded-full border border-[#d9c29b]/20 bg-[linear-gradient(180deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.05)_100%)] px-4 py-2 text-[0.76rem] uppercase tracking-[0.16em] text-[#f3dfbb] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-transform duration-200 hover:scale-[1.02] hover:bg-white/10 sm:px-5 sm:py-2.5 sm:text-[0.86rem] lg:mx-0 lg:mt-5 lg:px-6 lg:py-3 lg:text-[1.08rem]"
-            >
-              {content.enrollmentLabel}
-            </Link>
           </article>
         </div>
       </section>

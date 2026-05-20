@@ -268,6 +268,7 @@ export default async function ProfileSettingPage({
     'emergencyRelationship',
     'country',
     'city',
+    'address',
     'preferredTrack',
     'experience',
     'agreePolicy',
@@ -840,6 +841,7 @@ export default async function ProfileSettingPage({
               />
               {renderRequiredMessage('country')}
               {renderRequiredMessage('city')}
+              {renderRequiredMessage('address')}
             </div>
           </MobileSection>
 
@@ -894,7 +896,10 @@ export default async function ProfileSettingPage({
                 {renderRequiredMessage('emergencyContactPhone')}
               </label>
               <label htmlFor="emergencyRelationshipDisplay" className="block">
-                <span className="text-sm">{content.relationship}</span>
+                <span className="text-sm">
+                  {content.relationship}{' '}
+                  <span style={{ color: '#f87171' }}>*</span>
+                </span>
                 <GlassSelectField
                   id="emergencyRelationship"
                   name="emergencyRelationship"

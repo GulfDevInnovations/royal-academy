@@ -1,6 +1,7 @@
 'use server';
 
 import { auth } from '@/lib/auth';
+import { LOCATIONS } from '@/lib/data/locations';
 import { prisma } from '@/lib/prisma';
 import {
   Gender,
@@ -119,6 +120,16 @@ export async function saveProfileSettings(formData: FormData) {
   );
   if (formData.get('agreePolicy') !== 'on') {
     missingFields.push('agreePolicy');
+  }
+
+  const selectedCountry = LOCATIONS.find(
+    (c) => c.name === getString(formData, 'country'),
+  );
+  const selectedCity = selectedCountry?.cities.find(
+    (c) => c.name === getString(formData, 'city'),
+  );
+  if ((selectedCity?.districts?.length ?? 0) > 0 && getString(formData, 'address').length === 0) {
+    missingFields.push('address');
   }
 
   if (missingFields.length > 0) {
