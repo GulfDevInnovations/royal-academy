@@ -99,23 +99,20 @@ export default function HeroSection({
 
   // ── Video slider ──────────────────────────────────────────────────────────
   const [current, setCurrent] = useState(0);
-  // All 5 videos are queued for preload immediately — they total ~13 MB which
-  // is acceptable for a hero, and ensures zero buffering on any transition.
-  const [preloadSet] = useState<Set<number>>(
-    () => new Set(MEDIA_ITEMS.map((_, i) => i)),
+  // Start with first two only; desktop expands to all once isMobile resolves.
+  const [preloadSet, setPreloadSet] = useState<Set<number>>(
+    () => new Set([0, 1]),
   );
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const currentRef = useRef(0);
   const transRef = useRef(false);
 
-  // After first render, explicitly call .load() on every video so mobile
-  // browsers (especially Safari) actually start downloading and don't just
-  // honor the preload="auto" attribute lazily.
+  // Desktop: once confirmed not mobile, preload every video for zero-buffer transitions.
   useEffect(() => {
-    videoRefs.current.forEach((v) => {
-      if (v) v.load();
-    });
-  }, []);
+    if (isMobileVal === false) {
+      setPreloadSet(new Set(MEDIA_ITEMS.map((_, i) => i)));
+    }
+  }, [isMobileVal]);
 
   const goTo = useCallback((idx: number) => {
     if (transRef.current) return;
@@ -142,7 +139,13 @@ export default function HeroSection({
       cur.currentTime = 0;
       cur.play().catch(() => {});
     }
-  }, [current]);
+
+    // Mobile: roll the preload window so the next video is always ready.
+    if (isMobileVal === true) {
+      const next = (current + 1) % MEDIA_ITEMS.length;
+      setPreloadSet(new Set([current, next]));
+    }
+  }, [current, isMobileVal]);
 
   const hasContent =
     upcoming.length > 0 || news.length > 0 || offers.length > 0;
