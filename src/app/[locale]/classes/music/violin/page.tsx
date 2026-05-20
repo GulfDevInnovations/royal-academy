@@ -646,14 +646,6 @@ export default function ViolinPage() {
                     {content.reserveHelper}
                   </span>
                 </p>
-                <Link
-                  href={enrollmentHref}
-                  className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 ${musicCtaTextClass(
-                    isArabic,
-                  )} text-[#2b1912] transition-transform duration-300 hover:scale-[1.03]`}
-                >
-                  {content.reserveCta}
-                </Link>
               </div>
             </div>
           </div>
@@ -742,14 +734,6 @@ export default function ViolinPage() {
                   {content.reserveHelper}
                 </span>
               </p>
-              <Link
-                href={enrollmentHref}
-                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4.5 py-2 ${musicCtaTextClass(
-                  isArabic,
-                )} text-[#2b1912] transition-transform duration-300 hover:scale-[1.03]`}
-              >
-                {content.reserveCta}
-              </Link>
             </div>
           </div>
         </div>

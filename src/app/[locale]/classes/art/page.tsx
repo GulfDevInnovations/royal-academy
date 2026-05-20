@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
@@ -337,12 +336,6 @@ export default function ArtPage() {
             ))}
           </div>
 
-          <Link
-            href={`/${locale}/enrollment`}
-            className="mt-4 inline-flex self-end rounded-full border border-white/18 bg-[linear-gradient(135deg,rgba(255,243,230,0.18)_0%,rgba(255,255,255,0.08)_100%)] px-4 py-2 text-[0.74rem] font-semibold tracking-[0.08em] text-[#fff6ec] shadow-[0_12px_24px_rgba(24,14,8,0.18)] backdrop-blur-sm transition hover:bg-[linear-gradient(135deg,rgba(255,243,230,0.26)_0%,rgba(255,255,255,0.12)_100%)] sm:text-[0.8rem]"
-          >
-            {pageCopy.enrollment}
-          </Link>
         </div>
       </section>
 

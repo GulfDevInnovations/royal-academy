@@ -456,14 +456,6 @@ export default function OudPage() {
             >
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
             </p>
-            <Link
-              href={enrollmentHref}
-              className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
-                isArabic,
-              )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
-            >
-              {content.reserveCta}
-            </Link>
           </div>
         </div>
       </div>
@@ -535,14 +527,6 @@ export default function OudPage() {
                   {content.reserveHelper}
                 </span>
               </p>
-              <Link
-                href={enrollmentHref}
-                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
-                  isArabic,
-                )} text-[14px] text-[#2b1912] transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
-              >
-                {content.reserveCta}
-              </Link>
             </div>
           </div>
         </div>

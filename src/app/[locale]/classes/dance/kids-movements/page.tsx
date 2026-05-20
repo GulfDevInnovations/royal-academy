@@ -233,12 +233,6 @@ export default function KidsMovementsPage({
 
           <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Link
-              href={`/${locale}/enrollment?${new URLSearchParams({ dept: 'dance', q: 'Kids Movements' }).toString()}`}
-              className="liquid-glass-gold shimmer inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:w-auto sm:py-2.5"
-            >
-              {content.enrollment}
-            </Link>
-            <Link
               href={`/${locale}`}
               className="mt-1 w-full text-center text-[11px] font-medium uppercase tracking-[0.22em] text-royal-gold/70 underline decoration-royal-gold/40 underline-offset-4 hover:text-royal-gold sm:mt-0 sm:w-auto sm:text-left"
             >

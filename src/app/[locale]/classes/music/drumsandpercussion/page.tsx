@@ -728,14 +728,6 @@ export default function DrumsPage() {
               <span style={TEXT_HIGHLIGHT_STYLE}>{content.reserveHelper}</span>
             </p>
 
-            <Link
-              href={enrollmentHref}
-              className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-4 py-2 text-[0.92em] sm:px-5 sm:py-2.5 sm:text-[1.02em] ${musicCtaTextClass(
-                isArabic,
-              )} text-[#3b2418] transition-transform duration-300 hover:scale-[1.03]`}
-            >
-              {content.reserveCta}
-            </Link>
           </div>
         </aside>
       </div>

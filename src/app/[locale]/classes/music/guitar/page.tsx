@@ -479,14 +479,6 @@ export default function GuitarPage() {
                 >
                   {content.reserveHelper}
                 </p>
-                <Link
-                  href={enrollmentHref}
-                  className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
-                    isArabic,
-                  )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
-                >
-                  {content.reserveCta}
-                </Link>
                 <div className="relative">
                   <button
                     type="button"
@@ -598,14 +590,6 @@ export default function GuitarPage() {
               >
                 {content.reserveHelper}
               </p>
-              <Link
-                href={enrollmentHref}
-                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-6 py-3 ${musicCtaTextClass(
-                  isArabic,
-                )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px]`}
-              >
-                {content.reserveCta}
-              </Link>
               <div className="relative">
                 <button
                   type="button"

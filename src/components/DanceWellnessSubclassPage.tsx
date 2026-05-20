@@ -77,12 +77,6 @@ export default function DanceWellnessSubclassPage({
 
             <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <Link
-                href={enrollmentHref}
-                className="liquid-glass-gold shimmer inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:w-auto sm:py-2.5"
-              >
-                {isArabic ? 'التسجيل' : 'Enrollment'}
-              </Link>
-              <Link
                 href={contactHref}
                 className="liquid-glass shimmer inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-[11px] font-medium uppercase tracking-[0.22em] text-royal-cream/85 transition-transform duration-300 hover:scale-[1.03] sm:w-auto sm:py-2.5"
               >
@@ -135,13 +129,6 @@ export default function DanceWellnessSubclassPage({
                 ? 'يمكنك حجز صف تجريبي أو اشتراك شهري من صفحة الحجز.'
                 : 'You can book a trial class or monthly enrollment from the enrollment page.'}
             </p>
-            <Link
-              href={enrollmentHref}
-              className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-royal-gold/90 hover:text-royal-gold"
-            >
-              {isArabic ? 'التسجيل' : 'Enrollment'}
-              <span aria-hidden="true">→</span>
-            </Link>
           </div>
         </div>
 

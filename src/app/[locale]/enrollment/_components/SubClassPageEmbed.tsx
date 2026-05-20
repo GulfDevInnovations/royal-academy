@@ -106,12 +106,149 @@ const REGISTRY: Record<string, ComponentType<any>> = {
     () => import('../../classes/ballet/baby-ballet/page'),
     { ssr: false },
   ),
+  'ballet/preprimaryballet': dynamic(
+    () => import('../../classes/ballet/pre-primary-ballet/page'),
+    { ssr: false },
+  ),
+  // "Open Ballet" generic + "Ballet Open class 6to10 Yrs"
   'ballet/openballet': dynamic(
     () => import('../../classes/ballet/open-ballet/page'),
     { ssr: false },
   ),
+  'ballet/balletopenclass6to10yrs': dynamic(
+    () => import('../../classes/ballet/open-ballet/page'),
+    { ssr: false },
+  ),
+  'ballet/balletopenclass10to15yrs': dynamic(
+    () => import('../../classes/ballet/open-ballet-10-15/page'),
+    { ssr: false },
+  ),
+  'ballet/balletopenclass15': dynamic(
+    () => import('../../classes/ballet/open-ballet-15plus/page'),
+    { ssr: false },
+  ),
+  // "RAD Ballet" (existing key) + "Ballet - RAD" (DB alias)
   'ballet/radballet': dynamic(
     () => import('../../classes/ballet/rad-ballet/page'),
+    { ssr: false },
+  ),
+  'ballet/balletrad': dynamic(
+    () => import('../../classes/ballet/rad-ballet/page'),
+    { ssr: false },
+  ),
+  'ballet/balletprivatelesson': dynamic(
+    () => import('../../classes/ballet/ballet-private/page'),
+    { ssr: false },
+  ),
+
+  // ── Dance & Wellness — new subclasses ─────────────────────────────────────
+  'dancewellness/gymnastics': dynamic(
+    () => import('../../classes/dance/gymnastics/page'),
+    { ssr: false },
+  ),
+  'dancewellness/hiphop': dynamic(
+    () => import('../../classes/dance/hip-hop/page'),
+    { ssr: false },
+  ),
+  'dancewellness/therapeutichealingflow': dynamic(
+    () => import('../../classes/dance/therapeutic-healing-flow/page'),
+    { ssr: false },
+  ),
+  'dancewellness/stretchingmobility': dynamic(
+    () => import('../../classes/dance/stretching-mobility/page'),
+    { ssr: false },
+  ),
+  'dancewellness/alignediyengarinspiredhathayoga': dynamic(
+    () => import('../../classes/dance/iyengar-yoga/page'),
+    { ssr: false },
+  ),
+  'dancewellness/theartofpilates': dynamic(
+    () => import('../../classes/dance/pilates/page'),
+    { ssr: false },
+  ),
+  'dancewellness/restorativeyoganervoussystembalance': dynamic(
+    () => import('../../classes/dance/restorative-yoga/page'),
+    { ssr: false },
+  ),
+  'dancewellness/taichi': dynamic(
+    () => import('../../classes/dance/tai-chi/page'),
+    { ssr: false },
+  ),
+
+  // ── Music — new subclasses + DB-name aliases ───────────────────────────────
+  // "Piano - Academy learning" alias for the main piano page
+  'music/pianoacademylearning': dynamic(
+    () => import('../../classes/music/piano/page'),
+    { ssr: false },
+  ),
+  'music/pianofreelance': dynamic(
+    () => import('../../classes/music/piano-freelance/page'),
+    { ssr: false },
+  ),
+  'music/pianoearleaning': dynamic(
+    () => import('../../classes/music/piano-ear/page'),
+    { ssr: false },
+  ),
+  // "Drums" alias for drumsandpercussion page
+  'music/drums': dynamic(
+    () => import('../../classes/music/drumsandpercussion/page'),
+    { ssr: false },
+  ),
+  // "Bass Guitar" alias for bass page
+  'music/bassguitar': dynamic(
+    () => import('../../classes/music/bass/page'),
+    { ssr: false },
+  ),
+  'music/electronicguitar': dynamic(
+    () => import('../../classes/music/electronic-guitar/page'),
+    { ssr: false },
+  ),
+  'music/ukulele': dynamic(
+    () => import('../../classes/music/ukulele/page'),
+    { ssr: false },
+  ),
+  'music/songwriting': dynamic(
+    () => import('../../classes/music/songwriting/page'),
+    { ssr: false },
+  ),
+  // "Darbuka" alias for durbuka page
+  'music/darbuka': dynamic(
+    () => import('../../classes/music/durbuka/page'),
+    { ssr: false },
+  ),
+  // "Hangdrum" alias for handpan page
+  'music/hangdrum': dynamic(
+    () => import('../../classes/music/handpan/page'),
+    { ssr: false },
+  ),
+  'music/accordion': dynamic(
+    () => import('../../classes/music/accordion/page'),
+    { ssr: false },
+  ),
+
+  // ── Packages ──────────────────────────────────────────────────────────────
+  'packages/wellnessflex8': dynamic(
+    () => import('../../classes/packages/wellness-flex-8/page'),
+    { ssr: false },
+  ),
+  'packages/wellnessflex12': dynamic(
+    () => import('../../classes/packages/wellness-flex-12/page'),
+    { ssr: false },
+  ),
+  'packages/wellnessflex16': dynamic(
+    () => import('../../classes/packages/wellness-flex-16/page'),
+    { ssr: false },
+  ),
+  'packages/ayoungachieverspackage': dynamic(
+    () => import('../../classes/packages/young-achievers/page'),
+    { ssr: false },
+  ),
+  'packages/futurestarspackage': dynamic(
+    () => import('../../classes/packages/future-stars/page'),
+    { ssr: false },
+  ),
+  'packages/openingoffer': dynamic(
+    () => import('../../classes/packages/opening-offer/page'),
     { ssr: false },
   ),
 };

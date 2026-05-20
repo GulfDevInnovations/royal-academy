@@ -398,16 +398,6 @@ export default function DurbukaPage() {
                     {content.reserveHelper}
                   </span>
                 </p>
-                <Link
-                  href={enrollmentHref}
-                  className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-7 py-3 ${musicCtaTextClass(
-                    isArabic,
-                  )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px] ${
-                    isArabic ? 'self-end text-right' : ''
-                  }`}
-                >
-                  {content.reserveCta}
-                </Link>
               </div>
             </div>
           </div>
@@ -493,16 +483,6 @@ export default function DurbukaPage() {
                   {content.reserveHelper}
                 </span>
               </p>
-              <Link
-                href={enrollmentHref}
-                className={`liquid-glass-gold shimmer inline-flex items-center justify-center rounded-full px-7 py-3 ${musicCtaTextClass(
-                  isArabic,
-                )} text-[14px] text-royal-cream/90 transition-transform duration-300 hover:scale-[1.03] sm:text-[15px] ${
-                  isArabic ? 'self-end text-right' : ''
-                }`}
-              >
-                {content.reserveCta}
-              </Link>
             </div>
           </div>
         </div>
