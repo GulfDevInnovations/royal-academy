@@ -81,7 +81,8 @@ export default function Footer({ locale }: { locale: string }) {
   return (
     <footer
       style={{
-        background: 'transparent',
+        /* background: 'transparent', */
+        background: '#000000',
         color: '#ffffff',
         direction: dir,
         fontFamily: isAr
@@ -94,9 +95,11 @@ export default function Footer({ locale }: { locale: string }) {
         style={{
           maxWidth: 1800,
           margin: '0 auto',
-          padding: isMobile ? '40px 20px 32px' : '64px 32px 48px',
+          padding: isMobile ? '40px 30px 42px' : '64px 42px 58px',
           display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(220px, 1fr))',
+          gridTemplateColumns: isMobile
+            ? '1fr'
+            : 'repeat(auto-fit, minmax(220px, 1fr))',
           gap: isMobile ? '36px 0' : '48px 40px',
         }}
       >
@@ -107,7 +110,7 @@ export default function Footer({ locale }: { locale: string }) {
               fontSize: 11,
               letterSpacing: '.22em',
               textTransform: 'uppercase',
-              color: 'rgba(255,255,255,.38)',
+              color: '#ff751f',
             }}
           >
             {isAr ? 'الأكاديمية الملكية' : 'Royal Academy'}
@@ -168,7 +171,7 @@ export default function Footer({ locale }: { locale: string }) {
               fontSize: 11,
               letterSpacing: '.22em',
               textTransform: 'uppercase',
-              color: 'rgba(255,255,255,.38)',
+              color: '#ff751f',
               marginBottom: 4,
             }}
           >
@@ -226,7 +229,7 @@ export default function Footer({ locale }: { locale: string }) {
               fontSize: 11,
               letterSpacing: '.22em',
               textTransform: 'uppercase',
-              color: 'rgba(255,255,255,.38)',
+              color: '#ff751f',
             }}
           >
             {isAr ? 'اشترك في نشرتنا' : 'Stay in touch'}
@@ -328,7 +331,7 @@ export default function Footer({ locale }: { locale: string }) {
       <div
         style={{
           borderTop: '1px solid rgba(255,255,255,.08)',
-          padding: '18px 32px',
+          padding: isMobile ? '18px 30px 28px' : '18px 42px 28px',
           maxWidth: 1800,
           margin: '0 auto',
           display: 'flex',

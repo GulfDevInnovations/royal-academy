@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 interface Props {
   unread: number;
   open: boolean;
@@ -7,9 +9,17 @@ interface Props {
 }
 
 export default function NotificationBell({ unread, open, onToggle }: Props) {
+  const [shaking, setShaking] = useState(false);
+
+  const handleClick = () => {
+    setShaking(true);
+    onToggle(!open);
+    setTimeout(() => setShaking(false), 500);
+  };
+
   return (
     <button
-      onClick={() => onToggle(!open)}
+      onClick={handleClick}
       aria-label="Notifications"
       style={{
         background: "none",
@@ -22,6 +32,18 @@ export default function NotificationBell({ unread, open, onToggle }: Props) {
         position: "relative",
       }}
     >
+      <style>{`
+        @keyframes bell-shake {
+          0%   { transform: rotate(0deg); }
+          15%  { transform: rotate(-28deg); }
+          35%  { transform: rotate(22deg); }
+          55%  { transform: rotate(-16deg); }
+          70%  { transform: rotate(10deg); }
+          82%  { transform: rotate(-6deg); }
+          91%  { transform: rotate(3deg); }
+          100% { transform: rotate(0deg); }
+        }
+      `}</style>
       <svg
         width="22"
         height="22"
@@ -31,6 +53,10 @@ export default function NotificationBell({ unread, open, onToggle }: Props) {
         strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
+        style={{
+          transformOrigin: "50% 0%",
+          animation: shaking ? "bell-shake 0.5s ease" : "none",
+        }}
       >
         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
         <path d="M13.73 21a2 2 0 0 1-3.46 0" />

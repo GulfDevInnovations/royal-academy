@@ -13,45 +13,28 @@ const MEDIA: { type: 'image' | 'video'; src: string }[] = [
   { type: 'image', src: '/images/aboutSection/about-5.jpg' },
 ];
 
-// ─── Philosophy content (EN + AR) ────────────────────────────────────────────
-const PHILOSOPHY = [
-  {
-    id: 'history',
-    label: { en: 'Our Story', ar: 'قصتنا' },
-    heading: {
-      en: 'Founded on a Vision of Excellence',
-      ar: 'تأسست على رؤية من التميز',
-    },
-    body: {
-      en: 'Royal Academy was founded in Muscat with a singular conviction: that the arts are not a luxury, but a language — one that shapes character, refines the spirit, and connects humanity across centuries. From its earliest days, the Academy has drawn together masters of ballet, music, dance, and visual art under one roof.',
-      ar: 'تأسست الأكاديمية الملكية في مسقط بقناعة راسخة: أن الفنون ليست ترفاً، بل هي لغة — تشكّل الشخصية، وتُصقل الروح، وتربط الإنسانية عبر القرون. منذ أولى أيامها، جمعت الأكاديمية تحت سقف واحد أساتذة الباليه والموسيقى والرقص والفنون البصرية.',
-    },
+// ─── Our Story content (EN + AR) ─────────────────────────────────────────────
+const OUR_STORY = {
+  label: { en: 'Our Story', ar: 'قصتنا' },
+  heading: {
+    en: 'Founded on a Vision of Excellence',
+    ar: 'تأسست على رؤية من التميز',
   },
-  {
-    id: 'philosophy',
-    label: { en: 'Teaching Philosophy', ar: 'فلسفة التعليم' },
-    heading: {
-      en: 'Discipline as Liberation',
-      ar: 'الانضباط بوصفه تحرراً',
-    },
-    body: {
-      en: 'True creative freedom is born not from the absence of structure, but from a profound mastery of it. Every student is guided through a rigorous yet nurturing curriculum — one that honours classical traditions while encouraging original expression. Our teachers are mentors who see the full potential of each student.',
-      ar: 'الحرية الإبداعية الحقيقية لا تولد من غياب البنية، بل من إتقانها العميق. يُرشَد كل طالب عبر منهج صارم ومحفّز في آنٍ واحد — يُكرّم التقاليد الكلاسيكية ويشجع التعبير الأصيل. معلمونا موجّهون يرون الإمكانات الكاملة لكل طالب.',
-    },
+  body: {
+    en: [
+      'Previously known as Music Palace – Al Mouj, Royal Academy has evolved into a multidisciplinary center for Dance, Music, and Arts in Muscat.',
+      'Founded on the belief that the arts are not a luxury, but a language of expression, discipline, and personal growth, the Academy brings together ballet, music, dance, visual arts, and wellness under one inspiring roof.',
+      'We offer professionally structured programs designed to inspire, develop, and elevate students across all age groups. Whether discovering a new passion, returning to the arts, or deepening personal technique and wellbeing, every student is welcomed into a supportive and refined learning environment.',
+      'At Royal Academy, we cultivate technique, confidence, creativity, and a lifelong connection to the arts.',
+    ],
+    ar: [
+      'كانت تُعرف سابقاً بـ Music Palace – Al Mouj، وقد تطورت الأكاديمية الملكية لتصبح مركزاً متعدد التخصصات للرقص والموسيقى والفنون في مسقط.',
+      'تأسست على الاعتقاد بأن الفنون ليست ترفاً، بل هي لغة للتعبير والانضباط والنمو الشخصي، وتجمع الأكاديمية الباليه والموسيقى والرقص والفنون البصرية والعافية تحت سقف واحد ملهم.',
+      'نقدم برامج منظمة باحترافية مصممة لإلهام الطلاب وتطويرهم والارتقاء بهم عبر جميع الفئات العمرية. سواء أكانوا يكتشفون شغفاً جديداً، أم يعودون إلى الفنون، أم يعمّقون تقنياتهم الشخصية ورفاهيتهم، يُرحَّب بكل طالب في بيئة تعليمية داعمة ومتطورة.',
+      'في الأكاديمية الملكية، نُنمّي التقنية والثقة والإبداع وارتباطاً مدى الحياة بالفنون.',
+    ],
   },
-  {
-    id: 'values',
-    label: { en: 'Core Values', ar: 'القيم الجوهرية' },
-    heading: {
-      en: 'Excellence · Integrity · Community · Heritage',
-      ar: 'التميز · النزاهة · المجتمع · التراث',
-    },
-    body: {
-      en: 'We hold ourselves to the highest standards as a form of respect for the art. We teach with honesty and celebrate progress over perfection. The Academy is a place of belonging — for students, families, and the wider cultural life of Oman. We preserve great traditions, ensuring they are passed with care to the next generation.',
-      ar: 'نُلزم أنفسنا بأعلى المعايير احتراماً للفن. نُعلّم بصدق ونحتفي بالتقدم قبل الكمال. الأكاديمية مكان للانتماء — للطلاب والعائلات والحياة الثقافية الأرحب في عُمان. نحافظ على التقاليد العظيمة ونضمن انتقالها بعناية إلى الجيل القادم.',
-    },
-  },
-];
+};
 
 // ─── Inject patternScroll keyframe once ──────────────────────────────────────
 const PATTERN_SCROLL_CSS = `
@@ -739,295 +722,119 @@ function RoyalMediaPlayer({
   );
 }
 
-// ─── Philosophy card (used in desktop sidebar slots) ─────────────────────────
-function PhilosophyCard({
-  item,
-  active,
-  locale,
-  delay = 0,
-  align = 'left',
-}: {
-  item: (typeof PHILOSOPHY)[number];
-  active: boolean;
-  locale: string;
-  delay?: number;
-  align?: 'left' | 'right';
-}) {
+// ─── Our Story text block ─────────────────────────────────────────────────────
+function OurStoryBlock({ locale }: { locale: string }) {
   const isArabic = locale === 'ar';
-  const dir = isArabic ? 'rtl' : 'ltr';
-  const textAlign = isArabic ? 'right' : align === 'right' ? 'right' : 'left';
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: align === 'left' ? -18 : 18 }}
-      animate={{
-        opacity: active ? 1 : 0,
-        x: active ? 0 : align === 'left' ? -18 : 18,
-      }}
-      transition={{ duration: 0.6, delay }}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 8,
-        padding: '20px 24px',
-        borderLeft:
-          align === 'left' ? '1px solid rgba(180,180,180,0.18)' : undefined,
-        borderRight:
-          align === 'right' ? '1px solid rgba(180,180,180,0.18)' : undefined,
-        direction: dir,
-        textAlign,
-      }}
-    >
-      {/* Label */}
-      <div
-        style={{
-          fontFamily: 'var(--font-text)',
-          fontSize: '0.62rem',
-          letterSpacing: '0.28em',
-          textTransform: 'uppercase',
-          color: 'rgba(180,180,180,0.55)',
-        }}
-      >
-        {isArabic ? item.label.ar : item.label.en}
-      </div>
-
-      {/* Heading */}
-      <div
-        style={{
-          fontFamily: 'var(--font-text)',
-          fontSize: 'clamp(0.85rem, 1.1vw, 1.15rem)',
-          fontWeight: 400,
-          color: 'rgba(230,230,230,0.82)',
-          lineHeight: 1.35,
-        }}
-      >
-        — {isArabic ? item.heading.ar : item.heading.en}
-      </div>
-
-      {/* Thin gold rule */}
-      <div
-        style={{
-          height: 1,
-          background:
-            align === 'left'
-              ? 'linear-gradient(to right, rgba(180,180,180,0.35), transparent)'
-              : 'linear-gradient(to left, rgba(180,180,180,0.35), transparent)',
-          margin: '2px 0',
-        }}
-      />
-
-      {/* Body */}
-      <div
-        style={{
-          fontFamily: 'var(--font-text)',
-          fontSize: 'clamp(0.72rem, 0.85vw, 0.9rem)',
-          lineHeight: 1.72,
-          color: 'rgba(230,230,230,0.42)',
-        }}
-      >
-        {isArabic ? item.body.ar : item.body.en}
-      </div>
-    </motion.div>
-  );
-}
-
-// ─── Mobile philosophy panel (unchanged behaviour) ────────────────────────────
-function MobilePhilosophyPanel({
-  active,
-  locale,
-}: {
-  active: boolean;
-  locale: string;
-}) {
-  const [activeTab, setActiveTab] = useState(0);
-  const isArabic = locale === 'ar';
-
+  const paragraphs = isArabic ? OUR_STORY.body.ar : OUR_STORY.body.en;
   return (
     <div
       style={{
+        maxWidth: 'min(960px, 88vw)',
         width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        padding: '16px 32px 24px 32px',
-        position: 'relative',
-        marginTop: '80px',
-        zIndex: 2,
+        textAlign: 'center',
         direction: isArabic ? 'rtl' : 'ltr',
+        padding: '0 16px',
       }}
     >
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: active ? 1 : 0, y: active ? 0 : -8 }}
-        transition={{ duration: 0.55, delay: 0.2 }}
-        style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          gap: 20,
-          marginBottom: 10,
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            flexShrink: 0,
-          }}
-        >
-          <div
-            style={{
-              width: 24,
-              height: 1,
-              background: 'rgba(180,180,180,0.5)',
-            }}
-          />
-        </div>
-        <h2
-          style={{
-            fontFamily: 'var(--font-text)',
-            fontSize: '1.1rem',
-            fontWeight: 400,
-            lineHeight: 1.2,
-            color: 'rgba(230,230,230,0.95)',
-            letterSpacing: '-0.01em',
-            margin: 0,
-          }}
-        >
-          {isArabic ? (
-            <>
-              روح <em style={{ color: 'rgba(180,180,180,0.9)' }}>الأكاديمية</em>
-            </>
-          ) : (
-            <>
-              The Spirit of{' '}
-              <em style={{ color: 'rgba(180,180,180,0.9)' }}>the Academy</em>
-            </>
-          )}
-        </h2>
-      </motion.div>
-
-      {/* Tabs */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: active ? 1 : 0 }}
-        transition={{ duration: 0.55, delay: 0.32 }}
-        style={{
-          display: 'flex',
-          gap: 0,
-          marginBottom: 10,
-          borderBottom: '1px solid rgba(180,180,180,0.1)',
-          overflowX: 'auto',
-          scrollbarWidth: 'none',
-        }}
-      >
-        {PHILOSOPHY.map((p, i) => (
-          <button
-            key={p.id}
-            onClick={() => setActiveTab(i)}
-            style={{
-              fontFamily: 'var(--font-text)',
-              fontSize: '0.65rem',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color:
-                activeTab === i
-                  ? 'rgba(180,180,180,0.95)'
-                  : 'rgba(180,180,180,0.3)',
-              background: 'none',
-              border: 'none',
-              borderBottom:
-                activeTab === i
-                  ? '1px solid rgba(180,180,180,0.65)'
-                  : '1px solid transparent',
-              padding: '5px 10px 7px',
-              cursor: 'pointer',
-              marginBottom: -1,
-              transition: 'all 0.3s ease',
-              flexShrink: 0,
-            }}
-          >
-            {isArabic ? p.label.ar : p.label.en}
-          </button>
-        ))}
-      </motion.div>
-
-      {/* Tab content */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.35 }}
-          style={{ overflow: 'hidden' }}
-        >
-          <div
-            style={{
-              fontFamily: 'var(--font-text)',
-              fontSize: '1rem',
-              fontWeight: 400,
-              color: 'rgba(230,230,230,0.75)',
-              letterSpacing: '0.04em',
-              marginBottom: 8,
-              whiteSpace: 'normal',
-              overflow: 'hidden',
-            }}
-          >
-            —{' '}
-            {isArabic
-              ? PHILOSOPHY[activeTab].heading.ar
-              : PHILOSOPHY[activeTab].heading.en}
-          </div>
-          <div
-            style={{
-              fontFamily: 'var(--font-text)',
-              fontSize: '0.82rem',
-              lineHeight: 1.65,
-              color: 'rgba(230,230,230,0.45)',
-            }}
-          >
-            {isArabic
-              ? PHILOSOPHY[activeTab].body.ar
-              : PHILOSOPHY[activeTab].body.en}
-          </div>
-        </motion.div>
-      </AnimatePresence>
-
-      <motion.div
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: active ? 1 : 0 }}
-        transition={{ duration: 1.1, delay: 0.5, ease: 'easeOut' }}
-        style={{
-          marginTop: 12,
-          height: 1,
-          background:
-            'linear-gradient(to right, rgba(180,180,180,0.4), transparent)',
-          transformOrigin: 'left',
-        }}
-      />
-
       <div
         style={{
-          position: 'absolute',
-          bottom: 0,
-          right: 16,
           fontFamily: 'var(--font-text)',
-          fontSize: '4rem',
-          color: 'rgba(180,180,180,0.035)',
-          lineHeight: 1,
-          pointerEvents: 'none',
-          userSelect: 'none',
+          fontSize: 'clamp(0.65rem, 0.9vw, 0.95rem)',
+          letterSpacing: '0.28em',
+          textTransform: 'uppercase',
+          color: '#ff751f',
+          marginBottom: 14,
         }}
       >
-        &quot;
+        {isArabic ? OUR_STORY.label.ar : OUR_STORY.label.en}
+      </div>
+      <div
+        style={{
+          fontFamily: 'var(--font-text)',
+          fontSize: 'clamp(1.2rem, 2.4vw, 2.4rem)',
+          fontWeight: 400,
+          color: '#1a1a1a',
+          lineHeight: 1.3,
+          marginBottom: 20,
+        }}
+      >
+        {isArabic ? OUR_STORY.heading.ar : OUR_STORY.heading.en}
+      </div>
+      <div
+        style={{
+          height: 1,
+          background:
+            'linear-gradient(to right, transparent, rgba(0,0,0,0.2), transparent)',
+          margin: '0 auto 24px',
+          maxWidth: 260,
+        }}
+      />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16,
+        }}
+      >
+        {paragraphs.map((p, i) => (
+          <p
+            key={i}
+            style={{
+              fontFamily: 'var(--font-text)',
+              fontSize: 'clamp(0.85rem, 1.15vw, 1.15rem)',
+              lineHeight: 1.82,
+              color: '#555555',
+              margin: 0,
+            }}
+          >
+            {p}
+          </p>
+        ))}
       </div>
     </div>
   );
 }
 
-// ─── Desktop layout: frame centered, history left, philosophy right, values below ──
+// ─── Mobile layout ────────────────────────────────────────────────────────────
+function MobileAboutLayout({
+  active,
+  locale,
+}: {
+  active: boolean;
+  locale: string;
+}) {
+  return (
+    <div
+      style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        position: 'relative',
+        zIndex: 2,
+        marginTop: 80,
+      }}
+    >
+      <div
+        style={{
+          flex: 'none',
+          width: '100%',
+          height: '56vw',
+          minHeight: 280,
+          maxHeight: 420,
+          paddingTop: 16,
+        }}
+      >
+        <RoyalMediaPlayer active={active} isMobile={true} />
+      </div>
+      <div style={{ padding: '32px 32px 24px' }}>
+        <OurStoryBlock locale={locale} />
+      </div>
+    </div>
+  );
+}
+
+// ─── Desktop layout: frame centered, Our Story below ─────────────────────────
 function DesktopAboutLayout({
   active,
   locale,
@@ -1040,153 +847,28 @@ function DesktopAboutLayout({
       style={{
         width: '100%',
         flex: 1,
-        display: 'grid',
-        // Three columns: [left panel] [center frame] [right panel]
-        gridTemplateColumns:
-          'minmax(280px, 1fr) minmax(260px, 32vw) minmax(280px, 1fr)',
-        gridTemplateRows: 'auto auto',
-        gap: '0 0',
-        padding: '88px 40px 0 40px',
-        height: '100%', // add this
-        alignContent: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '72px 40px 0 40px',
         position: 'relative',
         zIndex: 2,
         boxSizing: 'border-box',
       }}
     >
-      {/* ── Left: Our Story ── */}
       <div
         style={{
-          gridColumn: '1 / 2',
-          gridRow: '1 / 2',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-          paddingRight: 32,
+          width: '100%',
+          maxWidth: 'min(900px, 72vw)',
+          aspectRatio: '4 / 3',
+          position: 'relative',
+          maxHeight: '65vh',
         }}
       >
-        <div style={{ maxWidth: 380, width: '100%' }}>
-          <PhilosophyCard
-            item={PHILOSOPHY[0]}
-            active={active}
-            locale={locale}
-            delay={0.25}
-            align="right"
-          />
-        </div>
+        <RoyalMediaPlayer active={active} isMobile={false} />
       </div>
-
-      {/* ── Center: Media frame ── */}
-      <div
-        style={{
-          gridColumn: '2 / 3',
-          gridRow: '1 / 2',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: 320,
-        }}
-      >
-        <div
-          style={{
-            width: '100%',
-            maxWidth: '100%',
-            aspectRatio: '4 / 3',
-            position: 'relative',
-            maxHeight: '50vh',
-          }}
-        >
-          <RoyalMediaPlayer active={active} isMobile={false} />
-        </div>
-      </div>
-
-      {/* ── Right: Teaching Philosophy ── */}
-      <div
-        style={{
-          gridColumn: '3 / 4',
-          gridRow: '1 / 2',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-start',
-          paddingLeft: 32,
-        }}
-      >
-        <div style={{ maxWidth: 380, width: '100%' }}>
-          <PhilosophyCard
-            item={PHILOSOPHY[1]}
-            active={active}
-            locale={locale}
-            delay={0.35}
-            align="left"
-          />
-        </div>
-      </div>
-
-      {/* ── Bottom: Core Values (spans all 3 columns, centered under frame) ── */}
-      <div
-        style={{
-          gridColumn: '1 / 4',
-          gridRow: '2 / 3',
-          display: 'flex',
-          justifyContent: 'center',
-          padding: '32px 0 32px 0',
-        }}
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: active ? 1 : 0, y: active ? 0 : 12 }}
-          transition={{ duration: 0.6, delay: 0.45 }}
-          style={{
-            maxWidth: 1200,
-            width: '100%',
-            padding: '8px 16px',
-            borderTop: '1px solid rgba(180,180,180,0.15)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 10,
-            textAlign: 'center',
-            direction: locale === 'ar' ? 'rtl' : 'ltr',
-          }}
-        >
-          {/* Label */}
-          <div
-            style={{
-              fontFamily: 'var(--font-text)',
-              fontSize: '0.62rem',
-              letterSpacing: '0.28em',
-              textTransform: 'uppercase',
-              color: 'rgba(180,180,180,0.55)',
-            }}
-          >
-            {locale === 'ar' ? PHILOSOPHY[2].label.ar : PHILOSOPHY[2].label.en}
-          </div>
-
-          {/* Heading */}
-          <div
-            style={{
-              fontFamily: 'var(--font-text)',
-              fontSize: 'clamp(0.85rem, 1.1vw, 1.1rem)',
-              color: 'rgba(230,230,230,0.8)',
-              letterSpacing: '0.06em',
-            }}
-          >
-            {locale === 'ar'
-              ? PHILOSOPHY[2].heading.ar
-              : PHILOSOPHY[2].heading.en}
-          </div>
-
-          {/* Body */}
-          <div
-            style={{
-              fontFamily: 'var(--font-text)',
-              fontSize: 'clamp(0.72rem, 0.85vw, 0.88rem)',
-              lineHeight: 1.72,
-              color: 'rgba(230,230,230,0.4)',
-            }}
-          >
-            {locale === 'ar' ? PHILOSOPHY[2].body.ar : PHILOSOPHY[2].body.en}
-          </div>
-        </motion.div>
+      <div style={{ marginTop: 56, paddingBottom: 56 }}>
+        <OurStoryBlock locale={locale} />
       </div>
     </div>
   );
@@ -1197,14 +879,10 @@ export default function AboutSection({
   active = false,
   locale,
   scrollable = false,
-  onScrollUp,
-  onScrollDown,
 }: {
   active?: boolean;
   locale: string;
   scrollable?: boolean;
-  onScrollUp?: () => void;
-  onScrollDown?: () => void;
 }) {
   const isMobile = useIsMobile(768);
   usePatternScrollKeyframe();
@@ -1220,8 +898,9 @@ export default function AboutSection({
         position: 'relative',
         overflow: scrollable ? 'visible' : 'hidden',
         zIndex: 2,
-        background:
-          'radial-gradient(circle at 18% 12%, rgba(180,180,180,0.16) 0%, transparent 55%), radial-gradient(circle at 82% 28%, rgba(92,45,74,0.30) 0%, transparent 62%), linear-gradient(135deg, var(--royal-purple) 0%, var(--royal-dark) 58%, #0b0f2a 100%)',
+        /* background:
+          'radial-gradient(circle at 18% 12%, rgba(180,180,180,0.16) 0%, transparent 55%), radial-gradient(circle at 82% 28%, rgba(92,45,74,0.30) 0%, transparent 62%), linear-gradient(135deg, var(--royal-purple) 0%, var(--royal-dark) 58%, #0b0f2a 100%)', */
+        background: '#e5e4e2',
       }}
     >
       {/* Top gold rule */}
@@ -1251,7 +930,7 @@ export default function AboutSection({
       />
 
       {/* Scrolling background pattern */}
-      <div
+      {/* <div
         style={{
           position: 'absolute',
           inset: 0,
@@ -1263,10 +942,10 @@ export default function AboutSection({
           pointerEvents: 'none',
           zIndex: 0,
         }}
-      />
+      /> */}
 
       {/* Fixed overlay pattern */}
-      <div
+      {/* <div
         style={{
           position: 'absolute',
           inset: 0,
@@ -1278,40 +957,12 @@ export default function AboutSection({
           pointerEvents: 'none',
           zIndex: 1,
         }}
-      />
+      /> */}
 
       {/* ── Layout branch: mobile vs desktop ── */}
       {isMobile ? (
-        <>
-          {/* Mobile: stacked — media on top, philosophy tabs below */}
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              position: 'relative',
-              zIndex: 2,
-              marginTop: 80,
-            }}
-          >
-            <div
-              style={{
-                flex: 'none',
-                height: '56vw',
-                minHeight: 280,
-                maxHeight: 420,
-                paddingTop: 16,
-              }}
-            >
-              <RoyalMediaPlayer active={active} isMobile={true} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <MobilePhilosophyPanel active={active} locale={locale} />
-            </div>
-          </div>
-        </>
+        <MobileAboutLayout active={active} locale={locale} />
       ) : (
-        /* Desktop: centered frame with flanking cards + values below */
         <DesktopAboutLayout active={active} locale={locale} />
       )}
 

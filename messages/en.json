@@ -23,14 +23,18 @@
     "viewAllClasses": "View All Classes",
     "learnMore": "Learn more",
     "prevSlide": "Previous",
-    "nextSlide": "Next"
+    "nextSlide": "Next",
+    "welcomeTitle": "Welcome to Royal Academy",
+    "welcomeBody1": "Royal Academy of Dance, Music & Arts is a multidisciplinary creative academy in Muscat, offering professional classes in Dance, Music, Art, and Wellness for children, teens, and adults.",
+    "welcomeBody2": "Our programs are designed for beginners, continuing students, and advanced learners, with both private and group classes available.",
+    "welcomeBody3": "From ballet and music to visual arts and wellness programs, Royal Academy provides a structured, inspiring, and welcoming environment where students can build skills, confidence, discipline, and creative expression."
   },
   "aboutSection": {
     "spiritOf": "The Spirit of",
     "theAcademy": "the Academy",
     "historyLabel": "Our Story",
     "historyHeading": "Founded on a Vision of Excellence",
-    "historyBody": "Royal Academy was founded in Muscat with a singular conviction: that the arts are not a luxury, but a language — one that shapes character, refines the spirit, and connects humanity across centuries. From its earliest days, the Academy has drawn together masters of ballet, music, dance, and visual art under one roof.",
+    "historyBody": "PRINCIPLE_STRIPS",
     "philosophyLabel": "Teaching Philosophy",
     "philosophyHeading": "Discipline as Liberation",
     "philosophyBody": "True creative freedom is born not from the absence of structure, but from a profound mastery of it. Every student is guided through a rigorous yet nurturing curriculum — one that honours classical traditions while encouraging original expression. Our teachers are mentors who see the full potential of each student.",

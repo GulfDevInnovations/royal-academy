@@ -46,6 +46,7 @@
 /* Automatic font switching based on locale */
 body {
   font-family: var(--font-goudy), serif;
+  background-color: #e5e4e2;
 }
 
 /* globals.css */

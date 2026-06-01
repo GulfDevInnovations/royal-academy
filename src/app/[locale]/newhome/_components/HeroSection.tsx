@@ -4,6 +4,8 @@ import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import JourneySection from './JourneySection';
+import ProgramsSection from './ProgramsSection';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,9 +49,9 @@ interface HeroProps {
 
 const MEDIA_ITEMS: MediaItem[] = [
   { type: 'video', src: '/videos/RoyalAcademywebsiteBallet.mp4' },
-  { type: 'video', src: '/videos/RoyalAcademywebsiteKids.mp4' },
-  { type: 'video', src: '/videos/RoyalAcademywebsiteArt.mp4' },
   { type: 'video', src: '/videos/RoyalAcademywebsitemusic.mp4' },
+  { type: 'video', src: '/videos/RoyalAcademywebsiteArt.mp4' },
+  { type: 'video', src: '/videos/RoyalAcademywebsiteKids.mp4' },
   { type: 'video', src: '/videos/RoyalAcademywebsiteWellness.mp4' },
 ];
 
@@ -96,6 +98,13 @@ export default function HeroSection({
   const isMobileVal = useIsMobile(768);
   const isMobile = isMobileVal === true;
   const t = useTranslations('heroSection');
+
+  // ── Welcome drawer ────────────────────────────────────────────────────────
+  const [showWelcome, setShowWelcome] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setShowWelcome(true), 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // ── Video slider ──────────────────────────────────────────────────────────
   const [current, setCurrent] = useState(0);
@@ -164,8 +173,8 @@ export default function HeroSection({
       <section
         style={{
           position: 'relative',
-          width: '100vw',
-          maxWidth: '100vw',
+          width: '100%',
+          maxWidth: '100%',
           fontFamily,
           direction: isAr ? 'rtl' : 'ltr',
           overflowX: 'hidden',
@@ -236,6 +245,9 @@ export default function HeroSection({
           </div>
         </div>
 
+        {/* Welcome banner — expands between video and schedule after 5 s */}
+        <MobileWelcomeBanner isAr={isAr} show={showWelcome} t={t} />
+
         {/* Schedule slots — list below video on dark background */}
         {scheduleSlots.length > 0 && (
           <MobileScheduleList
@@ -246,11 +258,14 @@ export default function HeroSection({
           />
         )}
 
+        <ProgramsSection />
+        <JourneySection />
+
         {/* Content cards — fixed height, swipeable */}
         {hasContent && (
           <div
             style={{
-              background: '#ffffff',
+              background: '#e5e4e2',
               padding: '32px 16px 56px',
               display: 'flex',
               flexDirection: 'column',
@@ -304,7 +319,7 @@ export default function HeroSection({
     <section
       style={{
         position: 'relative',
-        width: '100vw',
+        width: '100%',
         fontFamily,
         direction: isAr ? 'rtl' : 'ltr',
       }}
@@ -361,6 +376,15 @@ export default function HeroSection({
             t={t}
           />
         )}
+        {/* Welcome drawer — drops from top corner after 5 s */}
+        <WelcomeDrawerDesktop isAr={isAr} show={showWelcome} t={t} />
+      </div>
+
+      <div style={sideOffset}>
+        <ProgramsSection />
+      </div>
+      <div style={sideOffset}>
+        <JourneySection />
       </div>
 
       {/* Content sections */}
@@ -368,7 +392,7 @@ export default function HeroSection({
         <div
           style={{
             ...sideOffset,
-            background: '#ffffff',
+            background: '#e5e4e2',
             padding: '80px 60px 100px',
             display: 'flex',
             flexDirection: 'column',
@@ -880,8 +904,8 @@ function DesktopScheduleTicker({
         position: 'absolute',
         bottom: 0,
         left: 0,
-        right: 0,
-        height: '13vh',
+        right: 10,
+        height: '15vh',
         background: 'rgba(0,0,0,0.68)',
         backdropFilter: 'blur(3px)',
         zIndex: 2,
@@ -1743,5 +1767,176 @@ function DesktopChevronButton({
     >
       {direction === 'left' ? '‹' : '›'}
     </button>
+  );
+}
+
+// ─── Desktop: welcome drawer (drops from top corner) ─────────────────────────
+
+function WelcomeDrawerDesktop({
+  isAr,
+  show,
+  t,
+}: {
+  isAr: boolean;
+  show: boolean;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        [isAr ? 'left' : 'right']: 0,
+        width: 240,
+        maxHeight: 'calc(85vh)',
+        zIndex: 10,
+        transform: show ? 'translateY(0)' : 'translateY(-100%)',
+        opacity: show ? 1 : 0,
+        transition:
+          'transform 0.8s cubic-bezier(0.22,1,0.36,1), opacity 0.5s ease',
+        overflowY: 'auto',
+        background: '#e5e4e2',
+        boxShadow: '0 8px 40px rgba(0,0,0,0.28)',
+        boxSizing: 'border-box',
+        direction: isAr ? 'rtl' : 'ltr',
+      }}
+    >
+      {/* Orange top accent line */}
+      <div style={{ height: 3, background: '#ff751f', flexShrink: 0 }} />
+      <div style={{ padding: '26px 22px 34px' }}>
+        <h2
+          style={{
+            margin: '0 0 16px',
+            fontSize: 21,
+            fontWeight: 400,
+            color: '#111111',
+            lineHeight: 1.3,
+            letterSpacing: '0.01em',
+          }}
+        >
+          {t('welcomeTitle')}
+        </h2>
+        <div
+          style={{
+            width: 28,
+            height: 2,
+            background: '#ff751f',
+            marginBottom: 18,
+          }}
+        />
+        <p
+          style={{
+            margin: '0 0 14px',
+            fontSize: 13,
+            color: '#555555',
+            lineHeight: 1.85,
+          }}
+        >
+          {t('welcomeBody1')}
+        </p>
+        <p
+          style={{
+            margin: '0 0 14px',
+            fontSize: 13,
+            color: '#555555',
+            lineHeight: 1.85,
+          }}
+        >
+          {t('welcomeBody2')}
+        </p>
+        <p
+          style={{
+            margin: 0,
+            fontSize: 13,
+            color: '#555555',
+            lineHeight: 1.85,
+          }}
+        >
+          {t('welcomeBody3')}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Mobile: welcome banner (expands between video and schedule) ──────────────
+
+function MobileWelcomeBanner({
+  isAr,
+  show,
+  t,
+}: {
+  isAr: boolean;
+  show: boolean;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  return (
+    <div
+      style={{
+        overflow: 'hidden',
+        maxHeight: show ? 500 : 0,
+        transition: 'max-height 0.8s cubic-bezier(0.22,1,0.36,1)',
+        direction: isAr ? 'rtl' : 'ltr',
+      }}
+    >
+      <div
+        style={{
+          background: 'rgba(10,9,8,0.97)',
+          borderTop: '3px solid #ff751f',
+          padding: '18px 18px 22px',
+          boxSizing: 'border-box',
+        }}
+      >
+        <h2
+          style={{
+            margin: '0 0 10px',
+            fontSize: 16,
+            fontWeight: 400,
+            color: '#ffffff',
+            lineHeight: 1.35,
+          }}
+        >
+          {t('welcomeTitle')}
+        </h2>
+        <div
+          style={{
+            width: 22,
+            height: 2,
+            background: '#ff751f',
+            marginBottom: 12,
+          }}
+        />
+        <p
+          style={{
+            margin: '0 0 9px',
+            fontSize: 11,
+            color: 'rgba(255,255,255,0.7)',
+            lineHeight: 1.85,
+          }}
+        >
+          {t('welcomeBody1')}
+        </p>
+        <p
+          style={{
+            margin: '0 0 9px',
+            fontSize: 11,
+            color: 'rgba(255,255,255,0.7)',
+            lineHeight: 1.85,
+          }}
+        >
+          {t('welcomeBody2')}
+        </p>
+        <p
+          style={{
+            margin: 0,
+            fontSize: 11,
+            color: 'rgba(255,255,255,0.7)',
+            lineHeight: 1.85,
+          }}
+        >
+          {t('welcomeBody3')}
+        </p>
+      </div>
+    </div>
   );
 }

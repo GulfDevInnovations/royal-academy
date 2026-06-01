@@ -324,6 +324,7 @@ function MobileSidebarNav({
   // Track slide direction: 'down' = enters from top, 'up' = exits to top
   const [slideDir, setSlideDir] = useState<'down' | 'up'>('down');
   const [notifQuery, setNotifQuery] = useState('');
+  const [userSqueezing, setUserSqueezing] = useState(false);
 
   const isOpen = drawer !== 'none';
   const isLoggedIn = !!sessionUser;
@@ -641,6 +642,13 @@ function MobileSidebarNav({
     >
       <style>{`
         @keyframes mob-fade-in { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes user-squeeze {
+          0%   { transform: scaleY(1); }
+          25%  { transform: scaleY(0.62); }
+          55%  { transform: scaleY(1.08); }
+          80%  { transform: scaleY(0.96); }
+          100% { transform: scaleY(1); }
+        }
       `}</style>
 
       {/* ── TOP BAR ────────────────────────────────────────────────────── */}
@@ -652,7 +660,7 @@ function MobileSidebarNav({
           right: 0,
           height: MOBILE_TOPBAR_H,
           zIndex: 400,
-          background: '#ffffff',
+          background: '#E5E4E2',
           boxShadow: '0 2px 12px rgba(0,0,0,.08)',
           display: 'flex',
           alignItems: 'center',
@@ -763,7 +771,11 @@ function MobileSidebarNav({
             </Link>
           ) : (
             <button
-              onClick={() => setDrawer(showUser ? 'none' : 'user')}
+              onClick={() => {
+                setDrawer(showUser ? 'none' : 'user');
+                setUserSqueezing(true);
+                setTimeout(() => setUserSqueezing(false), 420);
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -778,7 +790,12 @@ function MobileSidebarNav({
             >
               <FontAwesomeIcon
                 icon={faUser}
-                style={{ fontSize: 20, color: showUser ? '#555' : '#1a1a1a' }}
+                style={{
+                  fontSize: 20,
+                  color: showUser ? '#555' : '#1a1a1a',
+                  animation: userSqueezing ? 'user-squeeze 0.42s ease' : 'none',
+                  display: 'block',
+                }}
               />
             </button>
           )}
@@ -1652,6 +1669,7 @@ function DesktopSidebarNav({
   const [contactOpen, setContactOpen] = useState(false);
   const [userPanelOpen, setUserPanelOpen] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
+  const [userSqueezing, setUserSqueezing] = useState(false);
 
   const {
     notifications,
@@ -1995,7 +2013,7 @@ function DesktopSidebarNav({
             width: SIDEBAR_W,
             height: '100vh',
             zIndex: 400,
-            background: '#ffffff',
+            background: '#E5E4E2',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -2239,6 +2257,8 @@ function DesktopSidebarNav({
                 setActiveL2(null);
                 setContactOpen(false);
                 setBellOpen(false);
+                setUserSqueezing(true);
+                setTimeout(() => setUserSqueezing(false), 420);
               }}
               style={{
                 display: 'flex',
@@ -2266,6 +2286,8 @@ function DesktopSidebarNav({
                   fontSize: 28,
                   color: userPanelOpen ? '#555555' : '#1a1a1a',
                   transition: 'color .2s',
+                  animation: userSqueezing ? 'user-squeeze 0.42s ease' : 'none',
+                  display: 'block',
                 }}
               />
             </button>
@@ -2299,6 +2321,13 @@ function DesktopSidebarNav({
           <style>{`
             @keyframes ra-fade-in{from{opacity:0}to{opacity:1}}
             @keyframes ra-underline{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+            @keyframes user-squeeze {
+              0%   { transform: scaleY(1); }
+              25%  { transform: scaleY(0.62); }
+              55%  { transform: scaleY(1.08); }
+              80%  { transform: scaleY(0.96); }
+              100% { transform: scaleY(1); }
+            }
           `}</style>
 
           <nav style={{ flex: 1, overflowY: 'auto', padding: '44px 0 8px' }}>
@@ -3289,15 +3318,102 @@ function DesktopSidebarNav({
 
 export default function SidebarNav(props: SidebarNavProps) {
   const isMobile = useIsMobile(768);
+  const params = useParams();
+  const isAr = (params?.locale as string) === 'ar';
   // Avoid hydration mismatch: render nothing until client knows viewport
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
 
-  return isMobile ? (
-    <MobileSidebarNav {...props} />
-  ) : (
-    <DesktopSidebarNav {...props} />
+  const B = 10; // border thickness px
+
+  // Desktop: top + bottom begin at the sidebar edge so they appear to "grow"
+  // from it. The single vertical bar sits on the opposite (open) side.
+  // RTL flips the sidebar to the right, so the offsets mirror accordingly.
+  const sidebarSide = isAr ? 'right' : 'left';
+  const openSide = isAr ? 'left' : 'right';
+  const hBorderStyle: React.CSSProperties = {
+    position: 'fixed',
+    [sidebarSide]: SIDEBAR_W,
+    [openSide]: 0,
+    height: B,
+    background: '#E5E4E2',
+    zIndex: 300,
+    pointerEvents: 'none',
+  };
+
+  return (
+    <>
+      {!isMobile && (
+        <>
+          {/* Top — starts at sidebar edge */}
+          <div style={{ ...hBorderStyle, top: 0 }} />
+          {/* Bottom — starts at sidebar edge */}
+          <div style={{ ...hBorderStyle, bottom: 0 }} />
+          {/* Vertical bar on the open side, full height */}
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              bottom: 0,
+              [openSide]: 0,
+              width: B,
+              background: '#E5E4E2',
+              zIndex: 300,
+              pointerEvents: 'none',
+            }}
+          />
+        </>
+      )}
+      {isMobile && (
+        <>
+          {/* Left — starts below topbar */}
+          <div
+            style={{
+              position: 'fixed',
+              top: MOBILE_TOPBAR_H,
+              bottom: 0,
+              left: 0,
+              width: B,
+              background: '#E5E4E2',
+              zIndex: 300,
+              pointerEvents: 'none',
+            }}
+          />
+          {/* Right — starts below topbar */}
+          <div
+            style={{
+              position: 'fixed',
+              top: MOBILE_TOPBAR_H,
+              bottom: 0,
+              right: 0,
+              width: B,
+              background: '#E5E4E2',
+              zIndex: 300,
+              pointerEvents: 'none',
+            }}
+          />
+          {/* Bottom — full width */}
+          <div
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: B,
+              background: '#E5E4E2',
+              zIndex: 300,
+              pointerEvents: 'none',
+            }}
+          />
+        </>
+      )}
+      {isMobile ? (
+        <MobileSidebarNav {...props} />
+      ) : (
+        <DesktopSidebarNav {...props} />
+      )}
+    </>
   );
 }
 
@@ -3416,10 +3532,10 @@ function PastelMap({
       });
       mapInstance.current = map;
 
-      L.tileLayer(
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        { maxZoom: 19, attribution: '© OpenStreetMap contributors' },
-      ).addTo(map);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors',
+      }).addTo(map);
 
       setTimeout(() => {
         const container = mapRef.current?.querySelector(
