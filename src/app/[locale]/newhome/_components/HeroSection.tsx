@@ -214,7 +214,7 @@ export default function HeroSection({
                     ref={(el) => {
                       videoRefs.current[i] = el;
                     }}
-                    preload={preloadSet.has(i) ? 'auto' : 'none'}
+                    preload={i === current ? 'auto' : 'none'}
                     muted
                     playsInline
                     onEnded={nextSlide}
@@ -350,7 +350,7 @@ export default function HeroSection({
                 ref={(el) => {
                   videoRefs.current[i] = el;
                 }}
-                preload={preloadSet.has(i) ? 'auto' : 'none'}
+                preload={i === current ? 'auto' : 'none'}
                 muted
                 playsInline
                 onEnded={nextSlide}
