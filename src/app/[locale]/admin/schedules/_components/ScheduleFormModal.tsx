@@ -44,13 +44,20 @@ const STATUS_OPTIONS = [
   { value: "COMPLETED", label: "Completed" },
 ];
 
+interface ProgramOption {
+  id: string;
+  name: string;
+  teachers: { teacher: { id: string; firstName: string; lastName: string } }[];
+}
+
 interface SubClassOption {
   id: string;
   name: string;
   isReschedulable: boolean;
-  sessionType: string; // ← add this
+  sessionType: string;
   class: { id: string; name: string };
   teachers: { teacher: { id: string; firstName: string; lastName: string } }[];
+  programs: ProgramOption[];
 }
 
 interface TeacherOption {
@@ -82,13 +89,21 @@ export default function ScheduleFormModal({
   const [selectedSubClassId, setSelectedSubClassId] = useState<string>(
     editing?.subClassId ?? "",
   );
+  const [selectedProgramId, setSelectedProgramId] = useState<string>(
+    (editing as any)?.programId ?? "",
+  );
 
   const selectedSubClass = subClasses.find((s) => s.id === selectedSubClassId);
   const isPrivate = ["PRIVATE"].includes(selectedSubClass?.sessionType ?? "");
+  const hasPrograms = (selectedSubClass?.programs.length ?? 0) > 0;
+  const selectedProgram = selectedSubClass?.programs.find((p) => p.id === selectedProgramId);
 
-  const availableTeachers = selectedSubClass?.teachers.length
-    ? selectedSubClass.teachers.map((t) => t.teacher)
-    : teachers;
+  // Teacher list: if a program is chosen use its teachers; else fall back to subClass teachers; else all teachers
+  const availableTeachers = selectedProgram?.teachers.length
+    ? selectedProgram.teachers.map((t) => t.teacher)
+    : selectedSubClass?.teachers.length
+      ? selectedSubClass.teachers.map((t) => t.teacher)
+      : teachers;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -160,33 +175,58 @@ export default function ScheduleFormModal({
             {/* ── Class & Teacher ── */}
             <Section title="Class Assignment">
               {!editing ? (
-                <AdminSelect
-                  label="Sub-class *"
-                  name="subClassId"
-                  value={selectedSubClassId}
-                  onChange={(e) => setSelectedSubClassId(e.target.value)}
-                  required
-                >
-                  <option className="text-black" value="">
-                    Select a sub-class…
-                  </option>
-                  {subClasses.map((s) => (
-                    <option className="text-black" key={s.id} value={s.id}>
-                      {s.class.name} → {s.name}
+                <>
+                  <AdminSelect
+                    label="Sub-class *"
+                    name="subClassId"
+                    value={selectedSubClassId}
+                    onChange={(e) => {
+                      setSelectedSubClassId(e.target.value);
+                      setSelectedProgramId("");
+                    }}
+                    required
+                  >
+                    <option className="text-black" value="">
+                      Select a sub-class…
                     </option>
-                  ))}
-                </AdminSelect>
+                    {subClasses.map((s) => (
+                      <option className="text-black" key={s.id} value={s.id}>
+                        {s.class.name} → {s.name}
+                        {s.programs.length > 0 ? ` (${s.programs.length} programs)` : ""}
+                      </option>
+                    ))}
+                  </AdminSelect>
+
+                  {hasPrograms && (
+                    <AdminSelect
+                      label="Program"
+                      name="programId"
+                      value={selectedProgramId}
+                      onChange={(e) => setSelectedProgramId(e.target.value)}
+                    >
+                      <option className="text-black" value="">
+                        No specific program (subclass-level)
+                      </option>
+                      {selectedSubClass!.programs.map((p) => (
+                        <option className="text-black" key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </AdminSelect>
+                  )}
+                </>
               ) : (
                 <div
                   className="px-3 py-2 rounded-lg border border-white/[0.06] text-sm"
                   style={{ color: adminColors.textSecondary }}
                 >
                   {editing.subClass.class.name} → {editing.subClass.name}
-                  <input
-                    type="hidden"
-                    name="subClassId"
-                    value={editing.subClassId}
-                  />
+                  {(editing as any).program && (
+                    <span style={{ color: "#818cf8" }}>
+                      {" "}→ {(editing as any).program.name}
+                    </span>
+                  )}
+                  <input type="hidden" name="subClassId" value={editing.subClassId} />
                 </div>
               )}
 
@@ -259,7 +299,7 @@ export default function ScheduleFormModal({
                 ))}
               </AdminSelect>
 
-              {selectedSubClass && selectedSubClass.teachers.length === 0 && (
+              {selectedSubClass && !availableTeachers.length && (
                 <div
                   className="flex items-start gap-2 px-3 py-2 rounded-lg"
                   style={{
@@ -272,12 +312,9 @@ export default function ScheduleFormModal({
                     className="flex-shrink-0 mt-0.5"
                     style={{ color: "#f59e0b" }}
                   />
-                  <p
-                    className="text-xs"
-                    style={{ color: "rgba(245,158,11,0.8)" }}
-                  >
-                    No teachers assigned to this sub-class yet. Showing all
-                    teachers. Assign teachers in the Teachers section first.
+                  <p className="text-xs" style={{ color: "rgba(245,158,11,0.8)" }}>
+                    No teachers assigned to this {selectedProgram ? "program" : "sub-class"} yet.
+                    Showing all teachers. Assign teachers in the Teachers section first.
                   </p>
                 </div>
               )}

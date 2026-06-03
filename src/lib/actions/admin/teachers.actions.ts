@@ -14,7 +14,6 @@ export async function getTeachers() {
       user: {
         select: { email: true, phone: true, isActive: true, isVerified: true },
       },
-      // Junction table — each entry links this teacher to a subclass
       subClassTeachers: {
         include: {
           subClass: {
@@ -22,6 +21,23 @@ export async function getTeachers() {
               id: true,
               name: true,
               class: { select: { id: true, name: true } },
+            },
+          },
+        },
+      },
+      programTeachers: {
+        include: {
+          program: {
+            select: {
+              id: true,
+              name: true,
+              subClass: {
+                select: {
+                  id: true,
+                  name: true,
+                  class: { select: { id: true, name: true } },
+                },
+              },
             },
           },
         },
@@ -59,6 +75,40 @@ export async function getSubClassesForAssignment() {
   });
 }
 
+// Returns Class → SubClass (only those with programs) → Programs (with current teachers).
+// Used to populate the program assignment UI in TeacherFormModal.
+export async function getProgramsForAssignment() {
+  return prisma.class.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: "asc" },
+    select: {
+      id: true,
+      name: true,
+      subClasses: {
+        where: { isActive: true, programs: { some: {} } },
+        orderBy: { name: "asc" },
+        select: {
+          id: true,
+          name: true,
+          programs: {
+            where: { isActive: true },
+            orderBy: { sortOrder: "asc" },
+            select: {
+              id: true,
+              name: true,
+              teachers: {
+                select: {
+                  teacher: { select: { id: true, firstName: true, lastName: true } },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
 // ─────────────────────────────────────────────
 // ASSIGN — replaces the old teacherId updateMany
 // Syncs the junction table rows for this teacher:
@@ -83,6 +133,27 @@ export async function assignSubClassesToTeacher(
   if (subClassIds.length > 0) {
     await prisma.subClassTeacher.createMany({
       data: subClassIds.map((subClassId) => ({ teacherId, subClassId })),
+      skipDuplicates: true,
+    });
+  }
+
+  return { success: true };
+}
+
+export async function assignProgramsToTeacher(
+  teacherId: string,
+  programIds: string[]
+): Promise<{ error: string } | { success: true }> {
+  await prisma.programTeacher.deleteMany({
+    where: {
+      teacherId,
+      programId: { notIn: programIds },
+    },
+  });
+
+  if (programIds.length > 0) {
+    await prisma.programTeacher.createMany({
+      data: programIds.map((programId) => ({ teacherId, programId })),
       skipDuplicates: true,
     });
   }

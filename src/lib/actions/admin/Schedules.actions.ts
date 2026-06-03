@@ -58,8 +58,10 @@ export async function getSchedules() {
       teacher: {
         select: { id: true, firstName: true, lastName: true, photoUrl: true },
       },
+      program: {
+        select: { id: true, name: true },
+      },
       _count: { select: { sessions: true } },
-      
     },
   });
 }
@@ -93,10 +95,22 @@ export async function getScheduleFormOptions() {
         isReschedulable: true,
         sessionType: true,
         class: { select: { id: true, name: true } },
-        // Only teachers assigned to this subclass via junction
         teachers: {
           include: {
             teacher: { select: { id: true, firstName: true, lastName: true } },
+          },
+        },
+        programs: {
+          where: { isActive: true },
+          orderBy: { sortOrder: "asc" },
+          select: {
+            id: true,
+            name: true,
+            teachers: {
+              select: {
+                teacher: { select: { id: true, firstName: true, lastName: true } },
+              },
+            },
           },
         },
       },
@@ -124,30 +138,40 @@ async function checkConflicts(
   endTime: string,
   teacherId: string,
   subClassId: string,
+  programId: string | null,
   excludeId?: string
 ): Promise<string | null> {
   const overlapping = await prisma.classSchedule.findMany({
     where: {
-      id:        { not: excludeId },
-      dayOfWeek,                        // only same day matters
-      status:    { not: "CANCELLED" },
-      OR: [{ teacherId }, { subClassId }],
+      id:     { not: excludeId },
+      dayOfWeek,
+      status: { not: "CANCELLED" },
+      OR: [
+        { teacherId },
+        programId ? { programId } : { subClassId, programId: null },
+      ],
     },
-    include: {
+    select: {
+      teacherId: true,
+      subClassId: true,
+      programId: true,
+      startTime: true,
+      endTime: true,
       subClass: { select: { name: true } },
       teacher:  { select: { firstName: true, lastName: true } },
+      program:  { select: { name: true } },
     },
   });
 
   for (const s of overlapping) {
-    // Times overlap if startA < endB AND endA > startB
     if (startTime < s.endTime && endTime > s.startTime) {
       if (s.teacherId === teacherId) {
         return `Teacher ${s.teacher.firstName} ${s.teacher.lastName} is already teaching on ${dayOfWeek} from ${s.startTime}–${s.endTime}. Choose a different time or teacher.`;
       }
-      if (s.subClassId === subClassId) {
-        // Same subclass, same day, overlapping time — this is a genuine conflict.
-        // Note: same subclass on a DIFFERENT day is allowed (once/twice-per-week support).
+      if (programId && s.programId === programId) {
+        return `${s.program?.name} already has a schedule on ${dayOfWeek} from ${s.startTime}–${s.endTime}. A program can only run once per day.`;
+      }
+      if (!programId && s.subClassId === subClassId) {
         return `${s.subClass.name} already has a schedule on ${dayOfWeek} from ${s.startTime}–${s.endTime}. A subclass can only run once per day.`;
       }
     }
@@ -162,6 +186,7 @@ async function checkConflicts(
 export async function createSchedule(formData: FormData) {
   const subClassId    = formData.get("subClassId")    as string;
   const teacherId     = formData.get("teacherId")     as string;
+  const programId     = (formData.get("programId")    as string | null) || null;
   const dayOfWeek     = formData.get("dayOfWeek")     as DayOfWeek;
   const startTime     = formData.get("startTime")     as string;
   const endTime       = formData.get("endTime")       as string;
@@ -189,12 +214,10 @@ export async function createSchedule(formData: FormData) {
     ? 1
     : parseInt(formData.get("maxCapacity") as string) || 10;
 
-
   const startDate = new Date(startDateStr);
   const endDate   = endDateStr ? new Date(endDateStr) : null;
 
-  // Conflict check
-  const conflict = await checkConflicts(dayOfWeek, startTime, endTime, teacherId, subClassId);
+  const conflict = await checkConflicts(dayOfWeek, startTime, endTime, teacherId, subClassId, programId);
   if (conflict) return { error: conflict };
 
   // Create schedule + sessions in a transaction
@@ -203,6 +226,7 @@ export async function createSchedule(formData: FormData) {
       data: {
         subClassId,
         teacherId,
+        programId,
         dayOfWeek,
         startTime,
         endTime,
@@ -262,7 +286,11 @@ export async function updateSchedule(id: string, formData: FormData) {
 
   const existing = await prisma.classSchedule.findUnique({
     where: { id },
-    include: { subClass: { select: { sessionType: true } } },
+    select: {
+      subClassId: true,
+      programId:  true,
+      subClass: { select: { sessionType: true } },
+    },
   });
   if (!existing) return { error: "Schedule not found." };
 
@@ -272,7 +300,7 @@ export async function updateSchedule(id: string, formData: FormData) {
     : parseInt(formData.get("maxCapacity") as string) || 10;
 
   const conflict = await checkConflicts(
-    dayOfWeek, startTime, endTime, teacherId, existing.subClassId, id
+    dayOfWeek, startTime, endTime, teacherId, existing.subClassId, existing.programId, id
   );
   if (conflict) return { error: conflict };
 

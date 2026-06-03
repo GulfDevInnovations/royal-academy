@@ -9,6 +9,7 @@ import { SessionType } from "@prisma/client";
 
 export type ClassWithSubs = Awaited<ReturnType<typeof getClasses>>[number];
 export type SubClassWithRelations = ClassWithSubs["subClasses"][number];
+export type ProgramWithRelations = SubClassWithRelations["programs"][number];
 
 // ─────────────────────────────────────────────
 // READ
@@ -24,6 +25,16 @@ export async function getClasses() {
           teachers: {
             include: {
               teacher: { select: { firstName: true, lastName: true } },
+            },
+          },
+          programs: {
+            orderBy: { sortOrder: "asc" },
+            include: {
+              teachers: {
+                include: {
+                  teacher: { select: { firstName: true, lastName: true } },
+                },
+              },
             },
           },
         },
@@ -189,16 +200,18 @@ export async function updateSubClass(id: string, formData: FormData) {
 
 export async function deleteSubClass(id: string) {
   // Check every table that has a FK pointing at SubClass
-  const [enrollments, schedules, trials] = await Promise.all([
+  const [enrollments, schedules, trials, programCount] = await Promise.all([
     prisma.monthlyEnrollment.count({ where: { subClassId: id } }),
     prisma.classSchedule.count({    where: { subClassId: id } }),
     prisma.trialBooking.count({     where: { subClassId: id } }),
+    prisma.program.count({          where: { subClassId: id } }),
   ]);
 
   const reasons: string[] = [];
-  if (schedules   > 0) reasons.push(`${schedules} schedule${schedules     > 1 ? "s" : ""}`);
-  if (enrollments > 0) reasons.push(`${enrollments} enrollment${enrollments > 1 ? "s" : ""}`);
-  if (trials      > 0) reasons.push(`${trials} trial booking${trials       > 1 ? "s" : ""}`);
+  if (schedules    > 0) reasons.push(`${schedules} schedule${schedules      > 1 ? "s" : ""}`);
+  if (enrollments  > 0) reasons.push(`${enrollments} enrollment${enrollments > 1 ? "s" : ""}`);
+  if (trials       > 0) reasons.push(`${trials} trial booking${trials        > 1 ? "s" : ""}`);
+  if (programCount > 0) reasons.push(`${programCount} program${programCount  > 1 ? "s" : ""}`);
 
   if (reasons.length > 0) {
     return {
@@ -213,6 +226,109 @@ export async function deleteSubClass(id: string) {
     const code = (e as { code?: string })?.code;
     if (code === "P2003") {
       return { error: "Cannot delete: this sub-class is still referenced by other records." };
+    }
+    throw e;
+  }
+  return { success: true };
+}
+
+// ─────────────────────────────────────────────
+// PROGRAM ACTIONS
+// ─────────────────────────────────────────────
+
+export async function createProgram(subClassId: string, formData: FormData) {
+  const name              = (formData.get("name") as string).trim();
+  const name_ar           = (formData.get("name_ar") as string | null)?.trim() || null;
+  const description       = formData.get("description")       as string | null;
+  const description_ar    = formData.get("description_ar")    as string | null;
+  const capacity          = parseInt(formData.get("capacity")          as string) || 10;
+  const durationMinutes   = parseInt(formData.get("durationMinutes")   as string) || 60;
+  const price             = parseFloat(formData.get("price")           as string) || 0;
+  const oncePriceMonthly  = parseFloat(formData.get("oncePriceMonthly")  as string) || 0;
+  const twicePriceMonthly = parseFloat(formData.get("twicePriceMonthly") as string) || 0;
+  const trialPrice        = parseFloat(formData.get("trialPrice")       as string) || 10;
+  const sessionType       = (formData.get("sessionType") as SessionType) || "PUBLIC";
+  const level             = formData.get("level")    as string | null;
+  const ageGroup          = formData.get("ageGroup") as string | null;
+  const isTrialAvailable  = formData.get("isTrialAvailable") === "true";
+  const sortOrder         = parseInt(formData.get("sortOrder") as string) || 0;
+
+  if (!name) return { error: "Name is required." };
+
+  await prisma.program.create({
+    data: {
+      subClassId,
+      name,
+      name_ar,
+      description:       description    || null,
+      description_ar:    description_ar || null,
+      capacity,
+      durationMinutes,
+      price,
+      oncePriceMonthly:  oncePriceMonthly  || null,
+      twicePriceMonthly: twicePriceMonthly || null,
+      trialPrice,
+      sessionType,
+      level:    level    || null,
+      ageGroup: ageGroup || null,
+      isTrialAvailable,
+      sortOrder,
+    },
+  });
+  return { success: true };
+}
+
+export async function updateProgram(id: string, formData: FormData) {
+  const name              = (formData.get("name") as string).trim();
+  const name_ar           = (formData.get("name_ar") as string | null)?.trim() || null;
+  const description       = formData.get("description")       as string | null;
+  const description_ar    = formData.get("description_ar")    as string | null;
+  const capacity          = parseInt(formData.get("capacity")          as string) || 10;
+  const durationMinutes   = parseInt(formData.get("durationMinutes")   as string) || 60;
+  const price             = parseFloat(formData.get("price")           as string) || 0;
+  const oncePriceMonthly  = parseFloat(formData.get("oncePriceMonthly")  as string) || 0;
+  const twicePriceMonthly = parseFloat(formData.get("twicePriceMonthly") as string) || 0;
+  const trialPrice        = parseFloat(formData.get("trialPrice")       as string) || 10;
+  const sessionType       = (formData.get("sessionType") as SessionType) || "PUBLIC";
+  const level             = formData.get("level")    as string | null;
+  const ageGroup          = formData.get("ageGroup") as string | null;
+  const isTrialAvailable  = formData.get("isTrialAvailable") === "true";
+  const isActive          = formData.get("isActive") === "true";
+  const sortOrder         = parseInt(formData.get("sortOrder") as string) || 0;
+
+  if (!name) return { error: "Name is required." };
+
+  await prisma.program.update({
+    where: { id },
+    data: {
+      name,
+      name_ar,
+      description:       description    || null,
+      description_ar:    description_ar || null,
+      capacity,
+      durationMinutes,
+      price,
+      oncePriceMonthly:  oncePriceMonthly  || null,
+      twicePriceMonthly: twicePriceMonthly || null,
+      trialPrice,
+      sessionType,
+      level:    level    || null,
+      ageGroup: ageGroup || null,
+      isTrialAvailable,
+      isActive,
+      sortOrder,
+    },
+  });
+  return { success: true };
+}
+
+export async function deleteProgram(id: string) {
+  try {
+    await prisma.program.delete({ where: { id } });
+  } catch (e: unknown) {
+    const code = (e as { code?: string })?.code;
+    if (code === "P2003") {
+      return { error: "Cannot delete: this program is still referenced by other records." };
     }
     throw e;
   }

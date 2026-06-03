@@ -102,7 +102,7 @@ export default function HeroSection({
   // ── Welcome drawer ────────────────────────────────────────────────────────
   const [showWelcome, setShowWelcome] = useState(false);
   useEffect(() => {
-    const timer = setTimeout(() => setShowWelcome(true), 5000);
+    const timer = setTimeout(() => setShowWelcome(true), 1000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -216,7 +216,7 @@ export default function HeroSection({
                     ref={(el) => {
                       videoRefs.current[i] = el;
                     }}
-                    preload={i === current ? 'auto' : 'none'}
+                    preload={preloadSet.has(i) ? 'auto' : 'none'}
                     muted
                     playsInline
                     onEnded={nextSlide}
@@ -376,6 +376,7 @@ export default function HeroSection({
             isAr={isAr}
             locale={locale}
             t={t}
+            show={showWelcome}
           />
         )}
         {/* Welcome drawer — drops from top corner after 5 s */}
@@ -488,7 +489,7 @@ function MobileScheduleList({
         background: 'rgba(14,13,11,0.97)',
         padding: '4px 0 0',
         direction: isAr ? 'rtl' : 'ltr',
-        touchAction: 'pan-y', 
+        touchAction: 'pan-y',
       }}
     >
       {slots.map((slot, i) => (
@@ -664,8 +665,7 @@ function MobileCardSection({
         flexDirection: 'column',
         overflow: 'hidden', // clips text AND media — nothing can escape
         userSelect: 'none',
-        touchAction: 'pan-y',  // ← ADD THIS
-
+        touchAction: 'pan-y', // ← ADD THIS
       }}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
@@ -890,18 +890,14 @@ function DesktopScheduleTicker({
   isAr,
   locale,
   t,
+  show,
 }: {
   slots: ScheduleSlot[];
   isAr: boolean;
   locale: string;
   t: ReturnType<typeof useTranslations>;
+  show: boolean;
 }) {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 3500);
-    return () => clearTimeout(t);
-  }, []);
-
   return (
     <div
       style={{
@@ -913,7 +909,7 @@ function DesktopScheduleTicker({
         background: 'rgba(0,0,0,0.68)',
         backdropFilter: 'blur(3px)',
         zIndex: 2,
-        opacity: visible ? 1 : 0,
+        opacity: show ? 1 : 0,
         transition: 'opacity 1.4s ease',
         display: 'flex',
         alignItems: 'center',
@@ -1774,8 +1770,6 @@ function DesktopChevronButton({
   );
 }
 
-// ─── Desktop: welcome drawer (drops from top corner) ─────────────────────────
-
 function WelcomeDrawerDesktop({
   isAr,
   show,
@@ -1789,64 +1783,78 @@ function WelcomeDrawerDesktop({
     <div
       style={{
         position: 'absolute',
-        bottom: 0,
-        [isAr ? 'left' : 'right']: 0,
-        width: '50%',
-        maxHeight: 'calc(85vh)',
+        bottom: '15vh',
+        left: 0,
+        right: 0,
         zIndex: 10,
-        transform: show ? 'translateY(0)' : 'translateY(-100%)',
+        transform: show ? 'translateY(0)' : 'translateY(16px)',
         opacity: show ? 1 : 0,
         transition:
-          'transform 0.8s cubic-bezier(0.22,1,0.36,1), opacity 1s ease',
-        overflowY: 'auto',
-        background: 'rgba(229,228,226,0.62)',
-        backdropFilter: 'blur(18px) saturate(1.4) brightness(1.04)',
-        WebkitBackdropFilter: 'blur(18px) saturate(1.4) brightness(1.04)',
-        border: '1px solid rgba(255,255,255,0.35)',
-        boxShadow: '0 8px 40px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.55), inset 1px 0 0 rgba(255,255,255,0.22)',
-        boxSizing: 'border-box',
+          'transform 0.9s cubic-bezier(0.22,1,0.36,1), opacity 0.9s ease',
         direction: isAr ? 'rtl' : 'ltr',
+        textAlign: isAr ? 'right' : 'left',
+        boxSizing: 'border-box',
+        display: 'flex',
+        justifyContent: isAr ? 'flex-end' : 'flex-start',
       }}
     >
-      {/* Orange top accent line */}
-      <div style={{ height: 3, background: '#ff751f', flexShrink: 0 }} />
-      <div style={{ padding: '26px 22px 34px' }}>
+      <div
+        style={{
+          background: 'rgba(255,255,255,0.07)',
+          backdropFilter: 'blur(10px) saturate(1.4)',
+          WebkitBackdropFilter: 'blur(10px) saturate(1.4)',
+          border: '1px solid rgba(255,255,255,0.14)',
+          borderRadius: 6,
+          padding: '24px 32px',
+          maxWidth: 1200,
+        }}
+      >
+        {/* Title */}
         <h2
           style={{
-            margin: '0 0 16px',
-            fontSize: 23,
+            margin: '0 0 10px',
+            fontSize: 24,
             fontWeight: 400,
-            color: '#111111',
-            lineHeight: 1.3,
+            lineHeight: 1.25,
             letterSpacing: '0.01em',
+            color: '#ffffff',
           }}
         >
           {t('welcomeTitle')}
         </h2>
-        <div
-          style={{
-            width: 28,
-            height: 2,
-            background: '#ff751f',
-            marginBottom: 18,
-          }}
-        />
+
+        {/* Disciplines tagline */}
         <p
           style={{
             margin: '0 0 14px',
-            fontSize: 17,
-            color: '#555555',
-            lineHeight: 1.85,
+            fontSize: 10,
+            letterSpacing: '0.24em',
+            textTransform: 'uppercase',
+            color: '#ff751f',
+            fontWeight: 600,
+            lineHeight: 1.6,
+          }}
+        >
+          {t('welcomeDisciplines')}
+        </p>
+
+        {/* Body paragraphs */}
+        <p
+          style={{
+            margin: '0 0 8px',
+            fontSize: 13,
+            color: 'rgba(255,255,255,0.82)',
+            lineHeight: 1.7,
           }}
         >
           {t('welcomeBody1')}
         </p>
         <p
           style={{
-            margin: '0 0 14px',
-            fontSize: 17,
-            color: '#555555',
-            lineHeight: 1.85,
+            margin: '0 0 8px',
+            fontSize: 13,
+            color: 'rgba(255,255,255,0.82)',
+            lineHeight: 1.7,
           }}
         >
           {t('welcomeBody2')}
@@ -1854,9 +1862,9 @@ function WelcomeDrawerDesktop({
         <p
           style={{
             margin: 0,
-            fontSize: 17,
-            color: '#555555',
-            lineHeight: 1.85,
+            fontSize: 13,
+            color: 'rgba(255,255,255,0.82)',
+            lineHeight: 1.7,
           }}
         >
           {t('welcomeBody3')}
@@ -1899,7 +1907,7 @@ function MobileWelcomeBanner({
       >
         <h2
           style={{
-            margin: '0 0 10px',
+            margin: '0 0 6px',
             fontSize: 16,
             fontWeight: 400,
             color: '#ffffff',
@@ -1908,11 +1916,23 @@ function MobileWelcomeBanner({
         >
           {t('welcomeTitle')}
         </h2>
+        <p
+          style={{
+            margin: '0 0 10px',
+            fontSize: 9,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: '#ff751f',
+            fontWeight: 500,
+          }}
+        >
+          {t('welcomeDisciplines')}
+        </p>
         <div
           style={{
             width: 22,
             height: 2,
-            background: '#ff751f',
+            background: 'rgba(255,255,255,0.2)',
             marginBottom: 12,
           }}
         />

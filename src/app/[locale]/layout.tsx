@@ -169,7 +169,16 @@ export default async function LocaleLayout({
     id: string;
     name: string;
     name_ar: string | null;
-    subClasses: { id: string; name: string; name_ar: string | null }[];
+    description: string | null;
+    description_ar: string | null;
+    subClasses: {
+      id: string;
+      name: string;
+      name_ar: string | null;
+      description: string | null;
+      description_ar: string | null;
+      programs: { id: string; name: string; name_ar: string | null }[];
+    }[];
   };
   let navClasses: NavClass[] = [];
   try {
@@ -180,10 +189,23 @@ export default async function LocaleLayout({
         id: true,
         name: true,
         name_ar: true,
+        description: true,
+        description_ar: true,
         subClasses: {
           where: { isActive: true },
           orderBy: { createdAt: "asc" },
-          select: { id: true, name: true, name_ar: true },
+          select: {
+            id: true,
+            name: true,
+            name_ar: true,
+            description: true,
+            description_ar: true,
+            programs: {
+              where: { isActive: true },
+              orderBy: { sortOrder: "asc" },
+              select: { id: true, name: true, name_ar: true },
+            },
+          },
         },
       },
     });

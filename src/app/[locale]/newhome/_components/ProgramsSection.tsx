@@ -18,6 +18,8 @@ interface Program {
   en: string;
   ar: string;
   dept: string;
+  description: string;
+  description_ar: string;
   subClasses: SubClass[];
 }
 

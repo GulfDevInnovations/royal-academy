@@ -46,7 +46,14 @@ export function SubClassCardTile({ subClass }: SubClassCardTileProps) {
     subClass.oncePriceMonthly ?? subClass.twicePriceMonthly ?? null;
 
   return (
-    <Link href={`/enrollment/${subClass.id}`} className="block group">
+    <Link
+      href={
+        subClass.programId
+          ? `/enrollment/${subClass.id}?program=${subClass.programId}`
+          : `/enrollment/${subClass.id}`
+      }
+      className="block group"
+    >
       <motion.div
         whileHover={{ y: -4 }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
@@ -172,12 +179,14 @@ export function SubClassCardTile({ subClass }: SubClassCardTileProps) {
             className="text-[10px] font-bold uppercase tracking-[0.2em] mb-1.5"
             style={{ color: accent }}
           >
-            {subClass.class.name}
+            {subClass.programId
+              ? `${subClass.class.name} · ${subClass.name}`
+              : subClass.class.name}
           </p>
 
           {/* Name */}
           <h3 className="text-lg font-bold text-royal-cream font-goudy leading-tight mb-1 group-hover:text-royal-gold transition-colors duration-300">
-            {subClass.name}
+            {subClass.programName ?? subClass.name}
           </h3>
 
           {/* Teachers — stacked avatars if multiple */}
