@@ -148,7 +148,9 @@ export default function HeroSection({
       cur.currentTime = 0;
       cur.play().catch(() => {});
     }
+  }, [current]);
 
+  useEffect(() => {
     // Mobile: roll the preload window so the next video is always ready.
     if (isMobileVal === true) {
       const next = (current + 1) % MEDIA_ITEMS.length;
@@ -486,6 +488,7 @@ function MobileScheduleList({
         background: 'rgba(14,13,11,0.97)',
         padding: '4px 0 0',
         direction: isAr ? 'rtl' : 'ltr',
+        touchAction: 'pan-y', 
       }}
     >
       {slots.map((slot, i) => (
@@ -661,6 +664,8 @@ function MobileCardSection({
         flexDirection: 'column',
         overflow: 'hidden', // clips text AND media — nothing can escape
         userSelect: 'none',
+        touchAction: 'pan-y',  // ← ADD THIS
+
       }}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
@@ -774,7 +779,6 @@ function MobileCardSection({
           minHeight: 0, // essential: lets flex child actually scroll
           overflowY: 'auto',
           overflowX: 'hidden',
-          WebkitOverflowScrolling: 'touch',
           padding: '12px 20px 16px',
           boxSizing: 'border-box',
           direction: isAr ? 'rtl' : 'ltr',
@@ -1785,18 +1789,21 @@ function WelcomeDrawerDesktop({
     <div
       style={{
         position: 'absolute',
-        top: 0,
+        bottom: 0,
         [isAr ? 'left' : 'right']: 0,
-        width: 240,
+        width: '50%',
         maxHeight: 'calc(85vh)',
         zIndex: 10,
         transform: show ? 'translateY(0)' : 'translateY(-100%)',
         opacity: show ? 1 : 0,
         transition:
-          'transform 0.8s cubic-bezier(0.22,1,0.36,1), opacity 0.5s ease',
+          'transform 0.8s cubic-bezier(0.22,1,0.36,1), opacity 1s ease',
         overflowY: 'auto',
-        background: '#e5e4e2',
-        boxShadow: '0 8px 40px rgba(0,0,0,0.28)',
+        background: 'rgba(229,228,226,0.62)',
+        backdropFilter: 'blur(18px) saturate(1.4) brightness(1.04)',
+        WebkitBackdropFilter: 'blur(18px) saturate(1.4) brightness(1.04)',
+        border: '1px solid rgba(255,255,255,0.35)',
+        boxShadow: '0 8px 40px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.55), inset 1px 0 0 rgba(255,255,255,0.22)',
         boxSizing: 'border-box',
         direction: isAr ? 'rtl' : 'ltr',
       }}
@@ -1807,7 +1814,7 @@ function WelcomeDrawerDesktop({
         <h2
           style={{
             margin: '0 0 16px',
-            fontSize: 21,
+            fontSize: 23,
             fontWeight: 400,
             color: '#111111',
             lineHeight: 1.3,
@@ -1827,7 +1834,7 @@ function WelcomeDrawerDesktop({
         <p
           style={{
             margin: '0 0 14px',
-            fontSize: 13,
+            fontSize: 17,
             color: '#555555',
             lineHeight: 1.85,
           }}
@@ -1837,7 +1844,7 @@ function WelcomeDrawerDesktop({
         <p
           style={{
             margin: '0 0 14px',
-            fontSize: 13,
+            fontSize: 17,
             color: '#555555',
             lineHeight: 1.85,
           }}
@@ -1847,7 +1854,7 @@ function WelcomeDrawerDesktop({
         <p
           style={{
             margin: 0,
-            fontSize: 13,
+            fontSize: 17,
             color: '#555555',
             lineHeight: 1.85,
           }}
@@ -1881,8 +1888,11 @@ function MobileWelcomeBanner({
     >
       <div
         style={{
-          background: 'rgba(10,9,8,0.97)',
+          background: 'rgba(10,9,8,0.62)',
+          backdropFilter: 'blur(40px) saturate(1.7)',
+          WebkitBackdropFilter: 'blur(40px) saturate(1.7)',
           borderTop: '3px solid #ff751f',
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
           padding: '18px 18px 22px',
           boxSizing: 'border-box',
         }}

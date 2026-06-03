@@ -2028,6 +2028,7 @@ function DesktopSidebarNav({
             style={{
               display: 'flex',
               alignItems: 'center',
+              gap: 20,
               justifyContent: 'center',
               width: '100%',
               background: 'none',
@@ -2041,7 +2042,21 @@ function DesktopSidebarNav({
             }
             onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
           >
-            <BurgerIcon open={d1Open} />
+                        <BurgerIcon open={d1Open} />
+
+              <span
+              style={{
+                fontSize: 9,
+                fontWeight: 500,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                color: '#1a1a1a',
+                lineHeight: 1,
+                userSelect: 'none',
+              }}
+            >
+              {isAr ? 'المزيد' : 'More'}
+            </span>
           </button>
 
           <button

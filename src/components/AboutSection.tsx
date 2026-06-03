@@ -896,7 +896,7 @@ export default function AboutSection({
         display: 'flex',
         flexDirection: 'column',
         position: 'relative',
-        overflow: scrollable ? 'visible' : 'hidden',
+        overflow: scrollable ? 'visible' : (isMobile === true ? 'visible' : 'hidden'),
         zIndex: 2,
         /* background:
           'radial-gradient(circle at 18% 12%, rgba(180,180,180,0.16) 0%, transparent 55%), radial-gradient(circle at 82% 28%, rgba(92,45,74,0.30) 0%, transparent 62%), linear-gradient(135deg, var(--royal-purple) 0%, var(--royal-dark) 58%, #0b0f2a 100%)', */
