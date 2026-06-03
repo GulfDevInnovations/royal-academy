@@ -1,10 +1,9 @@
 // src/lib/actions/classes.ts
 "use server";
 
-import { PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { parseJsonArray } from "@/utils/parseJson";
-
-const prisma = new PrismaClient();
 
 export type SubClassTeacherSchedule = {
   id:        string;
@@ -30,7 +29,7 @@ export type SubClassTeacherInfo = {
 };
 
 export type SubClassCard = {
-  id: string;
+  id: string;           // always the subClassId (used as route param)
   name: string;
   description: string | null;
   coverUrl: string | null;
@@ -49,42 +48,65 @@ export type SubClassCard = {
     iconUrl: string | null;
   };
   teachers: SubClassTeacherInfo[];
+  // When this card represents a Program under the subClass:
+  programId?: string;
+  programName?: string;
 };
 
 export type SubClassDetail = SubClassCard;
 
+// Minimal program info passed to the detail client when a programId is in the URL
+export type ProgramInfo = {
+  id: string;
+  name: string;
+  name_ar: string | null;
+  description: string | null;
+  description_ar: string | null;
+  price: string;
+  trialPrice: string;
+  oncePriceMonthly: string | null;
+  twicePriceMonthly: string | null;
+  currency: string;
+  durationMinutes: number;
+  isTrialAvailable: boolean;
+  level: string | null;
+  ageGroup: string | null;
+  sessionType: string;
+};
+
 export async function getSubClassCards(): Promise<SubClassCard[]> {
-  const subClasses = await prisma.subClass.findMany({
-    where: { isActive: true },
+  // Query 1: active programs (for subClasses that have programs)
+  const programRows = await prisma.program.findMany({
+    where: { isActive: true, subClass: { isActive: true } },
+    include: {
+      subClass: {
+        include: {
+          class: true,
+          teachers: { include: { teacher: true } },
+        },
+      },
+    },
+    orderBy: [
+      { subClass: { class: { sortOrder: "asc" } } },
+      { subClass: { name: "asc" } },
+      { sortOrder: "asc" },
+    ],
+  });
+
+  // Query 2: subClasses with no active programs
+  const bareSubClasses = await prisma.subClass.findMany({
+    where: { isActive: true, programs: { none: { isActive: true } } },
     include: {
       class: true,
-      teachers: {
-        include: { teacher: true },
-      },
+      teachers: { include: { teacher: true } },
     },
     orderBy: [{ class: { sortOrder: "asc" } }, { name: "asc" }],
   });
 
-  return subClasses.map((s) => ({
-    id: s.id,
-    name: s.name,
-    description: s.description,
-    coverUrl: s.coverUrl,
-    level: s.level,
-    ageGroup: s.ageGroup,
-    sessionType: s.sessionType,
-    trialPrice: s.trialPrice.toString(),
-    isTrialAvailable: s.isTrialAvailable,
-    oncePriceMonthly: s.oncePriceMonthly?.toString() ?? null,
-    twicePriceMonthly: s.twicePriceMonthly?.toString() ?? null,
-    currency: s.currency,
-    durationMinutes: s.durationMinutes,
-    class: {
-      id: s.class.id,
-      name: s.class.name,
-      iconUrl: s.class.iconUrl,
-    },
-    teachers: s.teachers.map((t) => ({
+  function toTeachers(
+    teachers: Array<{ teacher: { id: string; firstName: string; lastName: string; photoUrl: string | null; bio: string | null; specialties: Prisma.JsonValue } }>,
+  ): SubClassTeacherInfo[] {
+    return teachers.map((t) => ({
       id: t.teacher.id,
       firstName: t.teacher.firstName,
       lastName: t.teacher.lastName,
@@ -94,8 +116,57 @@ export async function getSubClassCards(): Promise<SubClassCard[]> {
       availableDays: [],
       schedules: [],
       maxBookableMonths: null,
-    })),
-  }));
+    }));
+  }
+
+  const cards: SubClassCard[] = [];
+
+  // One card per program
+  for (const p of programRows) {
+    const s = p.subClass;
+    cards.push({
+      id: s.id,
+      name: s.name,
+      description: p.description,
+      coverUrl: p.coverUrl ?? s.coverUrl,
+      level: p.level,
+      ageGroup: p.ageGroup,
+      sessionType: p.sessionType,
+      trialPrice: p.trialPrice.toString(),
+      isTrialAvailable: p.isTrialAvailable,
+      oncePriceMonthly: p.oncePriceMonthly?.toString() ?? null,
+      twicePriceMonthly: p.twicePriceMonthly?.toString() ?? null,
+      currency: p.currency,
+      durationMinutes: p.durationMinutes,
+      class: { id: s.class.id, name: s.class.name, iconUrl: s.class.iconUrl },
+      teachers: toTeachers(s.teachers),
+      programId: p.id,
+      programName: p.name,
+    });
+  }
+
+  // One card per bare subClass
+  for (const s of bareSubClasses) {
+    cards.push({
+      id: s.id,
+      name: s.name,
+      description: s.description,
+      coverUrl: s.coverUrl,
+      level: s.level,
+      ageGroup: s.ageGroup,
+      sessionType: s.sessionType,
+      trialPrice: s.trialPrice.toString(),
+      isTrialAvailable: s.isTrialAvailable,
+      oncePriceMonthly: s.oncePriceMonthly?.toString() ?? null,
+      twicePriceMonthly: s.twicePriceMonthly?.toString() ?? null,
+      currency: s.currency,
+      durationMinutes: s.durationMinutes,
+      class: { id: s.class.id, name: s.class.name, iconUrl: s.class.iconUrl },
+      teachers: toTeachers(s.teachers),
+    });
+  }
+
+  return cards;
 }
 
 export async function getSubClassDetail(
@@ -201,6 +272,32 @@ export async function getSubClassDetail(
         maxBookableMonths,
       };
     }),
+  };
+}
+
+export async function getProgramDetail(
+  programId: string,
+): Promise<ProgramInfo | null> {
+  const p = await prisma.program.findUnique({
+    where: { id: programId, isActive: true },
+  });
+  if (!p) return null;
+  return {
+    id: p.id,
+    name: p.name,
+    name_ar: p.name_ar,
+    description: p.description,
+    description_ar: p.description_ar,
+    price: p.price.toString(),
+    trialPrice: p.trialPrice.toString(),
+    oncePriceMonthly: p.oncePriceMonthly?.toString() ?? null,
+    twicePriceMonthly: p.twicePriceMonthly?.toString() ?? null,
+    currency: p.currency,
+    durationMinutes: p.durationMinutes,
+    isTrialAvailable: p.isTrialAvailable,
+    level: p.level,
+    ageGroup: p.ageGroup,
+    sessionType: p.sessionType,
   };
 }
 

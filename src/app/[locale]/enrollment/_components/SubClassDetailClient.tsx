@@ -1,6 +1,6 @@
 'use client';
 
-import { SubClassDetail, SubClassTeacherInfo } from '@/lib/actions/classes';
+import { SubClassDetail, SubClassTeacherInfo, ProgramInfo } from '@/lib/actions/classes';
 import {
   createMonthlyEnrollment,
   createMultiMonthStudentEnrollment,
@@ -88,12 +88,23 @@ type Plan = 'TRIAL' | 'ONCE' | 'TWICE';
 
 export function SubClassDetailClient({
   subClass,
+  program,
 }: {
   subClass: SubClassDetail;
+  program?: ProgramInfo;
 }) {
   const t = useTranslations('enrollment');
   const router = useRouter();
   const accent = CLASS_ACCENT[subClass.class.name] ?? CLASS_ACCENT.default;
+
+  // When a program is selected, its fields take priority over the subClass fields
+  const displayName            = program?.name              ?? subClass.name;
+  const displayDescription     = program?.description       ?? subClass.description;
+  const displayTrialPrice      = program?.trialPrice        ?? subClass.trialPrice;
+  const displayOncePriceMonthly  = program?.oncePriceMonthly  ?? subClass.oncePriceMonthly;
+  const displayTwicePriceMonthly = program?.twicePriceMonthly ?? subClass.twicePriceMonthly;
+  const displayIsTrialAvailable  = program?.isTrialAvailable  ?? subClass.isTrialAvailable;
+  const displayCurrency        = program?.currency          ?? subClass.currency;
 
   const DAY_LABELS: Record<string, string> = {
     MONDAY: t('cal.mon'),
@@ -233,9 +244,9 @@ export function SubClassDetailClient({
   };
 
   const monthlyPrice = useMemo(() => {
-    if (plan === 'TRIAL') return subClass.trialPrice;
-    if (plan === 'ONCE') return subClass.oncePriceMonthly ?? null;
-    if (plan === 'TWICE') return subClass.twicePriceMonthly ?? null;
+    if (plan === 'TRIAL') return displayTrialPrice;
+    if (plan === 'ONCE') return displayOncePriceMonthly ?? null;
+    if (plan === 'TWICE') return displayTwicePriceMonthly ?? null;
     return null;
   }, [plan, subClass]);
 
@@ -424,15 +435,20 @@ export function SubClassDetailClient({
               </p>
             </div>
             <h1 className="text-4xl sm:text-5xl font-bold text-royal-cream font-goudy leading-none mb-6">
-              {subClass.name}
+              {displayName}
             </h1>
+            {program && (
+              <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: accent }}>
+                {subClass.name}
+              </p>
+            )}
 
             {/* Cover */}
             {subClass.coverUrl ? (
               <div className="rounded-2xl overflow-hidden h-56 mb-8">
                 <img
                   src={subClass.coverUrl}
-                  alt={subClass.name}
+                  alt={displayName}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -474,14 +490,14 @@ export function SubClassDetailClient({
                   className="text-8xl font-goudy font-bold opacity-10"
                   style={{ color: accent }}
                 >
-                  {subClass.name[0]}
+                  {displayName[0]}
                 </span>
               </div>
             )}
 
-            {subClass.description && (
+            {displayDescription && (
               <p className="text-royal-cream/65 leading-relaxed text-base mb-8">
-                {subClass.description}
+                {displayDescription}
               </p>
             )}
 
@@ -804,7 +820,7 @@ export function SubClassDetailClient({
                         <div className="h-px flex-1 bg-white/[0.06]" />
                       </div>
                       <div className="space-y-3 mb-6">
-                        {subClass.isTrialAvailable && (
+                        {displayIsTrialAvailable && (
                           <PlanOption
                             selected={plan === 'TRIAL'}
                             onClick={() => {
@@ -819,11 +835,11 @@ export function SubClassDetailClient({
                             icon={<Sparkles className="w-4 h-4" />}
                             title={t('detail.trialTitle')}
                             subtitle={t('detail.trialSubtitle')}
-                            price={`${subClass.trialPrice} ${subClass.currency}`}
+                            price={`${displayTrialPrice} ${displayCurrency}`}
                             badge={t('detail.trialBadge')}
                           />
                         )}
-                        {subClass.oncePriceMonthly && (
+                        {displayOncePriceMonthly && (
                           <PlanOption
                             selected={plan === 'ONCE'}
                             onClick={() => {
@@ -837,10 +853,10 @@ export function SubClassDetailClient({
                             icon={<Calendar className="w-4 h-4" />}
                             title={t('detail.onceTitle')}
                             subtitle={t('detail.onceSubtitle')}
-                            price={`${subClass.oncePriceMonthly} ${subClass.currency}/mo`}
+                            price={`${displayOncePriceMonthly} ${displayCurrency}/mo`}
                           />
                         )}
-                        {subClass.twicePriceMonthly && (
+                        {displayTwicePriceMonthly && (
                           <PlanOption
                             selected={plan === 'TWICE'}
                             onClick={() => {
@@ -855,7 +871,7 @@ export function SubClassDetailClient({
                             icon={<Crown className="w-4 h-4" />}
                             title={t('detail.twiceTitle')}
                             subtitle={t('detail.twiceSubtitle')}
-                            price={`${subClass.twicePriceMonthly} ${subClass.currency}/mo`}
+                            price={`${displayTwicePriceMonthly} ${displayCurrency}/mo`}
                             badge={t('detail.twiceBadge')}
                           />
                         )}

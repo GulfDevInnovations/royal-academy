@@ -59,6 +59,11 @@ interface SubClassOption {
   teachers: {
     teacher: { id: string; firstName: string; lastName: string };
   }[];
+  programs: {
+    id: string;
+    name: string;
+    teachers: { teacher: { id: string; firstName: string; lastName: string } }[];
+  }[];
 }
 
 interface FormOptions {
@@ -308,7 +313,7 @@ function DayCellPopupPanel({
                       color: cancelled ? adminColors.textMuted : color.text,
                     }}
                   >
-                    {schedule.subClass.name}
+                    {schedule.program?.name ?? schedule.subClass.name}
                   </span>
                   <span
                     className="text-[16px] flex-shrink-0"
@@ -683,7 +688,7 @@ export default function SchedulesClient({
                           border: `1px solid ${cancelled ? "rgba(255,255,255,0.06)" : color.border}`,
                           opacity: isPast ? 0.55 : 1,
                         }}
-                        title={`${schedule.subClass.name} · ${schedule.teacher.firstName} ${schedule.teacher.lastName}`}
+                        title={`${schedule.program?.name ?? schedule.subClass.name} · ${schedule.teacher.firstName} ${schedule.teacher.lastName}`}
                       >
                         <div
                           className="font-semibold truncate"
@@ -693,7 +698,7 @@ export default function SchedulesClient({
                               : color.text,
                           }}
                         >
-                          {schedule.startTime} {schedule.subClass.name}
+                          {schedule.startTime} {schedule.program?.name ?? schedule.subClass.name}
                         </div>
                         <div
                           className="truncate mt-0.5"
@@ -926,7 +931,7 @@ export default function SchedulesClient({
                                 : color.text,
                             }}
                           >
-                            {schedule.subClass.name}
+                            {schedule.program?.name ?? schedule.subClass.name}
                           </p>
                           {height > 30 && (
                             <p
@@ -1006,7 +1011,7 @@ export default function SchedulesClient({
                           className="text-xl font-medium"
                           style={{ color: adminColors.textPrimary }}
                         >
-                          {schedule.subClass.name}
+                          {schedule.program?.name ?? schedule.subClass.name}
                         </p>
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <p
@@ -1014,6 +1019,9 @@ export default function SchedulesClient({
                             style={{ color: adminColors.textMuted }}
                           >
                             {schedule.subClass.class.name}
+                            {schedule.program && (
+                              <span style={{ color: adminColors.textMuted }}> · {schedule.subClass.name}</span>
+                            )}
                           </p>
                           {schedule.subClass.isReschedulable && (
                             <span
@@ -1345,7 +1353,7 @@ export default function SchedulesClient({
       )}
       {modal?.type === "delete" && (
         <DeleteConfirmModal
-          title={`Delete ${modal.data.subClass.name} schedule?`}
+          title={`Delete ${modal.data.program?.name ?? modal.data.subClass.name} schedule?`}
           description={`This will permanently delete the ${DAY_SHORT[modal.data.dayOfWeek]} ${modal.data.startTime}–${modal.data.endTime} schedule and all its sessions that have no bookings.`}
           onConfirm={() => handleDelete(modal.data.id)}
           onClose={() => setModal(null)}

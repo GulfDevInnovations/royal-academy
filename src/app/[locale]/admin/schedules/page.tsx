@@ -15,6 +15,7 @@ function serializeSchedules(
     endDate: s.endDate ? s.endDate.toISOString() : null,
     createdAt: s.createdAt.toISOString(),
     updatedAt: s.updatedAt.toISOString(),
+    program: s.program as { id: string; name: string } | null,
   }));
 }
 

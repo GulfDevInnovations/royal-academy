@@ -15,9 +15,10 @@ import {
   createTeacher,
   updateTeacher,
   assignSubClassesToTeacher,
+  assignProgramsToTeacher,
   uploadTeacherPhoto,
 } from "@/lib/actions/admin/teachers.actions";
-import type { SerializedTeacher, ClassWithSubsForAssignment } from "../page";
+import type { SerializedTeacher, ClassWithSubsForAssignment, ClassWithProgramsForAssignment } from "../page";
 import {
   AdminInput,
   AdminTextarea,
@@ -33,6 +34,7 @@ interface Props {
   onSuccess: () => void;
   editing?: SerializedTeacher | null;
   allClasses: ClassWithSubsForAssignment[];
+  allPrograms: ClassWithProgramsForAssignment[];
 }
 
 // Add this above the component (or in a shared utils file):
@@ -45,6 +47,7 @@ export default function TeacherFormModal({
   onSuccess,
   editing,
   allClasses,
+  allPrograms,
 }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +71,12 @@ export default function TeacherFormModal({
   const [expandedClasses, setExpandedClasses] = useState<Set<string>>(
     new Set(),
   );
+
+  const [selectedProgramIds, setSelectedProgramIds] = useState<Set<string>>(
+    new Set(editing?.programs.map((p) => p.id) ?? []),
+  );
+  const [expandedProgramClasses, setExpandedProgramClasses] = useState<Set<string>>(new Set());
+  const [expandedProgramSubs, setExpandedProgramSubs] = useState<Set<string>>(new Set());
 
   const toggleSubClass = (id: string) => {
     setSelectedSubIds((prev) => {
@@ -122,12 +131,20 @@ export default function TeacherFormModal({
       const teacherId =
         editing?.id ?? ("teacherId" in result ? result.teacherId : undefined);
 
-      if (typeof teacherId === "string" && selectedSubIds.size > 0) {
+      if (typeof teacherId === "string") {
         const assignResult = await assignSubClassesToTeacher(teacherId, [
           ...selectedSubIds,
         ]);
         if (isError(assignResult)) {
           setError(assignResult.error);
+          return;
+        }
+
+        const assignProgResult = await assignProgramsToTeacher(teacherId, [
+          ...selectedProgramIds,
+        ]);
+        if (isError(assignProgResult)) {
+          setError(assignProgResult.error);
           return;
         }
       }
@@ -558,16 +575,159 @@ export default function TeacherFormModal({
                 </div>
               )}
 
-              {/* Summary */}
               {selectedSubIds.size > 0 && (
-                <p
-                  className="text-l mt-2"
-                  style={{ color: adminColors.textMuted }}
-                >
-                  <span style={{ color: "#f59e0b" }}>
-                    {selectedSubIds.size}
-                  </span>{" "}
+                <p className="text-l mt-2" style={{ color: adminColors.textMuted }}>
+                  <span style={{ color: "#f59e0b" }}>{selectedSubIds.size}</span>{" "}
                   sub-class{selectedSubIds.size !== 1 ? "es" : ""} selected
+                </p>
+              )}
+            </Section>
+
+            {/* ── Program Assignment ── */}
+            <Section title="Assigned Programs">
+              <p className="text-l" style={{ color: adminColors.textMuted }}>
+                Select which programs this teacher leads. Programs belong to sub-classes that have a third level.
+              </p>
+
+              {allPrograms.filter((cls) => cls.subClasses.length > 0).length === 0 ? (
+                <p className="text-l" style={{ color: adminColors.textMuted }}>
+                  No programs available yet.
+                </p>
+              ) : (
+                <div className="space-y-1.5 mt-2">
+                  {allPrograms.filter((cls) => cls.subClasses.length > 0).map((cls) => {
+                    const isExpanded = expandedProgramClasses.has(cls.id);
+                    const assignedInClass = cls.subClasses.reduce(
+                      (sum, sub) => sum + sub.programs.filter((p) => selectedProgramIds.has(p.id)).length,
+                      0,
+                    );
+
+                    return (
+                      <div
+                        key={cls.id}
+                        className="rounded-lg border overflow-hidden"
+                        style={{ borderColor: adminColors.border }}
+                      >
+                        {/* Class header */}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setExpandedProgramClasses((prev) => {
+                              const next = new Set(prev);
+                              next.has(cls.id) ? next.delete(cls.id) : next.add(cls.id);
+                              return next;
+                            })
+                          }
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-white/[0.03]"
+                        >
+                          {isExpanded ? (
+                            <ChevronDown size={13} style={{ color: adminColors.textMuted }} />
+                          ) : (
+                            <ChevronRight size={13} style={{ color: adminColors.textMuted }} />
+                          )}
+                          <BookOpen size={13} style={{ color: "#f59e0b" }} />
+                          <span className="flex-1 text-xl font-medium" style={{ color: adminColors.textPrimary }}>
+                            {cls.name}
+                          </span>
+                          {assignedInClass > 0 && (
+                            <AdminBadge variant="warning">{assignedInClass} assigned</AdminBadge>
+                          )}
+                        </button>
+
+                        {/* SubClass rows */}
+                        {isExpanded && (
+                          <div className="border-t" style={{ borderColor: adminColors.border }}>
+                            {cls.subClasses.map((sub) => {
+                              const subExpanded = expandedProgramSubs.has(sub.id);
+                              const assignedInSub = sub.programs.filter((p) => selectedProgramIds.has(p.id)).length;
+
+                              return (
+                                <div key={sub.id} className="border-t first:border-t-0" style={{ borderColor: adminColors.border }}>
+                                  {/* SubClass header */}
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setExpandedProgramSubs((prev) => {
+                                        const next = new Set(prev);
+                                        next.has(sub.id) ? next.delete(sub.id) : next.add(sub.id);
+                                        return next;
+                                      })
+                                    }
+                                    className="w-full flex items-center gap-3 px-5 py-2 text-left transition-colors hover:bg-white/[0.02]"
+                                  >
+                                    {subExpanded ? (
+                                      <ChevronDown size={12} style={{ color: adminColors.textMuted }} />
+                                    ) : (
+                                      <ChevronRight size={12} style={{ color: adminColors.textMuted }} />
+                                    )}
+                                    <span className="flex-1 text-xl" style={{ color: adminColors.textSecondary }}>
+                                      {sub.name}
+                                    </span>
+                                    {assignedInSub > 0 && (
+                                      <AdminBadge variant="info">{assignedInSub} assigned</AdminBadge>
+                                    )}
+                                    <span className="text-l" style={{ color: adminColors.textMuted }}>
+                                      {sub.programs.length} program{sub.programs.length !== 1 ? "s" : ""}
+                                    </span>
+                                  </button>
+
+                                  {/* Program checkboxes */}
+                                  {subExpanded && (
+                                    <div className="border-t" style={{ borderColor: adminColors.border }}>
+                                      {sub.programs.map((prog) => {
+                                        const isChecked = selectedProgramIds.has(prog.id);
+                                        const otherTeachers = prog.teachers
+                                          .map((pt) => pt.teacher)
+                                          .filter((t) => t.id !== editing?.id);
+                                        return (
+                                          <label
+                                            key={prog.id}
+                                            className="flex items-center gap-3 px-8 py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02]"
+                                          >
+                                            <input
+                                              type="checkbox"
+                                              checked={isChecked}
+                                              onChange={() =>
+                                                setSelectedProgramIds((prev) => {
+                                                  const next = new Set(prev);
+                                                  next.has(prog.id) ? next.delete(prog.id) : next.add(prog.id);
+                                                  return next;
+                                                })
+                                              }
+                                              className="accent-amber-500 w-3.5 h-3.5"
+                                            />
+                                            <span
+                                              className="text-xl flex-1"
+                                              style={{ color: isChecked ? adminColors.textPrimary : adminColors.textSecondary }}
+                                            >
+                                              {prog.name}
+                                            </span>
+                                            {otherTeachers.length > 0 && (
+                                              <span className="text-[15px]" style={{ color: adminColors.textMuted }}>
+                                                also: {otherTeachers.map((t) => `${t.firstName} ${t.lastName}`).join(", ")}
+                                              </span>
+                                            )}
+                                            {isChecked && <AdminBadge variant="success">Assigned</AdminBadge>}
+                                          </label>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {selectedProgramIds.size > 0 && (
+                <p className="text-l mt-2" style={{ color: adminColors.textMuted }}>
+                  <span style={{ color: "#f59e0b" }}>{selectedProgramIds.size}</span>{" "}
+                  program{selectedProgramIds.size !== 1 ? "s" : ""} selected
                 </p>
               )}
             </Section>

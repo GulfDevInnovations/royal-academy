@@ -18,13 +18,24 @@ function serializeClasses(classes: Awaited<ReturnType<typeof getClasses>>) {
       ...sub,
       createdAt: sub.createdAt.toISOString(),
       updatedAt: sub.updatedAt.toISOString(),
-      // Prisma Decimal → plain number
       price: Number(sub.price),
       trialPrice: Number(sub.trialPrice),
       oncePriceMonthly:
         sub.oncePriceMonthly != null ? Number(sub.oncePriceMonthly) : null,
       twicePriceMonthly:
         sub.twicePriceMonthly != null ? Number(sub.twicePriceMonthly) : null,
+      programs: sub.programs.map((prog) => ({
+        ...prog,
+        createdAt: prog.createdAt.toISOString(),
+        updatedAt: prog.updatedAt.toISOString(),
+        offerExpiresAt: prog.offerExpiresAt?.toISOString() ?? null,
+        price: Number(prog.price),
+        trialPrice: Number(prog.trialPrice),
+        oncePriceMonthly:
+          prog.oncePriceMonthly != null ? Number(prog.oncePriceMonthly) : null,
+        twicePriceMonthly:
+          prog.twicePriceMonthly != null ? Number(prog.twicePriceMonthly) : null,
+      })),
     })),
   }));
 }
@@ -32,6 +43,7 @@ function serializeClasses(classes: Awaited<ReturnType<typeof getClasses>>) {
 export type SerializedClasses = ReturnType<typeof serializeClasses>;
 export type SerializedClass = SerializedClasses[number];
 export type SerializedSubClass = SerializedClass['subClasses'][number];
+export type SerializedProgram = SerializedSubClass['programs'][number];
 
 export default async function AdminClassesPage() {
   const [rawClasses, teachers] = await Promise.all([

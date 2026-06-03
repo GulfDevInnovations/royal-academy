@@ -39,6 +39,8 @@ interface NavItem {
   href?: string;
   isContact?: boolean;
   children?: NavItem[];
+  descriptionEn?: string | null;
+  descriptionAr?: string | null;
 }
 
 export interface SessionUser {
@@ -52,7 +54,16 @@ export interface NavClass {
   id: string;
   name: string;
   name_ar: string | null;
-  subClasses: { id: string; name: string; name_ar: string | null }[];
+  description: string | null;
+  description_ar: string | null;
+  subClasses: {
+    id: string;
+    name: string;
+    name_ar: string | null;
+    description: string | null;
+    description_ar: string | null;
+    programs: { id: string; name: string; name_ar: string | null }[];
+  }[];
 }
 
 interface SidebarNavProps {
@@ -75,23 +86,46 @@ function buildNav(locale: string, navClasses: NavClass[]): NavItem[] {
   const classChildren: NavItem[] = navClasses.map((cls) => {
     const classSlug = toSlug(cls.name);
     const classHref = `/${locale}/classes/${classSlug}`;
-    const subItems: NavItem[] = cls.subClasses.map((sub) => ({
-      id: `sub-${sub.id}`,
-      labelEn: sub.name,
-      labelAr: sub.name_ar ?? sub.name,
-      href: `/${locale}/enrollment/${sub.id}`,
-    }));
+    const subItems: NavItem[] = cls.subClasses.map((sub) => {
+      // SubClass with programs → 4th level (programs list)
+      if (sub.programs.length > 0) {
+        return {
+          id: `sub-${sub.id}`,
+          labelEn: sub.name,
+          labelAr: sub.name_ar ?? sub.name,
+          descriptionEn: sub.description,
+          descriptionAr: sub.description_ar,
+          children: sub.programs.map((prog) => ({
+            id: `prog-${prog.id}`,
+            labelEn: prog.name,
+            labelAr: prog.name_ar ?? prog.name,
+            href: `/${locale}/enrollment/${sub.id}?program=${prog.id}`,
+          })),
+        };
+      }
+      // SubClass without programs → direct link
+      return {
+        id: `sub-${sub.id}`,
+        labelEn: sub.name,
+        labelAr: sub.name_ar ?? sub.name,
+        href: `/${locale}/enrollment/${sub.id}`,
+      };
+    });
     return subItems.length > 0
       ? {
           id: `cls-${cls.id}`,
           labelEn: cls.name,
           labelAr: cls.name_ar ?? cls.name,
+          descriptionEn: cls.description,
+          descriptionAr: cls.description_ar,
           children: subItems,
         }
       : {
           id: `cls-${cls.id}`,
           labelEn: cls.name,
           labelAr: cls.name_ar ?? cls.name,
+          descriptionEn: cls.description,
+          descriptionAr: cls.description_ar,
           href: classHref,
         };
   });
@@ -304,7 +338,15 @@ function useNotifications(sessionUser: SessionUser | null) {
 
 // ─── Mobile SidebarNav ────────────────────────────────────────────────────────
 
-type MobileDrawer = 'none' | 'l1' | 'l2' | 'l3' | 'contact' | 'user' | 'bell';
+type MobileDrawer =
+  | 'none'
+  | 'l1'
+  | 'l2'
+  | 'l3'
+  | 'l4'
+  | 'contact'
+  | 'user'
+  | 'bell';
 
 function MobileSidebarNav({
   sessionUser = null,
@@ -321,6 +363,9 @@ function MobileSidebarNav({
   const [drawer, setDrawer] = useState<MobileDrawer>('none');
   const [activeL1, setActiveL1] = useState<NavItem | null>(null);
   const [activeL2, setActiveL2] = useState<NavItem | null>(null);
+  const [activeL3, setActiveL3] = useState<NavItem | null>(null);
+  const [expandedL2Id, setExpandedL2Id] = useState<string | null>(null);
+  const [expandedL3Id, setExpandedL3Id] = useState<string | null>(null);
   // Track slide direction: 'down' = enters from top, 'up' = exits to top
   const [slideDir, setSlideDir] = useState<'down' | 'up'>('down');
   const [notifQuery, setNotifQuery] = useState('');
@@ -350,6 +395,9 @@ function MobileSidebarNav({
     setDrawer('none');
     setActiveL1(null);
     setActiveL2(null);
+    setActiveL3(null);
+    setExpandedL2Id(null);
+    setExpandedL3Id(null);
     setNotifQuery('');
   };
 
@@ -394,9 +442,36 @@ function MobileSidebarNav({
 
   const handleL2Click = (item: NavItem) => {
     if (item.children) {
-      setActiveL2(item);
-      setSlideDir('down');
-      setDrawer('l3');
+      const desc = isAr
+        ? (item.descriptionAr ?? item.descriptionEn)
+        : (item.descriptionEn ?? item.descriptionAr);
+      if (desc && expandedL2Id !== item.id) {
+        setExpandedL2Id(item.id);
+      } else {
+        setExpandedL2Id(null);
+        setActiveL2(item);
+        setSlideDir('down');
+        setDrawer('l3');
+      }
+    } else if (item.href) {
+      router.push(item.href);
+      closeAll();
+    }
+  };
+
+  const handleL3Click = (item: NavItem) => {
+    if (item.children) {
+      const desc = isAr
+        ? (item.descriptionAr ?? item.descriptionEn)
+        : (item.descriptionEn ?? item.descriptionAr);
+      if (desc && expandedL3Id !== item.id) {
+        setExpandedL3Id(item.id);
+      } else {
+        setExpandedL3Id(null);
+        setActiveL3(item);
+        setSlideDir('down');
+        setDrawer('l4');
+      }
     } else if (item.href) {
       router.push(item.href);
       closeAll();
@@ -407,10 +482,17 @@ function MobileSidebarNav({
     setSlideDir('up');
     if (drawer === 'l2') {
       setActiveL1(null);
+      setExpandedL2Id(null);
       setDrawer('l1');
     } else if (drawer === 'l3') {
       setActiveL2(null);
+      setExpandedL2Id(null);
+      setExpandedL3Id(null);
       setDrawer('l2');
+    } else if (drawer === 'l4') {
+      setActiveL3(null);
+      setExpandedL3Id(null);
+      setDrawer('l3');
     } else if (drawer === 'contact') {
       setDrawer('l1');
     } else {
@@ -817,7 +899,10 @@ function MobileSidebarNav({
             }}
           >
             <MobileBurgerIcon
-              open={isOpen && (showL1 || showL2 || showL3 || showContact)}
+              open={
+                isOpen &&
+                (showL1 || showL2 || showL3 || drawer === 'l4' || showContact)
+              }
             />
           </button>
         </div>
@@ -912,15 +997,70 @@ function MobileSidebarNav({
           </div>
         )}
         <nav style={{ paddingBottom: 32 }}>
-          {(activeL1?.children ?? []).map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handleL2Click(item)}
-              style={{ ...mobileItemStyle(), color: '#1a1a1a' }}
-            >
-              {lbl(item)}
-            </button>
-          ))}
+          {(activeL1?.children ?? []).map((item) => {
+            const isExpanded = expandedL2Id === item.id;
+            const desc = isAr
+              ? (item.descriptionAr ?? item.descriptionEn)
+              : (item.descriptionEn ?? item.descriptionAr);
+            return (
+              <div key={item.id}>
+                <button
+                  onClick={() => handleL2Click(item)}
+                  style={{
+                    ...mobileItemStyle(isExpanded),
+                    color: '#1a1a1a',
+                    borderBottom: isExpanded
+                      ? 'none'
+                      : '.5px solid rgba(0,0,0,.07)',
+                  }}
+                >
+                  {lbl(item)}
+                </button>
+                {isExpanded && desc && (
+                  <div
+                    style={{
+                      padding: '10px 24px 14px',
+                      fontSize: 14,
+                      color: '#555555',
+                      lineHeight: 1.7,
+                      letterSpacing: '.01em',
+                      background: 'rgba(0,0,0,.03)',
+                      borderBottom: '.5px solid rgba(0,0,0,.07)',
+                      textAlign: isAr ? 'right' : 'left',
+                      direction: isAr ? 'rtl' : 'ltr',
+                      animation: 'mob-fade-in .2s ease',
+                    }}
+                  >
+                    <p style={{ margin: '0 0 12px' }}>{desc}</p>
+                    {item.children && (
+                      <button
+                        onClick={() => {
+                          setExpandedL2Id(null);
+                          setActiveL2(item);
+                          setSlideDir('down');
+                          setDrawer('l3');
+                        }}
+                        style={{
+                          background: 'none',
+                          border: '.5px solid rgba(0,0,0,.18)',
+                          padding: '7px 14px',
+                          fontSize: 12,
+                          color: '#592c41',
+                          cursor: 'pointer',
+                          letterSpacing: '.1em',
+                          textTransform: 'uppercase',
+                          fontFamily: 'inherit',
+                          direction: isAr ? 'rtl' : 'ltr',
+                        }}
+                      >
+                        {isAr ? 'عرض الفصول ←' : 'View Classes →'}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
       </div>
 
@@ -944,7 +1084,94 @@ function MobileSidebarNav({
           </div>
         )}
         <nav style={{ paddingBottom: 32 }}>
-          {(activeL2?.children ?? []).map((item) => (
+          {(activeL2?.children ?? []).map((item) => {
+            const isExpanded = expandedL3Id === item.id;
+            const desc = isAr
+              ? (item.descriptionAr ?? item.descriptionEn)
+              : (item.descriptionEn ?? item.descriptionAr);
+            return (
+              <div key={item.id}>
+                <button
+                  onClick={() => handleL3Click(item)}
+                  style={{
+                    ...mobileItemStyle(isExpanded),
+                    color: '#1a1a1a',
+                    borderBottom: isExpanded
+                      ? 'none'
+                      : '.5px solid rgba(0,0,0,.07)',
+                  }}
+                >
+                  {lbl(item)}
+                </button>
+                {isExpanded && desc && (
+                  <div
+                    style={{
+                      padding: '10px 24px 14px',
+                      fontSize: 14,
+                      color: '#555555',
+                      lineHeight: 1.7,
+                      letterSpacing: '.01em',
+                      background: 'rgba(0,0,0,.03)',
+                      borderBottom: '.5px solid rgba(0,0,0,.07)',
+                      textAlign: isAr ? 'right' : 'left',
+                      direction: isAr ? 'rtl' : 'ltr',
+                      animation: 'mob-fade-in .2s ease',
+                    }}
+                  >
+                    <p style={{ margin: '0 0 12px' }}>{desc}</p>
+                    {item.children && (
+                      <button
+                        onClick={() => {
+                          setExpandedL3Id(null);
+                          setActiveL3(item);
+                          setSlideDir('down');
+                          setDrawer('l4');
+                        }}
+                        style={{
+                          background: 'none',
+                          border: '.5px solid rgba(0,0,0,.18)',
+                          padding: '7px 14px',
+                          fontSize: 12,
+                          color: '#592c41',
+                          cursor: 'pointer',
+                          letterSpacing: '.1em',
+                          textTransform: 'uppercase',
+                          fontFamily: 'inherit',
+                          direction: isAr ? 'rtl' : 'ltr',
+                        }}
+                      >
+                        {isAr ? 'عرض البرامج ←' : 'View Programs →'}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* ── L4 DRAWER (Programs) ────────────────────────────────────────── */}
+      <div style={{ ...drawerStyle(drawer === 'l4'), background: '#cacaca' }}>
+        <button onClick={handleBack} style={backBtnStyle(fontFamily, isAr)}>
+          {backLabel}
+        </button>
+        {activeL3 && (
+          <div
+            style={{
+              padding: '6px 24px 10px',
+              fontSize: 11,
+              letterSpacing: '.18em',
+              textTransform: 'uppercase',
+              color: '#999',
+              fontFamily,
+            }}
+          >
+            {lbl(activeL3)}
+          </div>
+        )}
+        <nav style={{ paddingBottom: 32 }}>
+          {(activeL3?.children ?? []).map((item) => (
             <button
               key={item.id}
               onClick={() => {
@@ -953,7 +1180,7 @@ function MobileSidebarNav({
                   closeAll();
                 }
               }}
-              style={{ ...mobileItemStyle(), color: '#1a1a1a', fontSize: 20 }}
+              style={{ ...mobileItemStyle(), color: '#1a1a1a', fontSize: 18 }}
             >
               {lbl(item)}
             </button>
@@ -1508,6 +1735,17 @@ function MobileBurgerIcon({ open }: { open: boolean }) {
         }}
       />
       <rect
+        y="6.25"
+        width="22"
+        height="1.5"
+        rx="1"
+        fill="#1a1a1a"
+        style={{
+          opacity: open ? 0 : 1,
+          transition: 'opacity .2s ease',
+        }}
+      />
+      <rect
         y="12.5"
         width="22"
         height="1.5"
@@ -1722,6 +1960,8 @@ function DesktopSidebarNav({
     useNewsletterForm('sidebar');
   const [d2FadeKey, setD2FadeKey] = useState(0);
   const [d3FadeKey, setD3FadeKey] = useState(0);
+  const [d4FadeKey, setD4FadeKey] = useState(0);
+  const [activeL3Desktop, setActiveL3Desktop] = useState<string | null>(null);
 
   const isLoggedIn = !!sessionUser;
   const isAdmin = sessionUser?.role === 'ADMIN';
@@ -1738,6 +1978,7 @@ function DesktopSidebarNav({
         setD1Open(false);
         setActiveL1(null);
         setActiveL2(null);
+        setActiveL3Desktop(null);
         setContactOpen(false);
         setUserPanelOpen(false);
       }
@@ -1772,19 +2013,24 @@ function DesktopSidebarNav({
       setContactOpen((c) => !c);
       setActiveL1(null);
       setActiveL2(null);
+      setActiveL3Desktop(null);
       setD2FadeKey((k) => k + 1);
       setD3FadeKey((k) => k + 1);
+      setD4FadeKey((k) => k + 1);
     } else if (item.children) {
       setContactOpen(false);
       setActiveL1(activeL1 === item.id ? null : item.id);
       setActiveL2(null);
+      setActiveL3Desktop(null);
       setD2FadeKey((k) => k + 1);
       setD3FadeKey((k) => k + 1);
+      setD4FadeKey((k) => k + 1);
     } else if (item.href) {
       router.push(item.href);
       setD1Open(false);
       setActiveL1(null);
       setActiveL2(null);
+      setActiveL3Desktop(null);
       setContactOpen(false);
     }
   };
@@ -1792,12 +2038,24 @@ function DesktopSidebarNav({
   const handleL2Click = (item: NavItem) => {
     if (item.children) {
       setActiveL2(activeL2 === item.id ? null : item.id);
+      setActiveL3Desktop(null);
       setD3FadeKey((k) => k + 1);
+      setD4FadeKey((k) => k + 1);
     } else if (item.href) {
       router.push(item.href);
       setD1Open(false);
       setActiveL1(null);
       setActiveL2(null);
+      setActiveL3Desktop(null);
+    }
+  };
+
+  const handleL3Click = (item: NavItem) => {
+    if (item.children) {
+      setActiveL3Desktop(activeL3Desktop === item.id ? null : item.id);
+      setD4FadeKey((k) => k + 1);
+    } else if (item.href) {
+      handleLeaf(item.href);
     }
   };
 
@@ -1806,6 +2064,7 @@ function DesktopSidebarNav({
     setD1Open(false);
     setActiveL1(null);
     setActiveL2(null);
+    setActiveL3Desktop(null);
     setContactOpen(false);
   };
 
@@ -1878,8 +2137,12 @@ function DesktopSidebarNav({
 
   const activeL1Node = NAV_ITEMS.find((i) => i.id === activeL1);
   const activeL2Node = activeL1Node?.children?.find((i) => i.id === activeL2);
+  const activeL3Node = activeL2Node?.children?.find(
+    (i) => i.id === activeL3Desktop,
+  );
   const d2Open = d1Open && !!activeL1 && !!activeL1Node?.children;
   const d3Open = d2Open && !!activeL2 && !!activeL2Node?.children;
+  const d4Open = d3Open && !!activeL3Desktop && !!activeL3Node?.children;
 
   const contactContent = isAr
     ? {
@@ -1965,6 +2228,10 @@ function DesktopSidebarNav({
   const d3HideTranslate = isAr
     ? `translateX(${SIDEBAR_W + D1_W + D2_W + D3_W}px)`
     : `translateX(-${SIDEBAR_W + D1_W + D2_W + D3_W}px)`;
+  const D4_W = 220;
+  const d4HideTranslate = isAr
+    ? `translateX(${SIDEBAR_W + D1_W + D2_W + D3_W + D4_W}px)`
+    : `translateX(-${SIDEBAR_W + D1_W + D2_W + D3_W + D4_W}px)`;
 
   const drawerItem = (active: boolean, bg: string): React.CSSProperties => ({
     display: 'flex',
@@ -2028,6 +2295,7 @@ function DesktopSidebarNav({
             style={{
               display: 'flex',
               alignItems: 'center',
+              gap: 20,
               justifyContent: 'center',
               width: '100%',
               background: 'none',
@@ -2042,6 +2310,20 @@ function DesktopSidebarNav({
             onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
           >
             <BurgerIcon open={d1Open} />
+
+            <span
+              style={{
+                fontSize: 14,
+                fontWeight: 700,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                color: '#1a1a1a',
+                lineHeight: 1,
+                userSelect: 'none',
+              }}
+            >
+              {isAr ? 'القائمة' : 'MENU'}
+            </span>
           </button>
 
           <button
@@ -2556,45 +2838,68 @@ function DesktopSidebarNav({
           >
             {(activeL1Node?.children ?? []).map((item) => {
               const active = activeL2 === item.id;
+              const desc = isAr
+                ? (item.descriptionAr ?? item.descriptionEn)
+                : (item.descriptionEn ?? item.descriptionAr);
               return (
-                <button
-                  key={item.id}
-                  onClick={() => handleL2Click(item)}
-                  style={{
-                    ...drawerItem(active, '#e8e8e8'),
-                    fontSize: 20,
-                    position: 'relative',
-                    overflow: 'hidden',
-                    borderLeft: 'none',
-                    borderRight: 'none',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!active)
-                      e.currentTarget.style.background = 'rgba(0,0,0,.05)';
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!active)
-                      e.currentTarget.style.background = 'transparent';
-                  }}
-                >
-                  <span>{lbl(item)}</span>
-                  {item.children && <ChevronIcon isAr={isAr} />}
-                  {active && (
-                    <span
+                <div key={item.id}>
+                  <button
+                    onClick={() => handleL2Click(item)}
+                    style={{
+                      ...drawerItem(active, '#e8e8e8'),
+                      fontSize: 20,
+                      position: 'relative',
+                      overflow: 'hidden',
+                      borderLeft: 'none',
+                      borderRight: 'none',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!active)
+                        e.currentTarget.style.background = 'rgba(0,0,0,.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!active)
+                        e.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <span>{lbl(item)}</span>
+                    {item.children && <ChevronIcon isAr={isAr} />}
+                    {active && (
+                      <span
+                        style={{
+                          position: 'absolute',
+                          bottom: 0,
+                          left: 0,
+                          width: '100%',
+                          height: 2,
+                          background: '#ff751f',
+                          transformOrigin: isAr
+                            ? 'right center'
+                            : 'left center',
+                          animation:
+                            'ra-underline .35s cubic-bezier(.4,0,.2,1) forwards',
+                        }}
+                      />
+                    )}
+                  </button>
+                  {active && desc && (
+                    <div
                       style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        width: '100%',
-                        height: 2,
-                        background: '#ff751f',
-                        transformOrigin: isAr ? 'right center' : 'left center',
-                        animation:
-                          'ra-underline .35s cubic-bezier(.4,0,.2,1) forwards',
+                        padding: '8px 24px 14px',
+                        fontSize: 12,
+                        color: '#666666',
+                        lineHeight: 1.7,
+                        letterSpacing: '.01em',
+                        textAlign: isAr ? 'right' : 'left',
+                        direction: isAr ? 'rtl' : 'ltr',
+                        borderBottom: '.5px solid rgba(0,0,0,.07)',
+                        animation: 'ra-fade-in .25s ease',
                       }}
-                    />
+                    >
+                      {desc}
+                    </div>
                   )}
-                </button>
+                </div>
               );
             })}
           </nav>
@@ -2631,7 +2936,120 @@ function DesktopSidebarNav({
               animation: 'ra-fade-in .22s ease',
             }}
           >
-            {(activeL2Node?.children ?? []).map((item) => (
+            {(activeL2Node?.children ?? []).map((item) => {
+              const active = activeL3Desktop === item.id;
+              const desc = isAr
+                ? (item.descriptionAr ?? item.descriptionEn)
+                : (item.descriptionEn ?? item.descriptionAr);
+              return (
+                <div key={item.id}>
+                  <button
+                    onClick={() => handleL3Click(item)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      width: '100%',
+                      padding: '12px 20px',
+                      background: active ? 'rgba(0,0,0,.08)' : 'transparent',
+                      border: 'none',
+                      borderLeft: 'none',
+                      borderRight: 'none',
+                      cursor: 'pointer',
+                      textAlign: isAr ? 'right' : 'left',
+                      color: '#1a1a1a',
+                      fontSize: 18,
+                      fontFamily: 'inherit',
+                      letterSpacing: '.02em',
+                      lineHeight: 1.4,
+                      transition: 'background .18s',
+                      position: 'relative',
+                      overflow: 'hidden',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!active)
+                        e.currentTarget.style.background = 'rgba(0,0,0,.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!active)
+                        e.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <span>{lbl(item)}</span>
+                    {item.children && <ChevronIcon isAr={isAr} />}
+                    {active && (
+                      <span
+                        style={{
+                          position: 'absolute',
+                          bottom: 0,
+                          left: 0,
+                          width: '100%',
+                          height: 2,
+                          background: '#ff751f',
+                          transformOrigin: isAr
+                            ? 'right center'
+                            : 'left center',
+                          animation:
+                            'ra-underline .35s cubic-bezier(.4,0,.2,1) forwards',
+                        }}
+                      />
+                    )}
+                  </button>
+                  {active && desc && (
+                    <div
+                      style={{
+                        padding: '8px 20px 14px',
+                        fontSize: 12,
+                        color: '#666666',
+                        lineHeight: 1.7,
+                        letterSpacing: '.01em',
+                        textAlign: isAr ? 'right' : 'left',
+                        direction: isAr ? 'rtl' : 'ltr',
+                        borderBottom: '.5px solid rgba(0,0,0,.07)',
+                        animation: 'ra-fade-in .25s ease',
+                      }}
+                    >
+                      {desc}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* ── DRAWER L4 (Programs) ──────────────────────────────────────── */}
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            [isAr ? 'right' : 'left']: SIDEBAR_W + D1_W + D2_W + D3_W,
+            width: D4_W,
+            height: '100vh',
+            zIndex: 360,
+            background: '#cacaca',
+            display: 'flex',
+            flexDirection: 'column',
+            transform: d4Open ? 'translateX(0)' : d4HideTranslate,
+            transition: 'transform .26s cubic-bezier(.4,0,.2,1)',
+            boxShadow: isAr
+              ? '-6px 0 16px rgba(0,0,0,.1)'
+              : '6px 0 16px rgba(0,0,0,.1)',
+            overflow: 'hidden',
+            visibility: d4Open ? 'visible' : 'hidden',
+            pointerEvents: d4Open ? 'auto' : 'none',
+          }}
+        >
+          <nav
+            key={d4FadeKey}
+            style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '44px 0 6px',
+              animation: 'ra-fade-in .22s ease',
+            }}
+          >
+            {(activeL3Node?.children ?? []).map((item) => (
               <button
                 key={item.id}
                 onClick={() => item.href && handleLeaf(item.href)}
@@ -2644,7 +3062,7 @@ function DesktopSidebarNav({
                   cursor: 'pointer',
                   textAlign: isAr ? 'right' : 'left',
                   color: '#1a1a1a',
-                  fontSize: 18,
+                  fontSize: 16,
                   fontFamily: 'inherit',
                   letterSpacing: '.02em',
                   lineHeight: 1.4,
@@ -3432,6 +3850,17 @@ function BurgerIcon({ open }: { open: boolean }) {
           transformOrigin: '11px 0.75px',
           transform: open ? 'translateY(5.75px) rotate(45deg)' : 'none',
           transition: 'transform .35s cubic-bezier(.4,0,.2,1)',
+        }}
+      />
+      <rect
+        y="6.25"
+        width="22"
+        height="1.5"
+        rx="1"
+        fill="#1a1a1a"
+        style={{
+          opacity: open ? 0 : 1,
+          transition: 'opacity .2s ease',
         }}
       />
       <rect

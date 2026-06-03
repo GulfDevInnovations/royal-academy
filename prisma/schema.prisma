@@ -245,6 +245,7 @@ model TeacherProfile {
   teacherAvailability TeacherAvailability[]
   classSchedules      ClassSchedule[]
   subClassTeachers    SubClassTeacher[]
+  programTeachers     ProgramTeacher[]
   workshops           Workshop[]
 
   @@map("teacher_profiles")
@@ -364,8 +365,49 @@ model SubClass {
   teachers              SubClassTeacher[]
   monthlyEnrollments    MonthlyEnrollment[]
   multiMonthEnrollments MultiMonthEnrollment[]
+  programs              Program[]
 
   @@map("sub_classes")
+}
+
+// ─────────────────────────────────────────────
+// PROGRAMS (third level: Class → SubClass → Program)
+// ─────────────────────────────────────────────
+
+model Program {
+  id                String      @id @default(cuid())
+  subClassId        String
+  name              String
+  name_ar           String?
+  description       String?     @db.Text
+  description_ar    String?     @db.Text
+  coverUrl          String?
+  capacity          Int         @default(10)
+  durationMinutes   Int         @default(60)
+  price             Decimal     @db.Decimal(10, 2)
+  currency          String      @default("OMR")
+  level             String?
+  ageGroup          String?
+  isActive          Boolean     @default(true)
+  sessionType       SessionType @default(PUBLIC)
+  oncePriceMonthly  Decimal?    @db.Decimal(10, 2)
+  twicePriceMonthly Decimal?    @db.Decimal(10, 2)
+  trialPrice        Decimal     @default(10) @db.Decimal(10, 2)
+  isTrialAvailable  Boolean     @default(true)
+  isReschedulable   Boolean     @default(false)
+  isOfferActive     Boolean     @default(false)
+  offerLabel        String?
+  offerDescription  String?     @db.Text
+  offerExpiresAt    DateTime?
+  sortOrder         Int         @default(0)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  subClass       SubClass         @relation(fields: [subClassId], references: [id])
+  teachers       ProgramTeacher[]
+  classSchedules ClassSchedule[]
+
+  @@map("programs")
 }
 
 // ─────────────────────────────────────────────
@@ -391,6 +433,7 @@ model ClassSchedule {
   id              String      @id @default(cuid())
   subClassId      String
   teacherId       String
+  programId       String?
   dayOfWeek       DayOfWeek
   startTime       String
   endTime         String
@@ -406,6 +449,7 @@ model ClassSchedule {
 
   subClass SubClass       @relation(fields: [subClassId], references: [id])
   teacher  TeacherProfile @relation(fields: [teacherId], references: [id])
+  program  Program?       @relation(fields: [programId], references: [id])
   sessions ClassSession[]
 
   @@map("class_schedules")
@@ -782,6 +826,17 @@ model SubClassTeacher {
 
   @@id([teacherId, subClassId])
   @@map("subclass_teachers")
+}
+
+model ProgramTeacher {
+  teacherId String
+  programId String
+
+  teacher TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  program Program        @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@id([teacherId, programId])
+  @@map("program_teachers")
 }
 
 model SupportTicket {

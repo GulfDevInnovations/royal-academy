@@ -18,7 +18,7 @@ import {
   UserCheck,
   UserX,
 } from "lucide-react";
-import type { SerializedTeacher, ClassWithSubsForAssignment } from "../page";
+import type { SerializedTeacher, ClassWithSubsForAssignment, ClassWithProgramsForAssignment } from "../page";
 import {
   deleteTeacher,
   sendSmsToTeachers,
@@ -56,9 +56,10 @@ type Modal =
 interface Props {
   initialTeachers: SerializedTeacher[];
   allClasses: ClassWithSubsForAssignment[];
+  allPrograms: ClassWithProgramsForAssignment[];
 }
 
-export default function TeachersClient({ initialTeachers, allClasses }: Props) {
+export default function TeachersClient({ initialTeachers, allClasses, allPrograms }: Props) {
   const router = useRouter();
   const { toasts, toast, remove } = useToast();
   const [, startRefresh] = useTransition();
@@ -233,7 +234,7 @@ export default function TeachersClient({ initialTeachers, allClasses }: Props) {
                 </button>
               </AdminTh>
               <AdminTh>{t("teacher")}</AdminTh>
-              <AdminTh>{t("subClass")}</AdminTh>
+              <AdminTh>Subclass / Program</AdminTh>
               <AdminTh>{t("schedule")}</AdminTh>
               <AdminTh>{t("availability")}</AdminTh>
               <AdminTh>{t("status")}</AdminTh>
@@ -307,19 +308,21 @@ export default function TeachersClient({ initialTeachers, allClasses }: Props) {
                       </div>
                     </AdminTd>
 
-                    {/* Sub-classes */}
+                    {/* Subclass / Program */}
                     <AdminTd>
                       <div className="flex flex-wrap gap-1">
-                        {teacher.subClasses.length > 0 ? (
-                          teacher.subClasses.map((s) => (
-                            <AdminBadge key={s.id} variant="warning">
-                              {s.name}
-                            </AdminBadge>
-                          ))
-                        ) : (
-                          <span style={{ color: adminColors.textMuted }}>
-                            —
-                          </span>
+                        {teacher.subClasses.map((s) => (
+                          <AdminBadge key={s.id} variant="warning">
+                            {s.name}
+                          </AdminBadge>
+                        ))}
+                        {teacher.programs.map((p) => (
+                          <AdminBadge key={p.id} variant="info">
+                            {p.name}
+                          </AdminBadge>
+                        ))}
+                        {teacher.subClasses.length === 0 && teacher.programs.length === 0 && (
+                          <span style={{ color: adminColors.textMuted }}>—</span>
                         )}
                       </div>
                     </AdminTd>
@@ -405,6 +408,7 @@ export default function TeachersClient({ initialTeachers, allClasses }: Props) {
           onClose={() => setModal(null)}
           onSuccess={handleSuccess}
           allClasses={allClasses}
+          allPrograms={allPrograms}
         />
       )}
       {modal?.type === "edit" && (
@@ -413,6 +417,7 @@ export default function TeachersClient({ initialTeachers, allClasses }: Props) {
           onClose={() => setModal(null)}
           onSuccess={handleSuccess}
           allClasses={allClasses}
+          allPrograms={allPrograms}
         />
       )}
       {modal?.type === "delete" && (
