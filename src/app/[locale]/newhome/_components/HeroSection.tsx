@@ -1792,21 +1792,20 @@ function WelcomeDrawerDesktop({
         transition:
           'transform 0.9s cubic-bezier(0.22,1,0.36,1), opacity 0.9s ease',
         direction: isAr ? 'rtl' : 'ltr',
-        textAlign: isAr ? 'right' : 'left',
+        textAlign: 'center',
+        padding: 0,
         boxSizing: 'border-box',
-        display: 'flex',
-        justifyContent: isAr ? 'flex-end' : 'flex-start',
       }}
     >
       <div
         style={{
+          width: '100%',
           background: 'rgba(255,255,255,0.07)',
           backdropFilter: 'blur(10px) saturate(1.4)',
           WebkitBackdropFilter: 'blur(10px) saturate(1.4)',
           border: '1px solid rgba(255,255,255,0.14)',
           borderRadius: 6,
           padding: '24px 32px',
-          maxWidth: 1200,
         }}
       >
         {/* Title */}
