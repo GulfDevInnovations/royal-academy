@@ -1,9 +1,7 @@
 // src/lib/actions/my-classes.ts
 "use server";
 
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 // ─────────────────────────────────────────────
 // Types
