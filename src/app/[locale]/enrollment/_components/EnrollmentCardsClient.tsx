@@ -12,26 +12,26 @@ import { SubClassCardTile } from './SubClassCardtile';
 const FILTER_KEYS = [
   'All',
   'Music',
-  'Dance & Wellness',
+  'Yoga & Wellness',
   'Art',
+  'Dance',
   'Ballet',
-  'Workshops',
 ] as const;
 
 const CLASS_COLORS: Record<
   string,
   { from: string; to: string; border: string }
 > = {
-  Music: { from: '#C9A84C22', to: '#C9A84C08', border: '#C9A84C40' },
-  'Dance & Wellness': {
-    from: '#A855F722',
-    to: '#A855F708',
-    border: '#A855F740',
+  Music: { from: '#FFE49922', to: '#FFE49908', border: '#FFE49950' },
+  'Yoga & Wellness': {
+    from: '#86EFCB22',
+    to: '#86EFCB08',
+    border: '#86EFCB50',
   },
-  Art: { from: '#F9731622', to: '#F9731608', border: '#F9731640' },
-  Ballet: { from: '#EC489922', to: '#EC489908', border: '#EC489940' },
-  Workshops: { from: '#10B98122', to: '#10B98108', border: '#10B98140' },
-  default: { from: '#94A3B822', to: '#94A3B808', border: '#94A3B840' },
+  Art: { from: '#FDB98A22', to: '#FDB98A08', border: '#FDB98A50' },
+  Dance: { from: '#E4C1FF22', to: '#E4C1FF08', border: '#E4C1FF50' },
+  Ballet: { from: '#FBCFE822', to: '#FBCFE808', border: '#FBCFE850' },
+  default: { from: '#E2E8F022', to: '#E2E8F008', border: '#E2E8F050' },
 };
 
 export { CLASS_COLORS };
@@ -52,10 +52,10 @@ export function EnrollmentCardsClient({
     switch (key) {
       case 'All': return t('filters.all');
       case 'Music': return t('filters.music');
-      case 'Dance & Wellness': return t('filters.danceWellness');
+      case 'Yoga & Wellness': return t('filters.yogaWellness');
       case 'Art': return t('filters.art');
+      case 'Dance': return t('filters.dance');
       case 'Ballet': return t('filters.ballet');
-      case 'Workshops': return t('filters.workshops');
       default: return key;
     }
   };
@@ -75,13 +75,15 @@ export function EnrollmentCardsClient({
       const mapped =
         dept === 'music'
           ? 'Music'
-          : dept === 'dance'
-            ? 'Dance & Wellness'
-            : dept === 'ballet'
-              ? 'Ballet'
-              : dept === 'art'
-                ? 'Art'
-                : 'All';
+          : dept === 'yoga'
+            ? 'Yoga & Wellness'
+            : dept === 'dance'
+              ? 'Dance'
+              : dept === 'ballet'
+                ? 'Ballet'
+                : dept === 'art'
+                  ? 'Art'
+                  : 'All';
       setActiveFilter(mapped);
     }
 
@@ -171,7 +173,7 @@ export function EnrollmentCardsClient({
           filter: 'sepia(1) saturate(0.5) brightness(2)',
         }}
       />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10">
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -324,15 +326,15 @@ export function EnrollmentCardsClient({
                       initial={{ opacity: 0, x: -12 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: groupIdx * 0.05 }}
-                      className="flex items-center gap-4 mb-6"
+                      className="flex items-center gap-4 mb-8"
                     >
-                      <h2 className="text-2xl font-bold text-royal-cream font-goudy whitespace-nowrap">
+                      <h2 className="text-4xl sm:text-5xl font-extrabold text-royal-cream font-goudy whitespace-nowrap tracking-tight">
                         {className}
                       </h2>
                       <div className="h-px flex-1 bg-linear-to-r from-royal-gold/30 to-transparent" />
                     </motion.div>
                   )}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
                     {cards.map((subClass, i) => (
                       <motion.div
                         key={subClass.id}
@@ -357,13 +359,13 @@ export function EnrollmentCardsClient({
                   transition={{ delay: 0.4 }}
                   className="mb-8"
                 >
-                  <div className="flex items-center gap-4 mb-6">
-                    <h2 className="text-2xl font-bold text-royal-cream font-goudy whitespace-nowrap">
+                  <div className="flex items-center gap-4 mb-8">
+                    <h2 className="text-4xl sm:text-5xl font-extrabold text-royal-cream font-goudy whitespace-nowrap tracking-tight">
                       {t('privateClassesSection')}
                     </h2>
                     <div className="h-px flex-1 bg-linear-to-r from-royal-gold/30 to-transparent" />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
                     <PrivateClassCard />
                   </div>
                 </motion.div>

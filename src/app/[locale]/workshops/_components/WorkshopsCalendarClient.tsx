@@ -8,9 +8,9 @@ import {
   Users,
   Wifi,
 } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
 
 // ─────────────────────────────────────────────
 // Types
@@ -62,7 +62,6 @@ function isoDateStr(year: number, month: number, day: number) {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
 
-
 // ─────────────────────────────────────────────
 // Media strip
 // ─────────────────────────────────────────────
@@ -90,7 +89,10 @@ function MediaStrip({ workshop }: { workshop: Workshop }) {
 
   const current = media[idx];
   return (
-    <div className="relative w-full h-full overflow-hidden border-l border-white/12">
+    <div
+      className="relative w-full h-full overflow-hidden"
+      style={{ borderLeft: '1px solid rgba(0,0,0,0.08)' }}
+    >
       {current.type === 'image' ? (
         <img
           src={current.url}
@@ -107,7 +109,6 @@ function MediaStrip({ workshop }: { workshop: Workshop }) {
           className="w-full h-full object-cover"
         />
       )}
-      {/* Thumbnails — no gradient, just thumbnails */}
       {media.length > 1 && (
         <div className="absolute bottom-3 right-3 flex gap-1.5">
           {media.map((m, i) => (
@@ -123,8 +124,8 @@ function MediaStrip({ workshop }: { workshop: Workshop }) {
                 height: 48,
                 border:
                   i === idx
-                    ? '2px solid rgba(0,0,0,0.6)'
-                    : '2px solid rgba(0,0,0,0.2)',
+                    ? '2px solid rgba(255,255,255,0.6)'
+                    : '2px solid rgba(255,255,255,0.2)',
                 opacity: i === idx ? 1 : 0.55,
               }}
             >
@@ -147,18 +148,18 @@ function MediaStrip({ workshop }: { workshop: Workshop }) {
 
 // ─────────────────────────────────────────────
 // Day badge — left column inside each card
-// Always shows day name above the big number.
-// Workshop cards: gold day name. Empty cards: muted.
 // ─────────────────────────────────────────────
 
 function DayBadge({
   day,
   dayOfWeek,
   hasWorkshop,
+  isToday,
 }: {
   day: number;
   dayOfWeek: string;
   hasWorkshop: boolean;
+  isToday: boolean;
 }) {
   return (
     <div
@@ -166,8 +167,8 @@ function DayBadge({
       style={{
         width: 80,
         borderRight: hasWorkshop
-          ? '1px solid rgba(255,255,255,0.15)'
-          : '1px solid rgba(0,0,0,0.1)',
+          ? '1px solid rgba(0,0,0,0.1)'
+          : '1px solid rgba(0,0,0,0.06)',
         alignSelf: 'stretch',
       }}
     >
@@ -175,7 +176,7 @@ function DayBadge({
         className="text-[10px] font-semibold tracking-widest uppercase"
         style={{
           fontFamily: "'Arial', sans-serif",
-          color: hasWorkshop ? 'rgba(196,168,120,0.85)' : 'rgba(0,0,0,0.35)',
+          color: hasWorkshop ? '#ff751f' : 'rgba(0,0,0,0.25)',
         }}
       >
         {dayOfWeek}
@@ -184,11 +185,28 @@ function DayBadge({
         className="text-4xl font-bold leading-none"
         style={{
           fontFamily: 'var(--font-text, Georgia, serif)',
-          color: hasWorkshop ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.25)',
+          color: hasWorkshop
+            ? '#111111'
+            : 'rgba(0,0,0,0.18)',
         }}
       >
         {day}
       </span>
+      {isToday && (
+        <span
+          className="text-[8px] font-bold tracking-widest uppercase mt-1"
+          style={{
+            color: '#ff751f',
+            background: 'rgba(255,117,31,0.15)',
+            border: '1px solid rgba(255,117,31,0.35)',
+            borderRadius: 4,
+            padding: '1px 5px',
+            lineHeight: 1.6,
+          }}
+        >
+          Today
+        </span>
+      )}
     </div>
   );
 }
@@ -197,27 +215,40 @@ function DayBadge({
 // Empty day card
 // ─────────────────────────────────────────────
 
-function EmptyDayCard({ day, dayOfWeek }: { day: number; dayOfWeek: string }) {
-  const [expanded, setExpanded] = useState(false);
+function EmptyDayCard({
+  day,
+  dayOfWeek,
+  isToday,
+}: {
+  day: number;
+  dayOfWeek: string;
+  isToday: boolean;
+}) {
+  const [expanded, setExpanded] = useState(isToday);
   const t = useTranslations('workshops');
 
   return (
     <div
       onClick={() => setExpanded((v) => !v)}
-      className="liquid-glass-green backdrop-blur-3xl w-full cursor-pointer"
+      className="backdrop-blur-xl w-full cursor-pointer"
       style={{
         height: expanded ? 140 : 60,
         borderRadius: 16,
         overflow: 'hidden',
-        border: '1px solid rgba(0,0,0,0.12)',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+        background: '#ffffff',
+        border: isToday
+          ? '1px solid rgba(255,117,31,0.3)'
+          : '1px solid rgba(0,0,0,0.08)',
+        boxShadow: isToday
+          ? '0 0 0 1px rgba(255,117,31,0.1)'
+          : '0 1px 3px rgba(0,0,0,0.07)',
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         transition: 'height 0.4s cubic-bezier(0.4,0,0.2,1)',
       }}
     >
-      <DayBadge day={day} dayOfWeek={dayOfWeek} hasWorkshop={false} />
+      <DayBadge day={day} dayOfWeek={dayOfWeek} hasWorkshop={false} isToday={isToday} />
 
       <div
         className="flex-1 px-6"
@@ -242,7 +273,6 @@ function EmptyDayCard({ day, dayOfWeek }: { day: number; dayOfWeek: string }) {
 // Pill perimeter point — used for particle gather
 // ─────────────────────────────────────────────
 
-// pillPoint — t is 0..1 fraction around the pill perimeter
 function pillPoint(
   rect: { x: number; y: number; w: number; h: number },
   t: number,
@@ -277,16 +307,17 @@ function WorkshopDayCard({
   day,
   dayOfWeek,
   workshop,
+  isToday,
 }: {
   day: number;
   dayOfWeek: string;
   workshop: Workshop;
+  isToday: boolean;
 }) {
   const t = useTranslations('workshops');
   const seatsLeft = workshop.capacity - workshop.enrolledCount;
   const isFull = seatsLeft <= 0;
 
-  // refs — avoid state updates in hot paths
   const cardRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLDivElement>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
@@ -305,7 +336,6 @@ function WorkshopDayCard({
     h: number;
   } | null>(null);
 
-  // Stable particles seeded by workshop id
   const particles = useMemo(() => {
     let seed = workshop.id
       .split('')
@@ -318,12 +348,11 @@ function WorkshopDayCard({
       id: i,
       rx: rand() * 620 + 20,
       ry: rand() * 420 + 20,
-      color: i % 3 === 0 ? 'rgba(196,168,120,0.85)' : 'rgba(255,255,255,0.55)',
+      color: i % 3 === 0 ? 'rgba(255,117,31,0.9)' : 'rgba(0,0,0,0.25)',
       size: 1.5 + rand() * 2,
     }));
   }, [workshop.id]);
 
-  // RAF loop — drives orbit after gather and spotlight
   useEffect(() => {
     const animate = () => {
       rafRef.current = requestAnimationFrame(animate);
@@ -333,7 +362,7 @@ function WorkshopDayCard({
         !btnRectCache.current
       )
         return;
-      orbitRef.current += 0.00055; // very slow orbit
+      orbitRef.current += 0.00055;
       particles.forEach((p, i) => {
         const el = particleRefs.current[i];
         if (!el) return;
@@ -361,7 +390,6 @@ function WorkshopDayCard({
     hoveredRef.current = true;
     orbitReadyRef.current = false;
 
-    // Phase 1 — CSS transition gather
     const n = particles.length;
     particles.forEach((p, i) => {
       const el = particleRefs.current[i];
@@ -373,13 +401,12 @@ function WorkshopDayCard({
       el.style.boxShadow = `0 0 5px ${p.color}`;
     });
 
-    // Phase 2 — hand off to RAF after last particle lands
     const lastDelay = 55 + particles.length * 20 + 180;
     gatherTimer.current = setTimeout(() => {
       if (!hoveredRef.current) return;
       particles.forEach((_, i) => {
         const el = particleRefs.current[i];
-        if (el) el.style.transition = 'none'; // RAF takes over
+        if (el) el.style.transition = 'none';
       });
       orbitReadyRef.current = true;
     }, lastDelay);
@@ -390,7 +417,6 @@ function WorkshopDayCard({
     orbitReadyRef.current = false;
     clearTimeout(gatherTimer.current);
 
-    // Fly back to rest with CSS transition
     particles.forEach((p, i) => {
       const el = particleRefs.current[i];
       if (!el) return;
@@ -400,19 +426,17 @@ function WorkshopDayCard({
       el.style.boxShadow = 'none';
     });
 
-    // Fade spotlight
     if (spotlightRef.current) {
       spotlightRef.current.style.background = 'transparent';
     }
   }, [particles]);
 
-  // Spotlight — update via direct DOM, zero re-renders
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!spotlightRef.current || !cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    spotlightRef.current.style.background = `radial-gradient(circle 70px at ${x}px ${y}px, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 55%, transparent 100%)`;
+    spotlightRef.current.style.background = `radial-gradient(circle 70px at ${x}px ${y}px, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.01) 55%, transparent 100%)`;
   }, []);
 
   return (
@@ -423,7 +447,7 @@ function WorkshopDayCard({
     >
       <div
         ref={cardRef}
-        className="liquid-glass-green backdrop-blur-3xl w-full"
+        className="backdrop-blur-2xl w-full"
         style={{
           height: 460,
           borderRadius: 16,
@@ -432,6 +456,9 @@ function WorkshopDayCard({
           flexDirection: 'row',
           cursor: 'default',
           position: 'relative',
+          background: '#ffffff',
+          border: '1px solid rgba(0,0,0,0.1)',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
         }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -473,13 +500,13 @@ function WorkshopDayCard({
         ))}
 
         {/* Left: day badge */}
-        <DayBadge day={day} dayOfWeek={dayOfWeek} hasWorkshop={true} />
+        <DayBadge day={day} dayOfWeek={dayOfWeek} hasWorkshop={true} isToday={isToday} />
 
         {/* Center: info */}
         <div
-          className="flex flex-col justify-between py-6 px-7"
+          className="flex flex-col justify-between py-6 px-4 sm:px-7"
           style={{
-            width: 340,
+            width: 'min(340px, calc(100% - 80px))',
             flexShrink: 0,
             overflow: 'hidden',
             paddingBottom: 28,
@@ -490,7 +517,7 @@ function WorkshopDayCard({
               className="text-xl font-bold leading-snug mb-2"
               style={{
                 fontFamily: 'var(--font-text, Georgia, serif)',
-                color: 'rgba(255,255,255,0.95)',
+                color: '#111111',
               }}
             >
               {workshop.title}
@@ -498,7 +525,7 @@ function WorkshopDayCard({
             {workshop.description && (
               <p
                 className="text-sm leading-relaxed line-clamp-3"
-                style={{ color: 'rgba(255,255,255,0.5)' }}
+                style={{ color: 'rgba(0,0,0,0.5)' }}
               >
                 {workshop.description}
               </p>
@@ -508,7 +535,7 @@ function WorkshopDayCard({
           <div className="space-y-2 mt-4">
             <div
               className="flex items-center gap-2 text-xs"
-              style={{ color: 'rgba(255,255,255,0.6)' }}
+              style={{ color: 'rgba(0,0,0,0.5)' }}
             >
               <Clock size={12} />
               <span>
@@ -519,7 +546,7 @@ function WorkshopDayCard({
             {workshop.isOnline ? (
               <div
                 className="flex items-center gap-2 text-xs"
-                style={{ color: 'rgba(255,255,255,0.6)' }}
+                style={{ color: 'rgba(0,0,0,0.5)' }}
               >
                 <Wifi size={12} />
                 <span>{t('online')}</span>
@@ -527,7 +554,7 @@ function WorkshopDayCard({
             ) : workshop.room ? (
               <div
                 className="flex items-center gap-2 text-xs"
-                style={{ color: 'rgba(255,255,255,0.6)' }}
+                style={{ color: 'rgba(0,0,0,0.5)' }}
               >
                 <MapPin size={12} />
                 <span>
@@ -539,7 +566,7 @@ function WorkshopDayCard({
 
             <div
               className="flex items-center gap-2 text-xs"
-              style={{ color: isFull ? '#f87171' : 'rgba(255,255,255,0.6)' }}
+              style={{ color: isFull ? '#f87171' : 'rgba(0,0,0,0.5)' }}
             >
               <Users size={12} />
               <span>
@@ -558,14 +585,14 @@ function WorkshopDayCard({
                     src={workshop.teacher.photoUrl}
                     alt=""
                     className="w-6 h-6 rounded-full object-cover"
-                    style={{ border: '1.5px solid rgba(255,255,255,0.2)' }}
+                    style={{ border: '1.5px solid rgba(0,0,0,0.15)' }}
                   />
                 ) : (
                   <div
                     className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold"
                     style={{
-                      background: 'rgba(255,255,255,0.12)',
-                      color: 'rgba(255,255,255,0.7)',
+                      background: 'rgba(0,0,0,0.07)',
+                      color: 'rgba(0,0,0,0.55)',
                     }}
                   >
                     {workshop.teacher.firstName[0]}
@@ -574,7 +601,7 @@ function WorkshopDayCard({
                 )}
                 <span
                   className="text-xs"
-                  style={{ color: 'rgba(255,255,255,0.6)' }}
+                  style={{ color: 'rgba(0,0,0,0.5)' }}
                 >
                   {workshop.teacher.firstName} {workshop.teacher.lastName}
                 </span>
@@ -585,13 +612,13 @@ function WorkshopDayCard({
           {/* Price + CTA */}
           <div
             className="flex items-center justify-between mt-5 pt-4"
-            style={{ borderTop: '1px solid rgba(255,255,255,0.12)' }}
+            style={{ borderTop: '1px solid rgba(0,0,0,0.1)' }}
           >
             <span
               className="text-2xl font-bold"
               style={{
                 fontFamily: 'var(--font-text, Georgia, serif)',
-                color: 'rgba(196,168,120,0.95)',
+                color: '#ff751f',
               }}
             >
               {workshop.currency} {workshop.price.toFixed(3)}
@@ -602,12 +629,12 @@ function WorkshopDayCard({
               className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-widest uppercase"
               style={{
                 background: isFull
-                  ? 'rgba(255,255,255,0.05)'
-                  : 'rgba(255,255,255,0.1)',
-                border: '1.5px solid rgba(255,255,255,0.2)',
-                color: isFull
-                  ? 'rgba(255,255,255,0.25)'
-                  : 'rgba(255,255,255,0.9)',
+                  ? 'rgba(0,0,0,0.04)'
+                  : 'rgba(255,117,31,0.12)',
+                border: isFull
+                  ? '1.5px solid rgba(0,0,0,0.1)'
+                  : '1.5px solid rgba(255,117,31,0.35)',
+                color: isFull ? 'rgba(0,0,0,0.3)' : '#ff751f',
                 cursor: isFull ? 'default' : 'pointer',
                 position: 'relative',
                 zIndex: 30,
@@ -619,8 +646,8 @@ function WorkshopDayCard({
           </div>
         </div>
 
-        {/* Right: media */}
-        <div className="flex-1 relative overflow-hidden">
+        {/* Right: media — hidden on mobile */}
+        <div className="hidden sm:block flex-1 relative overflow-hidden">
           <MediaStrip workshop={workshop} />
         </div>
       </div>
@@ -629,8 +656,7 @@ function WorkshopDayCard({
 }
 
 // ─────────────────────────────────────────────
-// Month selector — single liquid-glass pill
-// containing all four month buttons
+// Month selector
 // ─────────────────────────────────────────────
 
 function MonthSelector({
@@ -648,10 +674,11 @@ function MonthSelector({
 }) {
   return (
     <div
-      className="liquid-glass backdrop-blur-xl inline-flex rounded-2xl p-1.5 gap-1"
+      className="backdrop-blur-xl inline-flex rounded-2xl p-1.5 gap-1"
       style={{
-        border: '1.5px solid rgba(255,255,255,0.12)',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+        background: '#ffffff',
+        border: '1.5px solid rgba(0,0,0,0.1)',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
       }}
     >
       {options.map(({ year, month, hasWorkshops }) => {
@@ -661,17 +688,17 @@ function MonthSelector({
             key={`${year}-${month}`}
             onClick={() => onChange(year, month)}
             disabled={!hasWorkshops && !isActive}
-            className="px-5 py-2 rounded-xl text-sm font-medium tracking-wide transition-all"
+            className="px-3 sm:px-5 py-2 rounded-xl text-sm font-medium tracking-wide transition-all whitespace-nowrap"
             style={{
-              background: isActive ? 'rgba(255,255,255,0.12)' : 'transparent',
+              background: isActive ? 'rgba(255,117,31,0.15)' : 'transparent',
               boxShadow: isActive
-                ? 'inset 0 1px 3px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.1)'
+                ? 'inset 0 1px 3px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,117,31,0.2)'
                 : 'none',
               color: isActive
-                ? 'rgba(255,255,255,0.95)'
+                ? '#ff751f'
                 : hasWorkshops
-                  ? 'rgba(255,255,255,0.75)'
-                  : 'rgba(255,255,255,0.3)',
+                  ? 'rgba(0,0,0,0.65)'
+                  : 'rgba(0,0,0,0.25)',
               fontFamily: 'var(--font-text, Georgia, serif)',
               cursor: !hasWorkshops && !isActive ? 'default' : 'pointer',
               transform: isActive ? 'translateY(0.5px)' : 'translateY(0)',
@@ -683,8 +710,8 @@ function MonthSelector({
                 className="ml-1.5 text-[9px]"
                 style={{
                   color: isActive
-                    ? 'rgba(196,168,120,0.8)'
-                    : 'rgba(196,168,120,0.4)',
+                    ? 'rgba(255,117,31,0.9)'
+                    : 'rgba(255,117,31,0.4)',
                 }}
               >
                 ✦
@@ -722,7 +749,7 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
     () =>
       Array.from({ length: 7 }, (_, i) =>
         new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(
-          new Date(2024, 0, 7 + i), // Jan 7 2024 is Sunday → index 0
+          new Date(2024, 0, 7 + i),
         ),
       ),
     [locale],
@@ -754,6 +781,8 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
     return opts;
   }, [workshopByDate]);
 
+  const todayStr = isoDateStr(today.getFullYear(), today.getMonth(), today.getDate());
+
   const days = useMemo(() => {
     const count = getDaysInMonth(viewYear, viewMonth);
     return Array.from({ length: count }, (_, i) => {
@@ -764,23 +793,27 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
         day,
         dayOfWeek: dayNames[dow],
         workshop: workshopByDate.get(key) ?? null,
+        isToday: key === todayStr,
       };
     });
-  }, [viewYear, viewMonth, workshopByDate, dayNames]);
+  }, [viewYear, viewMonth, workshopByDate, dayNames, todayStr]);
 
   const workshopCount = days.filter((d) => d.workshop).length;
 
   return (
-    <div className="min-h-screen px-6 py-12" style={{ background: '#041703' }}>
+    <div
+      className="min-h-screen px-4 sm:px-6 py-12 overflow-x-hidden"
+      style={{ background: '#f3f4f6' }}
+    >
       <div className="max-w-4xl mx-auto">
-        {/* Month selector + label — single row */}
-        <div className="flex items-baseline gap-6 mb-6 justify-between pt-25">
+        {/* Month selector + label — centered */}
+        <div className="flex flex-col items-center gap-3 mb-6 pt-0">
           <div className="flex items-baseline gap-2">
             <h2
               className="text-2xl font-semibold"
               style={{
                 fontFamily: 'var(--font-text, Georgia, serif)',
-                color: 'rgba(222,194,158,0.85)',
+                color: '#111111',
               }}
             >
               {monthNames[viewMonth]} {viewYear}
@@ -788,7 +821,7 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
             <span
               className="text-sm"
               style={{
-                color: 'rgba(196,168,120,0.4)',
+                color: '#ff751f',
                 fontFamily: "'Arial', sans-serif",
               }}
             >
@@ -799,38 +832,28 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
                   : t('workshops', { count: workshopCount })}
             </span>
           </div>
-          <MonthSelector
-            options={monthOptions}
-            activeYear={viewYear}
-            activeMonth={viewMonth}
-            onChange={(y, m) => {
-              setViewYear(y);
-              setViewMonth(m);
-            }}
-            monthNames={monthNames}
-          />
+          <div className="overflow-x-auto pb-0.5">
+            <MonthSelector
+              options={monthOptions}
+              activeYear={viewYear}
+              activeMonth={viewMonth}
+              onChange={(y, m) => {
+                setViewYear(y);
+                setViewMonth(m);
+              }}
+              monthNames={monthNames}
+            />
+          </div>
         </div>
 
         {/* Stacked day cards */}
         <div className="flex flex-col">
-          {days.map(({ day, dayOfWeek, workshop }, idx) => {
+          {days.map(({ day, dayOfWeek, workshop, isToday }, idx) => {
             const zIndex = idx + 1;
 
-            // The card BELOW a workshop card must not overlap its price row.
-            // Workshop cards are 460px tall.
-            // Empty cards are 60px collapsed.
-            // We pull empty cards up by 42px (peek effect).
-            // The card AFTER a workshop card gets 0 negative margin so it
-            // sits cleanly below — no overlap on price/register.
             const prevHasWorkshop = idx > 0 && days[idx - 1].workshop !== null;
             const marginTop =
-              idx === 0
-                ? 0
-                : prevHasWorkshop
-                  ? -8 // small gap after a workshop card — completely clear
-                  : workshop
-                    ? -8 // workshop card pulls up slightly behind the one above
-                    : -42; // empty cards peek tightly
+              idx === 0 ? 0 : prevHasWorkshop ? -8 : workshop ? -8 : -10;
 
             return (
               <div
@@ -847,9 +870,10 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
                     day={day}
                     dayOfWeek={dayOfWeek}
                     workshop={workshop}
+                    isToday={isToday}
                   />
                 ) : (
-                  <EmptyDayCard day={day} dayOfWeek={dayOfWeek} />
+                  <EmptyDayCard day={day} dayOfWeek={dayOfWeek} isToday={isToday} />
                 )}
               </div>
             );

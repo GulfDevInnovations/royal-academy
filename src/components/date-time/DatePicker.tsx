@@ -115,9 +115,10 @@ export default function DatePicker({
   const t = PICKER_THEMES[theme];
   const parsed = parseISO(defaultValue);
 
-  const [dayIdx, setDayIdx] = useState(parsed?.dayIdx ?? 0);
-  const [monthIdx, setMonthIdx] = useState(parsed?.monthIdx ?? 0);
-  const [yearIdx, setYearIdx] = useState(parsed?.yearIdx ?? 20);
+  const today = new Date();
+  const [dayIdx, setDayIdx] = useState(parsed?.dayIdx ?? today.getDate() - 1);
+  const [monthIdx, setMonthIdx] = useState(parsed?.monthIdx ?? today.getMonth());
+  const [yearIdx, setYearIdx] = useState(parsed?.yearIdx ?? 0);
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -171,6 +172,7 @@ export default function DatePicker({
   const displayValue = formatDisplay(dayIdx, monthIdx, yearIdx, locale);
   const defaultPlaceholder =
     placeholder ?? (locale === "ar" ? "اختر التاريخ" : "Select date");
+  const todayISO = `${currentYear}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
   // ── Mobile ────────────────────────────────────────────────────────────────
   if (isMobile) {
@@ -192,7 +194,7 @@ export default function DatePicker({
           name={name}
           className={fieldClassName}
           style={inputStyle}
-          defaultValue={defaultValue}
+          defaultValue={defaultValue || todayISO}
           required={required}
           aria-invalid={ariaInvalid}
           aria-describedby={ariaDescribedBy}
