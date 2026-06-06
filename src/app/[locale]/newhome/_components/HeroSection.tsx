@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import JourneySection from './JourneySection';
 import ProgramsSection from './ProgramsSection';
@@ -26,6 +26,17 @@ interface ContentItem {
   isExternal: boolean;
   badgeLabel?: string | null;
   eventDate?: string | null;
+  publishAt?: string | null;
+  expireAt?: string | null;
+  createdAt?: string | null;
+  teacherName?: string | null;
+  workshopStartTime?: string | null;
+  workshopEndTime?: string | null;
+  workshopSlug?: string | null;
+  workshopCapacity?: number | null;
+  workshopSpotsLeft?: number | null;
+  workshopIsOnline?: boolean | null;
+  workshopLocation?: string | null;
 }
 
 export interface ScheduleSlot {
@@ -148,7 +159,9 @@ export default function HeroSection({
       cur.currentTime = 0;
       cur.play().catch(() => {});
     }
-  }, [current]);
+  // isMobileVal included so the effect re-runs when the layout switches
+  // from desktop (null/false) to mobile (true), remounting video elements
+  }, [current, isMobileVal]);
 
   useEffect(() => {
     // Mobile: roll the preload window so the next video is always ready.
@@ -283,6 +296,7 @@ export default function HeroSection({
                   title={t('upcoming')}
                   items={upcoming}
                   isAr={isAr}
+                  locale={locale}
                   autoInterval={6000}
                   t={t}
                 />
@@ -294,6 +308,7 @@ export default function HeroSection({
                   title={t('news')}
                   items={news}
                   isAr={isAr}
+                  locale={locale}
                   autoInterval={8500}
                   t={t}
                 />
@@ -305,6 +320,7 @@ export default function HeroSection({
                   title={t('offers')}
                   items={offers}
                   isAr={isAr}
+                  locale={locale}
                   autoInterval={11000}
                   t={t}
                 />
@@ -411,6 +427,7 @@ export default function HeroSection({
                   title={t('upcoming')}
                   items={upcoming}
                   isAr={isAr}
+                  locale={locale}
                   autoInterval={6000}
                   layout="text-left"
                   t={t}
@@ -419,7 +436,9 @@ export default function HeroSection({
                 <DesktopSingleRow
                   item={upcoming[0]}
                   isAr={isAr}
+                  locale={locale}
                   layout="text-left"
+                  t={t}
                 />
               )}
             </PaperCard>
@@ -431,6 +450,7 @@ export default function HeroSection({
                   title={t('news')}
                   items={news}
                   isAr={isAr}
+                  locale={locale}
                   autoInterval={8500}
                   layout="text-right"
                   t={t}
@@ -439,7 +459,9 @@ export default function HeroSection({
                 <DesktopSingleRow
                   item={news[0]}
                   isAr={isAr}
+                  locale={locale}
                   layout="text-right"
+                  t={t}
                 />
               )}
             </PaperCard>
@@ -451,6 +473,7 @@ export default function HeroSection({
                   title={t('offers')}
                   items={offers}
                   isAr={isAr}
+                  locale={locale}
                   autoInterval={11000}
                   layout="text-left"
                   t={t}
@@ -459,7 +482,9 @@ export default function HeroSection({
                 <DesktopSingleRow
                   item={offers[0]}
                   isAr={isAr}
+                  locale={locale}
                   layout="text-left"
+                  t={t}
                 />
               )}
             </PaperCard>
@@ -599,12 +624,14 @@ function MobileCardSection({
   title,
   items,
   isAr,
+  locale,
   autoInterval,
   t,
 }: {
   title: string;
   items: ContentItem[];
   isAr: boolean;
+  locale: string;
   autoInterval: number;
   t: ReturnType<typeof useTranslations>;
 }) {
@@ -841,22 +868,8 @@ function MobileCardSection({
             {item.description}
           </p>
         )}
-        {item.eventDate && (
-          <time
-            style={{
-              fontSize: 10,
-              color: '#aaa',
-              letterSpacing: '.1em',
-              display: 'block',
-              marginBottom: 6,
-            }}
-          >
-            {new Date(item.eventDate).toLocaleDateString(
-              isAr ? 'ar-SA' : 'en-GB',
-              { day: 'numeric', month: 'long', year: 'numeric' },
-            )}
-          </time>
-        )}
+        <DateMetaBlock item={item} isAr={isAr} t={t} compact />
+        <WorkshopMetaBlock item={item} isAr={isAr} locale={locale} t={t} compact />
         {item.linkUrl && (
           <a
             href={item.linkUrl}
@@ -1028,6 +1041,7 @@ function DesktopContentSection({
   title,
   items,
   isAr,
+  locale,
   autoInterval,
   layout,
   t,
@@ -1035,6 +1049,7 @@ function DesktopContentSection({
   title: string;
   items: ContentItem[];
   isAr: boolean;
+  locale: string;
   autoInterval: number;
   layout: 'text-left' | 'text-right';
   t: ReturnType<typeof useTranslations>;
@@ -1237,16 +1252,8 @@ function DesktopContentSection({
               {item.description}
             </p>
           )}
-          {item.eventDate && (
-            <time
-              style={{ fontSize: 11, color: '#aaa', letterSpacing: '.1em' }}
-            >
-              {new Date(item.eventDate).toLocaleDateString(
-                isAr ? 'ar-SA' : 'en-GB',
-                { day: 'numeric', month: 'long', year: 'numeric' },
-              )}
-            </time>
-          )}
+          <DateMetaBlock item={item} isAr={isAr} t={t} />
+          <WorkshopMetaBlock item={item} isAr={isAr} locale={locale} t={t} />
           {item.linkUrl && (
             <a
               href={item.linkUrl}
@@ -1457,11 +1464,15 @@ function DesktopContentSection({
 function DesktopSingleRow({
   item,
   isAr,
+  locale,
   layout,
+  t,
 }: {
   item: ContentItem;
   isAr: boolean;
+  locale: string;
   layout: 'text-left' | 'text-right';
+  t: ReturnType<typeof useTranslations>;
 }) {
   const textFirst = layout === 'text-left';
   const videoSrc = item.videoUrls[0] ?? null;
@@ -1540,6 +1551,8 @@ function DesktopSingleRow({
             {item.description}
           </p>
         )}
+        <DateMetaBlock item={item} isAr={isAr} t={t} />
+        <WorkshopMetaBlock item={item} isAr={isAr} locale={locale} t={t} />
       </div>
       {hasMedia && (
         <div style={{ flex: 1, padding: '80px', overflow: 'hidden' }}>
@@ -1805,14 +1818,14 @@ function WelcomeDrawerDesktop({
           WebkitBackdropFilter: 'blur(10px) saturate(1.4)',
           border: '1px solid rgba(255,255,255,0.14)',
           borderRadius: 6,
-          padding: '24px 32px',
+          padding: 'clamp(20px, 2vh, 44px) clamp(28px, 3.5vw, 80px)',
         }}
       >
         {/* Title */}
         <h2
           style={{
-            margin: '0 0 10px',
-            fontSize: 24,
+            margin: '0 0 clamp(8px, 0.7vw, 18px)',
+            fontSize: 'clamp(24px, 1.8vw, 48px)',
             fontWeight: 400,
             lineHeight: 1.25,
             letterSpacing: '0.01em',
@@ -1825,8 +1838,8 @@ function WelcomeDrawerDesktop({
         {/* Disciplines tagline */}
         <p
           style={{
-            margin: '0 0 14px',
-            fontSize: 10,
+            margin: '0 0 clamp(10px, 1vw, 22px)',
+            fontSize: 'clamp(10px, 0.72vw, 17px)',
             letterSpacing: '0.24em',
             textTransform: 'uppercase',
             color: '#ff751f',
@@ -1840,8 +1853,8 @@ function WelcomeDrawerDesktop({
         {/* Body paragraphs */}
         <p
           style={{
-            margin: '0 0 8px',
-            fontSize: 13,
+            margin: '0 0 clamp(6px, 0.6vw, 14px)',
+            fontSize: 'clamp(13px, 1vw, 22px)',
             color: 'rgba(255,255,255,0.82)',
             lineHeight: 1.7,
           }}
@@ -1850,8 +1863,8 @@ function WelcomeDrawerDesktop({
         </p>
         <p
           style={{
-            margin: '0 0 8px',
-            fontSize: 13,
+            margin: '0 0 clamp(6px, 0.6vw, 14px)',
+            fontSize: 'clamp(13px, 1vw, 22px)',
             color: 'rgba(255,255,255,0.82)',
             lineHeight: 1.7,
           }}
@@ -1861,7 +1874,7 @@ function WelcomeDrawerDesktop({
         <p
           style={{
             margin: 0,
-            fontSize: 13,
+            fontSize: 'clamp(13px, 1vw, 22px)',
             color: 'rgba(255,255,255,0.82)',
             lineHeight: 1.7,
           }}
@@ -1966,6 +1979,212 @@ function MobileWelcomeBanner({
           {t('welcomeBody3')}
         </p>
       </div>
+    </div>
+  );
+}
+
+// ─── Date meta block (shared by all card variants) ───────────────────────────
+
+function DateMetaBlock({
+  item,
+  isAr,
+  t,
+  compact = false,
+}: {
+  item: ContentItem;
+  isAr: boolean;
+  t: ReturnType<typeof useTranslations>;
+  compact?: boolean;
+}) {
+  const pubDate = item.publishAt ?? item.createdAt ?? null;
+  const rows: { label: string; value: string }[] = [];
+
+  const fmt = (iso: string) =>
+    new Date(iso).toLocaleDateString(isAr ? 'ar-SA' : 'en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+
+  if (item.eventDate) rows.push({ label: t('dateEvent'), value: fmt(item.eventDate) });
+  if (pubDate) rows.push({ label: t('datePublished'), value: fmt(pubDate) });
+  if (item.expireAt) rows.push({ label: t('dateExpires'), value: fmt(item.expireAt) });
+
+  if (!rows.length) return null;
+
+  const fs = compact ? 10 : 12;
+  const labelFs = compact ? 9 : 10;
+  const gap = compact ? 5 : 8;
+
+  return (
+    <div
+      style={{
+        marginTop: compact ? 8 : 12,
+        paddingTop: compact ? 8 : 12,
+        borderTop: '1px solid rgba(0,0,0,0.08)',
+        display: 'grid',
+        gridTemplateColumns: 'auto 1fr',
+        columnGap: compact ? 12 : 16,
+        rowGap: gap,
+        direction: isAr ? 'rtl' : 'ltr',
+        alignItems: 'baseline',
+      }}
+    >
+      {rows.map(({ label, value }) => (
+        <React.Fragment key={label}>
+          <span
+            style={{
+              fontSize: labelFs,
+              letterSpacing: '.12em',
+              textTransform: 'uppercase',
+              color: '#aaa',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {label}
+          </span>
+          <span style={{ fontSize: fs, color: '#333', lineHeight: 1.4 }}>
+            {value}
+          </span>
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+// ─── Workshop meta block (shared by all card variants) ────────────────────────
+
+function WorkshopMetaBlock({
+  item,
+  isAr,
+  locale,
+  t,
+  compact = false,
+}: {
+  item: ContentItem;
+  isAr: boolean;
+  locale: string;
+  t: ReturnType<typeof useTranslations>;
+  compact?: boolean;
+}) {
+  const hasAny =
+    item.workshopStartTime ||
+    item.teacherName ||
+    item.workshopIsOnline != null ||
+    item.workshopSlug;
+
+  if (!hasAny) return null;
+
+  const fs = compact ? 10 : 12;
+  const labelFs = compact ? 9 : 10;
+
+  const cells: { label: string; value: React.ReactNode }[] = [];
+
+  if (item.workshopStartTime) {
+    cells.push({
+      label: t('workshopTime'),
+      value: (
+        <span style={{ color: '#ff751f' }}>
+          {item.workshopStartTime.slice(0, 5)}
+          {item.workshopEndTime ? ` – ${item.workshopEndTime.slice(0, 5)}` : ''}
+        </span>
+      ),
+    });
+  }
+
+  if (item.teacherName) {
+    cells.push({ label: t('workshopTeacher'), value: item.teacherName });
+  }
+
+  if (item.workshopIsOnline != null) {
+    cells.push({
+      label: t('workshopLocation'),
+      value: item.workshopIsOnline ? t('workshopOnline') : t('workshopInPerson'),
+    });
+  }
+
+  return (
+    <div
+      style={{
+        marginTop: compact ? 8 : 12,
+        paddingTop: compact ? 8 : 12,
+        borderTop: '1px solid rgba(0,0,0,0.08)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: compact ? 8 : 12,
+      }}
+    >
+      {/* Two-column grid of cells */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: compact ? '6px 12px' : '8px 20px',
+          direction: isAr ? 'rtl' : 'ltr',
+        }}
+      >
+        {cells.map(({ label, value }) => (
+          <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <span
+              style={{
+                fontSize: labelFs,
+                letterSpacing: '.12em',
+                textTransform: 'uppercase',
+                color: '#aaa',
+              }}
+            >
+              {label}
+            </span>
+            <span style={{ fontSize: fs, color: '#333', lineHeight: 1.4 }}>
+              {value}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {item.workshopSlug && (
+        <a
+          href={`/${locale}/workshops/${item.workshopSlug}`}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 5,
+            marginTop: compact ? 4 : 6,
+            alignSelf: 'flex-start',
+            fontSize: compact ? 9 : 10,
+            letterSpacing: '.18em',
+            textTransform: 'uppercase',
+            textDecoration: 'none',
+            color: '#fff',
+            background: '#ff751f',
+            padding: compact ? '4px 10px' : '6px 14px',
+            borderRadius: 2,
+            fontWeight: 600,
+            transition: 'background .2s',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.background = '#e05c0a';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.background = '#ff751f';
+          }}
+        >
+          {t('viewWorkshop')}
+          <svg
+            width={compact ? 9 : 11}
+            height={compact ? 9 : 11}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        </a>
+      )}
     </div>
   );
 }

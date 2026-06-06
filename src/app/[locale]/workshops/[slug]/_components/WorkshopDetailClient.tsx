@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import {
   CalendarDays,
@@ -13,6 +12,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 
 // ── Types ─────────────────────────────────────────────────────
 interface Workshop {
@@ -96,7 +96,6 @@ function MediaGallery({
 
   return (
     <div className="space-y-3">
-      {/* Main viewer */}
       <div
         className="relative w-full overflow-hidden rounded-2xl"
         style={{ aspectRatio: "16/9", background: "#111" }}
@@ -116,7 +115,6 @@ function MediaGallery({
         )}
       </div>
 
-      {/* Thumbnails */}
       {allMedia.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-1">
           {allMedia.map((m, i) => (
@@ -129,17 +127,13 @@ function MediaGallery({
                 height: 52,
                 border:
                   i === active
-                    ? "2px solid rgba(196,168,120,0.8)"
-                    : "2px solid transparent",
-                opacity: i === active ? 1 : 0.6,
+                    ? "2px solid #ff751f"
+                    : "2px solid rgba(0,0,0,0.12)",
+                opacity: i === active ? 1 : 0.5,
               }}
             >
               {m.type === "image" ? (
-                <img
-                  src={m.url}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
+                <img src={m.url} alt="" className="w-full h-full object-cover" />
               ) : (
                 <video src={m.url} className="w-full h-full object-cover" />
               )}
@@ -154,41 +148,57 @@ function MediaGallery({
 // ── Main component ────────────────────────────────────────────
 export default function WorkshopDetailClient({ workshop }: Props) {
   const router = useRouter();
+  const locale = useLocale();
   const [copied, setCopied] = useState(false);
 
   const seatsLeft = workshop.capacity - workshop.enrolledCount;
   const isFull = seatsLeft <= 0;
   const isPast = new Date(workshop.eventDate) < new Date();
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleShare = async () => {
+    const shareData = {
+      title: workshop.title,
+      text: workshop.description?.slice(0, 120) ?? workshop.title,
+      url: window.location.href,
+    };
+
+    if (typeof navigator.share === "function" && navigator.canShare?.(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          await navigator.clipboard.writeText(window.location.href);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        }
+      }
+    } else {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: "var(--color-royal-dark, #0e0d0b)" }}
-    >
+    <div className="min-h-screen" style={{ background: "#f3f4f6" }}>
       {/* Top nav bar */}
       <div
         className="sticky top-0 z-20 flex items-center justify-between px-6 py-4 border-b"
         style={{
-          background: "rgba(14,13,11,0.85)",
+          background: "rgba(243,244,246,0.92)",
           backdropFilter: "blur(12px)",
-          borderColor: "rgba(196,168,120,0.12)",
+          borderColor: "rgba(0,0,0,0.08)",
         }}
       >
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push(`/${locale}/workshops`)}
           className="flex items-center gap-2 text-sm transition-colors"
-          style={{ color: "rgba(222,194,158,0.7)" }}
+          style={{ color: "rgba(0,0,0,0.45)" }}
           onMouseEnter={(e) =>
-            (e.currentTarget.style.color = "rgba(222,194,158,1)")
+            (e.currentTarget.style.color = "#ff751f")
           }
           onMouseLeave={(e) =>
-            (e.currentTarget.style.color = "rgba(222,194,158,0.7)")
+            (e.currentTarget.style.color = "rgba(0,0,0,0.45)")
           }
         >
           <ChevronLeft size={16} />
@@ -199,9 +209,17 @@ export default function WorkshopDetailClient({ workshop }: Props) {
           onClick={handleShare}
           className="flex items-center gap-2 text-sm px-4 py-1.5 rounded-full transition-all"
           style={{
-            background: "rgba(196,168,120,0.1)",
-            border: "1px solid rgba(196,168,120,0.2)",
-            color: "rgba(222,194,158,0.8)",
+            background: "rgba(255,117,31,0.1)",
+            border: "1px solid rgba(255,117,31,0.25)",
+            color: "rgba(0,0,0,0.65)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(255,117,31,0.2)";
+            e.currentTarget.style.color = "#000";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(255,117,31,0.1)";
+            e.currentTarget.style.color = "rgba(0,0,0,0.65)";
           }}
         >
           {copied ? <CheckCircle2 size={14} /> : <Share2 size={14} />}
@@ -224,11 +242,15 @@ export default function WorkshopDetailClient({ workshop }: Props) {
 
           {/* ── Right: info + actions ── */}
           <div className="space-y-6">
-            {/* Workshop badge + title */}
+            {/* Badge + title */}
             <div>
               <span
-                className="liquid-glass-green shimmer inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase mb-3"
-                style={{ color: "var(--color-royal-green, #1a5c3a)" }}
+                className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase mb-3"
+                style={{
+                  background: "rgba(255,117,31,0.12)",
+                  border: "1px solid rgba(255,117,31,0.3)",
+                  color: "#ff751f",
+                }}
               >
                 Workshop
               </span>
@@ -237,7 +259,7 @@ export default function WorkshopDetailClient({ workshop }: Props) {
                 className="text-3xl font-bold leading-tight"
                 style={{
                   fontFamily: "var(--font-text)",
-                  color: "rgba(222,194,158,1)",
+                  color: "#111111",
                 }}
               >
                 {workshop.title}
@@ -274,14 +296,12 @@ export default function WorkshopDetailClient({ workshop }: Props) {
                 .filter(Boolean)
                 .map((item, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <span
-                      style={{ color: "rgba(196,168,120,0.6)", flexShrink: 0 }}
-                    >
+                    <span style={{ color: "#ff751f", flexShrink: 0 }}>
                       {item!.icon}
                     </span>
                     <span
                       className="text-sm"
-                      style={{ color: item!.color ?? "rgba(222,194,158,0.75)" }}
+                      style={{ color: item!.color ?? "rgba(0,0,0,0.65)" }}
                     >
                       {item!.value}
                     </span>
@@ -293,24 +313,21 @@ export default function WorkshopDetailClient({ workshop }: Props) {
             <div
               className="rounded-2xl p-5 space-y-4"
               style={{
-                background: "rgba(196,168,120,0.05)",
-                border: "1px solid rgba(196,168,120,0.15)",
+                background: "#ffffff",
+                border: "1px solid rgba(0,0,0,0.1)",
               }}
             >
               <div className="flex items-baseline gap-2">
                 <span
                   className="text-3xl font-bold"
                   style={{
-                    color: "rgba(196,168,120,1)",
+                    color: "#ff751f",
                     fontFamily: "var(--font-text)",
                   }}
                 >
                   {workshop.currency} {workshop.price.toFixed(3)}
                 </span>
-                <span
-                  className="text-sm"
-                  style={{ color: "rgba(222,194,158,0.4)" }}
-                >
+                <span className="text-sm" style={{ color: "rgba(0,0,0,0.4)" }}>
                   per person
                 </span>
               </div>
@@ -319,7 +336,7 @@ export default function WorkshopDetailClient({ workshop }: Props) {
               <div className="space-y-1.5">
                 <div
                   className="flex justify-between text-xs"
-                  style={{ color: "rgba(222,194,158,0.4)" }}
+                  style={{ color: "rgba(0,0,0,0.4)" }}
                 >
                   <span>Availability</span>
                   <span>
@@ -328,7 +345,7 @@ export default function WorkshopDetailClient({ workshop }: Props) {
                 </div>
                 <div
                   className="h-1.5 rounded-full overflow-hidden"
-                  style={{ background: "rgba(255,255,255,0.08)" }}
+                  style={{ background: "rgba(0,0,0,0.1)" }}
                 >
                   <div
                     className="h-full rounded-full transition-all"
@@ -336,7 +353,7 @@ export default function WorkshopDetailClient({ workshop }: Props) {
                       width: `${Math.min((workshop.enrolledCount / workshop.capacity) * 100, 100)}%`,
                       background: isFull
                         ? "#f87171"
-                        : "linear-gradient(to right, rgba(196,168,120,0.6), rgba(196,168,120,1))",
+                        : "linear-gradient(to right, rgba(255,117,31,0.6), #ff751f)",
                     }}
                   />
                 </div>
@@ -347,8 +364,8 @@ export default function WorkshopDetailClient({ workshop }: Props) {
                 <div
                   className="w-full py-3 rounded-xl text-center text-sm font-medium"
                   style={{
-                    background: "rgba(255,255,255,0.05)",
-                    color: "rgba(222,194,158,0.35)",
+                    background: "rgba(0,0,0,0.05)",
+                    color: "rgba(0,0,0,0.35)",
                   }}
                 >
                   This workshop has ended
@@ -357,8 +374,8 @@ export default function WorkshopDetailClient({ workshop }: Props) {
                 <div
                   className="w-full py-3 rounded-xl text-center text-sm font-medium"
                   style={{
-                    background: "rgba(255,255,255,0.05)",
-                    color: "rgba(222,194,158,0.35)",
+                    background: "rgba(0,0,0,0.05)",
+                    color: "rgba(0,0,0,0.35)",
                   }}
                 >
                   Registration not available
@@ -375,18 +392,12 @@ export default function WorkshopDetailClient({ workshop }: Props) {
                   Fully Booked
                 </div>
               ) : (
-                // <button
-                //   className="liquid-glass-green shimmer w-full py-3 rounded-xl text-sm font-bold tracking-widest uppercase transition-all"
-                //   style={{ color: "var(--color-royal-green, #1a5c3a)" }}
-                // >
-                //   Register Now
-                // </button>
                 <button
                   disabled
                   className="w-full py-3 rounded-xl text-sm font-bold tracking-widest uppercase cursor-not-allowed opacity-40"
                   style={{
-                    background: "rgba(255,255,255,0.05)",
-                    color: "rgba(222,194,158,0.35)",
+                    background: "rgba(0,0,0,0.05)",
+                    color: "rgba(0,0,0,0.35)",
                   }}
                 >
                   Register Now
@@ -395,7 +406,7 @@ export default function WorkshopDetailClient({ workshop }: Props) {
 
               <p
                 className="text-[11px] text-center"
-                style={{ color: "rgba(222,194,158,0.3)" }}
+                style={{ color: "rgba(0,0,0,0.35)" }}
               >
                 Secure your spot · Payment on confirmation
               </p>
@@ -406,8 +417,8 @@ export default function WorkshopDetailClient({ workshop }: Props) {
               <div
                 className="flex items-start gap-4 p-4 rounded-2xl"
                 style={{
-                  background: "rgba(196,168,120,0.04)",
-                  border: "1px solid rgba(196,168,120,0.1)",
+                  background: "#ffffff",
+                  border: "1px solid rgba(0,0,0,0.08)",
                 }}
               >
                 {workshop.teacher.photoUrl ? (
@@ -415,15 +426,15 @@ export default function WorkshopDetailClient({ workshop }: Props) {
                     src={workshop.teacher.photoUrl}
                     alt={`${workshop.teacher.firstName} ${workshop.teacher.lastName}`}
                     className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                    style={{ border: "2px solid rgba(196,168,120,0.3)" }}
+                    style={{ border: "2px solid rgba(255,117,31,0.4)" }}
                   />
                 ) : (
                   <div
                     className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold"
                     style={{
-                      background: "rgba(196,168,120,0.15)",
-                      color: "rgba(196,168,120,0.8)",
-                      border: "2px solid rgba(196,168,120,0.3)",
+                      background: "rgba(255,117,31,0.12)",
+                      color: "#ff751f",
+                      border: "2px solid rgba(255,117,31,0.3)",
                     }}
                   >
                     {workshop.teacher.firstName[0]}
@@ -433,14 +444,14 @@ export default function WorkshopDetailClient({ workshop }: Props) {
                 <div className="min-w-0">
                   <p
                     className="text-sm font-semibold"
-                    style={{ color: "rgba(222,194,158,0.9)" }}
+                    style={{ color: "#111111" }}
                   >
                     {workshop.teacher.firstName} {workshop.teacher.lastName}
                   </p>
                   {workshop.teacher.bio && (
                     <p
                       className="text-xs mt-1 line-clamp-3"
-                      style={{ color: "rgba(222,194,158,0.5)" }}
+                      style={{ color: "rgba(0,0,0,0.5)" }}
                     >
                       {workshop.teacher.bio}
                     </p>
@@ -455,12 +466,12 @@ export default function WorkshopDetailClient({ workshop }: Props) {
         {workshop.description && (
           <div
             className="mt-10 pt-8 border-t"
-            style={{ borderColor: "rgba(196,168,120,0.1)" }}
+            style={{ borderColor: "rgba(0,0,0,0.1)" }}
           >
             <h2
               className="text-lg font-semibold mb-4"
               style={{
-                color: "rgba(222,194,158,0.9)",
+                color: "#111111",
                 fontFamily: "var(--font-text)",
               }}
             >
@@ -468,7 +479,7 @@ export default function WorkshopDetailClient({ workshop }: Props) {
             </h2>
             <p
               className="text-sm leading-relaxed whitespace-pre-line"
-              style={{ color: "rgba(222,194,158,0.6)" }}
+              style={{ color: "rgba(0,0,0,0.6)" }}
             >
               {workshop.description}
             </p>

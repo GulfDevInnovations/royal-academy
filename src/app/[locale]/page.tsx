@@ -76,6 +76,19 @@ export default async function Home({
   let news: News[] = [];
   let offers: Offer[] = [];
   let scheduleSlots: ScheduleSlot[] = [];
+  let workshopMap = new Map<
+    string,
+    {
+      slug: string | null;
+      startTime: string;
+      endTime: string;
+      capacity: number;
+      spotsLeft: number;
+      isOnline: boolean;
+      teacherName: string | null;
+      location: string | null;
+    }
+  >();
 
   try {
     const [upcomingRaw, newsRaw, offersRaw, schedulesRaw] = await Promise.all([
@@ -97,6 +110,45 @@ export default async function Home({
         },
       }),
     ]);
+
+    // Fetch workshop details (teacher, times) for upcomings that link to a workshop
+    const workshopIds = upcomingRaw
+      .map((u) => u.workshopId)
+      .filter((id): id is string => id !== null);
+    if (workshopIds.length > 0) {
+      const workshops = await prisma.workshop.findMany({
+        where: { id: { in: workshopIds } },
+        select: {
+          id: true,
+          slug: true,
+          startTime: true,
+          endTime: true,
+          capacity: true,
+          enrolledCount: true,
+          reservedCount: true,
+          isOnline: true,
+          teacher: { select: { firstName: true, lastName: true } },
+          room: { select: { name: true, location: true } },
+        },
+      });
+      for (const w of workshops) {
+        workshopMap.set(w.id, {
+          slug: w.slug,
+          startTime: w.startTime,
+          endTime: w.endTime,
+          capacity: w.capacity,
+          spotsLeft: Math.max(0, w.capacity - w.enrolledCount - w.reservedCount),
+          isOnline: w.isOnline,
+          teacherName: w.teacher
+            ? `${w.teacher.firstName} ${w.teacher.lastName}`
+            : null,
+          location: w.room
+            ? [w.room.name, w.room.location].filter(Boolean).join(' · ')
+            : null,
+        });
+      }
+    }
+
     upcoming = upcomingRaw;
     news = newsRaw;
     offers = offersRaw;
@@ -133,7 +185,20 @@ export default async function Home({
     <>
       {/* HeroSection is now mobile-aware and handles its own sidebar offset */}
       <HeroSection
-        upcoming={upcoming.map(serializeBase)}
+        upcoming={upcoming.map((u) => {
+          const ws = u.workshopId ? workshopMap.get(u.workshopId) : undefined;
+          return {
+            ...serializeBase(u),
+            teacherName: ws?.teacherName ?? null,
+            workshopStartTime: ws?.startTime ?? null,
+            workshopEndTime: ws?.endTime ?? null,
+            workshopSlug: ws?.slug ?? null,
+            workshopCapacity: ws?.capacity ?? null,
+            workshopSpotsLeft: ws?.spotsLeft ?? null,
+            workshopIsOnline: ws?.isOnline ?? null,
+            workshopLocation: ws?.location ?? null,
+          };
+        })}
         news={news.map(serializeBase)}
         offers={offers.map((i) => ({
           ...serializeBase(i),

@@ -395,8 +395,7 @@ export default function ContentFormModal({
               <label className="text-l" style={labelStyle}>
                 Event Date
               </label>
-              <input
-                type="datetime-local"
+              <PublishDateTimeField
                 name="eventDate"
                 defaultValue={
                   (data as SerializedUpcoming)?.eventDate
@@ -405,8 +404,7 @@ export default function ContentFormModal({
                         .slice(0, 16)
                     : ""
                 }
-                className="w-full text-l rounded-lg border px-3 py-2 outline-none"
-                style={inputStyle}
+                inputStyle={inputStyle}
               />
             </div>
           )}

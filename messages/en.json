@@ -28,7 +28,19 @@
     "welcomeDisciplines": "Dance  •  Music  •  Art  •  Wellness",
     "welcomeBody1": "Royal Academy of Dance, Music & Arts is a multidisciplinary creative academy in Muscat, offering professional classes in Dance, Music, Art, and Wellness for children, teens, and adults.",
     "welcomeBody2": "Our programs are designed for beginners, continuing students, and advanced learners, with both private and group classes available.",
-    "welcomeBody3": "From ballet and music to visual arts and wellness programs, Royal Academy provides a structured, inspiring, and welcoming environment where students can build skills, confidence, discipline, and creative expression."
+    "welcomeBody3": "From ballet and music to visual arts and wellness programs, Royal Academy provides a structured, inspiring, and welcoming environment where students can build skills, confidence, discipline, and creative expression.",
+    "workshopTeacher": "Instructor",
+    "workshopTime": "Time",
+    "workshopDate": "Date",
+    "workshopLocation": "Location",
+    "workshopOnline": "Online",
+    "workshopInPerson": "In-Person",
+    "workshopCapacity": "Capacity",
+    "workshopSpotsLeft": "Spots left",
+    "viewWorkshop": "View Workshop",
+    "datePublished": "Published",
+    "dateEvent": "Event date",
+    "dateExpires": "Expires"
   },
   "aboutSection": {
     "spiritOf": "The Spirit of",
@@ -244,10 +256,10 @@
     "filters": {
       "all": "All",
       "music": "Music",
-      "danceWellness": "Dance & Wellness",
+      "yogaWellness": "Yoga & Wellness",
       "art": "Art",
-      "ballet": "Ballet",
-      "workshops": "Workshops"
+      "dance": "Dance",
+      "ballet": "Ballet"
     },
     "teacherBanner": {
       "showingBy": "Showing classes by",
@@ -269,13 +281,14 @@
       "trialBadge": "Trial",
       "instructors": "instructors",
       "from": "from",
-      "perMonth": "/mo",
+      "perMonth": "/month",
       "with": "with",
       "full": "Full",
       "spotsLeft": "left"
     },
     "detail": {
       "back": "All Classes",
+      "classDetails": "Class Details",
       "duration": "Duration",
       "minutes": "minutes",
       "level": "Level",
