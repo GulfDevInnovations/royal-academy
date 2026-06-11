@@ -12,6 +12,7 @@ import {
   adminColors,
 } from "@/components/admin/ui";
 import { useTranslations } from "next-intl";
+import MediaUploadField from "./MediaUploadField";
 
 interface Props {
   onClose: () => void;
@@ -24,6 +25,8 @@ export default function ClassFormModal({ onClose, onSuccess, editing }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [langTab, setLangTab] = useState<"en" | "ar">("en");
+  const [mediaUrl, setMediaUrl] = useState<string | null>((editing as any)?.mediaUrl ?? null);
+  const [mediaKind, setMediaKind] = useState<string | null>((editing as any)?.mediaKind ?? null);
   const t = useTranslations("admin");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -45,7 +48,7 @@ export default function ClassFormModal({ onClose, onSuccess, editing }: Props) {
   };
 
   const inputStyle = {
-    background: "rgba(255,255,255,0.04)",
+    background: "rgba(0,0,0,0.04)",
     borderColor: adminColors.border,
     color: adminColors.textPrimary,
   };
@@ -55,16 +58,15 @@ export default function ClassFormModal({ onClose, onSuccess, editing }: Props) {
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
       />
 
       {/* Modal */}
       <div
-        className="relative w-full max-w-md rounded-2xl border border-white/8 shadow-2xl z-10"
-        style={{ background: "#1a1d27" }}
+        className="relative w-full max-w-md rounded-2xl border border-black/8 shadow-2xl z-10"
+        style={{ background: "#ffffff" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-black/8">
           <h2
             className="text-xl font-semibold"
             style={{ color: adminColors.textPrimary }}
@@ -73,7 +75,7 @@ export default function ClassFormModal({ onClose, onSuccess, editing }: Props) {
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
           >
             <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
@@ -87,7 +89,7 @@ export default function ClassFormModal({ onClose, onSuccess, editing }: Props) {
         >
           <div
             className="flex items-center gap-1 p-1 rounded-lg w-fit"
-            style={{ background: "rgba(255,255,255,0.05)" }}
+            style={{ background: "rgba(0,0,0,0.05)" }}
           >
             {(["en", "ar"] as const).map((lang) => (
               <button
@@ -207,6 +209,17 @@ export default function ClassFormModal({ onClose, onSuccess, editing }: Props) {
               </option>
             </AdminSelect>
           )}
+
+          {/* Media */}
+          <MediaUploadField
+            currentUrl={mediaUrl}
+            currentKind={mediaKind ?? undefined}
+            onUploadComplete={(url, kind) => { setMediaUrl(url); setMediaKind(kind); }}
+            onClear={() => { setMediaUrl(null); setMediaKind(null); }}
+            folder="classes"
+          />
+          <input type="hidden" name="mediaUrl" value={mediaUrl ?? ""} />
+          <input type="hidden" name="mediaKind" value={mediaKind ?? ""} />
 
           {error && (
             <p className="text-l px-3 py-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">

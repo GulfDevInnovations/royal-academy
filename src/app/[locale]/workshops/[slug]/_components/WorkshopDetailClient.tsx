@@ -98,7 +98,7 @@ function MediaGallery({
     <div className="space-y-3">
       <div
         className="relative w-full overflow-hidden rounded-2xl"
-        style={{ aspectRatio: "16/9", background: "#111" }}
+        style={{ aspectRatio: "1/1", background: "#111" }}
       >
         {current.type === "image" ? (
           <img

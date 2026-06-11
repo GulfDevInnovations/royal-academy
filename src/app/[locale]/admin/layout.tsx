@@ -32,8 +32,9 @@ export default async function AdminLayout({
   return (
     <div
       dir="ltr"
+      data-admin-panel
       className="flex h-screen overflow-hidden"
-      style={{ background: '#13161f' }}
+      style={{ background: '#f5f6fa' }}
     >
       {/* Background pattern */}
       <div
@@ -43,7 +44,7 @@ export default async function AdminLayout({
           backgroundRepeat: 'repeat',
           backgroundSize: '1600px auto',
           opacity: 0.01,
-          filter: 'sepia(1) saturate(0.5) brightness(2)',
+          filter: 'sepia(0)',
         }}
       />
       <AdminSidebar />

@@ -321,7 +321,7 @@ export default function GalleryClient({
                 background:
                   activeTab === tab.key
                     ? "rgba(245,158,11,0.15)"
-                    : "rgba(255,255,255,0.05)",
+                    : "rgba(0,0,0,0.05)",
                 color:
                   activeTab === tab.key ? "#f59e0b" : adminColors.textMuted,
               }}
@@ -349,7 +349,7 @@ export default function GalleryClient({
                 onChange={(e) => setFilterVisibility(e.target.value)}
                 className="text-l rounded-lg border px-2.5 py-1.5 outline-none"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
+                  background: "rgba(0,0,0,0.04)",
                   borderColor: adminColors.border,
                   color: adminColors.textSecondary,
                 }}
@@ -366,7 +366,7 @@ export default function GalleryClient({
                 onChange={(e) => setFilterType(e.target.value)}
                 className="text-l rounded-lg border px-2.5 py-1.5 outline-none"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
+                  background: "rgba(0,0,0,0.04)",
                   borderColor: adminColors.border,
                   color: adminColors.textSecondary,
                 }}
@@ -382,7 +382,7 @@ export default function GalleryClient({
                 onChange={(e) => setFilterCategory(e.target.value)}
                 className="text-l rounded-lg border px-2.5 py-1.5 outline-none"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
+                  background: "rgba(0,0,0,0.04)",
                   borderColor: adminColors.border,
                   color: adminColors.textSecondary,
                 }}
@@ -442,7 +442,7 @@ export default function GalleryClient({
                       <AdminTd>
                         <div
                           className="w-14 h-10 rounded-lg overflow-hidden flex items-center justify-center shrink-0"
-                          style={{ background: "rgba(255,255,255,0.04)" }}
+                          style={{ background: "rgba(0,0,0,0.04)" }}
                         >
                           {item.mediaType === "IMAGE" ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -528,7 +528,7 @@ export default function GalleryClient({
                                 key={p.person.id}
                                 className="text-[15px] px-1.5 py-0.5 rounded-full"
                                 style={{
-                                  background: "rgba(255,255,255,0.06)",
+                                  background: "rgba(0,0,0,0.06)",
                                   color: adminColors.textSecondary,
                                 }}
                               >
@@ -539,7 +539,7 @@ export default function GalleryClient({
                               <span
                                 className="text-[15px] px-1.5 py-0.5 rounded-full"
                                 style={{
-                                  background: "rgba(255,255,255,0.04)",
+                                  background: "rgba(0,0,0,0.04)",
                                   color: adminColors.textMuted,
                                 }}
                               >
@@ -572,7 +572,7 @@ export default function GalleryClient({
                                   : "PUBLISHED",
                               )
                             }
-                            className="p-1 rounded text-white/20 hover:text-white/60 transition-colors"
+                            className="p-1 rounded text-gray-300 hover:text-gray-600 transition-colors"
                           >
                             {item.visibility === "PUBLISHED" ? (
                               <EyeOff size={16} />
@@ -591,7 +591,7 @@ export default function GalleryClient({
                           style={{
                             color: item.isFeatured
                               ? "#f59e0b"
-                              : "rgba(255,255,255,0.2)",
+                              : "rgba(156,163,175,1)",
                           }}
                           title={
                             item.isFeatured
@@ -614,7 +614,7 @@ export default function GalleryClient({
                             onClick={() =>
                               setModal({ type: "editItem", data: item })
                             }
-                            className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-white/5 transition-colors"
+                            className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-black/5 transition-colors"
                             title="Edit"
                           >
                             <Pencil size={20} />
@@ -623,7 +623,7 @@ export default function GalleryClient({
                             onClick={() =>
                               setModal({ type: "deleteItem", data: item })
                             }
-                            className="p-1.5 rounded-lg text-red-800 hover:text-red-500 hover:bg-white/5 transition-colors"
+                            className="p-1.5 rounded-lg text-red-800 hover:text-red-500 hover:bg-black/5 transition-colors"
                             title="Delete"
                           >
                             <Trash2 size={20} />
@@ -684,7 +684,7 @@ export default function GalleryClient({
                         <code
                           className="text-l px-2 py-0.5 rounded"
                           style={{
-                            background: "rgba(255,255,255,0.04)",
+                            background: "rgba(0,0,0,0.04)",
                             color: adminColors.textSecondary,
                           }}
                         >
@@ -714,7 +714,7 @@ export default function GalleryClient({
                             onClick={() =>
                               setModal({ type: "editCategory", data: cat })
                             }
-                            className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-white/5 transition-colors"
+                            className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-black/5 transition-colors"
                           >
                             <Pencil size={20} />
                           </button>
@@ -722,7 +722,7 @@ export default function GalleryClient({
                             onClick={() =>
                               setModal({ type: "deleteCategory", data: cat })
                             }
-                            className="p-1.5 rounded-lg text-red-800 hover:text-red-500 hover:bg-white/5 transition-colors"
+                            className="p-1.5 rounded-lg text-red-800 hover:text-red-500 hover:bg-black/5 transition-colors"
                           >
                             <Trash2 size={20} />
                           </button>
@@ -805,7 +805,7 @@ export default function GalleryClient({
                             onClick={() =>
                               setModal({ type: "editPerson", data: person })
                             }
-                            className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-white/5 transition-colors"
+                            className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-black/5 transition-colors"
                           >
                             <Pencil size={20} />
                           </button>
@@ -813,7 +813,7 @@ export default function GalleryClient({
                             onClick={() =>
                               setModal({ type: "deletePerson", data: person })
                             }
-                            className="p-1.5 rounded-lg text-red-800 hover:text-red-500 hover:bg-white/5 transition-colors"
+                            className="p-1.5 rounded-lg text-red-800 hover:text-red-500 hover:bg-black/5 transition-colors"
                           >
                             <Trash2 size={20} />
                           </button>

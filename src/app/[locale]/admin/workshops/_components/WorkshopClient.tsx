@@ -264,15 +264,15 @@ export default function WorkshopsClient({
           <div className="relative flex-1 min-w-48">
             <Search
               size={18}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
             />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search title, teacher, room…"
-              className="w-full pl-8 pr-3 py-2 rounded-lg border bg-white/[0.03] text-xl focus:outline-none focus:border-amber-500/40 transition-colors"
+              className="w-full pl-8 pr-3 py-2 rounded-lg border bg-gray-50 text-xl focus:outline-none focus:border-amber-500/40 transition-colors"
               style={{
-                borderColor: "rgba(255,255,255,0.08)",
+                borderColor: "rgba(0,0,0,0.07)",
                 color: adminColors.textPrimary,
               }}
             />
@@ -281,7 +281,7 @@ export default function WorkshopsClient({
           {/* Status filter */}
           <div
             className="flex rounded-lg overflow-hidden border"
-            style={{ borderColor: "rgba(255,255,255,0.08)" }}
+            style={{ borderColor: "rgba(0,0,0,0.07)" }}
           >
             {(["all", "active", "inactive"] as const).map((v) => (
               <button
@@ -303,7 +303,7 @@ export default function WorkshopsClient({
           {/* Time filter */}
           <div
             className="flex rounded-lg overflow-hidden border"
-            style={{ borderColor: "rgba(255,255,255,0.08)" }}
+            style={{ borderColor: "rgba(0,0,0,0.07)" }}
           >
             {(["all", "upcoming", "past"] as const).map((v) => (
               <button
@@ -471,7 +471,7 @@ export default function WorkshopsClient({
                         </p>
                         <div
                           className="w-16 h-1 rounded-full overflow-hidden"
-                          style={{ background: "rgba(255,255,255,0.06)" }}
+                          style={{ background: "rgba(0,0,0,0.06)" }}
                         >
                           <div
                             className="h-full rounded-full"
@@ -580,24 +580,24 @@ export default function WorkshopsClient({
                           style={{
                             color: w.isActive
                               ? "#34d399"
-                              : "rgba(255,255,255,0.25)",
+                              : "rgba(156,163,175,1)",
                             background: w.isActive
                               ? "rgba(52,211,153,0.08)"
-                              : "rgba(255,255,255,0.04)",
+                              : "rgba(0,0,0,0.04)",
                           }}
                           onMouseEnter={(e) => {
                             (
                               e.currentTarget as HTMLButtonElement
                             ).style.background = w.isActive
                               ? "rgba(52,211,153,0.16)"
-                              : "rgba(255,255,255,0.08)";
+                              : "rgba(0,0,0,0.07)";
                           }}
                           onMouseLeave={(e) => {
                             (
                               e.currentTarget as HTMLButtonElement
                             ).style.background = w.isActive
                               ? "rgba(52,211,153,0.08)"
-                              : "rgba(255,255,255,0.04)";
+                              : "rgba(0,0,0,0.04)";
                           }}
                         >
                           {w.isActive ? (

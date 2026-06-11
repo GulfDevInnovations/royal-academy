@@ -61,6 +61,8 @@ export async function createClass(formData: FormData) {
   const description  = formData.get("description")   as string | null;
   const description_ar = formData.get("description_ar") as string | null;
   const sortOrder    = parseInt(formData.get("sortOrder") as string) || 0;
+  const mediaUrl     = (formData.get("mediaUrl")     as string | null) || null;
+  const mediaKind    = (formData.get("mediaKind")    as string | null) || null;
 
   if (!name) return { error: "Name is required." };
 
@@ -71,6 +73,8 @@ export async function createClass(formData: FormData) {
       description:    description    || null,
       description_ar: description_ar || null,
       sortOrder,
+      mediaUrl,
+      mediaKind,
     },
   });
   return { success: true };
@@ -83,6 +87,8 @@ export async function updateClass(id: string, formData: FormData) {
   const description_ar = formData.get("description_ar") as string | null;
   const sortOrder    = parseInt(formData.get("sortOrder") as string) || 0;
   const isActive     = formData.get("isActive") === "true";
+  const mediaUrl     = (formData.get("mediaUrl")     as string | null) || null;
+  const mediaKind    = (formData.get("mediaKind")    as string | null) || null;
 
   if (!name) return { error: "Name is required." };
 
@@ -95,6 +101,7 @@ export async function updateClass(id: string, formData: FormData) {
       description_ar: description_ar || null,
       sortOrder,
       isActive,
+      ...(mediaUrl !== null ? { mediaUrl, mediaKind } : {}),
     },
   });
   return { success: true };
@@ -131,6 +138,8 @@ const description_ar = formData.get("description_ar") as string | null;
   const level             = formData.get("level")    as string | null;
   const ageGroup          = formData.get("ageGroup") as string | null;
   const isTrialAvailable  = formData.get("isTrialAvailable") === "true";
+  const mediaUrl          = (formData.get("mediaUrl")  as string | null) || null;
+  const mediaKind         = (formData.get("mediaKind") as string | null) || null;
 
   if (!name) return { error: "Name is required." };
 
@@ -151,6 +160,8 @@ const description_ar = formData.get("description_ar") as string | null;
       level:    level    || null,
       ageGroup: ageGroup || null,
       isTrialAvailable,
+      mediaUrl,
+      mediaKind,
     },
   });
   return { success: true };
@@ -172,6 +183,8 @@ export async function updateSubClass(id: string, formData: FormData) {
   const ageGroup          = formData.get("ageGroup") as string | null;
   const isTrialAvailable  = formData.get("isTrialAvailable") === "true";
   const isActive          = formData.get("isActive") === "true";
+  const mediaUrl          = (formData.get("mediaUrl")  as string | null) || null;
+  const mediaKind         = (formData.get("mediaKind") as string | null) || null;
 
   if (!name) return { error: "Name is required." };
 
@@ -193,6 +206,7 @@ export async function updateSubClass(id: string, formData: FormData) {
       ageGroup: ageGroup || null,
       isTrialAvailable,
       isActive,
+      ...(mediaUrl !== null ? { mediaUrl, mediaKind } : {}),
     },
   });
   return { success: true };
@@ -252,6 +266,8 @@ export async function createProgram(subClassId: string, formData: FormData) {
   const ageGroup          = formData.get("ageGroup") as string | null;
   const isTrialAvailable  = formData.get("isTrialAvailable") === "true";
   const sortOrder         = parseInt(formData.get("sortOrder") as string) || 0;
+  const mediaUrl          = (formData.get("mediaUrl")  as string | null) || null;
+  const mediaKind         = (formData.get("mediaKind") as string | null) || null;
 
   if (!name) return { error: "Name is required." };
 
@@ -273,6 +289,8 @@ export async function createProgram(subClassId: string, formData: FormData) {
       ageGroup: ageGroup || null,
       isTrialAvailable,
       sortOrder,
+      mediaUrl,
+      mediaKind,
     },
   });
   return { success: true };
@@ -295,6 +313,8 @@ export async function updateProgram(id: string, formData: FormData) {
   const isTrialAvailable  = formData.get("isTrialAvailable") === "true";
   const isActive          = formData.get("isActive") === "true";
   const sortOrder         = parseInt(formData.get("sortOrder") as string) || 0;
+  const mediaUrl          = (formData.get("mediaUrl")  as string | null) || null;
+  const mediaKind         = (formData.get("mediaKind") as string | null) || null;
 
   if (!name) return { error: "Name is required." };
 
@@ -317,6 +337,7 @@ export async function updateProgram(id: string, formData: FormData) {
       isTrialAvailable,
       isActive,
       sortOrder,
+      ...(mediaUrl !== null ? { mediaUrl, mediaKind } : {}),
     },
   });
   return { success: true };

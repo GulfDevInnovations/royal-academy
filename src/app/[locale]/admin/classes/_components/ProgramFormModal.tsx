@@ -13,6 +13,7 @@ import {
   AdminButton,
   adminColors,
 } from "@/components/admin/ui";
+import MediaUploadField from "./MediaUploadField";
 
 interface Props {
   parentSubClass: SerializedSubClass;
@@ -40,6 +41,8 @@ export default function ProgramFormModal({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [langTab, setLangTab] = useState<"en" | "ar">("en");
+  const [mediaUrl, setMediaUrl] = useState<string | null>((editing as any)?.mediaUrl ?? null);
+  const [mediaKind, setMediaKind] = useState<string | null>((editing as any)?.mediaKind ?? null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +63,7 @@ export default function ProgramFormModal({
   };
 
   const inputStyle = {
-    background: "rgba(255,255,255,0.04)",
+    background: "rgba(0,0,0,0.04)",
     borderColor: adminColors.border,
     color: adminColors.textPrimary,
   };
@@ -69,15 +72,14 @@ export default function ProgramFormModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
       />
 
       <div
-        className="relative w-full max-w-2xl rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[90vh] flex flex-col"
-        style={{ background: "#1a1d27" }}
+        className="relative w-full max-w-2xl rounded-2xl border border-black/8 shadow-2xl z-10 max-h-[90vh] flex flex-col"
+        style={{ background: "#ffffff" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-black/8 shrink-0">
           <div>
             <h2
               className="text-xl font-semibold"
@@ -91,7 +93,7 @@ export default function ProgramFormModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
           >
             <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
@@ -107,7 +109,7 @@ export default function ProgramFormModal({
             {/* Lang tab */}
             <div
               className="flex items-center gap-1 p-1 rounded-lg w-fit"
-              style={{ background: "rgba(255,255,255,0.05)" }}
+              style={{ background: "rgba(0,0,0,0.05)" }}
             >
               {(["en", "ar"] as const).map((lang) => (
                 <button
@@ -260,7 +262,7 @@ export default function ProgramFormModal({
             <Section title="Pricing (OMR)">
               <div className="grid grid-cols-2 gap-3">
                 <AdminInput
-                  label="Base Price"
+                  label="Price Per Session"
                   name="price"
                   type="number"
                   step="0.5"
@@ -326,6 +328,19 @@ export default function ProgramFormModal({
                   </AdminSelect>
                 )}
               </div>
+            </Section>
+
+            {/* ── Media ── */}
+            <Section title="Cover Media">
+              <MediaUploadField
+                currentUrl={mediaUrl}
+                currentKind={mediaKind ?? undefined}
+                onUploadComplete={(url, kind) => { setMediaUrl(url); setMediaKind(kind); }}
+                onClear={() => { setMediaUrl(null); setMediaKind(null); }}
+                folder="classes"
+              />
+              <input type="hidden" name="mediaUrl" value={mediaUrl ?? ""} />
+              <input type="hidden" name="mediaKind" value={mediaKind ?? ""} />
             </Section>
 
             {error && (

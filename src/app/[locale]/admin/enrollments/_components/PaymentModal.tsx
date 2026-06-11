@@ -125,14 +125,13 @@ export default function PaymentModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
       />
       <div
-        className="relative w-full max-w-sm rounded-2xl border border-white/8 shadow-2xl z-10"
-        style={{ background: "#1a1d27" }}
+        className="relative w-full max-w-sm rounded-2xl border border-black/8 shadow-2xl z-10"
+        style={{ background: "#ffffff" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-black/8">
           <div className="flex items-center gap-2">
             <CreditCard size={19} style={{ color: "#f59e0b" }} />
             <div>
@@ -154,7 +153,7 @@ export default function PaymentModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
           >
             <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
@@ -165,8 +164,8 @@ export default function PaymentModal({
           <div
             className="px-4 py-3 rounded-xl border space-y-1.5"
             style={{
-              borderColor: "rgba(255,255,255,0.07)",
-              background: "rgba(255,255,255,0.02)",
+              borderColor: "rgba(0,0,0,0.07)",
+              background: "rgba(0,0,0,0.02)",
             }}
           >
             <p
@@ -206,7 +205,7 @@ export default function PaymentModal({
 
             {/* Child months breakdown for multi */}
             {type === "multi" && (
-              <div className="pt-1 border-t border-white/5">
+              <div className="pt-1 border-t border-black/5">
                 <p
                   className="text-[16px] mb-1.5"
                   style={{ color: adminColors.textMuted }}

@@ -99,7 +99,7 @@ const METHOD_LABEL: Record<string, string> = {
 };
 
 const TYPE_COLORS: Record<PaymentTab, { bg: string; text: string }> = {
-  ALL: { bg: "rgba(255,255,255,0.08)", text: adminColors.textSecondary },
+  ALL: { bg: "rgba(0,0,0,0.07)", text: adminColors.textSecondary },
   ENROLLMENT: { bg: "rgba(245,158,11,0.12)", text: "#f59e0b" },
   BOOKING: { bg: "rgba(96,165,250,0.12)", text: "#60a5fa" },
   TRIAL: { bg: "rgba(52,211,153,0.12)", text: "#34d399" },
@@ -401,8 +401,8 @@ export default function PaymentsClient({
             key={label}
             className="rounded-xl border px-4 py-3 flex items-start gap-3"
             style={{
-              borderColor: "rgba(255,255,255,0.07)",
-              background: "#1a1d27",
+              borderColor: "rgba(0,0,0,0.07)",
+              background: "#ffffff",
             }}
           >
             <div
@@ -428,7 +428,7 @@ export default function PaymentsClient({
         {/* Tabs */}
         <div
           className="flex items-center rounded-lg border overflow-hidden"
-          style={{ borderColor: "rgba(255,255,255,0.08)" }}
+          style={{ borderColor: "rgba(0,0,0,0.07)" }}
         >
           {TABS.map(({ key, label }) => {
             const count =
@@ -444,10 +444,10 @@ export default function PaymentsClient({
                   background:
                     tab === key
                       ? `${TYPE_COLORS[key].bg}`
-                      : "rgba(255,255,255,0.02)",
+                      : "rgba(0,0,0,0.02)",
                   color:
                     tab === key ? TYPE_COLORS[key].text : adminColors.textMuted,
-                  borderRight: "1px solid rgba(255,255,255,0.05)",
+                  borderRight: "1px solid rgba(0,0,0,0.05)",
                 }}
               >
                 {label}
@@ -458,7 +458,7 @@ export default function PaymentsClient({
                       background:
                         tab === key
                           ? `${TYPE_COLORS[key].text}20`
-                          : "rgba(255,255,255,0.06)",
+                          : "rgba(0,0,0,0.06)",
                       color:
                         tab === key
                           ? TYPE_COLORS[key].text
@@ -476,11 +476,11 @@ export default function PaymentsClient({
         {/* Month navigator */}
         <div
           className="flex items-center gap-1 rounded-lg border px-1"
-          style={{ borderColor: "rgba(255,255,255,0.08)" }}
+          style={{ borderColor: "rgba(0,0,0,0.07)" }}
         >
           <button
             onClick={() => navigateMonth(-1)}
-            className="p-1.5 rounded-md transition-colors text-white/40 hover:text-white/80"
+            className="p-1.5 rounded-md transition-colors text-gray-500 hover:text-gray-800"
           >
             <ChevronLeft size={18} />
           </button>
@@ -492,7 +492,7 @@ export default function PaymentsClient({
           </span>
           <button
             onClick={() => navigateMonth(1)}
-            className="p-1.5 rounded-md transition-colors text-white/40 hover:text-white/80"
+            className="p-1.5 rounded-md transition-colors text-gray-500 hover:text-gray-800"
           >
             <ChevronRight size={18} />
           </button>
@@ -502,8 +502,8 @@ export default function PaymentsClient({
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-3 py-2 rounded-lg text-xl border bg-white/4 text-white/70 focus:outline-none"
-          style={{ borderColor: "rgba(255,255,255,0.08)" }}
+          className="px-3 py-2 rounded-lg text-xl border bg-gray-50 text-gray-700 focus:outline-none"
+          style={{ borderColor: "rgba(0,0,0,0.07)" }}
         >
           <option className="text-black" value="">
             {t("allStatuses")}

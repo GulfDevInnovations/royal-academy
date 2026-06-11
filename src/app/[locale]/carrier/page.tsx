@@ -118,97 +118,133 @@ export default function CareersWhoPage({ isArabic = false }) {
   const dir = isArabic ? 'rtl' : 'ltr';
 
   return (
-    <div
-      dir={dir}
-      className="mx-auto w-full max-w-4xl px-4 sm:px-6 md:px-8 pt-28 pb-20"
-    >
-      {/* ── Header ── */}
-      <div className="mb-16">
-        <div className="flex items-center gap-3 mb-6">
-          <span className="block h-px w-8 bg-royal-cream/40" />
-          <span className="text-xs tracking-[0.2em] uppercase text-royal-cream/50 font-light">
-            {t.label}
-          </span>
-        </div>
-
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-wide text-royal-cream leading-tight">
-          {t.title}
-        </h1>
-
-        <p className="mt-5 text-royal-cream/60 text-base md:text-lg leading-relaxed max-w-2xl">
-          {t.intro}
-        </p>
-
-        <div className="mt-10 flex items-center gap-4">
-          <div className="h-px flex-1 bg-royal-cream/10" />
-          <div className="w-1.5 h-1.5 rounded-full bg-royal-cream/30" />
-          <div className="h-px flex-1 bg-royal-cream/10" />
-        </div>
-      </div>
-
-      {/* ── Profile Cards ── */}
-      <div className="space-y-0 divide-y divide-royal-cream/8">
-        {t.profiles.map((profile, i) => (
-          <div
-            key={i}
-            className="group py-9 md:py-11 grid grid-cols-[auto_1fr] gap-x-8 md:gap-x-12 items-start"
-          >
-            {/* Roman numeral */}
-            <span className="text-xs font-mono text-royal-cream/20 tracking-widest pt-1 select-none group-hover:text-royal-cream/40 transition-colors duration-300 min-w-6">
-              {profile.index}
+    <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh' }}>
+      <div dir={dir} className="mx-auto w-full max-w-4xl px-4 sm:px-6 md:px-8 pt-28 pb-20">
+        {/* Header */}
+        <div className="mb-16">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="block h-px w-8" style={{ background: '#d1d5db' }} />
+            <span
+              className="text-xs tracking-[0.2em] uppercase font-light"
+              style={{ color: '#ff751f' }}
+            >
+              {t.label}
             </span>
+          </div>
 
-            <div>
-              <h2 className="text-base md:text-lg text-royal-cream font-medium tracking-wide mb-3">
-                {profile.title}
-              </h2>
-              <p className="text-royal-cream/55 text-sm md:text-base leading-relaxed mb-4">
-                {profile.description}
-              </p>
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2">
-                {profile.tags.map((tag, j) => (
-                  <span
-                    key={j}
-                    className="text-[10px] tracking-widest uppercase text-royal-cream/35 border border-royal-cream/15 px-2.5 py-1 rounded-full"
-                  >
-                    {tag}
-                  </span>
-                ))}
+          <h1
+            className="text-4xl md:text-5xl lg:text-6xl font-light tracking-wide leading-tight"
+            style={{ color: '#111827' }}
+          >
+            {t.title}
+          </h1>
+
+          <p
+            className="mt-5 text-base md:text-lg leading-relaxed max-w-2xl"
+            style={{ color: '#6b7280' }}
+          >
+            {t.intro}
+          </p>
+
+          <div className="mt-10 flex items-center gap-4">
+            <div className="h-px flex-1" style={{ background: '#e5e7eb' }} />
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#d1d5db' }} />
+            <div className="h-px flex-1" style={{ background: '#e5e7eb' }} />
+          </div>
+        </div>
+
+        {/* Profile Cards */}
+        <div style={{ borderTop: '1px solid #e5e7eb' }}>
+          {t.profiles.map((profile, i) => (
+            <div
+              key={i}
+              className="group py-9 md:py-11 grid grid-cols-[auto_1fr] gap-x-8 md:gap-x-12 items-start"
+              style={{ borderBottom: '1px solid #e5e7eb' }}
+            >
+              <span
+                className="text-xs font-mono tracking-widest pt-1 select-none min-w-6"
+                style={{ color: '#ff751f' }}
+              >
+                {profile.index}
+              </span>
+
+              <div>
+                <h2
+                  className="text-base md:text-lg font-medium tracking-wide mb-3"
+                  style={{ color: '#111827' }}
+                >
+                  {profile.title}
+                </h2>
+                <p className="text-sm md:text-base leading-relaxed mb-4" style={{ color: '#6b7280' }}>
+                  {profile.description}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {profile.tags.map((tag, j) => (
+                    <span
+                      key={j}
+                      className="text-[10px] tracking-widest uppercase px-2.5 py-1 rounded-full"
+                      style={{
+                        color: '#ff751f',
+                        border: '1px solid rgba(255,117,31,0.35)',
+                        background: 'rgba(255,117,31,0.06)',
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Universal Requirements ── */}
-      <div className="mt-14 pt-12 border-t border-royal-cream/10">
-        <h3 className="text-sm tracking-[0.15em] uppercase text-royal-cream/50 mb-7">
-          {t.requirements.heading}
-        </h3>
-        <ul className="space-y-3">
-          {t.requirements.items.map((item, i) => (
-            <li
-              key={i}
-              className="flex items-start gap-4 text-royal-cream/60 text-sm md:text-base leading-relaxed"
-            >
-              <span className="mt-2 block w-1 h-1 rounded-full bg-royal-cream/30 shrink-0" />
-              {item}
-            </li>
           ))}
-        </ul>
-      </div>
+        </div>
 
-      {/* ── CTA ── */}
-      <div className="mt-14 pt-10 border-t border-royal-cream/10 flex flex-col sm:flex-row sm:items-center gap-4">
-        <span className="text-royal-cream/50 text-sm">{t.cta}</span>
-        <a
-          href={`mailto:${t.ctaEmail}`}
-          className="inline-flex items-center gap-2 text-sm text-royal-cream/80 hover:text-royal-cream border border-royal-cream/25 hover:border-royal-cream/50 px-5 py-2.5 rounded-full transition-all duration-200"
+        {/* Universal Requirements */}
+        <div className="mt-14 pt-12" style={{ borderTop: '1px solid #e5e7eb' }}>
+          <h3
+            className="text-sm tracking-[0.15em] uppercase mb-7"
+            style={{ color: '#ff751f' }}
+          >
+            {t.requirements.heading}
+          </h3>
+          <ul className="space-y-3">
+            {t.requirements.items.map((item, i) => (
+              <li
+                key={i}
+                className="flex items-start gap-4 text-sm md:text-base leading-relaxed"
+                style={{ color: '#4b5563' }}
+              >
+                <span
+                  className="mt-2 block w-1 h-1 rounded-full shrink-0"
+                  style={{ background: '#ff751f' }}
+                />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* CTA */}
+        <div
+          className="mt-14 pt-10 flex flex-col sm:flex-row sm:items-center gap-4"
+          style={{ borderTop: '1px solid #e5e7eb' }}
         >
-          {t.ctaLink}
-          <span className="text-royal-cream/40">→</span>
-        </a>
+          <span className="text-sm" style={{ color: '#6b7280' }}>
+            {t.cta}
+          </span>
+          <a
+            href={`mailto:${t.ctaEmail}`}
+            className="inline-flex items-center gap-2 text-sm px-5 py-2.5 rounded-full transition-opacity duration-200 hover:opacity-80"
+            style={{
+              color: '#ffffff',
+              background: '#ff751f',
+              border: '1px solid #ff751f',
+              textDecoration: 'none',
+            }}
+          >
+            {t.ctaLink}
+            <span>→</span>
+          </a>
+        </div>
       </div>
     </div>
   );

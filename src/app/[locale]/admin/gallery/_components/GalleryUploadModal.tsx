@@ -138,7 +138,7 @@ export default function GalleryUploadModal({
   const todayValue = new Date().toISOString().split("T")[0];
 
   const inputStyle = {
-    background: "rgba(255,255,255,0.04)",
+    background: "rgba(0,0,0,0.04)",
     borderColor: adminColors.border,
     color: adminColors.textPrimary,
   };
@@ -147,16 +147,15 @@ export default function GalleryUploadModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
       />
       <div
-        className="relative w-full max-w-2xl rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[90vh] overflow-y-auto"
-        style={{ background: "#1a1d27" }}
+        className="relative w-full max-w-2xl rounded-2xl border border-black/8 shadow-2xl z-10 max-h-[90vh] overflow-y-auto"
+        style={{ background: "#ffffff" }}
       >
         {/* Header */}
         <div
-          className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] sticky top-0 z-10"
-          style={{ background: "#1a1d27" }}
+          className="flex items-center justify-between px-6 py-4 border-b border-black/8 sticky top-0 z-10"
+          style={{ background: "#ffffff" }}
         >
           <h2
             className="text-xl font-semibold"
@@ -166,7 +165,7 @@ export default function GalleryUploadModal({
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
           >
             <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
@@ -179,7 +178,7 @@ export default function GalleryUploadModal({
         >
           <div
             className="flex items-center gap-1 p-1 rounded-lg w-fit"
-            style={{ background: "rgba(255,255,255,0.05)" }}
+            style={{ background: "rgba(0,0,0,0.05)" }}
           >
             {(["en", "ar"] as const).map((lang) => (
               <button
@@ -229,7 +228,7 @@ export default function GalleryUploadModal({
                   ? "#f59e0b"
                   : fileName
                     ? "rgba(245,158,11,0.4)"
-                    : "rgba(255,255,255,0.1)",
+                    : "rgba(0,0,0,0.06)",
               borderStyle: fileName ? "solid" : "dashed",
               background: uploadSuccess
                 ? "rgba(34,197,94,0.06)"
@@ -237,7 +236,7 @@ export default function GalleryUploadModal({
                   ? "rgba(245,158,11,0.05)"
                   : fileName
                     ? "rgba(245,158,11,0.03)"
-                    : "rgba(255,255,255,0.02)",
+                    : "rgba(0,0,0,0.02)",
             }}
           >
             {uploadSuccess ? (
@@ -265,7 +264,7 @@ export default function GalleryUploadModal({
                 <div className="flex items-center gap-3">
                   <div
                     className="w-16 h-16 rounded-lg overflow-hidden shrink-0 flex items-center justify-center"
-                    style={{ background: "rgba(255,255,255,0.04)" }}
+                    style={{ background: "rgba(0,0,0,0.04)" }}
                   >
                     {preview ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -298,9 +297,9 @@ export default function GalleryUploadModal({
                   <button
                     type="button"
                     onClick={openFilePicker}
-                    className="shrink-0 text-[16px] px-2.5 py-1 rounded-lg border transition-colors hover:bg-white/5"
+                    className="shrink-0 text-[16px] px-2.5 py-1 rounded-lg border transition-colors hover:bg-black/5"
                     style={{
-                      borderColor: "rgba(255,255,255,0.1)",
+                      borderColor: "rgba(0,0,0,0.06)",
                       color: adminColors.textMuted,
                     }}
                   >
@@ -413,10 +412,10 @@ export default function GalleryUploadModal({
                       style={{
                         borderColor: selected
                           ? "#f59e0b"
-                          : "rgba(255,255,255,0.1)",
+                          : "rgba(0,0,0,0.06)",
                         background: selected
                           ? "rgba(245,158,11,0.1)"
-                          : "rgba(255,255,255,0.03)",
+                          : "rgba(0,0,0,0.03)",
                         color: selected ? "#f59e0b" : adminColors.textSecondary,
                       }}
                     >
@@ -549,8 +548,8 @@ export default function GalleryUploadModal({
                   name="takenAt"
                   label="Date Taken"
                   defaultValue={todayValue}
-                  theme="dark"
-                  fieldClassName="w-full px-3 py-2 rounded-lg border bg-white/4 text-white/80..."
+                  theme="light"
+                  fieldClassName="w-full px-3 py-2 rounded-lg border bg-gray-50 text-gray-800..."
                   inputStyle={{ borderColor: adminColors.border }}
                 />
 
@@ -564,7 +563,7 @@ export default function GalleryUploadModal({
                       Video Thumbnail (optional)
                     </label>
                     <label
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer text-l transition-colors hover:bg-white/3"
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer text-l transition-colors hover:bg-black/3"
                       style={{
                         borderColor: adminColors.border,
                         color: adminColors.textSecondary,

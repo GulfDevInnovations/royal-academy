@@ -199,12 +199,12 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
       {/* ── Templates ── */}
       <div
         className="rounded-xl border overflow-hidden"
-        style={{ borderColor: "rgba(255,255,255,0.07)" }}
+        style={{ borderColor: "rgba(0,0,0,0.07)" }}
       >
         <button
           type="button"
           onClick={() => setShowTemplates((v) => !v)}
-          className="w-full flex items-center justify-between px-4 py-3 text-xl transition-colors hover:bg-white/2"
+          className="w-full flex items-center justify-between px-4 py-3 text-xl transition-colors hover:bg-black/3"
           style={{ color: adminColors.textSecondary }}
         >
           <span className="font-medium">Message Templates</span>
@@ -213,14 +213,14 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
         {showTemplates && (
           <div
             className="border-t grid grid-cols-1 divide-y"
-            style={{ borderColor: "rgba(255,255,255,0.06)" }}
+            style={{ borderColor: "rgba(0,0,0,0.06)" }}
           >
             {TEMPLATES.map((t) => (
               <button
                 key={t.id}
                 type="button"
                 onClick={() => applyTemplate(t)}
-                className="flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-white/2"
+                className="flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-black/3"
               >
                 <div
                   className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
@@ -259,11 +259,11 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
                 borderColor:
                   target === opt.value
                     ? "rgba(245,158,11,0.5)"
-                    : "rgba(255,255,255,0.07)",
+                    : "rgba(0,0,0,0.07)",
                 background:
                   target === opt.value
                     ? "rgba(245,158,11,0.08)"
-                    : "rgba(255,255,255,0.02)",
+                    : "rgba(0,0,0,0.02)",
               }}
             >
               <span
@@ -356,15 +356,15 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
             </p>
             <div
               className="rounded-xl border overflow-hidden max-h-48 overflow-y-auto"
-              style={{ borderColor: "rgba(255,255,255,0.07)" }}
+              style={{ borderColor: "rgba(0,0,0,0.07)" }}
             >
               {allPeople.map((person) => {
                 const isSelected = customIds.includes(person.userId);
                 return (
                   <label
                     key={person.userId}
-                    className="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors hover:bg-white/2 border-b"
-                    style={{ borderColor: "rgba(255,255,255,0.04)" }}
+                    className="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors hover:bg-black/3 border-b"
+                    style={{ borderColor: "rgba(0,0,0,0.04)" }}
                   >
                     <input
                       type="checkbox"
@@ -448,8 +448,8 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
             onChange={(e) => setBody(e.target.value)}
             rows={5}
             placeholder="Type your message here…"
-            className="w-full px-3 py-2.5 rounded-xl border bg-white/3 text-xl text-white/80 placeholder-white/20 focus:outline-none focus:border-amber-500/40 resize-none transition-colors"
-            style={{ borderColor: "rgba(255,255,255,0.07)" }}
+            className="w-full px-3 py-2.5 rounded-xl border bg-black/3 text-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:border-amber-500/40 resize-none transition-colors"
+            style={{ borderColor: "rgba(0,0,0,0.07)" }}
             required
           />
           <div className="flex items-center justify-between">
@@ -514,7 +514,7 @@ export default function ComposeTab({ audienceOptions, onSent }: Props) {
               onClick={() => setScheduled((v) => !v)}
               className="w-9 h-5 rounded-full relative transition-colors shrink-0"
               style={{
-                background: scheduled ? "#f59e0b" : "rgba(255,255,255,0.1)",
+                background: scheduled ? "#f59e0b" : "rgba(0,0,0,0.06)",
               }}
             >
               <div

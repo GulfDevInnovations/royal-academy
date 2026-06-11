@@ -138,19 +138,19 @@ function TicketStatusBadge({ status }: { status: TicketStatus }) {
   const map: Record<TicketStatus, { label: string; cls: string }> = {
     OPEN: {
       label: "Open",
-      cls: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+      cls: "bg-amber-50 text-amber-600 border-amber-200",
     },
     IN_PROGRESS: {
       label: "In Progress",
-      cls: "bg-sky-500/15 text-sky-300 border-sky-500/30",
+      cls: "bg-sky-50 text-sky-600 border-sky-200",
     },
     RESOLVED: {
       label: "Resolved",
-      cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+      cls: "bg-emerald-50 text-emerald-600 border-emerald-200",
     },
     CLOSED: {
       label: "Closed",
-      cls: "bg-gray-500/15 text-gray-400 border-gray-500/20",
+      cls: "bg-gray-100 text-gray-500 border-gray-300",
     },
   };
   const { label, cls } = map[status] ?? map.OPEN;
@@ -180,28 +180,28 @@ function FaqPanel({ onClose }: { onClose: () => void }) {
   return (
     <div
       className="rounded-2xl overflow-hidden"
-      style={{ background: "#141414", border: "1px solid #222" }}
+      style={{ background: "#ffffff", border: "1px solid #e5e7eb" }}
     >
       {/* Panel header */}
       <div
         className="flex items-center justify-between px-6 py-5 border-b"
-        style={{ borderColor: "#222" }}
+        style={{ borderColor: "#e5e7eb" }}
       >
         <div className="flex items-center gap-3">
           <HelpCircle size={18} style={{ color: ORANGE }} />
-          <span className="font-semibold text-base" style={{ color: "#f0f0f0" }}>
+          <span className="font-semibold text-base" style={{ color: "#111827" }}>
             Frequently Asked Questions
           </span>
-          <span className="text-xs" style={{ color: "#555" }}>
+          <span className="text-xs" style={{ color: "#9ca3af" }}>
             {FAQ_ITEMS.reduce((s, c) => s + c.items.length, 0)} questions
           </span>
         </div>
         <button
           onClick={onClose}
           className="p-1 transition-colors"
-          style={{ color: "#555" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#999")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#555")}
+          style={{ color: "#9ca3af" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#6b7280")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#9ca3af")}
         >
           <X size={18} />
         </button>
@@ -211,24 +211,24 @@ function FaqPanel({ onClose }: { onClose: () => void }) {
       <div className="px-6 pt-5 pb-3">
         <div
           className="flex items-center gap-3 rounded-xl px-5 py-3"
-          style={{ background: "#1a1a1a", border: "1px solid #2a2a2a" }}
+          style={{ background: "#f9fafb", border: "1px solid #e5e7eb" }}
         >
-          <Search size={15} className="shrink-0" style={{ color: "#555" }} />
+          <Search size={15} className="shrink-0" style={{ color: "#9ca3af" }} />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search questions…"
             className="flex-1 bg-transparent text-base outline-none"
-            style={{ color: "#f0f0f0" }}
+            style={{ color: "#111827" }}
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
               className="transition-colors"
-              style={{ color: "#555" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#999")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#555")}
+              style={{ color: "#9ca3af" }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#6b7280")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "#9ca3af")}
             >
               <X size={14} />
             </button>
@@ -243,12 +243,12 @@ function FaqPanel({ onClose }: { onClose: () => void }) {
             <HelpCircle
               size={36}
               className="mx-auto mb-3"
-              style={{ color: "rgba(255,117,31,0.18)" }}
+              style={{ color: "rgba(255,117,31,0.3)" }}
             />
-            <p className="text-base" style={{ color: "#555" }}>
+            <p className="text-base" style={{ color: "#9ca3af" }}>
               No matches for &quot;{searchQuery}&quot;
             </p>
-            <p className="text-sm mt-1" style={{ color: "#3a3a3a" }}>
+            <p className="text-sm mt-1" style={{ color: "#d1d5db" }}>
               Try a different word or submit a ticket below.
             </p>
           </div>
@@ -259,7 +259,7 @@ function FaqPanel({ onClose }: { onClose: () => void }) {
                 <span className="text-base">{cat.icon}</span>
                 <span
                   className="text-xs uppercase tracking-widest font-semibold"
-                  style={{ color: `rgba(255,117,31,0.55)` }}
+                  style={{ color: ORANGE }}
                 >
                   {cat.category}
                 </span>
@@ -273,10 +273,10 @@ function FaqPanel({ onClose }: { onClose: () => void }) {
                       key={key}
                       className="rounded-xl overflow-hidden transition-all duration-200"
                       style={{
-                        background: isOpen ? `rgba(255,117,31,0.06)` : "#1a1a1a",
+                        background: isOpen ? `rgba(255,117,31,0.05)` : "#f9fafb",
                         border: isOpen
-                          ? `1px solid rgba(255,117,31,0.22)`
-                          : "1px solid #222",
+                          ? `1px solid rgba(255,117,31,0.3)`
+                          : "1px solid #e5e7eb",
                       }}
                     >
                       <button
@@ -285,11 +285,11 @@ function FaqPanel({ onClose }: { onClose: () => void }) {
                       >
                         <span
                           className="text-base transition-colors"
-                          style={{ color: isOpen ? ORANGE : "rgba(255,255,255,0.7)" }}
+                          style={{ color: isOpen ? ORANGE : "#374151" }}
                         >
                           {item.q}
                         </span>
-                        <span className="shrink-0 ml-4" style={{ color: "#555" }}>
+                        <span className="shrink-0 ml-4" style={{ color: "#9ca3af" }}>
                           {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </span>
                       </button>
@@ -297,7 +297,7 @@ function FaqPanel({ onClose }: { onClose: () => void }) {
                         <div className="px-5 pb-4">
                           <p
                             className="text-base leading-relaxed border-t pt-4"
-                            style={{ color: "rgba(255,255,255,0.5)", borderColor: "#1f1f1f" }}
+                            style={{ color: "#6b7280", borderColor: "#e5e7eb" }}
                           >
                             {item.a}
                           </p>
@@ -326,7 +326,7 @@ function MyTickets({ tickets }: { tickets: SerializedTicket[] }) {
           <div
             key={t.id}
             className="rounded-2xl overflow-hidden"
-            style={{ background: "#141414", border: "1px solid #222" }}
+            style={{ background: "#ffffff", border: "1px solid #e5e7eb" }}
           >
             <button
               onClick={() => setOpenId(isOpen ? null : t.id)}
@@ -335,33 +335,33 @@ function MyTickets({ tickets }: { tickets: SerializedTicket[] }) {
               <MessageSquare
                 size={18}
                 className="shrink-0"
-                style={{ color: `rgba(255,117,31,0.5)` }}
+                style={{ color: `rgba(255,117,31,0.6)` }}
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2.5 flex-wrap mb-1">
                   <span
                     className="text-base font-medium truncate"
-                    style={{ color: "rgba(255,255,255,0.8)" }}
+                    style={{ color: "#111827" }}
                   >
                     {t.subject}
                   </span>
                   <TicketStatusBadge status={t.status} />
                 </div>
-                <div className="text-sm" style={{ color: "#555" }}>
+                <div className="text-sm" style={{ color: "#9ca3af" }}>
                   {new Date(t.createdAt).toLocaleDateString("en-GB", {
                     day: "numeric",
                     month: "short",
                     year: "numeric",
                   })}
                   {t.replies.length > 0 && (
-                    <span className="ml-2" style={{ color: `rgba(255,117,31,0.5)` }}>
+                    <span className="ml-2" style={{ color: ORANGE }}>
                       · {t.replies.length}{" "}
                       {t.replies.length === 1 ? "reply" : "replies"}
                     </span>
                   )}
                 </div>
               </div>
-              <span className="shrink-0" style={{ color: "#444" }}>
+              <span className="shrink-0" style={{ color: "#d1d5db" }}>
                 {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
               </span>
             </button>
@@ -369,20 +369,20 @@ function MyTickets({ tickets }: { tickets: SerializedTicket[] }) {
             {isOpen && (
               <div
                 className="border-t px-5 py-5 space-y-4"
-                style={{ borderColor: "#222" }}
+                style={{ borderColor: "#e5e7eb" }}
               >
                 {/* Original message */}
                 <div
                   className="rounded-xl p-5"
-                  style={{ background: "#1a1a1a", border: "1px solid #252525" }}
+                  style={{ background: "#f9fafb", border: "1px solid #e5e7eb" }}
                 >
                   <div
                     className="text-xs uppercase tracking-widest mb-2.5"
-                    style={{ color: "#555" }}
+                    style={{ color: "#9ca3af" }}
                   >
                     Your message
                   </div>
-                  <p className="text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.6)" }}>
+                  <p className="text-base leading-relaxed" style={{ color: "#4b5563" }}>
                     {t.body}
                   </p>
                 </div>
@@ -400,20 +400,20 @@ function MyTickets({ tickets }: { tickets: SerializedTicket[] }) {
                       key={r.id}
                       className={`rounded-xl p-5 ${isAdmin ? "" : "ml-6"}`}
                       style={{
-                        background: isAdmin ? `rgba(255,117,31,0.06)` : "#1a1a1a",
+                        background: isAdmin ? `rgba(255,117,31,0.05)` : "#f9fafb",
                         border: isAdmin
-                          ? `1px solid rgba(255,117,31,0.15)`
-                          : "1px solid #252525",
+                          ? `1px solid rgba(255,117,31,0.2)`
+                          : "1px solid #e5e7eb",
                       }}
                     >
                       <div className="flex items-center justify-between mb-2.5">
                         <span
                           className="text-xs uppercase tracking-widest font-semibold"
-                          style={{ color: isAdmin ? `rgba(255,117,31,0.65)` : "#555" }}
+                          style={{ color: isAdmin ? ORANGE : "#9ca3af" }}
                         >
                           {name}
                         </span>
-                        <span className="text-xs" style={{ color: "#444" }}>
+                        <span className="text-xs" style={{ color: "#9ca3af" }}>
                           {new Date(r.createdAt).toLocaleDateString("en-GB", {
                             day: "numeric",
                             month: "short",
@@ -422,7 +422,7 @@ function MyTickets({ tickets }: { tickets: SerializedTicket[] }) {
                           })}
                         </span>
                       </div>
-                      <p className="text-base leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>
+                      <p className="text-base leading-relaxed" style={{ color: "#4b5563" }}>
                         {r.body}
                       </p>
                     </div>
@@ -430,7 +430,7 @@ function MyTickets({ tickets }: { tickets: SerializedTicket[] }) {
                 })}
 
                 {t.replies.length === 0 && t.status === "OPEN" && (
-                  <div className="flex items-center gap-2.5 text-sm px-1" style={{ color: "#555" }}>
+                  <div className="flex items-center gap-2.5 text-sm px-1" style={{ color: "#9ca3af" }}>
                     <Clock size={13} />
                     Our team typically responds within 1 business day.
                   </div>
@@ -471,21 +471,21 @@ function TicketForm() {
     return (
       <div
         className="rounded-2xl p-10 text-center"
-        style={{ background: "#141414", border: `1px solid rgba(255,117,31,0.2)` }}
+        style={{ background: "#ffffff", border: `1px solid rgba(255,117,31,0.25)` }}
       >
-        <CheckCircle2 size={44} className="text-emerald-400 mx-auto mb-4" />
-        <h3 className="font-semibold text-xl mb-2" style={{ color: "#f0f0f0" }}>
+        <CheckCircle2 size={44} className="text-emerald-500 mx-auto mb-4" />
+        <h3 className="font-semibold text-xl mb-2" style={{ color: "#111827" }}>
           Ticket Submitted
         </h3>
-        <p className="text-base mb-5" style={{ color: "#666" }}>
+        <p className="text-base mb-5" style={{ color: "#6b7280" }}>
           We&apos;ve received your message and will respond within 1 business day.
         </p>
         <button
           onClick={() => setSuccess(false)}
           className="text-sm underline underline-offset-2 transition-colors"
-          style={{ color: `rgba(255,117,31,0.65)` }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = ORANGE)}
-          onMouseLeave={(e) => (e.currentTarget.style.color = `rgba(255,117,31,0.65)`)}
+          style={{ color: ORANGE }}
+          onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.75")}
+          onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
         >
           Submit another ticket
         </button>
@@ -495,7 +495,7 @@ function TicketForm() {
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <label className="text-sm uppercase tracking-widest" style={{ color: "#666" }}>
+        <label className="text-sm uppercase tracking-widest" style={{ color: "#6b7280" }}>
           Subject
         </label>
         <input
@@ -505,17 +505,17 @@ function TicketForm() {
           placeholder="e.g. Unable to reschedule my ballet class"
           maxLength={120}
           className="w-full rounded-xl px-5 py-4 text-base outline-none transition-all"
-          style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#f0f0f0" }}
+          style={{ background: "#ffffff", border: "1px solid #d1d5db", color: "#111827" }}
           onFocus={(e) => (e.currentTarget.style.borderColor = ORANGE)}
-          onBlur={(e) => (e.currentTarget.style.borderColor = "#2a2a2a")}
+          onBlur={(e) => (e.currentTarget.style.borderColor = "#d1d5db")}
         />
-        <div className="text-right text-xs" style={{ color: "#444" }}>
+        <div className="text-right text-xs" style={{ color: "#9ca3af" }}>
           {subject.length}/120
         </div>
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm uppercase tracking-widest" style={{ color: "#666" }}>
+        <label className="text-sm uppercase tracking-widest" style={{ color: "#6b7280" }}>
           Message
         </label>
         <textarea
@@ -525,11 +525,11 @@ function TicketForm() {
           maxLength={2000}
           rows={6}
           className="w-full rounded-xl px-5 py-4 text-base outline-none resize-none transition-all"
-          style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#f0f0f0" }}
+          style={{ background: "#ffffff", border: "1px solid #d1d5db", color: "#111827" }}
           onFocus={(e) => (e.currentTarget.style.borderColor = ORANGE)}
-          onBlur={(e) => (e.currentTarget.style.borderColor = "#2a2a2a")}
+          onBlur={(e) => (e.currentTarget.style.borderColor = "#d1d5db")}
         />
-        <div className="flex justify-between text-xs" style={{ color: "#444" }}>
+        <div className="flex justify-between text-xs" style={{ color: "#9ca3af" }}>
           <span>Be as specific as possible</span>
           <span>{body.length}/2000</span>
         </div>
@@ -537,8 +537,8 @@ function TicketForm() {
 
       {error && (
         <div
-          className="flex items-center gap-2.5 rounded-xl px-5 py-4 text-base text-red-300"
-          style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}
+          className="flex items-center gap-2.5 rounded-xl px-5 py-4 text-base text-red-600"
+          style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}
         >
           <AlertCircle size={16} className="shrink-0" />
           {error}
@@ -579,11 +579,11 @@ function Section({
   return (
     <div
       className="rounded-2xl p-8 space-y-6"
-      style={{ background: "#141414", border: "1px solid #222" }}
+      style={{ background: "#ffffff", border: "1px solid #e5e7eb" }}
     >
       <div className="flex items-center gap-3">
         <span style={{ color: ORANGE }}>{icon}</span>
-        <h2 className="font-semibold text-lg" style={{ color: "#f0f0f0" }}>
+        <h2 className="font-semibold text-lg" style={{ color: "#111827" }}>
           {title}
         </h2>
       </div>
@@ -603,20 +603,20 @@ export default function SupportClient({
   );
 
   return (
-    <div className="min-h-screen py-10 px-6" style={{ backgroundColor: "#0d0d0d" }}>
+    <div className="min-h-screen py-10 px-6" style={{ backgroundColor: "#f3f4f6" }}>
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header */}
         <div>
           <div
             className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] mb-3"
-            style={{ color: `rgba(255,117,31,0.55)` }}
+            style={{ color: ORANGE }}
           >
             <Crown size={12} /> Royal Academy
           </div>
-          <h1 className="text-4xl font-bold" style={{ color: "#f0f0f0" }}>
+          <h1 className="text-4xl font-bold" style={{ color: "#111827" }}>
             Help & Support
           </h1>
-          <p className="text-base mt-2" style={{ color: "#666" }}>
+          <p className="text-base mt-2" style={{ color: "#6b7280" }}>
             Find answers or reach our team — we&apos;re here to help.
           </p>
         </div>
@@ -625,10 +625,10 @@ export default function SupportClient({
         <div>
           <button
             onClick={() => setFaqOpen((v) => !v)}
-            className="w-full flex items-center justify-between px-6 py-5 rounded-2xl transition-all hover:shadow-lg"
+            className="w-full flex items-center justify-between px-6 py-5 rounded-2xl transition-all hover:shadow-md"
             style={{
-              background: faqOpen ? `rgba(255,117,31,0.07)` : "#141414",
-              border: faqOpen ? `1px solid rgba(255,117,31,0.25)` : "1px solid #222",
+              background: faqOpen ? `rgba(255,117,31,0.05)` : "#ffffff",
+              border: faqOpen ? `1px solid rgba(255,117,31,0.3)` : "1px solid #e5e7eb",
             }}
           >
             <div className="flex items-center gap-4">
@@ -636,16 +636,16 @@ export default function SupportClient({
                 className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
                 style={{
                   background: `rgba(255,117,31,0.1)`,
-                  border: `1px solid rgba(255,117,31,0.18)`,
+                  border: `1px solid rgba(255,117,31,0.2)`,
                 }}
               >
                 <HelpCircle size={22} style={{ color: ORANGE }} />
               </div>
               <div className="text-left">
-                <div className="font-semibold text-base" style={{ color: "#f0f0f0" }}>
+                <div className="font-semibold text-base" style={{ color: "#111827" }}>
                   Frequently Asked Questions
                 </div>
-                <div className="text-sm mt-0.5" style={{ color: "#555" }}>
+                <div className="text-sm mt-0.5" style={{ color: "#9ca3af" }}>
                   {FAQ_ITEMS.reduce((s, c) => s + c.items.length, 0)} questions
                   across {FAQ_ITEMS.length} categories — searchable
                 </div>
@@ -654,7 +654,7 @@ export default function SupportClient({
             <span
               className="shrink-0"
               style={{
-                color: "#555",
+                color: "#9ca3af",
                 transform: faqOpen ? "rotate(180deg)" : "rotate(0deg)",
                 transition: "transform 0.3s ease",
               }}
@@ -675,10 +675,10 @@ export default function SupportClient({
           <Section title="My Support Tickets" icon={<MessageSquare size={18} />}>
             {hasOpenTickets && (
               <div
-                className="flex items-center gap-3 rounded-xl px-5 py-3.5 text-sm text-sky-300"
+                className="flex items-center gap-3 rounded-xl px-5 py-3.5 text-sm text-sky-600"
                 style={{
-                  background: "rgba(14,165,233,0.08)",
-                  border: "1px solid rgba(14,165,233,0.18)",
+                  background: "rgba(14,165,233,0.06)",
+                  border: "1px solid rgba(14,165,233,0.2)",
                 }}
               >
                 <Clock size={14} className="shrink-0" />
@@ -691,18 +691,18 @@ export default function SupportClient({
 
         {/* Submit ticket */}
         <Section title="Contact Support" icon={<Send size={18} />}>
-          <p className="text-base -mt-2" style={{ color: "#666" }}>
+          <p className="text-base -mt-2" style={{ color: "#6b7280" }}>
             Didn&apos;t find your answer? Send us a message and our team will get back to you.
           </p>
           <TicketForm />
           <div
             className="flex items-center gap-3 rounded-xl px-5 py-4"
-            style={{ background: "#1a1a1a", border: "1px solid #222" }}
+            style={{ background: "#f9fafb", border: "1px solid #e5e7eb" }}
           >
-            <Clock size={15} className="shrink-0" style={{ color: `rgba(255,117,31,0.5)` }} />
-            <p className="text-sm" style={{ color: "#666" }}>
+            <Clock size={15} className="shrink-0" style={{ color: ORANGE }} />
+            <p className="text-sm" style={{ color: "#6b7280" }}>
               Our team responds within{" "}
-              <span style={{ color: "rgba(255,255,255,0.6)" }}>1 business day</span>
+              <span style={{ color: "#111827", fontWeight: 500 }}>1 business day</span>
               {" "}— Sunday through Thursday, 9 AM – 6 PM GST.
             </p>
           </div>

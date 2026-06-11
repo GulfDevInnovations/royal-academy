@@ -269,14 +269,13 @@ export default function EnrollmentFormModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
       />
       <div
-        className="relative w-full max-w-xl rounded-2xl border border-white/8 shadow-2xl z-10 max-h-[92vh] flex flex-col"
-        style={{ background: "#1a1d27" }}
+        className="relative w-full max-w-xl rounded-2xl border border-black/8 shadow-2xl z-10 max-h-[92vh] flex flex-col"
+        style={{ background: "#ffffff" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-black/8 shrink-0">
           <div>
             <h2
               className="text-xl font-semibold"
@@ -293,7 +292,7 @@ export default function EnrollmentFormModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
           >
             <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
@@ -330,11 +329,11 @@ export default function EnrollmentFormModal({
                     borderColor:
                       enrollType === opt.value
                         ? "rgba(245,158,11,0.5)"
-                        : "rgba(255,255,255,0.07)",
+                        : "rgba(0,0,0,0.07)",
                     background:
                       enrollType === opt.value
                         ? "rgba(245,158,11,0.08)"
-                        : "rgba(255,255,255,0.02)",
+                        : "rgba(0,0,0,0.02)",
                   }}
                 >
                   <span
@@ -489,8 +488,8 @@ export default function EnrollmentFormModal({
                       <div
                         className="flex items-center gap-1 px-1 rounded-xl border h-10"
                         style={{
-                          borderColor: "rgba(255,255,255,0.1)",
-                          background: "rgba(255,255,255,0.04)",
+                          borderColor: "rgba(0,0,0,0.06)",
+                          background: "rgba(0,0,0,0.04)",
                         }}
                       >
                         <button
@@ -648,11 +647,11 @@ export default function EnrollmentFormModal({
                           borderColor:
                             frequency === opt.value
                               ? "rgba(245,158,11,0.5)"
-                              : "rgba(255,255,255,0.07)",
+                              : "rgba(0,0,0,0.07)",
                           background:
                             frequency === opt.value
                               ? "rgba(245,158,11,0.08)"
-                              : "rgba(255,255,255,0.02)",
+                              : "rgba(0,0,0,0.02)",
                         }}
                       >
                         <span
@@ -728,10 +727,10 @@ export default function EnrollmentFormModal({
                             style={{
                               borderColor: isSelected
                                 ? "rgba(245,158,11,0.5)"
-                                : "rgba(255,255,255,0.07)",
+                                : "rgba(0,0,0,0.07)",
                               background: isSelected
                                 ? "rgba(245,158,11,0.1)"
-                                : "rgba(255,255,255,0.02)",
+                                : "rgba(0,0,0,0.02)",
                             }}
                           >
                             <span
@@ -860,7 +859,7 @@ export default function EnrollmentFormModal({
                   onClick={() => setPayNow((v) => !v)}
                   className="w-9 h-5 rounded-full relative transition-colors shrink-0"
                   style={{
-                    background: payNow ? "#f59e0b" : "rgba(255,255,255,0.1)",
+                    background: payNow ? "#f59e0b" : "rgba(0,0,0,0.06)",
                   }}
                 >
                   <div

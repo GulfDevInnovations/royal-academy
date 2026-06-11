@@ -125,21 +125,20 @@ export default function WorkshopDetailDrawer({
       <div className="fixed inset-0 z-40 flex">
         <div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-          onClick={onClose}
         />
 
         {/* Drawer */}
         <div
           className="relative ml-auto w-full max-w-lg h-full flex flex-col shadow-2xl"
           style={{
-            background: "#1a1d27",
-            borderLeft: "1px solid rgba(255,255,255,0.07)",
+            background: "#ffffff",
+            borderLeft: "1px solid rgba(0,0,0,0.07)",
           }}
         >
           {/* Header */}
           <div
             className="flex items-start justify-between px-6 py-5 border-b flex-shrink-0"
-            style={{ borderColor: "rgba(255,255,255,0.07)" }}
+            style={{ borderColor: "rgba(0,0,0,0.07)" }}
           >
             <div className="flex-1 pr-4">
               <div className="flex items-center gap-2 mb-1">
@@ -202,7 +201,7 @@ export default function WorkshopDetailDrawer({
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
             >
               <X size={16} style={{ color: adminColors.pinkText }} />
             </button>
@@ -211,7 +210,7 @@ export default function WorkshopDetailDrawer({
           {/* Seat progress bar */}
           <div
             className="px-6 py-3 border-b flex-shrink-0"
-            style={{ borderColor: "rgba(255,255,255,0.05)" }}
+            style={{ borderColor: "rgba(0,0,0,0.05)" }}
           >
             <div className="flex justify-between text-xs mb-1.5">
               <span style={{ color: adminColors.textSecondary }}>
@@ -229,7 +228,7 @@ export default function WorkshopDetailDrawer({
             </div>
             <div
               className="h-1.5 rounded-full overflow-hidden"
-              style={{ background: "rgba(255,255,255,0.06)" }}
+              style={{ background: "rgba(0,0,0,0.06)" }}
             >
               <div
                 className="h-full rounded-full transition-all"
@@ -244,7 +243,7 @@ export default function WorkshopDetailDrawer({
           {/* Price */}
           <div
             className="px-6 py-3 border-b flex items-center justify-between flex-shrink-0"
-            style={{ borderColor: "rgba(255,255,255,0.05)" }}
+            style={{ borderColor: "rgba(0,0,0,0.05)" }}
           >
             <span
               className="text-xs"
@@ -282,11 +281,11 @@ export default function WorkshopDetailDrawer({
 
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 size={20} className="animate-spin text-white/20" />
+                <Loader2 size={20} className="animate-spin text-gray-300" />
               </div>
             ) : bookings.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center px-6">
-                <Users size={28} className="mb-3 text-white/10" />
+                <Users size={28} className="mb-3 text-gray-200" />
                 <p className="text-sm" style={{ color: adminColors.textMuted }}>
                   {t("noEnrollmentsYet")}
                 </p>
@@ -300,7 +299,7 @@ export default function WorkshopDetailDrawer({
             ) : (
               <div
                 className="divide-y"
-                style={{ borderColor: "rgba(255,255,255,0.05)" }}
+                style={{ borderColor: "rgba(0,0,0,0.05)" }}
               >
                 {bookings.map((b) => (
                   <div key={b.id} className="px-6 py-4">
@@ -369,7 +368,7 @@ export default function WorkshopDetailDrawer({
                           ) : (
                             <button
                               onClick={() => setCancellingId(b.id)}
-                              className="p-1 rounded text-white/20 hover:text-red-400 hover:bg-red-500/[0.08] transition-colors"
+                              className="p-1 rounded text-gray-300 hover:text-red-400 hover:bg-red-500/[0.08] transition-colors"
                               title="Cancel booking"
                             >
                               <XCircle size={13} />

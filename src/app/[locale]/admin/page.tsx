@@ -8,18 +8,18 @@ import {
 } from './dashboard-actions';
 
 const TICKET_STATUS_COLORS: Record<string, string> = {
-  OPEN: '#f87171',
-  IN_PROGRESS: '#f59e0b',
-  RESOLVED: '#34d399',
-  CLOSED: '#94a3b8',
+  OPEN: '#dc2626',
+  IN_PROGRESS: '#d97706',
+  RESOLVED: '#059669',
+  CLOSED: '#6b7280',
 };
 
 const BOOKING_STATUS_COLORS: Record<string, string> = {
-  CONFIRMED: '#34d399',
-  CANCELLED: '#f87171',
-  RESCHEDULED: '#f59e0b',
-  COMPLETED: '#60a5fa',
-  NO_SHOW: '#94a3b8',
+  CONFIRMED: '#059669',
+  CANCELLED: '#dc2626',
+  RESCHEDULED: '#d97706',
+  COMPLETED: '#2563eb',
+  NO_SHOW: '#6b7280',
 };
 
 function formatTime(time: string) {
@@ -95,10 +95,10 @@ export default async function AdminDashboardPage() {
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Page heading */}
       <div>
-        <h1 className="text-3xl font-goudy font-semibold text-white/90 tracking-tight">
+        <h1 className="text-3xl font-goudy font-semibold text-gray-900 tracking-tight">
           {t('items.Dashboard')}
         </h1>
-        <p className="text-xl text-white/30 mt-0.5">{t('dashboardSubtitle')}</p>
+        <p className="text-xl text-gray-400 mt-0.5">{t('dashboardSubtitle')}</p>
       </div>
 
       {/* Stat cards */}
@@ -106,14 +106,14 @@ export default async function AdminDashboardPage() {
         {statCards.map((stat) => (
           <div
             key={stat.label}
-            className="rounded-xl border border-white/[0.07] p-5 relative overflow-hidden"
-            style={{ background: '#1a1d27' }}
+            className="rounded-xl border border-black/8 p-5 relative overflow-hidden"
+            style={{ background: '#ffffff' }}
           >
             <div
               className="absolute top-0 left-0 right-0 h-[2px] rounded-t-xl"
-              style={{ background: stat.accent, opacity: 0.6 }}
+              style={{ background: stat.accent, opacity: 0.7 }}
             />
-            <p className="text-sm text-white/35 font-medium uppercase tracking-wider">
+            <p className="text-sm text-gray-400 font-medium uppercase tracking-wider">
               {stat.label}
             </p>
             <p
@@ -122,7 +122,7 @@ export default async function AdminDashboardPage() {
             >
               {stat.value}
             </p>
-            <p className="text-sm text-white/25 mt-1">{stat.sub}</p>
+            <p className="text-sm text-gray-400 mt-1">{stat.sub}</p>
           </div>
         ))}
       </div>
@@ -131,21 +131,21 @@ export default async function AdminDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Recent Bookings */}
         <div
-          className="rounded-xl border border-white/[0.07] p-5 flex flex-col"
-          style={{ background: '#1a1d27' }}
+          className="rounded-xl border border-black/8 p-5 flex flex-col"
+          style={{ background: '#ffffff' }}
         >
-          <p className="text-base font-semibold text-white/60 mb-3 uppercase tracking-wider">
+          <p className="text-base font-semibold text-gray-500 mb-3 uppercase tracking-wider">
             {t('recentBookings')}
           </p>
           {recentBookings.length === 0 ? (
-            <p className="text-sm text-white/20 my-auto text-center py-6">
+            <p className="text-sm text-gray-300 my-auto text-center py-6">
               {t('noBookingsYet')}
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-white/30 text-xs uppercase tracking-wider border-b border-white/5">
+                  <tr className="text-gray-400 text-xs uppercase tracking-wider border-b border-black/5">
                     <th className="text-left pb-2 font-medium">
                       {t('student')}
                     </th>
@@ -156,16 +156,16 @@ export default async function AdminDashboardPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/4">
+                <tbody className="divide-y divide-black/5">
                   {recentBookings.map((b) => (
-                    <tr key={b.id} className="text-white/70">
-                      <td className="py-2 pr-3 font-medium text-white/80 whitespace-nowrap">
+                    <tr key={b.id} className="text-gray-600">
+                      <td className="py-2 pr-3 font-medium text-gray-800 whitespace-nowrap">
                         {b.studentName}
                       </td>
-                      <td className="py-2 pr-3 text-white/50 whitespace-nowrap">
+                      <td className="py-2 pr-3 text-gray-500 whitespace-nowrap">
                         {b.subClass}
                       </td>
-                      <td className="py-2 pr-3 text-white/40 whitespace-nowrap">
+                      <td className="py-2 pr-3 text-gray-400 whitespace-nowrap">
                         {formatDate(b.sessionDate)}
                       </td>
                       <td className="py-2">
@@ -191,24 +191,24 @@ export default async function AdminDashboardPage() {
 
         {/* Upcoming Sessions (today & tomorrow) */}
         <div
-          className="rounded-xl border border-white/[0.07] p-5 flex flex-col"
-          style={{ background: '#1a1d27' }}
+          className="rounded-xl border border-black/8 p-5 flex flex-col"
+          style={{ background: '#ffffff' }}
         >
-          <p className="text-base font-semibold text-white/60 mb-3 uppercase tracking-wider">
+          <p className="text-base font-semibold text-gray-500 mb-3 uppercase tracking-wider">
             {t('upcomingSessions')}
-            <span className="ml-2 text-xs text-white/25 normal-case tracking-normal font-normal">
+            <span className="ml-2 text-xs text-gray-400 normal-case tracking-normal font-normal">
               {t('todayAndTomorrow')}
             </span>
           </p>
           {upcomingSessions.length === 0 ? (
-            <p className="text-sm text-white/20 my-auto text-center py-6">
+            <p className="text-sm text-gray-300 my-auto text-center py-6">
               {t('noSessionsTodayTomorrow')}
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-white/30 text-xs uppercase tracking-wider border-b border-white/5">
+                  <tr className="text-gray-400 text-xs uppercase tracking-wider border-b border-black/5">
                     <th className="text-left pb-2 font-medium">{t('class')}</th>
                     <th className="text-left pb-2 font-medium">
                       {t('teacher')}
@@ -217,16 +217,16 @@ export default async function AdminDashboardPage() {
                     <th className="text-left pb-2 font-medium">{t('day')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/4">
+                <tbody className="divide-y divide-black/5">
                   {upcomingSessions.map((s) => (
-                    <tr key={s.id} className="text-white/70">
-                      <td className="py-2 pr-3 font-medium text-white/80 whitespace-nowrap">
+                    <tr key={s.id} className="text-gray-600">
+                      <td className="py-2 pr-3 font-medium text-gray-800 whitespace-nowrap">
                         {s.subClass}
                       </td>
-                      <td className="py-2 pr-3 text-white/50 whitespace-nowrap">
+                      <td className="py-2 pr-3 text-gray-500 whitespace-nowrap">
                         {s.teacher}
                       </td>
-                      <td className="py-2 pr-3 text-white/40 whitespace-nowrap">
+                      <td className="py-2 pr-3 text-gray-400 whitespace-nowrap">
                         {formatTime(s.startTime)} – {formatTime(s.endTime)}
                       </td>
                       <td className="py-2">
@@ -234,8 +234,8 @@ export default async function AdminDashboardPage() {
                           className="text-xs font-semibold px-2 py-0.5 rounded-full"
                           style={
                             isToday(s.sessionDate)
-                              ? { color: '#60a5fa', background: '#60a5fa22' }
-                              : { color: '#94a3b8', background: '#94a3b822' }
+                              ? { color: '#2563eb', background: 'rgba(37,99,235,0.08)' }
+                              : { color: '#6b7280', background: 'rgba(107,114,128,0.10)' }
                           }
                         >
                           {isToday(s.sessionDate) ? t('today') : t('tomorrow')}
@@ -251,36 +251,36 @@ export default async function AdminDashboardPage() {
 
         {/* Latest Signups */}
         <div
-          className="rounded-xl border border-white/[0.07] p-5 flex flex-col"
-          style={{ background: '#1a1d27' }}
+          className="rounded-xl border border-black/8 p-5 flex flex-col"
+          style={{ background: '#ffffff' }}
         >
-          <p className="text-base font-semibold text-white/60 mb-3 uppercase tracking-wider">
+          <p className="text-base font-semibold text-gray-500 mb-3 uppercase tracking-wider">
             {t('latestSignups')}
           </p>
           {latestSignups.length === 0 ? (
-            <p className="text-sm text-white/20 my-auto text-center py-6">
+            <p className="text-sm text-gray-300 my-auto text-center py-6">
               {t('noSignupsYet')}
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-white/30 text-xs uppercase tracking-wider border-b border-white/5">
+                  <tr className="text-gray-400 text-xs uppercase tracking-wider border-b border-black/5">
                     <th className="text-left pb-2 font-medium">{t('name')}</th>
                     <th className="text-left pb-2 font-medium">{t('email')}</th>
                     <th className="text-left pb-2 font-medium">{t('phone')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/4">
+                <tbody className="divide-y divide-black/5">
                   {latestSignups.map((u) => (
-                    <tr key={u.id} className="text-white/70">
-                      <td className="py-2 pr-3 font-medium text-white/80 whitespace-nowrap">
+                    <tr key={u.id} className="text-gray-600">
+                      <td className="py-2 pr-3 font-medium text-gray-800 whitespace-nowrap">
                         {u.name}
                       </td>
-                      <td className="py-2 pr-3 text-white/50 max-w-40 truncate">
+                      <td className="py-2 pr-3 text-gray-500 max-w-40 truncate">
                         {u.email}
                       </td>
-                      <td className="py-2 text-white/40 whitespace-nowrap">
+                      <td className="py-2 text-gray-400 whitespace-nowrap">
                         {u.phone}
                       </td>
                     </tr>
@@ -293,14 +293,14 @@ export default async function AdminDashboardPage() {
 
         {/* Last 3 Tickets */}
         <div
-          className="rounded-xl border border-white/[0.07] p-5 flex flex-col"
-          style={{ background: '#1a1d27' }}
+          className="rounded-xl border border-black/8 p-5 flex flex-col"
+          style={{ background: '#ffffff' }}
         >
-          <p className="text-base font-semibold text-white/60 mb-3 uppercase tracking-wider">
+          <p className="text-base font-semibold text-gray-500 mb-3 uppercase tracking-wider">
             {t('last3Tickets')}
           </p>
           {latestTickets.length === 0 ? (
-            <p className="text-sm text-white/20 my-auto text-center py-6">
+            <p className="text-sm text-gray-300 my-auto text-center py-6">
               {t('noTicketsYet')}
             </p>
           ) : (
@@ -308,13 +308,13 @@ export default async function AdminDashboardPage() {
               {latestTickets.map((ticket) => (
                 <div
                   key={ticket.id}
-                  className="flex items-start justify-between gap-3 border-b border-white/5 pb-3 last:border-0 last:pb-0"
+                  className="flex items-start justify-between gap-3 border-b border-black/5 pb-3 last:border-0 last:pb-0"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-white/80 truncate">
+                    <p className="text-sm font-medium text-gray-800 truncate">
                       {ticket.subject}
                     </p>
-                    <p className="text-xs text-white/35 mt-0.5">
+                    <p className="text-xs text-gray-400 mt-0.5">
                       {ticket.userName} · {formatDate(ticket.createdAt)}
                     </p>
                   </div>
@@ -330,7 +330,7 @@ export default async function AdminDashboardPage() {
                     >
                       {ticket.status.replace('_', ' ')}
                     </span>
-                    <span className="text-xs text-white/25">
+                    <span className="text-xs text-gray-400">
                       {ticket.priority}
                     </span>
                   </div>

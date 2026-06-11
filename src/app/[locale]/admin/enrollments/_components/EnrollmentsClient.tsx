@@ -411,13 +411,13 @@ export default function EnrollmentsClient({
                 key={sc.id}
                 className="rounded-2xl border overflow-hidden"
                 style={{
-                  borderColor: "rgba(255,255,255,0.07)",
-                  background: "#1a1d27",
+                  borderColor: "rgba(0,0,0,0.07)",
+                  background: "#ffffff",
                 }}
               >
                 <div
                   className="px-4 py-3 border-b"
-                  style={{ borderColor: "rgba(255,255,255,0.06)" }}
+                  style={{ borderColor: "rgba(0,0,0,0.06)" }}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -457,7 +457,7 @@ export default function EnrollmentsClient({
 
                   <div
                     className="mt-3 h-1.5 rounded-full overflow-hidden"
-                    style={{ background: "rgba(255,255,255,0.06)" }}
+                    style={{ background: "rgba(0,0,0,0.06)" }}
                   >
                     <div
                       className="h-full rounded-full transition-all"
@@ -479,7 +479,7 @@ export default function EnrollmentsClient({
                   </div>
                 </div>
 
-                <div className="divide-y divide-white/4">
+                <div className="divide-y divide-black/5">
                   {active.length === 0 ? (
                     <p
                       className="px-4 py-3 text-l"
@@ -501,7 +501,7 @@ export default function EnrollmentsClient({
                       return (
                         <div
                           key={enrollment.id}
-                          className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/1 transition-colors"
+                          className="flex items-center gap-3 px-4 py-2.5 hover:bg-black/3 transition-colors"
                         >
                           <div
                             className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[16px] font-semibold"
@@ -580,7 +580,7 @@ export default function EnrollmentsClient({
                                     : enrollment.id,
                                 )
                               }
-                              className="p-1 rounded-lg transition-colors text-white/20 hover:text-white/60 hover:bg-white/5"
+                              className="p-1 rounded-lg transition-colors text-gray-300 hover:text-gray-600 hover:bg-black/5"
                             >
                               <MoreHorizontal size={17} />
                             </button>
@@ -588,8 +588,8 @@ export default function EnrollmentsClient({
                               <div
                                 className="absolute right-0 top-7 z-20 rounded-xl border shadow-xl overflow-hidden w-44"
                                 style={{
-                                  background: "#1a1d27",
-                                  borderColor: "rgba(255,255,255,0.1)",
+                                  background: "#ffffff",
+                                  borderColor: "rgba(0,0,0,0.06)",
                                 }}
                               >
                                 {/* If multi-child: show payment action on the parent */}
@@ -969,7 +969,7 @@ export default function EnrollmentsClient({
                                     data: mme,
                                   });
                               }}
-                              className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-green-400 hover:bg-green-500/8"
+                              className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-green-400 hover:bg-green-500/8"
                               title="Pay multi-month plan"
                             >
                               <CreditCard size={16} />
@@ -986,7 +986,7 @@ export default function EnrollmentsClient({
                                 if (mme)
                                   setModal({ type: "cancel-multi", data: mme });
                               }}
-                              className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
+                              className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-red-400 hover:bg-red-500/8"
                               title="Cancel multi-month plan"
                             >
                               <XCircle size={16} />
@@ -1004,7 +1004,7 @@ export default function EnrollmentsClient({
                                   data: enrollment,
                                 })
                               }
-                              className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-green-400 hover:bg-green-500/8"
+                              className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-green-400 hover:bg-green-500/8"
                               title="Record payment"
                             >
                               <CreditCard size={16} />
@@ -1018,7 +1018,7 @@ export default function EnrollmentsClient({
                                   data: enrollment,
                                 })
                               }
-                              className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
+                              className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-red-400 hover:bg-red-500/8"
                               title="Cancel enrollment"
                             >
                               <XCircle size={16} />
@@ -1032,7 +1032,7 @@ export default function EnrollmentsClient({
                                   data: enrollment,
                                 })
                               }
-                              className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
+                              className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-red-400 hover:bg-red-500/8"
                               title="Delete enrollment"
                             >
                               <Trash2 size={16} />
@@ -1291,7 +1291,7 @@ export default function EnrollmentsClient({
                           onClick={() =>
                             setModal({ type: "payment-multi", data: m })
                           }
-                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-green-400 hover:bg-green-500/8"
+                          className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-green-400 hover:bg-green-500/8"
                           title="Record payment"
                         >
                           <CreditCard size={13} />
@@ -1302,7 +1302,7 @@ export default function EnrollmentsClient({
                           onClick={() =>
                             setModal({ type: "cancel-multi", data: m })
                           }
-                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
+                          className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-red-400 hover:bg-red-500/8"
                           title="Cancel plan"
                         >
                           <XCircle size={16} />
@@ -1313,7 +1313,7 @@ export default function EnrollmentsClient({
                           onClick={() =>
                             setModal({ type: "delete-multi", data: m })
                           }
-                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
+                          className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-red-400 hover:bg-red-500/8"
                           title="Delete plan"
                         >
                           <Trash2 size={16} />
@@ -1372,8 +1372,8 @@ export default function EnrollmentsClient({
             key={label}
             className="rounded-xl border px-4 py-3"
             style={{
-              borderColor: "rgba(255,255,255,0.07)",
-              background: "#1a1d27",
+              borderColor: "rgba(0,0,0,0.07)",
+              background: "#ffffff",
             }}
           >
             <p className="text-2xl font-bold" style={{ color }}>
@@ -1394,7 +1394,7 @@ export default function EnrollmentsClient({
         {/* View toggle */}
         <div
           className="flex items-center rounded-lg border overflow-hidden"
-          style={{ borderColor: "rgba(255,255,255,0.08)" }}
+          style={{ borderColor: "rgba(0,0,0,0.07)" }}
         >
           {(
             [
@@ -1423,7 +1423,7 @@ export default function EnrollmentsClient({
                 background:
                   viewMode === mode
                     ? "rgba(245,158,11,0.12)"
-                    : "rgba(255,255,255,0.02)",
+                    : "rgba(0,0,0,0.02)",
                 color: viewMode === mode ? "#f59e0b" : adminColors.textMuted,
               }}
             >
@@ -1447,11 +1447,11 @@ export default function EnrollmentsClient({
         {viewMode !== "multi" && (
           <div
             className="flex items-center gap-1 rounded-lg border px-1"
-            style={{ borderColor: "rgba(255,255,255,0.08)" }}
+            style={{ borderColor: "rgba(0,0,0,0.07)" }}
           >
             <button
               onClick={() => navigateMonth(-1)}
-              className="p-1.5 rounded-md transition-colors text-white/40 hover:text-white/80"
+              className="p-1.5 rounded-md transition-colors text-gray-500 hover:text-gray-800"
             >
               <ChevronLeft size={18} />
             </button>
@@ -1463,7 +1463,7 @@ export default function EnrollmentsClient({
             </span>
             <button
               onClick={() => navigateMonth(1)}
-              className="p-1.5 rounded-md transition-colors text-white/40 hover:text-white/80"
+              className="p-1.5 rounded-md transition-colors text-gray-500 hover:text-gray-800"
             >
               <ChevronRight size={18} />
             </button>
@@ -1479,8 +1479,8 @@ export default function EnrollmentsClient({
                 setFilterClass(e.target.value);
                 setFilterSubClass("");
               }}
-              className="px-3 py-2 rounded-lg text-xl border bg-white/4 text-white/70 focus:outline-none"
-              style={{ borderColor: "rgba(255,255,255,0.08)" }}
+              className="px-3 py-2 rounded-lg text-xl border bg-gray-50 text-gray-700 focus:outline-none"
+              style={{ borderColor: "rgba(0,0,0,0.07)" }}
             >
               <option className="text-black" value="">
                 All classes
@@ -1495,8 +1495,8 @@ export default function EnrollmentsClient({
             <select
               value={filterSubClass}
               onChange={(e) => setFilterSubClass(e.target.value)}
-              className="px-3 py-2 rounded-lg text-xl border bg-white/4 text-white/70 focus:outline-none"
-              style={{ borderColor: "rgba(255,255,255,0.08)" }}
+              className="px-3 py-2 rounded-lg text-xl border bg-gray-50 text-gray-700 focus:outline-none"
+              style={{ borderColor: "rgba(0,0,0,0.07)" }}
             >
               <option className="text-black" value="">
                 All sub-classes
@@ -1511,8 +1511,8 @@ export default function EnrollmentsClient({
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2 rounded-lg text-xl border bg-white/4 text-white/70 focus:outline-none"
-              style={{ borderColor: "rgba(255,255,255,0.08)" }}
+              className="px-3 py-2 rounded-lg text-xl border bg-gray-50 text-gray-700 focus:outline-none"
+              style={{ borderColor: "rgba(0,0,0,0.07)" }}
             >
               <option className="text-black" value="">
                 {t("allStatuses")}
@@ -1640,7 +1640,7 @@ function MenuBtn({
         e.stopPropagation();
         onClick();
       }}
-      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-l transition-colors hover:bg-white/4"
+      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-l transition-colors hover:bg-black/4"
       style={{ color }}
     >
       {icon} {label}

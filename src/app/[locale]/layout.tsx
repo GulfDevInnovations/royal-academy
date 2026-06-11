@@ -3,7 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
-import localFont from "next/font/local";
+import { Noto_Naskh_Arabic } from "next/font/google";
 import "../globals.css";
 import ConditionalLayout from "@/components/ConditionalLayout";
 import { PreloaderProvider } from "@/context/PreloaderContext";
@@ -11,86 +11,11 @@ import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-const goudy = localFont({
-  src: [
-    {
-      path: "../../../public/fonts/goudy/GoudyCatalog-BT.ttf",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../../../public/fonts/goudy/GoudyOlSt-BT-Italic.ttf",
-      weight: "400",
-      style: "italic",
-    },
-    {
-      path: "../../../public/fonts/goudy/GoudyOlSt-BT-Bold.ttf",
-      weight: "700",
-      style: "normal",
-    },
-    {
-      path: "../../../public/fonts/goudy/GoudyOlSt-BT-Bold-Italic.ttf",
-      weight: "700",
-      style: "italic",
-    },
-    {
-      path: "../../../public/fonts/goudy/GoudyOlSt-XBd-BT-Extra-Bold.ttf",
-      weight: "800",
-      style: "normal",
-    },
-    {
-      path: "../../../public/fonts/goudy/GoudyHvyface-BT.ttf",
-      weight: "900",
-      style: "normal",
-    },
-    {
-      path: "../../../public/fonts/goudy/GoudyHvyface-Cn-BT.ttf",
-      weight: "700",
-      style: "italic",
-    },
-    {
-      path: "../../../public/fonts/goudy/GoudyOlSt-BT-Roman.ttf",
-      weight: "800",
-      style: "normal",
-    },
-    {
-      path: "../../../public/fonts/goudy/GoudyHandtooled-BT.ttf",
-      weight: "900",
-      style: "normal",
-    },
-  ],
-  variable: "--font-goudy",
-});
-
-const layla = localFont({
-  src: [
-    {
-      path: "../../../public/fonts/layla/layla-arabic-Light.ttf",
-      weight: "300",
-      style: "normal",
-    },
-    {
-      path: "../../../public/fonts/layla/layla-arabic-Regular.ttf",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../../../public/fonts/layla/layla-arabic-Medium.ttf",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "../../../public/fonts/layla/layla-arabic-Semi-Bold.ttf",
-      weight: "600",
-      style: "normal",
-    },
-    {
-      path: "../../../public/fonts/layla/layla-arabic-Bold.ttf",
-      weight: "700",
-      style: "normal",
-    },
-  ],
-  variable: "--font-layla",
+const notoArabic = Noto_Naskh_Arabic({
+  subsets: ["arabic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-arabic",
+  display: "swap",
 });
 
 export function generateStaticParams() {
@@ -217,7 +142,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={isArabic ? "rtl" : "ltr"}
-      className={`${goudy.variable} ${layla.variable}`}
+      className={notoArabic.variable}
     >
       <body>
         <ServiceWorkerRegister />

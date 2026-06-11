@@ -11,10 +11,14 @@ import {
   AlertCircle,
   CheckCircle,
   Eye,
+  ImageIcon,
   Loader2,
   Send,
+  Upload,
   Users,
+  X,
 } from 'lucide-react';
+import { useRef } from 'react';
 import { useState } from 'react';
 import { useToast } from '../../hooks/useToast';
 
@@ -61,7 +65,7 @@ function Field({ children }: { children: React.ReactNode }) {
 }
 
 const inputStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.04)',
+  background: 'rgba(0,0,0,0.04)',
   border: `1px solid ${adminColors.border}`,
   borderRadius: 8,
   padding: '10px 14px',
@@ -98,7 +102,7 @@ function AudiencePill({
         padding: '12px 16px',
         borderRadius: 10,
         border: `1px solid ${active ? '#6366f1' : adminColors.border}`,
-        background: active ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.03)',
+        background: active ? 'rgba(99,102,241,0.08)' : 'rgba(0,0,0,0.03)',
         cursor: 'pointer',
         transition: 'all .15s',
         minWidth: 120,
@@ -132,11 +136,13 @@ function PreviewPane({
   subject,
   heading,
   body,
+  imageUrl,
   onClose,
 }: {
   subject: string;
   heading: string;
   body: string;
+  imageUrl: string | null;
   onClose: () => void;
 }) {
   return (
@@ -151,7 +157,6 @@ function PreviewPane({
         justifyContent: 'center',
         padding: 24,
       }}
-      onClick={onClose}
     >
       <div
         style={{
@@ -179,7 +184,7 @@ function PreviewPane({
               fontSize: 12,
               letterSpacing: '.15em',
               textTransform: 'uppercase',
-              color: 'rgba(255,255,255,.4)',
+              color: 'rgba(107,114,128,1)',
             }}
           >
             Royal Academy
@@ -197,6 +202,15 @@ function PreviewPane({
             </h2>
           )}
         </div>
+
+        {/* Image */}
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt=""
+            style={{ width: '100%', display: 'block', maxHeight: 300, objectFit: 'cover' }}
+          />
+        )}
 
         {/* Body */}
         <div style={{ padding: '32px 36px', background: '#fff' }}>
@@ -273,6 +287,9 @@ export default function CampaignClient({ stats }: { stats: Stats }) {
   const [previewText, setPreviewText] = useState('');
   const [heading, setHeading] = useState('');
   const [body, setBody] = useState('');
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
   const [source, setSource] = useState('all');
   const [sendState, setSendState] = useState<SendState>('idle');
   const [sendResult, setSendResult] = useState<{
@@ -281,6 +298,25 @@ export default function CampaignClient({ stats }: { stats: Stats }) {
   } | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const { toasts, toast, remove } = useToast();
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleImageFile = async (file: File) => {
+    setImageError(null);
+    setImageUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('folder', 'newsletter');
+      const res = await fetch('/api/media/upload', { method: 'POST', body: fd });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Upload failed');
+      setImageUrl(json.data.url);
+    } catch (e) {
+      setImageError(e instanceof Error ? e.message : 'Upload failed');
+    } finally {
+      setImageUploading(false);
+    }
+  };
 
   const audienceCount =
     source === 'all'
@@ -301,7 +337,7 @@ export default function CampaignClient({ stats }: { stats: Stats }) {
       const res = await fetch('/api/newsletter/campaign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subject, previewText, heading, body, source }),
+        body: JSON.stringify({ subject, previewText, heading, body, source, imageUrl }),
       });
 
       const data = await res.json();
@@ -320,6 +356,7 @@ export default function CampaignClient({ stats }: { stats: Stats }) {
       setPreviewText('');
       setHeading('');
       setBody('');
+      setImageUrl(null);
     } catch {
       toast('Network error. Please try again.', 'error');
       setSendState('error');
@@ -468,6 +505,77 @@ export default function CampaignClient({ stats }: { stats: Stats }) {
                   Each line break becomes a new paragraph in the email.
                 </span>
               </Field>
+
+              {/* ── Image upload ── */}
+              <Field>
+                <Label>Campaign image (optional)</Label>
+                {imageUrl ? (
+                  <div style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', border: `1px solid ${adminColors.border}` }}>
+                    <img
+                      src={imageUrl}
+                      alt="campaign"
+                      style={{ width: '100%', maxHeight: 220, objectFit: 'cover', display: 'block' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => { setImageUrl(null); setImageError(null); if (fileRef.current) fileRef.current.value = ''; }}
+                      style={{
+                        position: 'absolute', top: 8, right: 8,
+                        background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: 6,
+                        padding: '4px 6px', cursor: 'pointer', display: 'flex', alignItems: 'center',
+                        color: '#fca5a5',
+                      }}
+                    >
+                      <X size={13} />
+                    </button>
+                    <div style={{
+                      position: 'absolute', bottom: 8, left: 8,
+                      background: 'rgba(0,0,0,0.55)', borderRadius: 6,
+                      padding: '3px 8px', display: 'flex', alignItems: 'center', gap: 4,
+                      fontSize: 11, color: 'rgba(31,41,55,0.9)',
+                    }}>
+                      <ImageIcon size={10} /> image
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    disabled={imageUploading}
+                    style={{
+                      ...inputStyle,
+                      height: 80,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
+                      cursor: imageUploading ? 'not-allowed' : 'pointer',
+                      borderStyle: 'dashed',
+                      opacity: imageUploading ? 0.6 : 1,
+                    }}
+                  >
+                    {imageUploading ? (
+                      <Loader2 size={16} style={{ color: adminColors.textMuted, animation: 'spin 1s linear infinite' }} />
+                    ) : (
+                      <Upload size={16} style={{ color: adminColors.textMuted }} />
+                    )}
+                    <span style={{ fontSize: 11, color: adminColors.textMuted }}>
+                      {imageUploading ? 'Uploading…' : 'Click to upload an image'}
+                    </span>
+                  </button>
+                )}
+                {imageError && (
+                  <span style={{ fontSize: 11, color: '#f87171', marginTop: 4 }}>{imageError}</span>
+                )}
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+                  style={{ display: 'none' }}
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageFile(f); }}
+                />
+              </Field>
             </div>
           </AdminCard>
         </div>
@@ -580,6 +688,7 @@ export default function CampaignClient({ stats }: { stats: Stats }) {
           subject={subject}
           heading={heading}
           body={body}
+          imageUrl={imageUrl}
           onClose={() => setShowPreview(false)}
         />
       )}

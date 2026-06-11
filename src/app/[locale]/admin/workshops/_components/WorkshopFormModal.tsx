@@ -60,9 +60,9 @@ function Field({
 }
 
 const inputCls =
-  "w-full px-3 py-2 rounded-lg border bg-white/[0.03] text-xl focus:outline-none focus:border-amber-500/40 transition-colors";
+  "w-full px-3 py-2 rounded-lg border bg-gray-50 text-xl focus:outline-none focus:border-amber-500/40 transition-colors";
 const inputStyle = {
-  borderColor: "rgba(255,255,255,0.08)",
+  borderColor: "rgba(0,0,0,0.07)",
   color: adminColors.textPrimary,
 };
 
@@ -107,8 +107,8 @@ function VideoPreview({
     <div
       className="flex items-center gap-2 px-3 py-2 rounded-lg border group"
       style={{
-        borderColor: "rgba(255,255,255,0.08)",
-        background: "rgba(255,255,255,0.02)",
+        borderColor: "rgba(0,0,0,0.07)",
+        background: "rgba(0,0,0,0.02)",
       }}
     >
       <Film
@@ -125,7 +125,7 @@ function VideoPreview({
       <button
         type="button"
         onClick={onRemove}
-        className="text-white/20 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+        className="text-gray-300 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
       >
         <Trash2 size={18} />
       </button>
@@ -257,7 +257,7 @@ export default function WorkshopFormModal({
   const totalVideos = existingVideoUrls.length + newVideoFiles.length;
 
   const inputStyle = {
-    background: "rgba(255,255,255,0.04)",
+    background: "rgba(0,0,0,0.04)",
     borderColor: adminColors.border,
     color: adminColors.textPrimary,
   };
@@ -265,16 +265,15 @@ export default function WorkshopFormModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
       />
       <div
-        className="relative w-full max-w-4xl rounded-2xl border border-white/[0.08] shadow-2xl z-10 max-h-[92vh] flex flex-col"
-        style={{ background: "#1a1d27" }}
+        className="relative w-full max-w-4xl rounded-2xl border border-black/8 shadow-2xl z-10 max-h-[92vh] flex flex-col"
+        style={{ background: "#ffffff" }}
       >
         {/* ── Header ── */}
         <div
           className="flex items-center justify-between px-6 py-4 border-b flex-shrink-0"
-          style={{ borderColor: "rgba(255,255,255,0.07)" }}
+          style={{ borderColor: "rgba(0,0,0,0.07)" }}
         >
           <div>
             <h2
@@ -294,7 +293,7 @@ export default function WorkshopFormModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/[0.05] transition-colors"
+            className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
           >
             <X size={20} style={{ color: adminColors.pinkText }} />
           </button>
@@ -309,7 +308,7 @@ export default function WorkshopFormModal({
         >
           <div
             className="flex items-center gap-1 p-1 rounded-lg w-fit"
-            style={{ background: "rgba(255,255,255,0.05)" }}
+            style={{ background: "rgba(0,0,0,0.05)" }}
           >
             {(["en", "ar"] as const).map((lang) => (
               <button
@@ -438,7 +437,7 @@ export default function WorkshopFormModal({
               onClick={() => imageInputRef.current?.click()}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-dashed text-l transition-colors hover:border-amber-500/40"
               style={{
-                borderColor: "rgba(255,255,255,0.12)",
+                borderColor: "rgba(0,0,0,0.08)",
                 color: adminColors.textMuted,
               }}
             >
@@ -496,7 +495,7 @@ export default function WorkshopFormModal({
               onClick={() => videoInputRef.current?.click()}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-dashed text-l transition-colors hover:border-amber-500/40"
               style={{
-                borderColor: "rgba(255,255,255,0.12)",
+                borderColor: "rgba(0,0,0,0.08)",
                 color: adminColors.textMuted,
               }}
             >
@@ -567,7 +566,7 @@ export default function WorkshopFormModal({
               label="Event Date"
               defaultValue={defaultDate}
               required
-              theme="dark"
+              theme="light"
               fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
               inputStyle={{ borderColor: adminColors.border }}
             />
@@ -577,7 +576,7 @@ export default function WorkshopFormModal({
               label="Start Time"
               defaultValue={workshop?.startTime ?? ""}
               required
-              theme="dark"
+              theme="light"
               fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
               inputStyle={{ borderColor: adminColors.border }}
             />
@@ -587,7 +586,7 @@ export default function WorkshopFormModal({
               label="End Time"
               defaultValue={workshop?.endTime ?? ""}
               required
-              theme="dark"
+              theme="light"
               fieldClassName="w-full text-l rounded-lg border px-3 py-2 outline-none focus:border-amber-500/50 transition-all duration-150"
               inputStyle={{ borderColor: adminColors.border }}
             />
@@ -642,7 +641,7 @@ export default function WorkshopFormModal({
               style={{
                 background: isOnline
                   ? adminColors.accent
-                  : "rgba(255,255,255,0.1)",
+                  : "rgba(0,0,0,0.06)",
               }}
             >
               <span
@@ -707,7 +706,7 @@ export default function WorkshopFormModal({
         {/* ── Footer ── */}
         <div
           className="flex justify-end gap-2 px-6 py-4 border-t flex-shrink-0"
-          style={{ borderColor: "rgba(255,255,255,0.07)" }}
+          style={{ borderColor: "rgba(0,0,0,0.07)" }}
         >
           <AdminButton variant="ghost" type="button" onClick={onClose}>
             Cancel

@@ -118,8 +118,8 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
             key={label}
             className="rounded-xl border px-4 py-3"
             style={{
-              borderColor: "rgba(255,255,255,0.07)",
-              background: "#1a1d27",
+              borderColor: "rgba(0,0,0,0.07)",
+              background: "#ffffff",
             }}
           >
             <p className="text-3xl font-bold" style={{ color }}>
@@ -141,8 +141,8 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-3 py-1.5 rounded-lg text-l border bg-white/4 text-white/70 focus:outline-none"
-          style={{ borderColor: "rgba(255,255,255,0.08)" }}
+          className="px-3 py-1.5 rounded-lg text-l border bg-gray-50 text-gray-700 focus:outline-none"
+          style={{ borderColor: "rgba(0,0,0,0.07)" }}
         >
           <option className="text-black" value="">
             {t("allStatuses")}
@@ -160,8 +160,8 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
         <select
           value={filterType}
           onChange={(e) => setFilterType(e.target.value)}
-          className="px-3 py-1.5 rounded-lg text-l border bg-white/4 text-white/70 focus:outline-none"
-          style={{ borderColor: "rgba(255,255,255,0.08)" }}
+          className="px-3 py-1.5 rounded-lg text-l border bg-gray-50 text-gray-700 focus:outline-none"
+          style={{ borderColor: "rgba(0,0,0,0.07)" }}
         >
           <option className="text-black" value="">
             {t("allTypes")}
@@ -187,7 +187,7 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
       {/* ── Table ── */}
       <div
         className="rounded-2xl border overflow-hidden"
-        style={{ borderColor: "rgba(255,255,255,0.07)", background: "#1a1d27" }}
+        style={{ borderColor: "rgba(0,0,0,0.07)", background: "#ffffff" }}
       >
         {displayed.length === 0 ? (
           <AdminEmptyState
@@ -296,7 +296,7 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
                           <button
                             onClick={() => handleRetry(n.id)}
                             disabled={isLoading}
-                            className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-amber-400 hover:bg-amber-500/8"
+                            className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-amber-400 hover:bg-amber-500/8"
                             title="Retry"
                           >
                             {isLoading ? (
@@ -309,7 +309,7 @@ export default function HistoryTab({ notifications, stats, onRefresh }: Props) {
                         <button
                           onClick={() => handleDelete(n.id)}
                           disabled={isLoading}
-                          className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-red-400 hover:bg-red-500/8"
+                          className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-red-400 hover:bg-red-500/8"
                           title="Delete"
                         >
                           {isLoading ? (

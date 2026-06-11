@@ -145,7 +145,7 @@ export default function TeachersClient({ initialTeachers, allClasses, allProgram
         action={
           <div className="flex items-center gap-2">
             <button
-              className="gap-1 flex items-center justify-center px-5 py-2 rounded-xl border cursor-pointer hover:bg-white/5 transition-colors"
+              className="gap-1 flex items-center justify-center px-5 py-2 rounded-xl border cursor-pointer hover:bg-black/5 transition-colors"
               style={{ color: adminColors.blueText }}
               onClick={() => exportToExcel(initialTeachers)}
             >
@@ -188,7 +188,7 @@ export default function TeachersClient({ initialTeachers, allClasses, allProgram
             style={{
               borderColor: adminColors.border,
               color: adminColors.textSecondary,
-              background: "rgba(255,255,255,0.04)",
+              background: "rgba(0,0,0,0.04)",
             }}
           >
             <Download size={16} /> {t("exportSelected")}
@@ -224,7 +224,7 @@ export default function TeachersClient({ initialTeachers, allClasses, allProgram
               <AdminTh>
                 <button
                   onClick={toggleAll}
-                  className="text-white/40 hover:text-white/70 transition-colors"
+                  className="text-gray-500 hover:text-gray-700 transition-colors"
                 >
                   {allSelected ? (
                     <CheckSquare size={19} />
@@ -253,7 +253,7 @@ export default function TeachersClient({ initialTeachers, allClasses, allProgram
                         style={{
                           color: isSelected
                             ? "#f59e0b"
-                            : "rgba(255,255,255,0.25)",
+                            : "rgba(156,163,175,1)",
                         }}
                       >
                         {isSelected ? (
@@ -378,7 +378,7 @@ export default function TeachersClient({ initialTeachers, allClasses, allProgram
                           onClick={() =>
                             setModal({ type: "edit", data: teacher })
                           }
-                          className="p-1.5 rounded-lg transition-colors text-blue-400 hover:text-blue-600 hover:bg-white/5"
+                          className="p-1.5 rounded-lg transition-colors text-blue-400 hover:text-blue-600 hover:bg-black/5"
                           title="Edit"
                         >
                           <Pencil size={20} />
@@ -387,7 +387,7 @@ export default function TeachersClient({ initialTeachers, allClasses, allProgram
                           onClick={() =>
                             setModal({ type: "delete", data: teacher })
                           }
-                          className="p-1.5 rounded-lg transition-colors text-red-800 hover:text-red-500 hover:bg-white/5"
+                          className="p-1.5 rounded-lg transition-colors text-red-800 hover:text-red-500 hover:bg-black/5"
                           title="Delete"
                         >
                           <Trash2 size={20} />

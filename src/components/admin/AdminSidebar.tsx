@@ -65,7 +65,7 @@ const navGroups = [
 ];
 
 export default function AdminSidebar() {
-  const locale = useLocale(); // ✅ from next-intl, no prop needed
+  const locale = useLocale();
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const t = useTranslations('admin');
@@ -79,11 +79,11 @@ export default function AdminSidebar() {
   return (
     <aside
       className={`
-        relative flex flex-col h-full border-r border-white/6
+        relative flex flex-col h-full border-r border-black/[0.07]
         transition-all duration-300 ease-in-out shrink-0
         ${collapsed ? 'w-16' : 'w-55'}
       `}
-      style={{ background: '#0f1117' }}
+      style={{ background: '#ffffff' }}
     >
       <div>
         {/* Logo */}
@@ -91,7 +91,7 @@ export default function AdminSidebar() {
           <div className="flex m-4">
             <Link href={`/${locale}`}>
               <Image
-                src="/images/logo/Logo-gray-cropped.png"
+                src="/images/logo/logo-color-cropped.png"
                 alt="Royal Academy"
                 width={140}
                 height={52}
@@ -105,7 +105,7 @@ export default function AdminSidebar() {
           <div className="flex m-4">
             <Link href={`/${locale}`}>
               <Image
-                src="/images/logo/Logo-White.png"
+                src="/images/logo/Logo-Color.png"
                 alt="Royal Academy"
                 width={140}
                 height={52}
@@ -122,11 +122,11 @@ export default function AdminSidebar() {
           <div key={group.label}>
             {/* Group label */}
             {!collapsed ? (
-              <p className="px-2 mb-1.5 text-[20px] font-semibold tracking-widest uppercase text-white/80">
+              <p className="px-2 mb-1.5 text-[20px] font-semibold tracking-widest uppercase text-gray-400">
                 {t(`groups.${group.label}`)}
               </p>
             ) : (
-              <div className="mx-auto w-5 border-t border-white/[0.07] mb-2 mt-1" />
+              <div className="mx-auto w-5 border-t border-black/[0.07] mb-2 mt-1" />
             )}
 
             <div className="space-y-0.5">
@@ -146,8 +146,8 @@ export default function AdminSidebar() {
                       ${collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2'}
                       ${
                         active
-                          ? 'text-amber-300'
-                          : 'text-white/50 hover:text-white/75 hover:bg-white/3'
+                          ? 'text-amber-600'
+                          : 'text-gray-500 hover:text-gray-800 hover:bg-black/4'
                       }
                     `}
                   >
@@ -155,10 +155,10 @@ export default function AdminSidebar() {
                     {active && (
                       <span
                         className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full"
-                        style={{ background: '#f59e0b' }}
+                        style={{ background: '#d97706' }}
                       />
                     )}
-                    {/* Subtle amber bg glow */}
+                    {/* Subtle amber bg */}
                     {active && (
                       <span
                         className="absolute inset-0 rounded-lg"
@@ -171,8 +171,8 @@ export default function AdminSidebar() {
                       strokeWidth={active ? 2.5 : 2}
                       className={`shrink-0 transition-colors duration-150 ${
                         active
-                          ? 'text-amber-400'
-                          : 'text-white/30 group-hover:text-white/55'
+                          ? 'text-amber-500'
+                          : 'text-gray-400 group-hover:text-gray-600'
                       }`}
                     />
 
@@ -187,11 +187,11 @@ export default function AdminSidebar() {
                       <div
                         className="
                           absolute left-full ml-3 px-2.5 py-1.5 rounded-md
-                          text-white text-xs whitespace-nowrap z-50 shadow-xl
+                          text-gray-700 text-xs whitespace-nowrap z-50 shadow-lg
                           opacity-0 group-hover:opacity-100 pointer-events-none
-                          transition-opacity duration-150 border border-white/10
+                          transition-opacity duration-150 border border-black/8
                         "
-                        style={{ background: '#1c1f2e' }}
+                        style={{ background: '#ffffff' }}
                       >
                         {item.label}
                       </div>
@@ -205,12 +205,12 @@ export default function AdminSidebar() {
       </nav>
 
       {/* ── Collapse toggle ── */}
-      <div className="shrink-0 px-2 py-3 border-t border-white/6">
+      <div className="shrink-0 px-2 py-3 border-t border-black/[0.07]">
         <button
           onClick={() => setCollapsed(!collapsed)}
           className={`
             w-full flex items-center rounded-lg py-2
-            text-white/25 hover:text-white/55 hover:bg-white/4
+            text-gray-400 hover:text-gray-600 hover:bg-black/4
             transition-all duration-150 text-xs font-medium
             ${collapsed ? 'justify-center px-0' : 'gap-2.5 px-3'}
           `}

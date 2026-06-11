@@ -31,12 +31,6 @@ const PHONES = [
     href: 'tel:+96893276767',
   },
   {
-    labelEn: 'Arabic Inquiries',
-    labelAr: 'استفسارات العربية',
-    value: '+968 9886 2343',
-    href: 'tel:+96898862343',
-  },
-  {
     labelEn: 'Landline',
     labelAr: 'الهاتف الأرضي',
     value: '+968 2449 7033',
@@ -222,6 +216,64 @@ export default function Footer({ locale }: { locale: string }) {
           ))}
         </div>
 
+        {/* Legal links */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <span
+            style={{
+              fontSize: 11,
+              letterSpacing: '.22em',
+              textTransform: 'uppercase',
+              color: '#ff751f',
+              marginBottom: 4,
+            }}
+          >
+            {isAr ? 'قانوني وآخر' : 'Legal & More'}
+          </span>
+          {[
+            {
+              href: `/${locale}/privacy`,
+              labelEn: 'Privacy Policy',
+              labelAr: 'سياسة الخصوصية',
+            },
+            {
+              href: `/${locale}/terms`,
+              labelEn: 'Terms of Use',
+              labelAr: 'شروط الاستخدام',
+            },
+            {
+              href: `/${locale}/carrier`,
+              labelEn: 'Careers',
+              labelAr: 'الوظائف',
+            },
+            {
+              href: `/${locale}/support`,
+              labelEn: 'Support',
+              labelAr: 'الدعم',
+            },
+          ].map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              style={{
+                fontSize: 13,
+                color: 'rgba(255,255,255,.55)',
+                textDecoration: 'none',
+                transition: 'color .2s',
+                padding: '3px 0',
+              }}
+              onMouseEnter={(e) =>
+                ((e.currentTarget as HTMLElement).style.color = '#ffffff')
+              }
+              onMouseLeave={(e) =>
+                ((e.currentTarget as HTMLElement).style.color =
+                  'rgba(255,255,255,.55)')
+              }
+            >
+              {isAr ? link.labelAr : link.labelEn}
+            </Link>
+          ))}
+        </div>
+
         {/* Newsletter subscription */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <span
@@ -380,58 +432,6 @@ export default function Footer({ locale }: { locale: string }) {
               Gulf Dev
             </a>
           </span>
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 16,
-            fontSize: 11,
-            letterSpacing: '.1em',
-          }}
-        >
-          <Link
-            href={`/${locale}/privacy`}
-            style={linkStyle}
-            onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLElement).style.color = '#ffffff')
-            }
-            onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLElement).style.color =
-                'rgba(255,255,255,.4)')
-            }
-          >
-            {isAr ? 'الخصوصية' : 'Privacy'}
-          </Link>
-          <span style={{ color: 'rgba(255,255,255,.2)' }}>•</span>
-          <Link
-            href={`/${locale}/terms`}
-            style={linkStyle}
-            onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLElement).style.color = '#ffffff')
-            }
-            onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLElement).style.color =
-                'rgba(255,255,255,.4)')
-            }
-          >
-            {isAr ? 'شروط الاستخدام' : 'Terms'}
-          </Link>
-          <span style={{ color: 'rgba(255,255,255,.2)' }}>•</span>
-          <Link
-            href={`/${locale}/carrier`}
-            style={linkStyle}
-            onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLElement).style.color = '#ffffff')
-            }
-            onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLElement).style.color =
-                'rgba(255,255,255,.4)')
-            }
-          >
-            {isAr ? 'الوظائف' : 'Careers'}
-          </Link>
         </div>
       </div>
     </footer>
