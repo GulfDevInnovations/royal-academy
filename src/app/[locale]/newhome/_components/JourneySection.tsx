@@ -76,10 +76,14 @@ const COPY = {
     en: 'Azaiba, 18th November Street\nMuscat, Sultanate of Oman',
     ar: 'العذيبة، شارع 18 نوفمبر\nمسقط، سلطنة عُمان',
   },
-
 };
 
 const SOCIAL_LINKS = [
+  {
+    label: { en: 'WhatsApp', ar: 'واتساب' },
+    href: 'https://wa.me/96893276767',
+    icon: 'whatsapp' as const,
+  },
   {
     label: { en: 'Instagram', ar: 'إنستغرام' },
     href: 'https://www.instagram.com/royal_academy_mct?igsh=MXhxdXI5OXEwbnc1ZA%3D%3D&utm_source=qr',
@@ -310,7 +314,6 @@ function DesktopJourney({
                   value={COPY.callNumber}
                   isAr={isAr}
                   href={`tel:${COPY.callNumber.replace(/\s/g, '')}`}
-                  whatsapp
                 />
                 <ContactRow
                   label={COPY.landlineLabel[isAr ? 'ar' : 'en']}
@@ -491,7 +494,6 @@ function MobileJourney({
                 value={COPY.callNumber}
                 isAr={isAr}
                 href={`tel:${COPY.callNumber.replace(/\s/g, '')}`}
-                whatsapp
                 mobile
               />
               <ContactRow
@@ -643,18 +645,15 @@ function ContactRow({
   value,
   isAr,
   href,
-  whatsapp,
   mobile,
 }: {
   label: string;
   value: string;
   isAr: boolean;
   href: string;
-  whatsapp?: boolean;
   mobile?: boolean;
 }) {
   const [hov, setHov] = useState(false);
-  const waHref = `https://wa.me/${value.replace(/\s/g, '').replace('+', '')}`;
 
   return (
     <div
@@ -699,35 +698,6 @@ function ContactRow({
           {value}
         </a>
       </div>
-      {whatsapp && (
-        <a
-          href={waHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 32,
-            height: 32,
-            borderRadius: '50%',
-            background: 'rgba(37,211,102,0.1)',
-            border: '1px solid rgba(37,211,102,0.28)',
-            transition: 'background 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.background =
-              'rgba(37,211,102,0.2)';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.background =
-              'rgba(37,211,102,0.1)';
-          }}
-        >
-          <WhatsappIcon />
-        </a>
-      )}
     </div>
   );
 }
@@ -790,7 +760,12 @@ function SocialLinks({ isAr }: { isAr: boolean }) {
       }}
     >
       {SOCIAL_LINKS.map((s) => (
-        <SocialPill key={s.icon} href={s.href} label={s.label[isAr ? 'ar' : 'en']} icon={s.icon} />
+        <SocialPill
+          key={s.icon}
+          href={s.href}
+          label={s.label[isAr ? 'ar' : 'en']}
+          icon={s.icon}
+        />
       ))}
     </div>
   );
@@ -803,9 +778,10 @@ function SocialPill({
 }: {
   href: string;
   label: string;
-  icon: 'instagram' | 'youtube' | 'linkedin' | 'tiktok';
+  icon: 'whatsapp' | 'instagram' | 'youtube' | 'linkedin' | 'tiktok';
 }) {
   const [hov, setHov] = useState(false);
+  const isWa = icon === 'whatsapp';
   return (
     <a
       href={href}
@@ -819,16 +795,23 @@ function SocialPill({
         gap: 6,
         padding: '6px 12px',
         borderRadius: 20,
-        border: '1px solid rgba(0,0,0,0.12)',
-        background: hov ? 'rgba(0,0,0,0.06)' : 'transparent',
+        border: isWa
+          ? `1px solid rgba(37,211,102,${hov ? '0.5' : '0.28'})`
+          : '1px solid rgba(0,0,0,0.12)',
+        background: isWa
+          ? `rgba(37,211,102,${hov ? '0.14' : '0.06'})`
+          : hov
+            ? 'rgba(0,0,0,0.06)'
+            : 'transparent',
         textDecoration: 'none',
-        color: '#333',
+        color: isWa ? '#1a9e50' : '#333',
         fontSize: 11,
         letterSpacing: '0.06em',
         transition: 'background 0.2s, border-color 0.2s',
         whiteSpace: 'nowrap',
       }}
     >
+      {icon === 'whatsapp' && <WhatsappIcon />}
       {icon === 'instagram' && <InstagramIcon />}
       {icon === 'youtube' && <YouTubeIcon />}
       {icon === 'linkedin' && <LinkedInIcon />}
@@ -840,7 +823,16 @@ function SocialPill({
 
 function InstagramIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E1306C" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#E1306C"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
       <circle cx="12" cy="12" r="4" />
       <circle cx="17.5" cy="6.5" r="0.5" fill="#E1306C" stroke="none" />

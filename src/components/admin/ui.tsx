@@ -1,6 +1,6 @@
 // src/components/admin/ui.tsx
 // ─────────────────────────────────────────────────────────────
-// Shared dark-theme primitives for the admin panel.
+// Shared light-theme primitives for the admin panel.
 // Import from this file to keep every page visually consistent.
 // ─────────────────────────────────────────────────────────────
 
@@ -8,18 +8,18 @@ import { ReactNode } from "react";
 
 // ── Design tokens ────────────────────────────────────────────
 export const adminColors = {
-  bg: "#13161f", // page background
-  surface: "#1a1d27", // card / panel background
-  border: "rgba(255,255,255,0.07)",
-  textPrimary: "rgba(255,255,255,0.85)",
-  textSecondary: "rgba(255,255,255,0.40)",
-  textMuted: "rgba(255,255,255,0.20)",
+  bg: "#f5f6fa", // page background
+  surface: "#ffffff", // card / panel background
+  border: "rgba(0,0,0,0.08)",
+  textPrimary: "#111827",
+  textSecondary: "#4b5563",
+  textMuted: "#9ca3af",
   accent: "#f59e0b", // amber — primary action colour
   accentHover: "#d97706",
-  blueText: "#5190f5", // for reminders
-  redText: "#ff2929", // for warnings/errors
-  purpleText: "#9029ff", // for highlights
-  pinkText: "#e84f8a", // for highlights
+  blueText: "#2563eb", // for reminders
+  redText: "#dc2626", // for warnings/errors
+  purpleText: "#7c3aed", // for highlights
+  pinkText: "#db2777", // for highlights
 } as const;
 
 // ── Card ─────────────────────────────────────────────────────
@@ -96,12 +96,12 @@ export function AdminButton({
       color: "#000",
     },
     ghost: {
-      background: "rgba(255,255,255,0.05)",
+      background: "rgba(0,0,0,0.05)",
       color: adminColors.textSecondary,
     },
     danger: {
-      background: "rgba(248,113,113,0.12)",
-      color: "#f87171",
+      background: "rgba(220,38,38,0.08)",
+      color: "#dc2626",
     },
   };
 
@@ -115,7 +115,7 @@ export function AdminButton({
             adminColors.accentHover;
         if (variant === "ghost")
           (e.currentTarget as HTMLButtonElement).style.background =
-            "rgba(255,255,255,0.09)";
+            "rgba(0,0,0,0.09)";
       }}
       onMouseLeave={(e) => {
         (e.currentTarget as HTMLButtonElement).style.background =
@@ -131,11 +131,11 @@ export function AdminButton({
 // ── Badge ────────────────────────────────────────────────────
 type BadgeVariant = "default" | "success" | "warning" | "danger" | "info";
 const badgeStyles: Record<BadgeVariant, { bg: string; color: string }> = {
-  default: { bg: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" },
-  success: { bg: "rgba(52,211,153,0.12)", color: "#34d399" },
-  warning: { bg: "rgba(245,158,11,0.12)", color: "#f59e0b" },
-  danger: { bg: "rgba(248,113,113,0.12)", color: "#f87171" },
-  info: { bg: "rgba(96,165,250,0.12)", color: "#60a5fa" },
+  default: { bg: "rgba(0,0,0,0.06)", color: "#6b7280" },
+  success: { bg: "rgba(16,185,129,0.10)", color: "#059669" },
+  warning: { bg: "rgba(245,158,11,0.10)", color: "#d97706" },
+  danger: { bg: "rgba(220,38,38,0.08)", color: "#dc2626" },
+  info: { bg: "rgba(37,99,235,0.08)", color: "#2563eb" },
 };
 export function AdminBadge({
   children,
@@ -204,7 +204,7 @@ export function AdminTr({
       style={{ borderBottom: `1px solid ${adminColors.border}` }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLTableRowElement).style.background =
-          "rgba(255,255,255,0.02)";
+          "rgba(0,0,0,0.02)";
       }}
       onMouseLeave={(e) => {
         (e.currentTarget as HTMLTableRowElement).style.background =
@@ -258,10 +258,10 @@ export function AdminInput({
       )}
       <input
         className={`w-full px-3 py-2 rounded-lg text-xl border
-          bg-white/4 text-white/80 placeholder-white/20
-          focus:outline-none focus:border-amber-500/50 focus:bg-white/6
+          bg-gray-50 text-gray-800 placeholder-gray-400
+          focus:outline-none focus:border-amber-400 focus:bg-white
           transition-all duration-150 ${className}`}
-        style={{ borderColor: error ? "#f87171" : adminColors.border }}
+        style={{ borderColor: error ? "#dc2626" : adminColors.border }}
         {...props}
       />
       {error && (
@@ -303,11 +303,11 @@ export function AdminSelect({
       <select
         className={`
           w-full px-3 py-2 rounded-lg text-l border
-          bg-white/[0.04] text-white/80
-          focus:outline-none focus:border-amber-500/50
+          bg-gray-50 text-gray-800
+          focus:outline-none focus:border-amber-400
           transition-all duration-150 ${className}
         `}
-        style={{ borderColor: error ? "#f87171" : adminColors.border }}
+        style={{ borderColor: error ? "#dc2626" : adminColors.border }}
         {...props}
       >
         {children}
@@ -346,11 +346,11 @@ export function AdminTextarea({
       <textarea
         className={`
           w-full px-3 py-2 rounded-lg text-xl border
-          bg-white/[0.04] text-white/80 placeholder-white/20
-          focus:outline-none focus:border-amber-500/50 focus:bg-white/[0.06]
+          bg-gray-50 text-gray-800 placeholder-gray-400
+          focus:outline-none focus:border-amber-400 focus:bg-white
           transition-all duration-150 resize-none ${className}
         `}
-        style={{ borderColor: error ? "#f87171" : adminColors.border }}
+        style={{ borderColor: error ? "#dc2626" : adminColors.border }}
         rows={3}
         {...props}
       />

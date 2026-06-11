@@ -140,8 +140,8 @@ export default function TicketsTab({
               key={label}
               className="rounded-xl border px-3 py-2 text-center"
               style={{
-                borderColor: "rgba(255,255,255,0.07)",
-                background: "#1a1d27",
+                borderColor: "rgba(0,0,0,0.07)",
+                background: "#ffffff",
               }}
             >
               <p className="text-2xl font-bold" style={{ color }}>
@@ -162,8 +162,8 @@ export default function TicketsTab({
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="flex-1 px-2 py-1.5 rounded-lg text-l border bg-white/4 text-white/70 focus:outline-none"
-            style={{ borderColor: "rgba(255,255,255,0.08)" }}
+            className="flex-1 px-2 py-1.5 rounded-lg text-l border bg-gray-50 text-gray-700 focus:outline-none"
+            style={{ borderColor: "rgba(0,0,0,0.07)" }}
           >
             <option className="text-black" value="">
               {t("allStatuses")}
@@ -177,8 +177,8 @@ export default function TicketsTab({
           <select
             value={filterPriority}
             onChange={(e) => setFilterPriority(e.target.value)}
-            className="flex-1 px-2 py-1.5 rounded-lg text-l border bg-white/4 text-white/70 focus:outline-none"
-            style={{ borderColor: "rgba(255,255,255,0.08)" }}
+            className="flex-1 px-2 py-1.5 rounded-lg text-l border bg-gray-50 text-gray-700 focus:outline-none"
+            style={{ borderColor: "rgba(0,0,0,0.07)" }}
           >
             <option className="text-black" value="">
               All priorities
@@ -223,10 +223,10 @@ export default function TicketsTab({
                   style={{
                     borderColor: isSelected
                       ? "rgba(245,158,11,0.4)"
-                      : "rgba(255,255,255,0.07)",
+                      : "rgba(0,0,0,0.07)",
                     background: isSelected
                       ? "rgba(245,158,11,0.06)"
-                      : "rgba(255,255,255,0.02)",
+                      : "rgba(0,0,0,0.02)",
                   }}
                 >
                   <div className="flex items-start gap-2">
@@ -301,7 +301,7 @@ export default function TicketsTab({
       {/* ── Reply panel ── */}
       <div
         className="flex-1 rounded-2xl border flex flex-col overflow-hidden"
-        style={{ borderColor: "rgba(255,255,255,0.07)", background: "#1a1d27" }}
+        style={{ borderColor: "rgba(0,0,0,0.07)", background: "#ffffff" }}
       >
         {!selectedTicket ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-3">
@@ -391,7 +391,7 @@ function TicketDetail({
       {/* Header */}
       <div
         className="flex items-start justify-between px-5 py-4 border-b shrink-0"
-        style={{ borderColor: "rgba(255,255,255,0.07)" }}
+        style={{ borderColor: "rgba(0,0,0,0.07)" }}
       >
         <div className="flex-1 min-w-0 pr-4">
           <p
@@ -410,9 +410,9 @@ function TicketDetail({
             value={ticket.status}
             onChange={(e) => handleStatusChange(e.target.value)}
             disabled={isUpdating}
-            className="px-2 py-1 rounded-lg text-l border bg-white/4 focus:outline-none"
+            className="px-2 py-1 rounded-lg text-l border bg-gray-50 focus:outline-none"
             style={{
-              borderColor: "rgba(255,255,255,0.08)",
+              borderColor: "rgba(0,0,0,0.07)",
               color: statusConf.color,
             }}
           >
@@ -427,9 +427,9 @@ function TicketDetail({
             value={ticket.priority}
             onChange={(e) => handlePriorityChange(e.target.value)}
             disabled={isUpdating}
-            className="px-2 py-1 rounded-lg text-l border bg-white/4 focus:outline-none"
+            className="px-2 py-1 rounded-lg text-l border bg-gray-50 focus:outline-none"
             style={{
-              borderColor: "rgba(255,255,255,0.08)",
+              borderColor: "rgba(0,0,0,0.07)",
               color: priorityConf.color,
             }}
           >
@@ -441,7 +441,7 @@ function TicketDetail({
           </select>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
           >
             <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
@@ -486,8 +486,8 @@ function TicketDetail({
             <div
               className="rounded-xl px-4 py-3"
               style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.06)",
+                background: "rgba(0,0,0,0.04)",
+                border: "1px solid rgba(0,0,0,0.06)",
               }}
             >
               <p
@@ -564,8 +564,8 @@ function TicketDetail({
                   style={{
                     background: isAdmin
                       ? "rgba(245,158,11,0.08)"
-                      : "rgba(255,255,255,0.04)",
-                    border: `1px solid ${isAdmin ? "rgba(245,158,11,0.15)" : "rgba(255,255,255,0.06)"}`,
+                      : "rgba(0,0,0,0.04)",
+                    border: `1px solid ${isAdmin ? "rgba(245,158,11,0.15)" : "rgba(0,0,0,0.06)"}`,
                   }}
                 >
                   <p
@@ -585,7 +585,7 @@ function TicketDetail({
       {ticket.status !== "CLOSED" && (
         <div
           className="px-5 py-4 border-t shrink-0"
-          style={{ borderColor: "rgba(255,255,255,0.07)" }}
+          style={{ borderColor: "rgba(0,0,0,0.07)" }}
         >
           <div className="flex gap-3">
             <textarea
@@ -597,8 +597,8 @@ function TicketDetail({
               }}
               placeholder="Type your reply… (Ctrl+Enter to send)"
               rows={3}
-              className="flex-1 px-3 py-2.5 rounded-xl border bg-white/3 text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-amber-500/40 resize-none"
-              style={{ borderColor: "rgba(255,255,255,0.07)" }}
+              className="flex-1 px-3 py-2.5 rounded-xl border bg-black/3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-amber-500/40 resize-none"
+              style={{ borderColor: "rgba(0,0,0,0.07)" }}
             />
             <AdminButton
               variant="primary"

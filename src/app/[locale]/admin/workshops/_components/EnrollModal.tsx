@@ -48,9 +48,9 @@ type MethodValue = (typeof METHODS)[number]["value"];
 
 // ── Helpers ────────────────────────────────────────────────────
 const inputCls =
-  "w-full px-3 py-2 rounded-lg border bg-white/[0.03] text-xl focus:outline-none focus:border-amber-500/40 transition-colors placeholder:text-white/20";
+  "w-full px-3 py-2 rounded-lg border bg-gray-50 text-xl focus:outline-none focus:border-amber-500/40 transition-colors placeholder:text-gray-300";
 const inputStyle = {
-  borderColor: "rgba(255,255,255,0.08)",
+  borderColor: "rgba(0,0,0,0.07)",
   color: adminColors.textPrimary,
 };
 
@@ -123,7 +123,7 @@ function SearchDropdown<T extends { id: string }>({
             onClear();
             setQuery("");
           }}
-          className="flex-shrink-0 hover:bg-white/5 transition-colors"
+          className="flex-shrink-0 hover:bg-black/5 transition-colors"
         >
           <X size={16} style={{ color: adminColors.pinkText }} />
         </button>
@@ -136,7 +136,7 @@ function SearchDropdown<T extends { id: string }>({
       <Search
         size={16}
         className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-        style={{ color: "rgba(255,255,255,0.25)" }}
+        style={{ color: "rgba(156,163,175,1)" }}
       />
       <input
         value={query}
@@ -154,8 +154,8 @@ function SearchDropdown<T extends { id: string }>({
         <div
           className="absolute z-20 mt-1 w-full rounded-xl border overflow-hidden max-h-48 overflow-y-auto shadow-xl"
           style={{
-            background: "#13161f",
-            borderColor: "rgba(255,255,255,0.08)",
+            background: "#f5f6fa",
+            borderColor: "rgba(0,0,0,0.07)",
           }}
         >
           {filtered.length === 0 ? (
@@ -175,8 +175,8 @@ function SearchDropdown<T extends { id: string }>({
                   setQuery("");
                   setOpen(false);
                 }}
-                className="w-full text-left px-3 py-2.5 hover:bg-white/[0.05] transition-colors border-b last:border-b-0"
-                style={{ borderColor: "rgba(255,255,255,0.04)" }}
+                className="w-full text-left px-3 py-2.5 hover:bg-black/5 transition-colors border-b last:border-b-0"
+                style={{ borderColor: "rgba(0,0,0,0.04)" }}
               >
                 {renderItem(item)}
               </button>
@@ -279,16 +279,15 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
       />
       <div
-        className="relative w-full max-w-lg rounded-2xl border border-white/[0.08] shadow-2xl z-10 max-h-[92vh] flex flex-col"
-        style={{ background: "#1a1d27" }}
+        className="relative w-full max-w-lg rounded-2xl border border-black/8 shadow-2xl z-10 max-h-[92vh] flex flex-col"
+        style={{ background: "#ffffff" }}
       >
         {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-4 border-b flex-shrink-0"
-          style={{ borderColor: "rgba(255,255,255,0.07)" }}
+          style={{ borderColor: "rgba(0,0,0,0.07)" }}
         >
           <div>
             <h2
@@ -306,7 +305,7 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
           >
             <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
@@ -469,11 +468,11 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
                         borderColor:
                           method === m.value
                             ? adminColors.accent
-                            : "rgba(255,255,255,0.08)",
+                            : "rgba(0,0,0,0.07)",
                         background:
                           method === m.value
                             ? "rgba(245,158,11,0.1)"
-                            : "rgba(255,255,255,0.02)",
+                            : "rgba(0,0,0,0.02)",
                         color:
                           method === m.value
                             ? adminColors.accent
@@ -520,7 +519,7 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
                     id="paidDate"
                     name="paidDate"
                     defaultValue={paidDate}
-                    theme="dark"
+                    theme="light"
                     fieldClassName={inputCls}
                     inputStyle={inputStyle}
                     onChange={setPaidDate}
@@ -531,7 +530,7 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
                     id="paidTime"
                     name="paidTime"
                     defaultValue={paidTime}
-                    theme="dark"
+                    theme="light"
                     fieldClassName={inputCls}
                     inputStyle={inputStyle}
                     onChange={setPaidTime}
@@ -544,8 +543,8 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
                 <div
                   className="rounded-xl p-4 space-y-2"
                   style={{
-                    background: "rgba(255,255,255,0.02)",
-                    border: "1px solid rgba(255,255,255,0.06)",
+                    background: "rgba(0,0,0,0.02)",
+                    border: "1px solid rgba(0,0,0,0.06)",
                   }}
                 >
                   <p
@@ -603,7 +602,7 @@ export default function EnrollModal({ onClose, onSuccess }: Props) {
         {/* Footer */}
         <div
           className="flex justify-end gap-2 px-6 py-4 border-t flex-shrink-0"
-          style={{ borderColor: "rgba(255,255,255,0.07)" }}
+          style={{ borderColor: "rgba(0,0,0,0.07)" }}
         >
           <AdminButton variant="ghost" onClick={onClose}>
             Cancel

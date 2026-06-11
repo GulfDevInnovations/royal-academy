@@ -154,7 +154,7 @@ export default function TeacherFormModal({
   };
 
   const inputStyle = {
-    background: "rgba(255,255,255,0.04)",
+    background: "rgba(0,0,0,0.04)",
     borderColor: adminColors.border,
     color: adminColors.textPrimary,
   };
@@ -163,15 +163,14 @@ export default function TeacherFormModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
       />
 
       <div
-        className="relative w-full max-w-xl rounded-2xl border border-white/[0.08] shadow-2xl z-10 max-h-[92vh] flex flex-col"
-        style={{ background: "#1a1d27" }}
+        className="relative w-full max-w-xl rounded-2xl border border-black/8 shadow-2xl z-10 max-h-[92vh] flex flex-col"
+        style={{ background: "#ffffff" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-black/8 flex-shrink-0">
           <h2
             className="text-xl font-semibold"
             style={{ color: adminColors.textPrimary }}
@@ -180,7 +179,7 @@ export default function TeacherFormModal({
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
           >
             <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
@@ -228,7 +227,7 @@ export default function TeacherFormModal({
               ) : (
                 <div className="space-y-2">
                   {editing.user ? (
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/[0.06]">
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-black/6">
                       <span
                         className="text-l"
                         style={{ color: adminColors.textMuted }}
@@ -251,7 +250,7 @@ export default function TeacherFormModal({
                       )}
                     </div>
                   ) : (
-                    <div className="px-3 py-2 rounded-lg border border-dashed border-white/[0.08]">
+                    <div className="px-3 py-2 rounded-lg border border-dashed border-black/8">
                       <p
                         className="text-l"
                         style={{ color: adminColors.textMuted }}
@@ -284,7 +283,7 @@ export default function TeacherFormModal({
                 </label>
                 <div
                   className="flex items-center gap-1 p-1 rounded-lg w-fit"
-                  style={{ background: "rgba(255,255,255,0.05)" }}
+                  style={{ background: "rgba(0,0,0,0.05)" }}
                 >
                   {(["en", "ar"] as const).map((lang) => (
                     <button
@@ -346,14 +345,14 @@ export default function TeacherFormModal({
                       src={photoPreview}
                       alt="Preview"
                       className="w-16 h-16 rounded-full object-cover"
-                      style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+                      style={{ border: "1px solid rgba(0,0,0,0.06)" }}
                     />
                   </div>
                 )}
 
                 {/* File input */}
                 <label
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer text-l transition-colors hover:bg-white/[0.03]"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer text-l transition-colors hover:bg-gray-50"
                   style={{
                     borderColor: adminColors.border,
                     color: adminColors.textSecondary,
@@ -400,7 +399,7 @@ export default function TeacherFormModal({
                     }
                   }}
                   placeholder="e.g. Violin, Ballet, Drums…"
-                  className="flex-1 px-3 py-2 rounded-lg text-xl border bg-white/[0.04] text-white/80 placeholder-white/20 focus:outline-none focus:border-amber-500/50 transition-all"
+                  className="flex-1 px-3 py-2 rounded-lg text-xl border bg-gray-50 text-gray-800 placeholder-gray-400 focus:outline-none focus:border-amber-500/50 transition-all"
                   style={{ borderColor: adminColors.border }}
                 />
                 <AdminButton
@@ -468,7 +467,7 @@ export default function TeacherFormModal({
                         <button
                           type="button"
                           onClick={() => toggleClassExpand(cls.id)}
-                          className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-white/[0.03]"
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-gray-50"
                         >
                           {isExpanded ? (
                             <ChevronDown
@@ -525,7 +524,7 @@ export default function TeacherFormModal({
                                 return (
                                   <label
                                     key={sub.id}
-                                    className="flex items-center gap-3 px-5 py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02]"
+                                    className="flex items-center gap-3 px-5 py-2.5 cursor-pointer transition-colors hover:bg-gray-50"
                                   >
                                     <input
                                       type="checkbox"
@@ -618,7 +617,7 @@ export default function TeacherFormModal({
                               return next;
                             })
                           }
-                          className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-white/[0.03]"
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-gray-50"
                         >
                           {isExpanded ? (
                             <ChevronDown size={13} style={{ color: adminColors.textMuted }} />
@@ -653,7 +652,7 @@ export default function TeacherFormModal({
                                         return next;
                                       })
                                     }
-                                    className="w-full flex items-center gap-3 px-5 py-2 text-left transition-colors hover:bg-white/[0.02]"
+                                    className="w-full flex items-center gap-3 px-5 py-2 text-left transition-colors hover:bg-gray-50"
                                   >
                                     {subExpanded ? (
                                       <ChevronDown size={12} style={{ color: adminColors.textMuted }} />
@@ -682,7 +681,7 @@ export default function TeacherFormModal({
                                         return (
                                           <label
                                             key={prog.id}
-                                            className="flex items-center gap-3 px-8 py-2.5 cursor-pointer transition-colors hover:bg-white/[0.02]"
+                                            className="flex items-center gap-3 px-8 py-2.5 cursor-pointer transition-colors hover:bg-gray-50"
                                           >
                                             <input
                                               type="checkbox"

@@ -755,12 +755,17 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
     [locale],
   );
 
-  const workshopByDate = useMemo(() => {
-    const map = new Map<string, Workshop>();
+  const workshopsByDate = useMemo(() => {
+    const map = new Map<string, Workshop[]>();
     for (const w of workshops) {
       const d = new Date(w.eventDate);
       const key = isoDateStr(d.getFullYear(), d.getMonth(), d.getDate());
-      map.set(key, w);
+      const existing = map.get(key) ?? [];
+      existing.push(w);
+      map.set(key, existing);
+    }
+    for (const ws of map.values()) {
+      ws.sort((a, b) => a.startTime.localeCompare(b.startTime));
     }
     return map;
   }, [workshops]);
@@ -774,12 +779,12 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
       const m = d.getMonth();
       const cnt = getDaysInMonth(y, m);
       const hasWorkshops = Array.from({ length: cnt }, (_, j) =>
-        workshopByDate.has(isoDateStr(y, m, j + 1)),
+        workshopsByDate.has(isoDateStr(y, m, j + 1)),
       ).some(Boolean);
       opts.push({ year: y, month: m, hasWorkshops });
     }
     return opts;
-  }, [workshopByDate]);
+  }, [workshopsByDate]);
 
   const todayStr = isoDateStr(today.getFullYear(), today.getMonth(), today.getDate());
 
@@ -792,13 +797,13 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
       return {
         day,
         dayOfWeek: dayNames[dow],
-        workshop: workshopByDate.get(key) ?? null,
+        workshops: workshopsByDate.get(key) ?? [],
         isToday: key === todayStr,
       };
     });
-  }, [viewYear, viewMonth, workshopByDate, dayNames, todayStr]);
+  }, [viewYear, viewMonth, workshopsByDate, dayNames, todayStr]);
 
-  const workshopCount = days.filter((d) => d.workshop).length;
+  const workshopCount = days.reduce((sum, d) => sum + d.workshops.length, 0);
 
   return (
     <div
@@ -848,12 +853,12 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
 
         {/* Stacked day cards */}
         <div className="flex flex-col">
-          {days.map(({ day, dayOfWeek, workshop, isToday }, idx) => {
+          {days.map(({ day, dayOfWeek, workshops, isToday }, idx) => {
             const zIndex = idx + 1;
 
-            const prevHasWorkshop = idx > 0 && days[idx - 1].workshop !== null;
+            const prevHasWorkshop = idx > 0 && days[idx - 1].workshops.length > 0;
             const marginTop =
-              idx === 0 ? 0 : prevHasWorkshop ? -8 : workshop ? -8 : -10;
+              idx === 0 ? 0 : prevHasWorkshop ? -8 : workshops.length > 0 ? -8 : -10;
 
             return (
               <div
@@ -865,13 +870,18 @@ export default function WorkshopsCalendarClient({ workshops }: Props) {
                   transition: 'margin 0.3s ease',
                 }}
               >
-                {workshop ? (
-                  <WorkshopDayCard
-                    day={day}
-                    dayOfWeek={dayOfWeek}
-                    workshop={workshop}
-                    isToday={isToday}
-                  />
+                {workshops.length > 0 ? (
+                  <div className="flex flex-col gap-2">
+                    {workshops.map((workshop) => (
+                      <WorkshopDayCard
+                        key={workshop.id}
+                        day={day}
+                        dayOfWeek={dayOfWeek}
+                        workshop={workshop}
+                        isToday={isToday}
+                      />
+                    ))}
+                  </div>
                 ) : (
                   <EmptyDayCard day={day} dayOfWeek={dayOfWeek} isToday={isToday} />
                 )}

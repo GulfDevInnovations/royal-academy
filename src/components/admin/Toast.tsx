@@ -17,22 +17,22 @@ const styles: Record<
   { bg: string; border: string; icon: typeof AlertTriangle; iconColor: string }
 > = {
   error: {
-    bg: "rgba(248,113,113,0.08)",
-    border: "rgba(248,113,113,0.25)",
+    bg: "#fff5f5",
+    border: "rgba(220,38,38,0.20)",
     icon: AlertTriangle,
-    iconColor: "#f87171",
+    iconColor: "#dc2626",
   },
   success: {
-    bg: "rgba(52,211,153,0.08)",
-    border: "rgba(52,211,153,0.25)",
+    bg: "#f0fdf4",
+    border: "rgba(5,150,105,0.20)",
     icon: CheckCircle2,
-    iconColor: "#34d399",
+    iconColor: "#059669",
   },
   info: {
-    bg: "rgba(96,165,250,0.08)",
-    border: "rgba(96,165,250,0.25)",
+    bg: "#eff6ff",
+    border: "rgba(37,99,235,0.20)",
     icon: Info,
-    iconColor: "#60a5fa",
+    iconColor: "#2563eb",
   },
 };
 
@@ -77,13 +77,13 @@ export function Toast({
     >
       <Icon
         size={15}
-        className="flex-shrink-0 mt-0.5"
+        className="shrink-0 mt-0.5"
         style={{ color: s.iconColor }}
       />
 
       <p
         className="text-sm flex-1 leading-relaxed"
-        style={{ color: "rgba(255,255,255,0.8)" }}
+        style={{ color: "#374151" }}
       >
         {message}
       </p>
@@ -93,8 +93,8 @@ export function Toast({
           setVisible(false);
           setTimeout(onClose, 300);
         }}
-        className="flex-shrink-0 p-0.5 rounded transition-colors hover:bg-white/10"
-        style={{ color: "rgba(255,255,255,0.3)" }}
+        className="shrink-0 p-0.5 rounded transition-colors hover:bg-black/5"
+        style={{ color: "#9ca3af" }}
       >
         <X size={13} />
       </button>

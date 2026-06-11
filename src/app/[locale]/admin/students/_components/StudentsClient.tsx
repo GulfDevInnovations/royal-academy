@@ -382,7 +382,7 @@ export default function StudentsClient({
             background:
               activeFilterCount > 0
                 ? "rgba(245,158,11,0.06)"
-                : "rgba(255,255,255,0.03)",
+                : "rgba(0,0,0,0.03)",
           }}
         >
           <span className="flex items-center gap-1 text-amber-200">
@@ -402,7 +402,7 @@ export default function StudentsClient({
         {/* Export all */}
         <button
           onClick={() => exportToExcel(displayedStudents)}
-          className="gap-1 flex items-center justify-center px-5 py-2 rounded-xl border cursor-pointer hover:bg-white/5 transition-colors"
+          className="gap-1 flex items-center justify-center px-5 py-2 rounded-xl border cursor-pointer hover:bg-black/5 transition-colors"
           style={{ color: adminColors.blueText }}
         >
           <Download size={16} />
@@ -428,7 +428,7 @@ export default function StudentsClient({
               <select
                 value={filters.classId}
                 onChange={(e) => setFilter("classId", e.target.value)}
-                className="w-full px-3 py-2 rounded-lg text-xl border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
+                className="w-full px-3 py-2 rounded-lg text-xl border bg-gray-50 text-gray-700 focus:outline-none focus:border-amber-500/50"
                 style={{ borderColor: adminColors.border }}
               >
                 <option className="text-black" value="">
@@ -453,7 +453,7 @@ export default function StudentsClient({
               <select
                 value={filters.subClassId}
                 onChange={(e) => setFilter("subClassId", e.target.value)}
-                className="w-full px-3 py-2 rounded-lg text-xl border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
+                className="w-full px-3 py-2 rounded-lg text-xl border bg-gray-50 text-gray-700 focus:outline-none focus:border-amber-500/50"
                 style={{ borderColor: adminColors.border }}
               >
                 <option className="text-black" value="">
@@ -478,7 +478,7 @@ export default function StudentsClient({
               <select
                 value={filters.dayOfWeek}
                 onChange={(e) => setFilter("dayOfWeek", e.target.value)}
-                className="w-full px-3 py-2 rounded-lg text-xl border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
+                className="w-full px-3 py-2 rounded-lg text-xl border bg-gray-50 text-gray-700 focus:outline-none focus:border-amber-500/50"
                 style={{ borderColor: adminColors.border }}
               >
                 <option className="text-black" value="">
@@ -503,7 +503,7 @@ export default function StudentsClient({
               <select
                 value={filters.status}
                 onChange={(e) => setFilter("status", e.target.value)}
-                className="w-full px-3 py-2 rounded-lg text-xl border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
+                className="w-full px-3 py-2 rounded-lg text-xl border bg-gray-50 text-gray-700 focus:outline-none focus:border-amber-500/50"
                 style={{ borderColor: adminColors.border }}
               >
                 <option className="text-black" value="all">
@@ -594,7 +594,7 @@ export default function StudentsClient({
 
           <button
             onClick={() => exportToExcel(selectedStudents)}
-            className="gap-1 flex items-center justify-center px-5 py-1.5 rounded-xl border cursor-pointer hover:bg-white/5 transition-colors"
+            className="gap-1 flex items-center justify-center px-5 py-1.5 rounded-xl border cursor-pointer hover:bg-black/5 transition-colors"
             style={{ color: adminColors.blueText }}
           >
             <Download size={16} /> {t("exportSelected")}
@@ -624,7 +624,7 @@ export default function StudentsClient({
               <AdminTh>
                 <button
                   onClick={toggleAll}
-                  className="text-white/40 hover:text-white/70 transition-colors"
+                  className="text-gray-500 hover:text-gray-700 transition-colors"
                 >
                   {allSelected ? (
                     <CheckSquare size={15} />
@@ -636,7 +636,7 @@ export default function StudentsClient({
               <AdminTh>
                 <button
                   onClick={() => toggleSort("name")}
-                  className="flex items-center gap-1 hover:text-white/70 transition-colors"
+                  className="flex items-center gap-1 hover:text-gray-700 transition-colors"
                 >
                   {t("student")} <SortIcon k="name" />
                 </button>
@@ -644,7 +644,7 @@ export default function StudentsClient({
               <AdminTh>
                 <button
                   onClick={() => toggleSort("phone")}
-                  className="flex items-center gap-1 hover:text-white/70 transition-colors"
+                  className="flex items-center gap-1 hover:text-gray-700 transition-colors"
                 >
                   Phone <SortIcon k="phone" />
                 </button>
@@ -654,7 +654,7 @@ export default function StudentsClient({
               <AdminTh>
                 <button
                   onClick={() => toggleSort("status")}
-                  className="flex items-center gap-1 hover:text-white/70 transition-colors"
+                  className="flex items-center gap-1 hover:text-gray-700 transition-colors"
                 >
                   Status <SortIcon k="status" />
                 </button>
@@ -662,7 +662,7 @@ export default function StudentsClient({
               <AdminTh>
                 <button
                   onClick={() => toggleSort("joinedAt")}
-                  className="flex items-center gap-1 hover:text-white/70 transition-colors"
+                  className="flex items-center gap-1 hover:text-gray-700 transition-colors"
                 >
                   {t("joined")} <SortIcon k="joinedAt" />
                 </button>
@@ -682,7 +682,7 @@ export default function StudentsClient({
                         style={{
                           color: isSelected
                             ? "#f59e0b"
-                            : "rgba(255,255,255,0.25)",
+                            : "rgba(156,163,175,1)",
                         }}
                       >
                         {isSelected ? (
@@ -824,7 +824,7 @@ export default function StudentsClient({
                         </button>
                         <button
                           onClick={() => setModal({ type: "edit", student })}
-                          className="p-1.5 rounded-lg transition-colors text-blue-400 hover:text-blue-600 hover:bg-white/5"
+                          className="p-1.5 rounded-lg transition-colors text-blue-400 hover:text-blue-600 hover:bg-black/5"
                           title="Edit student"
                         >
                           <Pencil size={20} />

@@ -104,66 +104,87 @@ export default function TermsPage({ isArabic = false }) {
   const dir = isArabic ? 'rtl' : 'ltr';
 
   return (
-    <div
-      dir={dir}
-      className="mx-auto w-full max-w-4xl px-4 sm:px-6 md:px-8 pt-28 pb-20"
-    >
-      {/* Header */}
-      <div className="mb-14">
-        {/* Decorative label */}
-        <div className="flex items-center gap-3 mb-6">
-          <span className="block h-px w-8 bg-royal-cream/40" />
-          <span
-            className="text-xs tracking-[0.2em] uppercase text-royal-cream/50 font-light"
-            style={{ fontVariantNumeric: 'tabular-nums' }}
-          >
-            {isArabic ? 'الأكاديمية الملكية' : 'Royal Academy'}
-          </span>
-        </div>
-
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-wide text-royal-cream leading-tight">
-          {t.title}
-        </h1>
-
-        <p className="mt-5 text-royal-cream/60 text-base md:text-lg leading-relaxed max-w-xl">
-          {t.subtitle}
-        </p>
-
-        <p className="mt-3 text-royal-cream/35 text-xs tracking-widest uppercase">
-          {t.lastUpdated}
-        </p>
-
-        {/* Divider */}
-        <div className="mt-10 flex items-center gap-4">
-          <div className="h-px flex-1 bg-royal-cream/10" />
-          <div className="w-1.5 h-1.5 rounded-full bg-royal-cream/30" />
-          <div className="h-px flex-1 bg-royal-cream/10" />
-        </div>
-      </div>
-
-      {/* Sections */}
-      <div className="space-y-0 divide-y divide-royal-cream/8">
-        {t.sections.map((section, i) => (
-          <div
-            key={i}
-            className="group py-8 md:py-10 grid grid-cols-[auto_1fr] gap-x-8 md:gap-x-12 items-start transition-all duration-300"
-          >
-            {/* Section number */}
-            <span className="text-xs text-royal-cream/20 font-mono tracking-widest pt-1 select-none group-hover:text-royal-cream/40 transition-colors duration-300">
-              {section.number}
+    <div style={{ backgroundColor: '#f3f4f6', minHeight: '100vh' }}>
+      <div dir={dir} className="mx-auto w-full max-w-4xl px-4 sm:px-6 md:px-8 pt-28 pb-20">
+        {/* Header */}
+        <div className="mb-14">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="block h-px w-8" style={{ background: '#d1d5db' }} />
+            <span
+              className="text-xs tracking-[0.2em] uppercase font-light"
+              style={{ color: '#ff751f', fontVariantNumeric: 'tabular-nums' }}
+            >
+              {isArabic ? 'الأكاديمية الملكية' : 'Royal Academy'}
             </span>
-
-            {/* Content */}
-            <div>
-              <h2 className="text-base md:text-lg text-royal-cream font-medium tracking-wide mb-3 group-hover:text-royal-cream/90 transition-colors">
-                {section.heading}
-              </h2>
-              <p className="text-royal-cream/55 text-sm md:text-base leading-relaxed">
-                {section.body}
-              </p>
-            </div>
           </div>
-        ))}
+
+          <h1
+            className="text-4xl md:text-5xl lg:text-6xl font-light tracking-wide leading-tight"
+            style={{ color: '#111827' }}
+          >
+            {t.title}
+          </h1>
+
+          <p
+            className="mt-5 text-base md:text-lg leading-relaxed max-w-xl"
+            style={{ color: '#6b7280' }}
+          >
+            {t.subtitle}
+          </p>
+
+          <p className="mt-3 text-xs tracking-widest uppercase" style={{ color: '#9ca3af' }}>
+            {t.lastUpdated}
+          </p>
+
+          <div className="mt-10 flex items-center gap-4">
+            <div className="h-px flex-1" style={{ background: '#e5e7eb' }} />
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#d1d5db' }} />
+            <div className="h-px flex-1" style={{ background: '#e5e7eb' }} />
+          </div>
+        </div>
+
+        {/* Sections */}
+        <div style={{ borderTop: '1px solid #e5e7eb' }}>
+          {t.sections.map((section, i) => (
+            <div
+              key={i}
+              className="group py-8 md:py-10 grid grid-cols-[auto_1fr] gap-x-8 md:gap-x-12 items-start transition-all duration-300"
+              style={{ borderBottom: '1px solid #e5e7eb' }}
+            >
+              <span
+                className="text-xs font-mono tracking-widest pt-1 select-none"
+                style={{ color: '#ff751f' }}
+              >
+                {section.number}
+              </span>
+
+              <div>
+                <h2
+                  className="text-base md:text-lg font-medium tracking-wide mb-3"
+                  style={{ color: '#111827' }}
+                >
+                  {section.heading}
+                </h2>
+                <p className="text-sm md:text-base leading-relaxed" style={{ color: '#6b7280' }}>
+                  {section.body}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Contact */}
+        <div className="mt-14 pt-6" style={{ borderTop: '1px solid #e5e7eb' }}>
+          <p className="text-sm" style={{ color: '#6b7280' }}>
+            {t.contact}{' '}
+            <a
+              href={`mailto:${t.contactEmail}`}
+              style={{ color: '#ff751f', textDecoration: 'underline' }}
+            >
+              {t.contactEmail}
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   );

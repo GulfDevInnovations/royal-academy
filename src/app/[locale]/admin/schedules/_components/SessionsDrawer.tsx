@@ -121,17 +121,16 @@ export default function SessionsDrawer({
     <div className="fixed inset-0 z-50 flex justify-end">
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
       />
       <div
         className="relative w-full max-w-md h-full flex flex-col shadow-2xl z-10"
         style={{
-          background: "#1a1d27",
-          borderLeft: "1px solid rgba(255,255,255,0.07)",
+          background: "#ffffff",
+          borderLeft: "1px solid rgba(0,0,0,0.07)",
         }}
       >
         {/* Header */}
-        <div className="flex items-start justify-between px-5 py-4 border-b border-white/[0.07] flex-shrink-0">
+        <div className="flex items-start justify-between px-5 py-4 border-b border-black/8 flex-shrink-0">
           <div>
             <h2
               className="text-sm font-semibold"
@@ -171,7 +170,7 @@ export default function SessionsDrawer({
               style={{
                 borderColor: adminColors.border,
                 color: adminColors.textSecondary,
-                background: "rgba(255,255,255,0.03)",
+                background: "rgba(0,0,0,0.03)",
               }}
             >
               {isRegenerating ? (
@@ -183,7 +182,7 @@ export default function SessionsDrawer({
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
             >
               <X size={16} style={{ color: adminColors.pinkText }} />
             </button>
@@ -193,7 +192,7 @@ export default function SessionsDrawer({
         {/* Stats bar */}
         <div
           className="grid grid-cols-3 gap-px flex-shrink-0"
-          style={{ background: "rgba(255,255,255,0.04)" }}
+          style={{ background: "rgba(0,0,0,0.04)" }}
         >
           {[
             {
@@ -215,7 +214,7 @@ export default function SessionsDrawer({
             <div
               key={label}
               className="flex flex-col items-center py-3"
-              style={{ background: "#1a1d27" }}
+              style={{ background: "#ffffff" }}
             >
               <span className="text-lg font-bold" style={{ color }}>
                 {value}
@@ -270,7 +269,7 @@ export default function SessionsDrawer({
             <div className="space-y-2">
               <p
                 className="text-[10px] font-semibold tracking-widest uppercase"
-                style={{ color: "rgba(255,255,255,0.2)" }}
+                style={{ color: "rgba(156,163,175,1)" }}
               >
                 Past ({past.length})
               </p>
@@ -353,10 +352,10 @@ function SessionCard({
           ? "rgba(245,158,11,0.35)"
           : isCancelling
             ? "rgba(248,113,113,0.3)"
-            : "rgba(255,255,255,0.06)",
+            : "rgba(0,0,0,0.06)",
         background: highlighted
           ? "rgba(245,158,11,0.05)"
-          : "rgba(255,255,255,0.02)",
+          : "rgba(0,0,0,0.02)",
       }}
     >
       <div className="flex items-center gap-3">
@@ -400,7 +399,7 @@ function SessionCard({
         {!readOnly && session.status === "ACTIVE" && !isCancelling && (
           <button
             onClick={() => setCancellingId(session.id)}
-            className="p-1 rounded-lg transition-colors text-white/20 hover:text-red-400 hover:bg-red-500/[0.08]"
+            className="p-1 rounded-lg transition-colors text-gray-300 hover:text-red-400 hover:bg-red-500/[0.08]"
             title="Cancel session"
           >
             <XCircle size={14} />
@@ -416,13 +415,13 @@ function SessionCard({
 
       {/* Cancel confirm inline */}
       {isCancelling && (
-        <div className="pt-1 space-y-2 border-t border-white/[0.06]">
+        <div className="pt-1 space-y-2 border-t border-black/6">
           <input
             type="text"
             placeholder="Cancellation reason (optional)"
             value={cancelReason}
             onChange={(e) => setCancelReason(e.target.value)}
-            className="w-full px-3 py-1.5 rounded-lg text-xs border bg-white/[0.03] text-white/70 placeholder-white/20 focus:outline-none focus:border-red-500/40"
+            className="w-full px-3 py-1.5 rounded-lg text-xs border bg-gray-50 text-gray-700 placeholder-gray-400 focus:outline-none focus:border-red-500/40"
             style={{ borderColor: "rgba(248,113,113,0.2)" }}
           />
           <div className="flex items-center gap-2">

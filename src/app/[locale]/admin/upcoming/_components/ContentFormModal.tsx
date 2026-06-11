@@ -199,7 +199,7 @@ export default function ContentFormModal({
   };
 
   const inputStyle = {
-    background: "rgba(255,255,255,0.04)",
+    background: "rgba(0,0,0,0.04)",
     borderColor: adminColors.border,
     color: adminColors.textPrimary,
   };
@@ -239,7 +239,7 @@ export default function ContentFormModal({
           {/* Language Tab Switcher */}
           <div
             className="flex items-center gap-1 p-1 rounded-lg w-fit"
-            style={{ background: "rgba(255,255,255,0.05)" }}
+            style={{ background: "rgba(0,0,0,0.05)" }}
           >
             {(["en", "ar"] as const).map((lang) => (
               <button
@@ -586,7 +586,7 @@ export default function ContentFormModal({
               {/* Mode toggle */}
               <div
                 className="flex gap-1 p-1 rounded-lg w-fit"
-                style={{ background: "rgba(255,255,255,0.05)" }}
+                style={{ background: "rgba(0,0,0,0.05)" }}
               >
                 {(["none", "internal", "external"] as const).map((mode) => (
                   <button
@@ -760,7 +760,7 @@ export default function ContentFormModal({
                 </label>
 
                 <div
-                  className="rounded-lg border divide-y overflow-hidden divide-white/5"
+                  className="rounded-lg border divide-y overflow-hidden divide-black/5"
                   style={{
                     borderColor: adminColors.border,
                   }}
@@ -770,7 +770,7 @@ export default function ContentFormModal({
                       {/* Class row */}
                       <label
                         className="flex items-center gap-2 px-3 py-2 cursor-pointer"
-                        style={{ background: "rgba(255,255,255,0.03)" }}
+                        style={{ background: "rgba(0,0,0,0.03)" }}
                       >
                         <input
                           type="checkbox"
@@ -804,7 +804,7 @@ export default function ContentFormModal({
                             <label
                               key={sc.id}
                               className="flex items-center gap-2 pl-8 pr-3 py-1.5 cursor-pointer"
-                              style={{ background: "rgba(255,255,255,0.01)" }}
+                              style={{ background: "rgba(0,0,0,0.02)" }}
                             >
                               <input
                                 type="checkbox"

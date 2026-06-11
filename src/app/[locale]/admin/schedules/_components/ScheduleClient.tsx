@@ -249,12 +249,12 @@ function DayCellPopupPanel({
 
   return (
     <>
-      <div className="fixed inset-0 z-40" onClick={onClose} />
+      <div className="fixed inset-0 z-40" />
       <div
         className="fixed z-50 rounded-xl shadow-2xl border overflow-hidden"
         style={{
-          background: "#1a1d27",
-          borderColor: "rgba(255,255,255,0.10)",
+          background: "#ffffff",
+          borderColor: "rgba(0,0,0,0.06)",
           minWidth: "230px",
           maxWidth: "280px",
           top,
@@ -264,7 +264,7 @@ function DayCellPopupPanel({
         {/* Header */}
         <div
           className="flex items-center justify-between px-3 py-2.5 border-b"
-          style={{ borderColor: "rgba(255,255,255,0.07)" }}
+          style={{ borderColor: "rgba(0,0,0,0.07)" }}
         >
           <span
             className="text-l font-semibold"
@@ -281,7 +281,7 @@ function DayCellPopupPanel({
           </span>
           <button
             onClick={onClose}
-            className="p-0.5 rounded hover:bg-white/5 transition-colors"
+            className="p-0.5 rounded hover:bg-black/5 transition-colors"
           >
             <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
@@ -301,8 +301,8 @@ function DayCellPopupPanel({
                 }}
                 className="w-full text-left rounded-lg px-3 py-2.5 transition-all hover:brightness-125"
                 style={{
-                  background: cancelled ? "rgba(255,255,255,0.03)" : color.bg,
-                  border: `1px solid ${cancelled ? "rgba(255,255,255,0.06)" : color.border}`,
+                  background: cancelled ? "rgba(0,0,0,0.03)" : color.bg,
+                  border: `1px solid ${cancelled ? "rgba(0,0,0,0.06)" : color.border}`,
                   opacity: cancelled ? 0.55 : 1,
                 }}
               >
@@ -343,7 +343,7 @@ function DayCellPopupPanel({
                   <span
                     className="text-[15px] px-1.5 py-0.5 rounded font-medium"
                     style={{
-                      background: "rgba(255,255,255,0.06)",
+                      background: "rgba(0,0,0,0.06)",
                       color: adminColors.textMuted,
                     }}
                   >
@@ -551,16 +551,16 @@ export default function SchedulesClient({
     return (
       <div
         className="rounded-2xl border overflow-hidden"
-        style={{ borderColor: "rgba(255,255,255,0.07)", background: "#13161f" }}
+        style={{ borderColor: "rgba(0,0,0,0.07)", background: "#f5f6fa" }}
       >
         {/* Navigator */}
         <div
           className="flex items-center justify-between px-5 py-3 border-b"
-          style={{ borderColor: "rgba(255,255,255,0.06)" }}
+          style={{ borderColor: "rgba(0,0,0,0.06)" }}
         >
           <button
             onClick={prevMonth}
-            className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-white/70 hover:bg-white/[0.06]"
+            className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-gray-700 hover:bg-black/6"
           >
             <ChevronLeft size={19} />
           </button>
@@ -590,7 +590,7 @@ export default function SchedulesClient({
           </div>
           <button
             onClick={nextMonth}
-            className="p-1.5 rounded-lg transition-colors text-white/30 hover:text-white/70 hover:bg-white/[0.06]"
+            className="p-1.5 rounded-lg transition-colors text-gray-400 hover:text-gray-700 hover:bg-black/6"
           >
             <ChevronRight size={19} />
           </button>
@@ -601,14 +601,15 @@ export default function SchedulesClient({
           className="grid border-b"
           style={{
             gridTemplateColumns: "repeat(7, 1fr)",
-            borderColor: "rgba(255,255,255,0.05)",
+            borderColor: "rgba(0,0,0,0.08)",
+            background: "#ffffff",
           }}
         >
           {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
             <div
               key={d}
               className="px-2 py-2.5 text-center border-l first:border-l-0"
-              style={{ borderColor: "rgba(255,255,255,0.04)" }}
+              style={{ borderColor: "rgba(0,0,0,0.07)" }}
             >
               <span
                 className="text-[15px] font-semibold tracking-widest uppercase"
@@ -636,12 +637,12 @@ export default function SchedulesClient({
                 onClick={(e) => date && handleCellClick(e, date, schedules)}
                 className="min-h-100 border-t border-l p-1.5"
                 style={{
-                  borderColor: "rgba(255,255,255,0.04)",
+                  borderColor: "rgba(0,0,0,0.07)",
                   background: todayCell
-                    ? "rgba(245,158,11,0.1)"
+                    ? "rgba(245,158,11,0.08)"
                     : !date
-                      ? "rgba(0,0,0,0.5)"
-                      : "transparent",
+                      ? "#eef0f4"
+                      : "#ffffff",
                   cursor: schedules.length > 0 ? "pointer" : "default",
                 }}
               >
@@ -683,9 +684,9 @@ export default function SchedulesClient({
                         className="rounded px-1.5 py-1 text-[15px] leading-tight"
                         style={{
                           background: cancelled
-                            ? "rgba(255,255,255,0.03)"
+                            ? "rgba(0,0,0,0.03)"
                             : color.bg,
-                          border: `1px solid ${cancelled ? "rgba(255,255,255,0.06)" : color.border}`,
+                          border: `1px solid ${cancelled ? "rgba(0,0,0,0.06)" : color.border}`,
                           opacity: isPast ? 0.55 : 1,
                         }}
                         title={`${schedule.program?.name ?? schedule.subClass.name} · ${schedule.teacher.firstName} ${schedule.teacher.lastName}`}
@@ -714,9 +715,9 @@ export default function SchedulesClient({
                     <div
                       className="text-[15px] px-1.5 py-0.5 rounded text-center"
                       style={{
-                        background: "rgba(255,255,255,0.04)",
+                        background: "rgba(0,0,0,0.04)",
                         color: adminColors.textMuted,
-                        border: "1px solid rgba(255,255,255,0.06)",
+                        border: "1px solid rgba(0,0,0,0.06)",
                       }}
                     >
                       +{schedules.length - 2} more
@@ -731,7 +732,7 @@ export default function SchedulesClient({
         {/* Footer */}
         <div
           className="px-5 py-3 border-t flex items-center gap-5 flex-wrap"
-          style={{ borderColor: "rgba(255,255,255,0.05)" }}
+          style={{ borderColor: "rgba(0,0,0,0.05)" }}
         >
           {uniqueClasses.map((c) => {
             const active = displayed.filter(
@@ -770,7 +771,7 @@ export default function SchedulesClient({
                 <span
                   className="text-[15px] px-1.5 py-0.5 rounded"
                   style={{
-                    background: "rgba(255,255,255,0.04)",
+                    background: "rgba(0,0,0,0.04)",
                     color: adminColors.textMuted,
                   }}
                 >
@@ -807,13 +808,13 @@ export default function SchedulesClient({
     return (
       <div
         className="rounded-2xl border overflow-hidden "
-        style={{ borderColor: "rgba(255,255,255,0.07)", background: "#13161f" }}
+        style={{ borderColor: "rgba(0,0,0,0.07)", background: "#f5f6fa" }}
       >
         <div
           className="grid border-b"
           style={{
             gridTemplateColumns: "56px repeat(7, 1fr)",
-            borderColor: "rgba(255,255,255,0.07)",
+            borderColor: "rgba(0,0,0,0.07)",
           }}
         >
           <div className="px-2 py-3" />
@@ -823,7 +824,7 @@ export default function SchedulesClient({
               <div
                 key={day}
                 className="px-2 py-3 text-center border-l"
-                style={{ borderColor: "rgba(255,255,255,0.05)" }}
+                style={{ borderColor: "rgba(0,0,0,0.05)" }}
               >
                 <p
                   className="text-l font-semibold"
@@ -858,7 +859,7 @@ export default function SchedulesClient({
                 className="absolute w-full border-t flex"
                 style={{
                   top: `${i * SLOT_HEIGHT}px`,
-                  borderColor: "rgba(255,255,255,0.04)",
+                  borderColor: "rgba(0,0,0,0.08)",
                 }}
               >
                 <div className="w-14 shrink-0 px-2 -translate-y-2.5">
@@ -885,7 +886,7 @@ export default function SchedulesClient({
                   key={day}
                   className="relative border-l"
                   style={{
-                    borderColor: "rgba(255,255,255,0.04)",
+                    borderColor: "rgba(0,0,0,0.08)",
                     pointerEvents: "auto",
                   }}
                 >
@@ -917,9 +918,9 @@ export default function SchedulesClient({
                             left: `calc(${leftPct}% + 2px)`,
                             width: `calc(${widthPct}% - 4px)`,
                             background: isCancelled
-                              ? "rgba(255,255,255,0.03)"
+                              ? "rgba(0,0,0,0.03)"
                               : color.bg,
-                            border: `1px solid ${isCancelled ? "rgba(255,255,255,0.08)" : color.border}`,
+                            border: `1px solid ${isCancelled ? "rgba(0,0,0,0.07)" : color.border}`,
                             opacity: isCancelled ? 0.5 : 1,
                           }}
                         >
@@ -1141,7 +1142,7 @@ export default function SchedulesClient({
                     <div className="flex items-center justify-end gap-1">
                       <button
                         onClick={() => openSessions(schedule)}
-                        className="p-1.5 rounded-lg transition-colors text-purple-400 hover:text-purple-600 hover:bg-white/5 transition-colors"
+                        className="p-1.5 rounded-lg transition-colors text-purple-400 hover:text-purple-600 hover:bg-black/5 transition-colors"
                         title="View sessions"
                       >
                         <Eye size={16} />
@@ -1150,7 +1151,7 @@ export default function SchedulesClient({
                         onClick={() =>
                           setModal({ type: "edit", data: schedule })
                         }
-                        className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-white/5 transition-colors"
+                        className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-black/5 transition-colors"
                         title="Edit"
                       >
                         <Pencil size={16} />
@@ -1159,7 +1160,7 @@ export default function SchedulesClient({
                         onClick={() =>
                           setModal({ type: "delete", data: schedule })
                         }
-                        className="p-1.5 rounded-lg transition-colors text-red-800 hover:text-red-500 hover:bg-white/5"
+                        className="p-1.5 rounded-lg transition-colors text-red-800 hover:text-red-500 hover:bg-black/5"
                         title="Delete"
                       >
                         <Trash2 size={16} />
@@ -1198,7 +1199,7 @@ export default function SchedulesClient({
       <div className="flex items-center gap-3 flex-wrap">
         <div
           className="flex items-center rounded-lg border overflow-hidden"
-          style={{ borderColor: "rgba(255,255,255,0.08)" }}
+          style={{ borderColor: "rgba(0,0,0,0.07)" }}
         >
           {(["calendar", "list"] as const).map((mode) => (
             <button
@@ -1209,7 +1210,7 @@ export default function SchedulesClient({
                 background:
                   viewMode === mode
                     ? "rgba(245,158,11,0.12)"
-                    : "rgba(255,255,255,0.02)",
+                    : "rgba(0,0,0,0.02)",
                 color: viewMode === mode ? "#f59e0b" : adminColors.textMuted,
               }}
             >
@@ -1226,7 +1227,7 @@ export default function SchedulesClient({
         {viewMode === "calendar" && (
           <div
             className="flex items-center rounded-lg border overflow-hidden"
-            style={{ borderColor: "rgba(255,255,255,0.08)" }}
+            style={{ borderColor: "rgba(0,0,0,0.07)" }}
           >
             {(["month", "week"] as const).map((sub) => (
               <button
@@ -1237,7 +1238,7 @@ export default function SchedulesClient({
                   background:
                     calSub === sub
                       ? "rgba(96,165,250,0.10)"
-                      : "rgba(255,255,255,0.02)",
+                      : "rgba(0,0,0,0.02)",
                   color: calSub === sub ? "#60a5fa" : adminColors.textMuted,
                 }}
               >
@@ -1255,8 +1256,8 @@ export default function SchedulesClient({
         <select
           value={filterClass}
           onChange={(e) => setFilterClass(e.target.value)}
-          className="px-3 py-2 rounded-lg text-xl border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
-          style={{ borderColor: "rgba(255,255,255,0.08)" }}
+          className="px-3 py-2 rounded-lg text-xl border bg-gray-50 text-gray-700 focus:outline-none focus:border-amber-500/50"
+          style={{ borderColor: "rgba(0,0,0,0.07)" }}
         >
           <option className="text-black" value="">
             All classes
@@ -1272,8 +1273,8 @@ export default function SchedulesClient({
           <select
             value={filterDay}
             onChange={(e) => setFilterDay(e.target.value)}
-            className="px-3 py-2 rounded-lg text-xl border bg-white/[0.04] text-white/70 focus:outline-none focus:border-amber-500/50"
-            style={{ borderColor: "rgba(255,255,255,0.08)" }}
+            className="px-3 py-2 rounded-lg text-xl border bg-gray-50 text-gray-700 focus:outline-none focus:border-amber-500/50"
+            style={{ borderColor: "rgba(0,0,0,0.07)" }}
           >
             <option className="text-black" value="">
               All days

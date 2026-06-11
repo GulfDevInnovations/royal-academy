@@ -173,7 +173,7 @@ export default function OffersClient({
             onChange={(e) => setFilterStatus(e.target.value)}
             className="text-2xl rounded-lg border px-2.5 py-1.5 outline-none"
             style={{
-              background: "rgba(255,255,255,0.04)",
+              background: "rgba(0,0,0,0.04)",
               borderColor: adminColors.border,
               color: adminColors.textSecondary,
             }}
@@ -232,7 +232,7 @@ export default function OffersClient({
                   <AdminTd>
                     <div
                       className="w-14 h-10 rounded-lg overflow-hidden flex items-center justify-center shrink-0"
-                      style={{ background: "rgba(255,255,255,0.04)" }}
+                      style={{ background: "rgba(0,0,0,0.04)" }}
                     >
                       {item.thumbnailUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element

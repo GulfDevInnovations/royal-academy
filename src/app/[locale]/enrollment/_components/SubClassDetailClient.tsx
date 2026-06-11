@@ -8,7 +8,7 @@ import {
 } from '@/lib/actions/enrollment';
 import { addMonths, format, startOfMonth } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   AlertCircle,
   Award,
@@ -90,6 +90,7 @@ export function SubClassDetailClient({
 }) {
   const t = useTranslations('enrollment');
   const router = useRouter();
+  const locale = useLocale();
   const classAccent = CLASS_ACCENT[subClass.class.name] ?? CLASS_ACCENT.default;
 
   const displayName            = program?.name              ?? subClass.name;
@@ -383,7 +384,7 @@ export function SubClassDetailClient({
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back */}
         <button
-          onClick={() => router.back()}
+          onClick={() => router.push(`/${locale}/enrollment`)}
           className="flex items-center gap-1.5 text-gray-400 hover:text-gray-700 text-sm mb-10 transition-colors group"
         >
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
@@ -419,30 +420,52 @@ export function SubClassDetailClient({
             )}
 
             {/* Cover */}
-            {subClass.coverUrl ? (
-              <div className="rounded-2xl overflow-hidden h-56 mb-8 mt-6">
-                <img
-                  src={subClass.coverUrl}
-                  alt={displayName}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ) : (
-              <div
-                className="rounded-2xl h-56 mb-8 mt-6 flex items-center justify-center relative overflow-hidden"
-                style={{
-                  background: `linear-gradient(135deg, ${classAccent}18, ${classAccent}06)`,
-                  border: `1px solid ${classAccent}25`,
-                }}
-              >
-                <span
-                  className="text-8xl font-goudy font-extrabold opacity-15"
-                  style={{ color: classAccent }}
+            {(() => {
+              const mediaUrl = program?.mediaUrl ?? subClass.mediaUrl ?? null;
+              const mediaKind = program?.mediaKind ?? subClass.mediaKind ?? null;
+              const imgUrl = mediaUrl ?? subClass.coverUrl;
+              if (mediaUrl && mediaKind === 'video') {
+                return (
+                  <div className="rounded-2xl overflow-hidden aspect-square w-full mb-8 mt-6">
+                    <video
+                      src={mediaUrl}
+                      className="w-full h-full object-cover"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                    />
+                  </div>
+                );
+              }
+              if (imgUrl) {
+                return (
+                  <div className="rounded-2xl overflow-hidden aspect-square w-full mb-8 mt-6">
+                    <img
+                      src={imgUrl}
+                      alt={displayName}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                );
+              }
+              return (
+                <div
+                  className="rounded-2xl aspect-square w-full mb-8 mt-6 flex items-center justify-center relative overflow-hidden"
+                  style={{
+                    background: `linear-gradient(135deg, ${classAccent}18, ${classAccent}06)`,
+                    border: `1px solid ${classAccent}25`,
+                  }}
                 >
-                  {subClass.class.name}
-                </span>
-              </div>
-            )}
+                  <span
+                    className="text-8xl font-goudy font-extrabold opacity-15"
+                    style={{ color: classAccent }}
+                  >
+                    {subClass.class.name}
+                  </span>
+                </div>
+              );
+            })()}
 
             {/* Description */}
             {displayDescription && (

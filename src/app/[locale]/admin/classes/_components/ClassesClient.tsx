@@ -229,7 +229,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                 <span
                   className="text-l px-2 py-0.5 rounded-full"
                   style={{
-                    background: "rgba(255,255,255,0.05)",
+                    background: "rgba(0,0,0,0.05)",
                     color: adminColors.textSecondary,
                   }}
                 >
@@ -254,14 +254,14 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                   </AdminButton>
                   <button
                     onClick={() => setModal({ type: "editClass", data: cls })}
-                    className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-white/5 transition-colors"
+                    className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-black/5 transition-colors"
                     title="Edit class"
                   >
                     <Pencil size={20} />
                   </button>
                   <button
                     onClick={() => setModal({ type: "deleteClass", data: cls })}
-                    className="p-1.5 rounded-lg text-red-800 hover:text-red-500 hover:bg-white/5 transition-colors"
+                    className="p-1.5 rounded-lg text-red-800 hover:text-red-500 hover:bg-black/5 transition-colors"
                     title="Delete class"
                   >
                     <Trash2 size={20} />
@@ -298,7 +298,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                         <AdminTh>{t("level")}</AdminTh>
                         <AdminTh>{t("age")}</AdminTh>
                         <AdminTh>{t("duration")}</AdminTh>
-                        <AdminTh>{t("price")}</AdminTh>
+                        <AdminTh>Per Session</AdminTh>
                         <AdminTh>{t("status")}</AdminTh>
                         <AdminTh className="text-right">{t("actions")}</AdminTh>
                       </AdminThead>
@@ -311,7 +311,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                               <AdminTd>
                                 <button
                                   onClick={() => toggleExpandSub(sub.id)}
-                                  className="p-1 rounded hover:bg-white/5 transition-colors"
+                                  className="p-1 rounded hover:bg-black/5 transition-colors"
                                   title={
                                     sub.programs.length > 0
                                       ? `${sub.programs.length} program${sub.programs.length !== 1 ? "s" : ""}`
@@ -398,7 +398,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                                     onClick={() =>
                                       setModal({ type: "addProgram", parentSub: sub })
                                     }
-                                    className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium hover:bg-white/5 transition-colors"
+                                    className="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium hover:bg-black/5 transition-colors"
                                     title="Add program"
                                     style={{ color: "#818cf8" }}
                                   >
@@ -413,7 +413,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                                         data: sub,
                                       })
                                     }
-                                    className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
+                                    className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-black/5 transition-colors"
                                     title="Edit sub-class"
                                   >
                                     <Pencil size={16} />
@@ -422,7 +422,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                                     onClick={() =>
                                       setModal({ type: "deleteSub", data: sub })
                                     }
-                                    className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/8 transition-colors"
+                                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/8 transition-colors"
                                     title="Delete sub-class"
                                   >
                                     <Trash2 size={16} />
@@ -576,7 +576,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                                                           data: prog,
                                                         })
                                                       }
-                                                      className="p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/5 transition-colors"
+                                                      className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-black/5 transition-colors"
                                                       title="Edit program"
                                                     >
                                                       <Pencil size={14} />
@@ -585,7 +585,7 @@ export default function ClassesClient({ initialClasses, teachers }: Props) {
                                                       onClick={() =>
                                                         setModal({ type: "deleteProgram", data: prog })
                                                       }
-                                                      className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/8 transition-colors"
+                                                      className="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/8 transition-colors"
                                                       title="Delete program"
                                                     >
                                                       <Trash2 size={14} />

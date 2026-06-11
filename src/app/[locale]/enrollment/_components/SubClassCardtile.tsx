@@ -78,11 +78,20 @@ export function SubClassCardTile({ subClass }: SubClassCardTileProps) {
           style={{ boxShadow: `inset 0 0 0 1.5px ${accent}50` }}
         />
 
-        {/* Cover image or gradient placeholder */}
+        {/* Cover image or video or gradient placeholder */}
         <div className="relative h-56 sm:h-60 lg:h-64 overflow-hidden shrink-0">
-          {subClass.coverUrl ? (
+          {subClass.mediaUrl && subClass.mediaKind === 'video' ? (
+            <video
+              src={subClass.mediaUrl}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : subClass.mediaUrl ?? subClass.coverUrl ? (
             <img
-              src={subClass.coverUrl}
+              src={(subClass.mediaUrl ?? subClass.coverUrl)!}
               alt={subClass.name}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />

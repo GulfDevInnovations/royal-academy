@@ -15,6 +15,11 @@
   --royal-green: #8bae82;
   --royal-darkgreen: #052d1e;
   --royal-darkpurple: #070208;
+
+  /* Base font stacks */
+  --font-sf-pro: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    "SF Pro Text", sans-serif;
+  --font-noto-ar: var(--font-arabic), "Noto Naskh Arabic", sans-serif;
 }
 
 @theme inline {
@@ -33,30 +38,34 @@
   --color-royal-darkgreen: var(--royal-darkgreen);
   --color-royal-darkpurple: var(--royal-purple);
 
-  /*  font  */
-  --font-family-goudy: var(--font-goudy), serif;
-  --font-family-layla: var(--font-layla), sans-serif;
-  --font-text: var(--font-goudy), serif;
+  /* Font utilities — font-goudy = SF Pro, font-layla = Noto Naskh Arabic */
+  --font-family-goudy: var(--font-sf-pro);
+  --font-family-layla: var(--font-noto-ar);
+  --font-text: var(--font-sf-pro);
 }
 
 [dir='rtl'] {
-  --font-text: var(--font-layla), sans-serif;
+  --font-text: var(--font-noto-ar);
 }
 
-/* Automatic font switching based on locale */
 body {
-  font-family: var(--font-goudy), serif;
+  font-family: var(--font-sf-pro);
   background-color: #e5e4e2;
 }
 
-/* globals.css */
-
-[dir='rtl'] {
-  font-family: var(--font-layla), sans-serif;
+/* Force light color-scheme in admin so native date/time inputs render dark text */
+[data-admin-panel] input[type="date"],
+[data-admin-panel] input[type="time"],
+[data-admin-panel] input[type="datetime-local"],
+[data-admin-panel] input[type="month"] {
+  color-scheme: light;
+  color: #374151;
 }
 
-/* Slightly scale typography for Arabic via root font-size.
-   Avoid transform-based scaling which can cause clipping/overlap. */
+[dir='rtl'] {
+  font-family: var(--font-noto-ar);
+}
+
 html[dir='rtl'] {
   font-size: 18px;
 }

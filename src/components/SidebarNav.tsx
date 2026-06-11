@@ -599,8 +599,7 @@ function MobileSidebarNav({
     ? {
         title: 'تواصل معنا',
         subtitle: 'يمكنك التواصل مع الأكاديمية عبر الأرقام والمنصات التالية.',
-        phone1: 'استفسارات الإنجليزية وواتساب',
-        phone2: 'استفسارات العربية',
+        phone1: 'استفسارات  وواتساب',
         landline: 'الهاتف الأرضي',
         platforms: 'المنصات',
         address: 'شارع 18 نوفمبر، مسقط',
@@ -609,8 +608,7 @@ function MobileSidebarNav({
         title: 'Contact Us',
         subtitle:
           'Reach Royal Academy through the following contact numbers and platforms.',
-        phone1: 'English Inquiries & WhatsApp',
-        phone2: 'Arabic Inquiries',
+        phone1: 'Inquiries & WhatsApp',
         landline: 'Landline',
         platforms: 'Platforms',
         address: '18th November St, Muscat',
@@ -621,11 +619,6 @@ function MobileSidebarNav({
       label: contactContent.phone1,
       value: '+968 9327 6767',
       href: 'tel:+96893276767',
-    },
-    {
-      label: contactContent.phone2,
-      value: '+968 9886 2343',
-      href: 'tel:+96898862343',
     },
     {
       label: contactContent.landline,
@@ -2148,8 +2141,7 @@ function DesktopSidebarNav({
     ? {
         title: 'تواصل معنا',
         subtitle: 'يمكنك التواصل مع الأكاديمية عبر الأرقام والمنصات التالية.',
-        phone1: 'استفسارات الإنجليزية وواتساب',
-        phone2: 'استفسارات العربية',
+        phone1: 'استفسارات  وواتساب',
         landline: 'الهاتف الأرضي',
         email: 'البريد الإلكتروني',
         platforms: 'المنصات',
@@ -2159,8 +2151,7 @@ function DesktopSidebarNav({
         title: 'Contact Us',
         subtitle:
           'Reach Royal Academy through the following contact numbers and platforms.',
-        phone1: 'English Inquiries & WhatsApp',
-        phone2: 'Arabic Inquiries',
+        phone1: 'Inquiries & WhatsApp',
         landline: 'Landline',
         email: 'Email',
         platforms: 'Platforms',
@@ -2172,11 +2163,6 @@ function DesktopSidebarNav({
       label: contactContent.phone1,
       value: '+968 9327 6767',
       href: 'tel:+96893276767',
-    },
-    {
-      label: contactContent.phone2,
-      value: '+968 9886 2343',
-      href: 'tel:+96898862343',
     },
     {
       label: contactContent.landline,

@@ -173,14 +173,13 @@ export default function PaymentDetailModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
       />
       <div
-        className="relative w-full max-w-md rounded-2xl border border-white/[0.08] shadow-2xl z-10 max-h-[90vh] flex flex-col"
-        style={{ background: "#1a1d27" }}
+        className="relative w-full max-w-md rounded-2xl border border-black/8 shadow-2xl z-10 max-h-[90vh] flex flex-col"
+        style={{ background: "#ffffff" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07] flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-black/8 flex-shrink-0">
           <div>
             <h2
               className="text-sm font-semibold"
@@ -212,7 +211,7 @@ export default function PaymentDetailModal({
             )}
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
             >
               <X size={16} style={{ color: adminColors.pinkText }} />
             </button>
@@ -224,8 +223,8 @@ export default function PaymentDetailModal({
           <div
             className="flex items-center justify-between px-4 py-4 rounded-2xl"
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.06)",
+              background: "rgba(0,0,0,0.03)",
+              border: "1px solid rgba(0,0,0,0.06)",
             }}
           >
             <div>
@@ -325,7 +324,7 @@ export default function PaymentDetailModal({
           {p.status === "PAID" && (
             <div
               className="border-t pt-4"
-              style={{ borderColor: "rgba(255,255,255,0.06)" }}
+              style={{ borderColor: "rgba(0,0,0,0.06)" }}
             >
               {!showRefund ? (
                 <button
@@ -349,7 +348,7 @@ export default function PaymentDetailModal({
                     onChange={(e) => setRefundReason(e.target.value)}
                     placeholder="Reason for refund (required)…"
                     rows={2}
-                    className="w-full px-3 py-2 rounded-lg text-l border bg-white/3 text-white/70 placeholder-white/20 focus:outline-none resize-none"
+                    className="w-full px-3 py-2 rounded-lg text-l border bg-black/3 text-gray-700 placeholder-gray-400 focus:outline-none resize-none"
                     style={{ borderColor: "rgba(248,113,113,0.25)" }}
                   />
                   <div className="flex items-center gap-2">
@@ -422,7 +421,7 @@ function DetailLine({ label, value }: { label: string; value: string }) {
   return (
     <div
       className="flex items-center justify-between py-1.5 border-b"
-      style={{ borderColor: "rgba(255,255,255,0.04)" }}
+      style={{ borderColor: "rgba(0,0,0,0.04)" }}
     >
       <span className="text-l" style={{ color: adminColors.textMuted }}>
         {label}

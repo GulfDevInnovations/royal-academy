@@ -343,7 +343,7 @@
       "availability": "التوفر",
       "classFull": "الفصل ممتلئ",
       "spotsLeft": "{spots} من {capacity} مقعد متبقٍ",
-      "price": "السعر",
+      "price": "سعر الجلسة",
       "booking": "جارٍ الحجز...",
       "bookClass": "احجز هذا الدرس"
     },

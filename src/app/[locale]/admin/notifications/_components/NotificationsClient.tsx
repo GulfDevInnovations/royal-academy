@@ -156,7 +156,7 @@ export default function NotificationsClient({
       {/* ── Tab bar ── */}
       <div
         className="flex items-center justify-center gap-1 border-b"
-        style={{ borderColor: "rgba(255,255,255,0.07)" }}
+        style={{ borderColor: "rgba(0,0,0,0.07)" }}
       >
         {TABS.map(({ key, label, icon, badge }) => (
           <button

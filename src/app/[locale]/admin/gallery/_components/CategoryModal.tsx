@@ -67,7 +67,7 @@ export default function CategoryModal({ editing, onClose, onSuccess }: Props) {
   };
 
   const inputStyle = {
-    background: "rgba(255,255,255,0.04)",
+    background: "rgba(0,0,0,0.04)",
     borderColor: adminColors.border,
     color: adminColors.textPrimary,
   };
@@ -75,14 +75,13 @@ export default function CategoryModal({ editing, onClose, onSuccess }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
       />
       <div
-        className="relative w-full max-w-md rounded-2xl border border-white/8 shadow-2xl z-10"
-        style={{ background: "#1a1d27" }}
+        className="relative w-full max-w-md rounded-2xl border border-black/8 shadow-2xl z-10"
+        style={{ background: "#ffffff" }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-black/8">
           <h2
             className="text-xl font-semibold"
             style={{ color: adminColors.textPrimary }}
@@ -91,7 +90,7 @@ export default function CategoryModal({ editing, onClose, onSuccess }: Props) {
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-black/5 transition-colors"
           >
             <X size={16} style={{ color: adminColors.pinkText }} />
           </button>
@@ -105,7 +104,7 @@ export default function CategoryModal({ editing, onClose, onSuccess }: Props) {
         >
           <div
             className="flex items-center gap-1 p-1 rounded-lg w-fit"
-            style={{ background: "rgba(255,255,255,0.05)" }}
+            style={{ background: "rgba(0,0,0,0.05)" }}
           >
             {(["en", "ar"] as const).map((lang) => (
               <button

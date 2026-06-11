@@ -33,6 +33,8 @@ export type SubClassCard = {
   name: string;
   description: string | null;
   coverUrl: string | null;
+  mediaUrl: string | null;
+  mediaKind: string | null;
   level: string | null;
   ageGroup: string | null;
   sessionType: string;
@@ -72,6 +74,8 @@ export type ProgramInfo = {
   level: string | null;
   ageGroup: string | null;
   sessionType: string;
+  mediaUrl: string | null;
+  mediaKind: string | null;
 };
 
 export async function getSubClassCards(): Promise<SubClassCard[]> {
@@ -129,6 +133,8 @@ export async function getSubClassCards(): Promise<SubClassCard[]> {
       name: s.name,
       description: p.description,
       coverUrl: p.coverUrl ?? s.coverUrl,
+      mediaUrl: (p as any).mediaUrl ?? (s as any).mediaUrl ?? null,
+      mediaKind: (p as any).mediaKind ?? (s as any).mediaKind ?? null,
       level: p.level,
       ageGroup: p.ageGroup,
       sessionType: p.sessionType,
@@ -152,6 +158,8 @@ export async function getSubClassCards(): Promise<SubClassCard[]> {
       name: s.name,
       description: s.description,
       coverUrl: s.coverUrl,
+      mediaUrl: (s as any).mediaUrl ?? null,
+      mediaKind: (s as any).mediaKind ?? null,
       level: s.level,
       ageGroup: s.ageGroup,
       sessionType: s.sessionType,
@@ -208,6 +216,8 @@ export async function getSubClassDetail(
     name: s.name,
     description: s.description,
     coverUrl: s.coverUrl,
+    mediaUrl: (s as any).mediaUrl ?? null,
+    mediaKind: (s as any).mediaKind ?? null,
     level: s.level,
     ageGroup: s.ageGroup,
     sessionType: s.sessionType,
@@ -298,6 +308,8 @@ export async function getProgramDetail(
     level: p.level,
     ageGroup: p.ageGroup,
     sessionType: p.sessionType,
+    mediaUrl: (p as any).mediaUrl ?? null,
+    mediaKind: (p as any).mediaKind ?? null,
   };
 }
 

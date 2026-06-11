@@ -263,7 +263,7 @@ export default function UpcomingClient({
             onChange={(e) => setFilterStatus(e.target.value)}
             className="text-l rounded-lg border px-2.5 py-1.5 outline-none"
             style={{
-              background: "rgba(255,255,255,0.04)",
+              background: "rgba(0,0,0,0.04)",
               borderColor: adminColors.border,
               color: adminColors.textSecondary,
             }}
@@ -279,8 +279,8 @@ export default function UpcomingClient({
           <div
             className="flex items-center gap-1.5 ml-2 px-2.5 py-1.5 rounded-lg"
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.06)",
+              background: "rgba(0,0,0,0.03)",
+              border: "1px solid rgba(0,0,0,0.06)",
             }}
           >
             <Wrench size={16} style={{ color: adminColors.accent }} />
@@ -340,7 +340,7 @@ export default function UpcomingClient({
                     <AdminTd>
                       <div
                         className="w-14 h-10 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0"
-                        style={{ background: "rgba(255,255,255,0.04)" }}
+                        style={{ background: "rgba(0,0,0,0.04)" }}
                       >
                         {item.thumbnailUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
@@ -440,13 +440,13 @@ export default function UpcomingClient({
                                 ? "rgba(52,211,153,0.1)"
                                 : item.status === "DRAFT"
                                   ? "rgba(245,158,11,0.1)"
-                                  : "rgba(255,255,255,0.04)",
+                                  : "rgba(0,0,0,0.04)",
                             borderColor:
                               item.status === "ACTIVE"
                                 ? "rgba(52,211,153,0.3)"
                                 : item.status === "DRAFT"
                                   ? "rgba(245,158,11,0.3)"
-                                  : "rgba(255,255,255,0.1)",
+                                  : "rgba(0,0,0,0.06)",
                             color:
                               item.status === "ACTIVE"
                                 ? "#34d399"
@@ -499,7 +499,7 @@ export default function UpcomingClient({
                         <button
                           onClick={() => moveSortOrder(item, "up")}
                           disabled={isPending}
-                          className="p-0.5 rounded hover:bg-white/[0.06] transition-colors"
+                          className="p-0.5 rounded hover:bg-black/6 transition-colors"
                           style={{ color: adminColors.textMuted }}
                         >
                           <ChevronUp size={18} />
@@ -513,7 +513,7 @@ export default function UpcomingClient({
                         <button
                           onClick={() => moveSortOrder(item, "down")}
                           disabled={isPending}
-                          className="p-0.5 rounded hover:bg-white/[0.06] transition-colors"
+                          className="p-0.5 rounded hover:bg-black/6 transition-colors"
                           style={{ color: adminColors.textMuted }}
                         >
                           <ChevronDown size={18} />

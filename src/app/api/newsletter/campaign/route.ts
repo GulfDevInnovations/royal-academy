@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { subject, previewText, heading, body: emailBody, source } = body;
+    const { subject, previewText, heading, body: emailBody, source, imageUrl } = body;
 
     // ── Validate ──────────────────────────────────────────────────────────────
     if (!subject?.trim()) {
@@ -78,6 +78,15 @@ export async function POST(req: NextRequest) {
               ${heading ? `<h1 style="margin:12px 0 0;font-size:24px;font-weight:600;color:#ffffff;line-height:1.3;">${heading}</h1>` : ''}
             </td>
           </tr>
+
+          ${imageUrl ? `
+          <!-- Image -->
+          <tr>
+            <td style="background:#ffffff;padding:0 0 0 0;line-height:0;">
+              <img src="${imageUrl}" alt="" width="600"
+                style="width:100%;max-width:600px;display:block;border:0;outline:0;text-decoration:none;" />
+            </td>
+          </tr>` : ''}
 
           <!-- Body -->
           <tr>
@@ -151,6 +160,20 @@ export async function POST(req: NextRequest) {
         { status: 500 },
       );
     }
+
+    // ── Persist campaign log ──────────────────────────────────────────────────
+    await prisma.campaignLog.create({
+      data: {
+        subject,
+        previewText: previewText || null,
+        heading: heading || null,
+        body: emailBody,
+        imageUrl: imageUrl || null,
+        source: source ?? 'all',
+        sentCount: sent,
+        failedCount: emails.length - sent,
+      },
+    });
 
     return NextResponse.json({
       ok: true,

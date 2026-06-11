@@ -68,6 +68,33 @@ export const PICKER_THEMES = {
     fadeBottom:
       "linear-gradient(to top, rgba(16,16,24,0.98) 0%, transparent 100%)",
   },
+  light: {
+    popup: {
+      background: "#ffffff",
+      backdropFilter: "blur(16px)",
+      WebkitBackdropFilter: "blur(16px)",
+      border: "1px solid rgba(0,0,0,0.08)",
+      boxShadow: "0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
+    } as CSSProperties,
+    track: "rgba(0,0,0,0.04)",
+    selected: {
+      background: "rgba(245,158,11,0.10)",
+      border: "1px solid rgba(245,158,11,0.25)",
+    } as CSSProperties,
+    text: "#111827",
+    textMuted: "rgba(17,24,39,0.30)",
+    separator: "rgba(0,0,0,0.12)",
+    chevron: "#9ca3af",
+    chevronHover: "#d97706",
+    columnLabel: "#9ca3af",
+    iconStroke: "#6b7280",
+    placeholder: "#9ca3af",
+    triggerText: "#374151",
+    fadeTop:
+      "linear-gradient(to bottom, rgba(255,255,255,1) 0%, transparent 100%)",
+    fadeBottom:
+      "linear-gradient(to top, rgba(255,255,255,1) 0%, transparent 100%)",
+  },
 } as const;
 
 export type PickerTheme = keyof typeof PICKER_THEMES;

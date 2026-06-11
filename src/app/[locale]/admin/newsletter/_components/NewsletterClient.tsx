@@ -84,7 +84,7 @@ function StatCard({
     <div
       className="flex items-center gap-3 px-4 py-3 rounded-xl"
       style={{
-        background: 'rgba(255,255,255,0.03)',
+        background: 'rgba(0,0,0,0.03)',
         border: `1px solid ${adminColors.border}`,
       }}
     >
@@ -258,7 +258,7 @@ export default function NewsletterClient({
             onChange={(e) => setFilterStatus(e.target.value)}
             className="text-l rounded-lg border px-2.5 py-1.5 outline-none"
             style={{
-              background: 'rgba(255,255,255,0.04)',
+              background: 'rgba(0,0,0,0.04)',
               borderColor: adminColors.border,
               color: adminColors.textSecondary,
             }}
@@ -283,7 +283,7 @@ export default function NewsletterClient({
             onChange={(e) => setFilterSource(e.target.value)}
             className="text-l rounded-lg border px-2.5 py-1.5 outline-none"
             style={{
-              background: 'rgba(255,255,255,0.04)',
+              background: 'rgba(0,0,0,0.04)',
               borderColor: adminColors.border,
               color: adminColors.textSecondary,
             }}

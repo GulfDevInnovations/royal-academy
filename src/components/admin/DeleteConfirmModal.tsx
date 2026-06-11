@@ -40,18 +40,18 @@ export default function DeleteConfirmModal({
         onClick={onClose}
       />
       <div
-        className="relative w-full max-w-sm rounded-2xl border border-white/[0.08] shadow-2xl z-10 p-6"
-        style={{ background: "#1a1d27" }}
+        className="relative w-full max-w-sm rounded-2xl border border-black/8 shadow-xl z-10 p-6"
+        style={{ background: "#ffffff" }}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-white/30 hover:text-white/70 hover:bg-white/[0.05] transition-colors"
+          className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-black/5 transition-colors"
         >
           <X size={14} />
         </button>
 
         <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center">
+          <div className="shrink-0 w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center">
             <AlertTriangle size={16} className="text-red-400" />
           </div>
           <div className="space-y-1 pt-0.5">

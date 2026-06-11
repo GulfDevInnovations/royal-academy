@@ -343,7 +343,7 @@
       "availability": "Availability",
       "classFull": "Class Full",
       "spotsLeft": "{spots} of {capacity} spots left",
-      "price": "Price",
+      "price": "Per Session",
       "booking": "Booking…",
       "bookClass": "Book This Class"
     },
