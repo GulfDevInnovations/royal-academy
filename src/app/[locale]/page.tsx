@@ -6,53 +6,6 @@ import { prisma } from '@/lib/prisma';
 import { parseJsonArray } from '@/utils/parseJson';
 import type { News, Offer, Upcoming } from '@prisma/client';
 
-const DAY_ORDER = [
-  'MONDAY',
-  'TUESDAY',
-  'WEDNESDAY',
-  'THURSDAY',
-  'FRIDAY',
-  'SATURDAY',
-  'SUNDAY',
-];
-const JS_DAY_TO_IDX = [6, 0, 1, 2, 3, 4, 5];
-
-function nextSixSlots(
-  schedules: {
-    id: string;
-    dayOfWeek: string;
-    startTime: string;
-    subClass: { name: string; name_ar: string | null };
-    teacher: { firstName: string; lastName: string };
-  }[],
-): ScheduleSlot[] {
-  const now = new Date();
-  const todayIdx = JS_DAY_TO_IDX[now.getDay()];
-  const nowTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-  return schedules
-    .map((s) => {
-      const dayIdx = DAY_ORDER.indexOf(s.dayOfWeek);
-      let daysUntil = (dayIdx - todayIdx + 7) % 7;
-      if (daysUntil === 0 && s.startTime.slice(0, 5) <= nowTime) daysUntil = 7;
-      return { ...s, daysUntil };
-    })
-    .sort((a, b) =>
-      a.daysUntil !== b.daysUntil
-        ? a.daysUntil - b.daysUntil
-        : a.startTime.localeCompare(b.startTime),
-    )
-    .slice(0, 6)
-    .map((s) => ({
-      id: s.id,
-      subClassName: s.subClass.name,
-      subClassName_ar: s.subClass.name_ar,
-      teacherFirstName: s.teacher.firstName,
-      teacherLastName: s.teacher.lastName,
-      dayOfWeek: s.dayOfWeek,
-      startTime: s.startTime,
-    }));
-}
 
 export const dynamic = 'force-dynamic';
 
@@ -91,7 +44,10 @@ export default async function Home({
   >();
 
   try {
-    const [upcomingRaw, newsRaw, offersRaw, schedulesRaw] = await Promise.all([
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const [upcomingRaw, newsRaw, offersRaw, upcomingWorkshops] = await Promise.all([
       prisma.upcoming.findMany({
         where,
         orderBy: { sortOrder: 'asc' },
@@ -99,13 +55,19 @@ export default async function Home({
       }),
       prisma.news.findMany({ where, orderBy: { sortOrder: 'asc' }, take: 20 }),
       prisma.offer.findMany({ where, orderBy: { sortOrder: 'asc' }, take: 20 }),
-      prisma.classSchedule.findMany({
-        where: { status: 'ACTIVE' },
+      prisma.workshop.findMany({
+        where: {
+          isActive: true,
+          eventDate: { gte: startOfToday },
+        },
+        orderBy: [{ eventDate: 'asc' }, { startTime: 'asc' }],
         select: {
           id: true,
-          dayOfWeek: true,
+          title: true,
+          title_ar: true,
+          eventDate: true,
           startTime: true,
-          subClass: { select: { name: true, name_ar: true } },
+          slug: true,
           teacher: { select: { firstName: true, lastName: true } },
         },
       }),
@@ -152,7 +114,16 @@ export default async function Home({
     upcoming = upcomingRaw;
     news = newsRaw;
     offers = offersRaw;
-    scheduleSlots = nextSixSlots(schedulesRaw);
+    scheduleSlots = upcomingWorkshops.map((w) => ({
+      id: w.id,
+      title: w.title,
+      title_ar: w.title_ar,
+      teacherFirstName: w.teacher?.firstName ?? '',
+      teacherLastName: w.teacher?.lastName ?? '',
+      eventDate: w.eventDate.toISOString(),
+      startTime: w.startTime,
+      slug: w.slug,
+    }));
   } catch (e) {
     if (process.env.NODE_ENV === 'production') throw e;
     console.error('[home] Failed to load content from DB; rendering empty.', e);

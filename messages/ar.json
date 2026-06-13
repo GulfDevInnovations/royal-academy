@@ -21,6 +21,7 @@
     "news": "الأخبار",
     "offers": "العروض",
     "viewAllClasses": "عرض كل الفصول",
+    "viewAllWorkshops": "عرض كل ورش العمل",
     "learnMore": "اقرأ المزيد",
     "prevSlide": "السابق",
     "nextSlide": "التالي",
@@ -107,7 +108,8 @@
       "Enrollments": "التسجيلات",
       "Payments": "المدفوعات",
       "Notifications": "الإشعارات",
-      "newsletter": "النشرة الإخبارية"
+      "newsletter": "النشرة الإخبارية",
+      "Free Classes": "الحصص المجانية"
     },
     "name": "الاسم",
     "type": "النوع",
@@ -245,7 +247,9 @@
     "email": "البريد الإلكتروني",
     "phone": "الهاتف",
     "last3Tickets": "آخر 3 تذاكر",
-    "noTicketsYet": "لا توجد تذاكر بعد"
+    "noTicketsYet": "لا توجد تذاكر بعد",
+    "freeClasses": "الحصص المجانية",
+    "complementaryRequests": "طلبات الحصة التكميلية"
   },
   "enrollment": {
     "page": {

@@ -2,6 +2,17 @@
 
 import { useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
+
+const ComplementaryClassModal = dynamic(
+  () => import('./ComplementaryClassModal'),
+  { ssr: false },
+);
+
+const ComplementaryClassForm = dynamic(
+  () => import('./ComplementaryClassForm'),
+  { ssr: false },
+);
 
 // ─── useIsMobile ──────────────────────────────────────────────────────────────
 
@@ -158,15 +169,27 @@ export default function JourneySection() {
   const isAr = locale === 'ar';
   const isMobileVal = useIsMobile(768);
   const isMobile = isMobileVal === true;
+  const [showModal, setShowModal] = useState(false);
 
   const fontFamily = isAr
     ? "'Layla','Noto Naskh Arabic',serif"
     : "'Goudy Old Style','GoudyOlSt-BT',Georgia,serif";
 
-  return isMobile ? (
-    <MobileJourney isAr={isAr} fontFamily={fontFamily} />
-  ) : (
-    <DesktopJourney isAr={isAr} fontFamily={fontFamily} />
+  return (
+    <>
+      {isMobile ? (
+        <MobileJourney isAr={isAr} fontFamily={fontFamily} />
+      ) : (
+        <DesktopJourney isAr={isAr} fontFamily={fontFamily} onOpenModal={() => setShowModal(true)} />
+      )}
+      {showModal && (
+        <ComplementaryClassModal
+          isAr={isAr}
+          fontFamily={fontFamily}
+          onClose={() => setShowModal(false)}
+        />
+      )}
+    </>
   );
 }
 
@@ -179,9 +202,11 @@ export default function JourneySection() {
 function DesktopJourney({
   isAr,
   fontFamily,
+  onOpenModal,
 }: {
   isAr: boolean;
   fontFamily: string;
+  onOpenModal: () => void;
 }) {
   const dir = isAr ? 'rtl' : 'ltr';
 
@@ -299,6 +324,7 @@ function DesktopJourney({
                 <CardBody style={{ color: 'rgba(0,0,0,0.38)', marginTop: 10 }}>
                   {COPY.consultCta[isAr ? 'ar' : 'en']}
                 </CardBody>
+                <BookButton isAr={isAr} fontFamily={fontFamily} onClick={onOpenModal} />
               </CardInner>
             </PaperCard>
           </div>
@@ -368,6 +394,44 @@ function DesktopJourney({
 // MOBILE — heading, then cards stacked with scroll-reveal
 // ═══════════════════════════════════════════════════════════════════════════════
 
+function BookButton({
+  isAr,
+  fontFamily,
+  onClick,
+}: {
+  isAr: boolean;
+  fontFamily: string;
+  onClick: () => void;
+}) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        marginTop: 20,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '10px 22px',
+        borderRadius: 6,
+        border: '1px solid #ff751f',
+        background: hov ? '#ff751f' : 'transparent',
+        color: hov ? '#fff' : '#ff751f',
+        fontSize: 13,
+        fontWeight: 600,
+        letterSpacing: '0.04em',
+        cursor: 'pointer',
+        transition: 'background 0.2s, color 0.2s',
+        fontFamily,
+      }}
+    >
+      {isAr ? 'احجز حصتك المجانية' : 'Book My Free Class'}
+    </button>
+  );
+}
+
 function MobileJourney({
   isAr,
   fontFamily,
@@ -376,6 +440,7 @@ function MobileJourney({
   fontFamily: string;
 }) {
   const dir = isAr ? 'rtl' : 'ltr';
+  const [showForm, setShowForm] = useState(false);
   const [ref1, vis1] = useScrollReveal(30);
   const [ref2, vis2] = useScrollReveal(30);
 
@@ -461,22 +526,35 @@ function MobileJourney({
         <div ref={ref1} style={{ ...cardReveal(vis1, 0) }}>
           <PaperCard rotation={-0.05}>
             <CardInner mobile>
-              <CardTitle style={{ whiteSpace: 'pre-line', fontSize: 17 }}>
-                {COPY.consultTitle[isAr ? 'ar' : 'en']}
-              </CardTitle>
-              <CardDivider />
-              <CardBody style={{ fontSize: 12 }}>
-                {COPY.consultBody[isAr ? 'ar' : 'en']}
-              </CardBody>
-              <CardBody
-                style={{
-                  fontSize: 12,
-                  color: 'rgba(0,0,0,0.38)',
-                  marginTop: 10,
-                }}
-              >
-                {COPY.consultCta[isAr ? 'ar' : 'en']}
-              </CardBody>
+              {showForm ? (
+                <ComplementaryClassForm
+                  isAr={isAr}
+                  fontFamily={fontFamily}
+                  mobile
+                  onCancel={() => setShowForm(false)}
+                  onClose={() => setShowForm(false)}
+                />
+              ) : (
+                <>
+                  <CardTitle style={{ whiteSpace: 'pre-line', fontSize: 17 }}>
+                    {COPY.consultTitle[isAr ? 'ar' : 'en']}
+                  </CardTitle>
+                  <CardDivider />
+                  <CardBody style={{ fontSize: 12 }}>
+                    {COPY.consultBody[isAr ? 'ar' : 'en']}
+                  </CardBody>
+                  <CardBody
+                    style={{
+                      fontSize: 12,
+                      color: 'rgba(0,0,0,0.38)',
+                      marginTop: 10,
+                    }}
+                  >
+                    {COPY.consultCta[isAr ? 'ar' : 'en']}
+                  </CardBody>
+                  <BookButton isAr={isAr} fontFamily={fontFamily} onClick={() => setShowForm(true)} />
+                </>
+              )}
             </CardInner>
           </PaperCard>
         </div>

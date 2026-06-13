@@ -83,7 +83,8 @@ export function SubClassCardTile({ subClass }: SubClassCardTileProps) {
           {subClass.mediaUrl && subClass.mediaKind === 'video' ? (
             <video
               src={subClass.mediaUrl}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+              style={{ background: '#0d0b08' }}
               autoPlay
               muted
               loop
@@ -93,7 +94,8 @@ export function SubClassCardTile({ subClass }: SubClassCardTileProps) {
             <img
               src={(subClass.mediaUrl ?? subClass.coverUrl)!}
               alt={subClass.name}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+              style={{ background: '#0d0b08' }}
             />
           ) : (
             <div

@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   Mail,
   Newspaper,
+  Star,
   PanelLeftClose,
   PanelLeftOpen,
   Sparkles,
@@ -60,6 +61,7 @@ const navGroups = [
       { label: 'Payments', href: '/admin/payments', icon: CreditCard },
       { label: 'Notifications', href: '/admin/notifications', icon: Bell },
       { label: 'newsletter', href: '/admin/newsletter', icon: Mail },
+      { label: 'Free Classes', href: '/admin/complementary-classes', icon: Star },
     ],
   },
 ];

@@ -41,12 +41,13 @@ interface ContentItem {
 
 export interface ScheduleSlot {
   id: string;
-  subClassName: string;
-  subClassName_ar?: string | null;
+  title: string;
+  title_ar?: string | null;
   teacherFirstName: string;
   teacherLastName: string;
-  dayOfWeek: string;
+  eventDate: string;
   startTime: string;
+  slug?: string | null;
 }
 
 interface HeroProps {
@@ -68,15 +69,6 @@ const MEDIA_ITEMS: MediaItem[] = [
 
 const SIDEBAR_W = 150;
 
-const DAY_SHORT: Record<string, { en: string; ar: string }> = {
-  MONDAY: { en: 'Mon', ar: 'الإثنين' },
-  TUESDAY: { en: 'Tue', ar: 'الثلاثاء' },
-  WEDNESDAY: { en: 'Wed', ar: 'الأربعاء' },
-  THURSDAY: { en: 'Thu', ar: 'الخميس' },
-  FRIDAY: { en: 'Fri', ar: 'الجمعة' },
-  SATURDAY: { en: 'Sat', ar: 'السبت' },
-  SUNDAY: { en: 'Sun', ar: 'الأحد' },
-};
 
 // ─── useIsMobile ──────────────────────────────────────────────────────────────
 // Returns null until after first client render to prevent hydration mismatches.
@@ -418,7 +410,7 @@ export default function HeroSection({
             gap: 100,
           }}
         >
-          <style>{`.ra-gold-pip { width: 28px; height: 2px; background: #ff751f; margin-bottom: 18px; }`}</style>
+          <style>{`.ra-gold-pip{width:28px;height:2px;background:#ff751f;margin-bottom:18px}.ra-slot-scroll::-webkit-scrollbar{display:none}`}</style>
 
           {upcoming.length > 0 && (
             <PaperCard rotation={-0.7}>
@@ -512,87 +504,93 @@ function MobileScheduleList({
     <div
       style={{
         background: 'rgba(14,13,11,0.97)',
-        padding: '4px 0 0',
         direction: isAr ? 'rtl' : 'ltr',
-        touchAction: 'pan-y',
       }}
     >
-      {slots.map((slot, i) => (
-        <div
-          key={slot.id}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '9px 18px',
-            gap: 10,
-            borderBottom:
-              i < slots.length - 1
-                ? '1px solid rgba(255,255,255,0.06)'
-                : 'none',
-          }}
-        >
-          <span
+      <style>{`.ra-slot-scroll::-webkit-scrollbar{display:none}`}</style>
+      {/* Horizontally scrollable slots */}
+      <div
+        className="ra-slot-scroll"
+        style={{
+          display: 'flex',
+          overflowX: 'auto',
+          scrollbarWidth: 'none',
+          touchAction: 'pan-x',
+          gap: 1,
+          padding: '6px 0',
+        }}
+      >
+        {slots.map((slot) => (
+          <div
+            key={slot.id}
             style={{
-              fontSize: '0.58rem',
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              color: '#ff751f',
-              fontWeight: 500,
               flexShrink: 0,
-              minWidth: 56,
+              width: 130,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              gap: 4,
+              padding: '8px 14px',
+              borderRight: '1px solid rgba(255,255,255,0.06)',
             }}
           >
-            {DAY_SHORT[slot.dayOfWeek]?.[isAr ? 'ar' : 'en'] ?? slot.dayOfWeek}
-            {' · '}
-            {slot.startTime.slice(0, 5)}
-          </span>
-          <span
-            style={{
-              fontSize: '0.78rem',
-              color: '#ffffff',
-              flex: 1,
-              textAlign: 'center',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {isAr && slot.subClassName_ar
-              ? slot.subClassName_ar
-              : slot.subClassName}
-          </span>
-          <span
-            style={{
-              fontSize: '0.58rem',
-              color: 'rgba(255,255,255,0.38)',
-              flexShrink: 0,
-              letterSpacing: '0.04em',
-              textAlign: isAr ? 'left' : 'right',
-              minWidth: 56,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {slot.teacherFirstName} {slot.teacherLastName}
-          </span>
-        </div>
-      ))}
+            <span
+              style={{
+                fontSize: '0.55rem',
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: '#ff751f',
+                fontWeight: 500,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {new Date(slot.eventDate).toLocaleDateString(isAr ? 'ar-SA' : 'en-GB', { day: 'numeric', month: 'short' })}
+              {' · '}
+              {slot.startTime.slice(0, 5)}
+            </span>
+            <span
+              style={{
+                fontSize: '0.75rem',
+                color: '#ffffff',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                lineHeight: 1.25,
+              }}
+            >
+              {isAr && slot.title_ar ? slot.title_ar : slot.title}
+            </span>
+            <span
+              style={{
+                fontSize: '0.55rem',
+                color: 'rgba(255,255,255,0.38)',
+                letterSpacing: '0.04em',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {slot.teacherFirstName} {slot.teacherLastName}
+            </span>
+          </div>
+        ))}
+      </div>
+      {/* Fixed "View All" button — stays below the scroll track */}
       <a
-        href={`/${locale}/enrollment`}
+        href={`/${locale}/workshops`}
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 7,
-          padding: '10px 18px 12px',
+          padding: '9px 18px 11px',
           textDecoration: 'none',
           color: '#ff751f',
           fontSize: '0.58rem',
           letterSpacing: '0.18em',
           textTransform: 'uppercase',
           fontWeight: 600,
+          borderTop: '1px solid rgba(255,255,255,0.06)',
         }}
       >
         <svg
@@ -610,7 +608,7 @@ function MobileScheduleList({
           <line x1="8" y1="2" x2="8" y2="6" />
           <line x1="3" y1="10" x2="21" y2="10" />
         </svg>
-        {t('viewAllClasses')}
+        {t('viewAllWorkshops')}
       </a>
     </div>
   );
@@ -911,6 +909,31 @@ function DesktopScheduleTicker({
   t: ReturnType<typeof useTranslations>;
   show: boolean;
 }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const [grabbing, setGrabbing] = useState(false);
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    isDraggingRef.current = true;
+    setGrabbing(true);
+    startXRef.current = e.pageX;
+    scrollLeftRef.current = scrollRef.current?.scrollLeft ?? 0;
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingRef.current) return;
+    e.preventDefault();
+    const dx = e.pageX - startXRef.current;
+    if (scrollRef.current) scrollRef.current.scrollLeft = scrollLeftRef.current - dx;
+  };
+
+  const stopDrag = () => {
+    isDraggingRef.current = false;
+    setGrabbing(false);
+  };
+
   return (
     <div
       style={{
@@ -925,68 +948,91 @@ function DesktopScheduleTicker({
         opacity: show ? 1 : 0,
         transition: 'opacity 1.4s ease',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'stretch',
         direction: isAr ? 'rtl' : 'ltr',
       }}
     >
-      {slots.map((slot) => (
-        <div
-          key={slot.id}
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 5,
-            padding: '0 16px',
-            borderRight: '1px solid rgba(255,255,255,0.07)',
-          }}
-        >
-          <span
+      {/* Drag-scrollable slots area */}
+      <div
+        ref={scrollRef}
+        className="ra-slot-scroll"
+        style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          overflowX: 'auto',
+          scrollbarWidth: 'none',
+          cursor: grabbing ? 'grabbing' : 'grab',
+          userSelect: 'none',
+        }}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={stopDrag}
+        onMouseLeave={stopDrag}
+      >
+        {slots.map((slot) => (
+          <div
+            key={slot.id}
             style={{
-              fontSize: '0.62rem',
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              color: '#ff751f',
-              fontWeight: 500,
+              flexShrink: 0,
+              width: 160,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 5,
+              padding: '0 16px',
+              height: '100%',
+              borderRight: '1px solid rgba(255,255,255,0.07)',
+              boxSizing: 'border-box',
             }}
           >
-            {DAY_SHORT[slot.dayOfWeek]?.[isAr ? 'ar' : 'en'] ?? slot.dayOfWeek}
-            {' · '}
-            {slot.startTime.slice(0, 5)}
-          </span>
-          <span
-            style={{
-              fontSize: '0.88rem',
-              color: '#ffffff',
-              fontWeight: 400,
-              textAlign: 'center',
-              lineHeight: 1.2,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              maxWidth: '100%',
-            }}
-          >
-            {isAr && slot.subClassName_ar
-              ? slot.subClassName_ar
-              : slot.subClassName}
-          </span>
-          <span
-            style={{
-              fontSize: '0.62rem',
-              color: 'rgba(255,255,255,0.45)',
-              letterSpacing: '0.08em',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {slot.teacherFirstName} {slot.teacherLastName}
-          </span>
-        </div>
-      ))}
+            <span
+              style={{
+                fontSize: '0.62rem',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: '#ff751f',
+                fontWeight: 500,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {new Date(slot.eventDate).toLocaleDateString(isAr ? 'ar-SA' : 'en-GB', { day: 'numeric', month: 'short' })}
+              {' · '}
+              {slot.startTime.slice(0, 5)}
+            </span>
+            <span
+              style={{
+                fontSize: '0.88rem',
+                color: '#ffffff',
+                fontWeight: 400,
+                textAlign: 'center',
+                lineHeight: 1.2,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                maxWidth: '100%',
+              }}
+            >
+              {isAr && slot.title_ar ? slot.title_ar : slot.title}
+            </span>
+            <span
+              style={{
+                fontSize: '0.62rem',
+                color: 'rgba(255,255,255,0.45)',
+                letterSpacing: '0.08em',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {slot.teacherFirstName} {slot.teacherLastName}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Fixed "View All Workshops" button — never scrolls */}
       <a
-        href={`/${locale}/enrollment`}
+        href={`/${locale}/workshops`}
         style={{
           flexShrink: 0,
           width: 120,
@@ -998,6 +1044,7 @@ function DesktopScheduleTicker({
           padding: '0 20px',
           textDecoration: 'none',
           color: '#ff751f',
+          borderLeft: '1px solid rgba(255,255,255,0.1)',
         }}
       >
         <svg
@@ -1028,7 +1075,7 @@ function DesktopScheduleTicker({
             lineHeight: 1.4,
           }}
         >
-          {t('viewAllClasses')}
+          {t('viewAllWorkshops')}
         </span>
       </a>
     </div>

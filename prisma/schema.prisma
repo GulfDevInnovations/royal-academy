@@ -363,13 +363,14 @@ model SubClass {
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
 
-  class                 Class                  @relation(fields: [classId], references: [id])
-  classSchedules        ClassSchedule[]
-  trialBookings         TrialBooking[]
-  teachers              SubClassTeacher[]
-  monthlyEnrollments    MonthlyEnrollment[]
-  multiMonthEnrollments MultiMonthEnrollment[]
-  programs              Program[]
+  class                         Class                       @relation(fields: [classId], references: [id])
+  classSchedules                ClassSchedule[]
+  trialBookings                 TrialBooking[]
+  teachers                      SubClassTeacher[]
+  monthlyEnrollments            MonthlyEnrollment[]
+  multiMonthEnrollments         MultiMonthEnrollment[]
+  programs                      Program[]
+  complementaryClassRequests    ComplementaryClassRequest[]
 
   @@map("sub_classes")
 }
@@ -1073,6 +1074,41 @@ model Room {
   workshops Workshop[]
 
   @@map("rooms")
+}
+
+// ─────────────────────────────────────────────
+// newsletter_subscribes
+// ─────────────────────────────────────────────
+
+// ─────────────────────────────────────────────
+// COMPLEMENTARY 15-MIN CLASS REQUESTS
+// ─────────────────────────────────────────────
+
+enum ComplementaryRequestStatus {
+  PENDING
+  CONTACTED
+  COMPLETED
+  CANCELLED
+}
+
+model ComplementaryClassRequest {
+  id            String                     @id @default(cuid())
+  studentName   String
+  dateOfBirth   DateTime
+  subClassId    String
+  background    String
+  contactNumber String
+  email         String?
+  preferredDays Json                       @default("[]")
+  status        ComplementaryRequestStatus @default(PENDING)
+  notes         String?                    @db.Text
+  createdAt     DateTime                   @default(now())
+  updatedAt     DateTime                   @updatedAt
+
+  subClass SubClass @relation(fields: [subClassId], references: [id])
+
+  @@index([status])
+  @@map("complementary_class_requests")
 }
 
 // ─────────────────────────────────────────────

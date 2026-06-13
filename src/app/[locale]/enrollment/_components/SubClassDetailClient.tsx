@@ -426,10 +426,10 @@ export function SubClassDetailClient({
               const imgUrl = mediaUrl ?? subClass.coverUrl;
               if (mediaUrl && mediaKind === 'video') {
                 return (
-                  <div className="rounded-2xl overflow-hidden aspect-square w-full mb-8 mt-6">
+                  <div className="rounded-2xl overflow-hidden aspect-square w-full mb-8 mt-6 flex items-center justify-center" style={{ background: '#111' }}>
                     <video
                       src={mediaUrl}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                       autoPlay
                       muted
                       loop
@@ -440,11 +440,11 @@ export function SubClassDetailClient({
               }
               if (imgUrl) {
                 return (
-                  <div className="rounded-2xl overflow-hidden aspect-square w-full mb-8 mt-6">
+                  <div className="rounded-2xl overflow-hidden aspect-square w-full mb-8 mt-6 flex items-center justify-center" style={{ background: '#f3f4f6' }}>
                     <img
                       src={imgUrl}
                       alt={displayName}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
                   </div>
                 );
