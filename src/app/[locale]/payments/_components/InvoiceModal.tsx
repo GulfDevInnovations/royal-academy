@@ -25,7 +25,6 @@ export default function InvoiceModal({ payment, onClose }: Props) {
   const rows: Array<[string, string | undefined | null]> = [
     ['Class', payment.className],
     ['Sub-class', payment.subClassName],
-    ['Instructor', payment.teacherName],
     [
       'Schedule',
       `${payment.dayOfWeek}, ${payment.startTime}–${payment.endTime}`,

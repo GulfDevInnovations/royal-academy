@@ -12,7 +12,6 @@ import {
   CheckCircle2,
   AlertTriangle,
   Loader2,
-  User,
   ChevronLeft,
 } from "lucide-react";
 import { performReschedule } from "@/lib/actions/reschedule";
@@ -489,15 +488,6 @@ function StepOne({
                       <Clock className="w-3 h-3" />
                       {s.startTime} – {s.endTime}
                     </span>
-                    {s.teacher && (
-                      <>
-                        <span className="text-royal-cream/20">·</span>
-                        <span className="text-xs text-royal-cream/40 flex items-center gap-1">
-                          <User className="w-3 h-3" />
-                          {s.teacher.firstName} {s.teacher.lastName}
-                        </span>
-                      </>
-                    )}
                   </div>
                 </div>
                 <ChevronRight className="w-4 h-4 text-royal-cream/20 group-hover:text-royal-cream/50 transition-colors flex-shrink-0" />
@@ -737,31 +727,6 @@ function StepThree({
         </div>
       </div>
 
-      {/* Teacher */}
-      {newSlot.teacher && (
-        <div
-          className="flex items-center gap-3 px-4 py-3 rounded-xl mb-5"
-          style={{
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.06)",
-          }}
-        >
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center"
-            style={{ background: `${ac}12` }}
-          >
-            <User className="w-3.5 h-3.5" style={{ color: ac }} />
-          </div>
-          <div>
-            <p className="text-[10px] text-royal-cream/30 uppercase tracking-wider">
-              Teacher
-            </p>
-            <p className="text-sm text-royal-cream/70 font-medium">
-              {newSlot.teacher.firstName} {newSlot.teacher.lastName}
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* CTA */}
       <button

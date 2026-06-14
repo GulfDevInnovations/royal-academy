@@ -578,35 +578,6 @@ function WorkshopDayCard({
               </span>
             </div>
 
-            {workshop.teacher && (
-              <div className="flex items-center gap-2 mt-1">
-                {workshop.teacher.photoUrl ? (
-                  <img
-                    src={workshop.teacher.photoUrl}
-                    alt=""
-                    className="w-6 h-6 rounded-full object-cover"
-                    style={{ border: '1.5px solid rgba(0,0,0,0.15)' }}
-                  />
-                ) : (
-                  <div
-                    className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold"
-                    style={{
-                      background: 'rgba(0,0,0,0.07)',
-                      color: 'rgba(0,0,0,0.55)',
-                    }}
-                  >
-                    {workshop.teacher.firstName[0]}
-                    {workshop.teacher.lastName[0]}
-                  </div>
-                )}
-                <span
-                  className="text-xs"
-                  style={{ color: 'rgba(0,0,0,0.5)' }}
-                >
-                  {workshop.teacher.firstName} {workshop.teacher.lastName}
-                </span>
-              </div>
-            )}
           </div>
 
           {/* Price + CTA */}

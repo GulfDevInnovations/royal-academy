@@ -560,18 +560,6 @@ function MobileScheduleList({
             >
               {isAr && slot.title_ar ? slot.title_ar : slot.title}
             </span>
-            <span
-              style={{
-                fontSize: '0.55rem',
-                color: 'rgba(255,255,255,0.38)',
-                letterSpacing: '0.04em',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {slot.teacherFirstName} {slot.teacherLastName}
-            </span>
           </div>
         ))}
       </div>
@@ -1015,16 +1003,6 @@ function DesktopScheduleTicker({
               }}
             >
               {isAr && slot.title_ar ? slot.title_ar : slot.title}
-            </span>
-            <span
-              style={{
-                fontSize: '0.62rem',
-                color: 'rgba(255,255,255,0.45)',
-                letterSpacing: '0.08em',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {slot.teacherFirstName} {slot.teacherLastName}
             </span>
           </div>
         ))}
@@ -2116,7 +2094,6 @@ function WorkshopMetaBlock({
 }) {
   const hasAny =
     item.workshopStartTime ||
-    item.teacherName ||
     item.workshopIsOnline != null ||
     item.workshopSlug;
 
@@ -2137,10 +2114,6 @@ function WorkshopMetaBlock({
         </span>
       ),
     });
-  }
-
-  if (item.teacherName) {
-    cells.push({ label: t('workshopTeacher'), value: item.teacherName });
   }
 
   if (item.workshopIsOnline != null) {

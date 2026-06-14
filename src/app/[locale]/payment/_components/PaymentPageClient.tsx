@@ -8,7 +8,6 @@ import { format, parseISO } from 'date-fns';
 import {
   Calendar,
   Clock,
-  User,
   CheckCircle2,
   ShieldCheck,
   ChevronLeft,
@@ -159,11 +158,6 @@ export function PaymentPageClient({ data }: { data: PaymentData }) {
                 icon={<Clock className="w-4 h-4" />}
                 label="Time"
                 value={`${data.session.startTime} – ${data.session.endTime} (${data.subClass.durationMinutes}min)`}
-              />
-              <DetailRow
-                icon={<User className="w-4 h-4" />}
-                label="Instructor"
-                value={`${data.teacher.firstName} ${data.teacher.lastName}`}
               />
             </div>
           </div>

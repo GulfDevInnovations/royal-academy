@@ -142,57 +142,6 @@ export function ClassModal({
             {/* Divider */}
             <div className="h-px bg-white/5 mx-6" />
 
-            {/* Teacher section */}
-            <div className="p-6 pb-4">
-              <div className="flex items-center gap-4">
-                {/* Avatar */}
-                <div
-                  className="w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center text-xl font-bold text-royal-dark"
-                  style={{
-                    background: `linear-gradient(135deg, ${accent}, ${accent}88)`,
-                  }}
-                >
-                  {session.teacher.photoUrl ? (
-                    <img
-                      src={session.teacher.photoUrl}
-                      alt={session.teacher.firstName}
-                      className="w-full h-full rounded-2xl object-cover"
-                    />
-                  ) : (
-                    `${session.teacher.firstName[0]}${session.teacher.lastName[0]}`
-                  )}
-                </div>
-
-                <div>
-                  <div className="text-xs text-royal-cream/40 uppercase tracking-wider mb-0.5">
-                    {t('modal.instructorLabel')}
-                  </div>
-                  <div className="font-bold text-royal-cream font-goudy">
-                    {session.teacher.firstName} {session.teacher.lastName}
-                  </div>
-                  {session.teacher.specialties.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {session.teacher.specialties
-                        .slice(0, 3)
-                        .map((s: string) => (
-                          <span
-                            key={s}
-                            className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-royal-cream/50 border border-white/5"
-                          >
-                            {s}
-                          </span>
-                        ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {session.teacher.bio && (
-                <p className="mt-3 text-sm text-royal-cream/60 leading-relaxed line-clamp-3">
-                  {session.teacher.bio}
-                </p>
-              )}
-            </div>
 
             {/* Divider */}
             <div className="h-px bg-white/5 mx-6" />

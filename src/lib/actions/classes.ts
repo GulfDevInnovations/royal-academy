@@ -38,6 +38,7 @@ export type SubClassCard = {
   level: string | null;
   ageGroup: string | null;
   sessionType: string;
+  price: string;
   trialPrice: string;
   isTrialAvailable: boolean;
   oncePriceMonthly: string | null;
@@ -138,6 +139,7 @@ export async function getSubClassCards(): Promise<SubClassCard[]> {
       level: p.level,
       ageGroup: p.ageGroup,
       sessionType: p.sessionType,
+      price: p.price.toString(),
       trialPrice: p.trialPrice.toString(),
       isTrialAvailable: p.isTrialAvailable,
       oncePriceMonthly: p.oncePriceMonthly?.toString() ?? null,
@@ -163,6 +165,7 @@ export async function getSubClassCards(): Promise<SubClassCard[]> {
       level: s.level,
       ageGroup: s.ageGroup,
       sessionType: s.sessionType,
+      price: s.price.toString(),
       trialPrice: s.trialPrice.toString(),
       isTrialAvailable: s.isTrialAvailable,
       oncePriceMonthly: s.oncePriceMonthly?.toString() ?? null,
@@ -221,6 +224,7 @@ export async function getSubClassDetail(
     level: s.level,
     ageGroup: s.ageGroup,
     sessionType: s.sessionType,
+    price: s.price.toString(),
     trialPrice: s.trialPrice.toString(),
     isTrialAvailable: s.isTrialAvailable,
     oncePriceMonthly: s.oncePriceMonthly?.toString() ?? null,
