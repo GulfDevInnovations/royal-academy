@@ -783,7 +783,7 @@ function MobileSidebarNav({
               fontFamily,
             }}
           >
-            {isAr ? 'EN' : 'عربی'}
+            {isAr ? 'EN' : 'عفواً'}
           </button>
 
           {/* Notification Bell */}
@@ -2332,7 +2332,7 @@ function DesktopSidebarNav({
             onMouseEnter={(e) => (e.currentTarget.style.color = '#333333')}
             onMouseLeave={(e) => (e.currentTarget.style.color = '#777777')}
           >
-            {isAr ? 'EN' : 'عربی'}
+            {isAr ? 'EN' : 'عفواً'}
           </button>
 
           <div

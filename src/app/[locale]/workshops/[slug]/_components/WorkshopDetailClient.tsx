@@ -412,53 +412,6 @@ export default function WorkshopDetailClient({ workshop }: Props) {
               </p>
             </div>
 
-            {/* Teacher */}
-            {workshop.teacher && (
-              <div
-                className="flex items-start gap-4 p-4 rounded-2xl"
-                style={{
-                  background: "#ffffff",
-                  border: "1px solid rgba(0,0,0,0.08)",
-                }}
-              >
-                {workshop.teacher.photoUrl ? (
-                  <img
-                    src={workshop.teacher.photoUrl}
-                    alt={`${workshop.teacher.firstName} ${workshop.teacher.lastName}`}
-                    className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                    style={{ border: "2px solid rgba(255,117,31,0.4)" }}
-                  />
-                ) : (
-                  <div
-                    className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold"
-                    style={{
-                      background: "rgba(255,117,31,0.12)",
-                      color: "#ff751f",
-                      border: "2px solid rgba(255,117,31,0.3)",
-                    }}
-                  >
-                    {workshop.teacher.firstName[0]}
-                    {workshop.teacher.lastName[0]}
-                  </div>
-                )}
-                <div className="min-w-0">
-                  <p
-                    className="text-sm font-semibold"
-                    style={{ color: "#111111" }}
-                  >
-                    {workshop.teacher.firstName} {workshop.teacher.lastName}
-                  </p>
-                  {workshop.teacher.bio && (
-                    <p
-                      className="text-xs mt-1 line-clamp-3"
-                      style={{ color: "rgba(0,0,0,0.5)" }}
-                    >
-                      {workshop.teacher.bio}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 

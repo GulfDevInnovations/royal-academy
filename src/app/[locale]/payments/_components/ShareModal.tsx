@@ -25,7 +25,6 @@ export default function ShareModal({ payment, onClose }: Props) {
     `🎓 Royal Academy — Invoice ${payment.invoiceNo}\n\n` +
       `Class: ${payment.subClassName}\n` +
       (period ? `Period: ${period}\n` : '') +
-      `Instructor: ${payment.teacherName}\n` +
       `Amount: ${payment.amount} ${payment.currency}\n` +
       `Status: ${payment.status}\n\n` +
       `Royal Academy · Muscat, Oman\nwww.radma.om`,

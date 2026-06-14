@@ -21,6 +21,7 @@
     "news": "الأخبار",
     "offers": "العروض",
     "viewAllClasses": "عرض كل الفصول",
+    "viewAllWorkshops": "عرض كل ورش العمل",
     "learnMore": "اقرأ المزيد",
     "prevSlide": "السابق",
     "nextSlide": "التالي",
@@ -107,7 +108,8 @@
       "Enrollments": "التسجيلات",
       "Payments": "المدفوعات",
       "Notifications": "الإشعارات",
-      "newsletter": "النشرة الإخبارية"
+      "newsletter": "النشرة الإخبارية",
+      "Free Classes": "الحصص المجانية"
     },
     "name": "الاسم",
     "type": "النوع",
@@ -245,7 +247,9 @@
     "email": "البريد الإلكتروني",
     "phone": "الهاتف",
     "last3Tickets": "آخر 3 تذاكر",
-    "noTicketsYet": "لا توجد تذاكر بعد"
+    "noTicketsYet": "لا توجد تذاكر بعد",
+    "freeClasses": "الحصص المجانية",
+    "complementaryRequests": "طلبات الحصة التكميلية"
   },
   "enrollment": {
     "page": {
@@ -263,12 +267,13 @@
     },
     "teacherBanner": {
       "showingBy": "عرض دروس",
+      "filtered": "عرض الدروس المفلترة",
       "clear": "مسح"
     },
     "searchPlaceholder": "ابحث عن الدروس والمعلمين والمستويات...",
     "empty": {
       "title": "لا توجد دروس",
-      "noTeacherClasses": "لا تتوفر لديه دروس متاحة",
+      "noTeacherClasses": "لا توجد دروس متاحة",
       "adjustSearch": "حاول تعديل البحث أو الفلتر",
       "clearFilter": "مسح فلتر المعلم"
     },
@@ -279,12 +284,17 @@
       "workshop": "ورشة عمل",
       "private": "خاص",
       "trialBadge": "تجريبي",
-      "instructors": "مدرب",
+      "instructors": "باقات",
+      "package": "باقة",
       "from": "من",
       "perMonth": "/شهر",
       "with": "مع",
       "full": "ممتلئ",
-      "spotsLeft": "متبقي"
+      "spotsLeft": "متبقي",
+      "enrollNow": "سجّل الآن",
+      "openClass": "افتح الفصل",
+      "viewDetails": "عرض التفاصيل",
+      "close": "إغلاق"
     },
     "detail": {
       "back": "كل الدروس",
@@ -293,21 +303,26 @@
       "minutes": "دقيقة",
       "level": "المستوى",
       "ageGroup": "الفئة العمرية",
-      "instructor": "المدرب",
-      "chooseInstructor": "اختر مدربك",
+      "instructor": "الباقة",
+      "package": "باقة",
+      "chooseInstructor": "اختر باقتك",
       "bookTitle": "احجز هذا الدرس",
-      "bookSubtitleStart": "ابدأ باختيار المدرب",
+      "bookSubtitleStart": "ابدأ باختيار الباقة",
       "bookSubtitleChoose": "اختر طريقة الانضمام",
       "change": "تغيير",
       "choosePlan": "اختر الخطة",
       "trialTitle": "جلسة تجريبية",
       "trialSubtitle": "درس تجريبي لمرة واحدة",
       "trialBadge": "مرة واحدة",
+      "perSessionTitle": "لكل جلسة",
+      "perSessionSubtitle": "سعر الجلسة الواحدة",
       "onceTitle": "مرة في الأسبوع",
       "onceSubtitle": "4 جلسات في الشهر",
+      "onceBadge": "شهري",
       "twiceTitle": "مرتين في الأسبوع",
       "twiceSubtitle": "8 جلسات في الشهر",
       "twiceBadge": "أفضل قيمة",
+      "monthlyBadge": "شهري",
       "pickSession": "اختر الجلسة",
       "startingMonth": "شهر البداية",
       "preferredDay": "اليوم والوقت المفضل",
@@ -326,7 +341,7 @@
       "moreMonths": "أشهر أخرى",
       "processing": "جارٍ المعالجة...",
       "error": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
-      "ctaSelectInstructor": "اختر المدرب",
+      "ctaSelectInstructor": "اختر الباقة",
       "ctaSelectPlan": "اختر الخطة",
       "ctaBookTrial": "احجز الجلسة التجريبية",
       "ctaPickSession": "اختر تاريخ الجلسة",
@@ -338,7 +353,7 @@
       "ctaMoreSlots": "اختر {count} مواعيد أخرى"
     },
     "modal": {
-      "instructorLabel": "المدرب",
+      "instructorLabel": "الباقة",
       "aboutClass": "عن هذا الدرس",
       "availability": "التوفر",
       "classFull": "الفصل ممتلئ",

@@ -106,14 +106,8 @@ export function EnrollmentCardsClient({
       return;
     }
     setTeacherId(paramId);
-    // Resolve the teacher name from the subClasses data
-    for (const s of subClasses) {
-      const match = s.teachers.find((t) => t.id === paramId);
-      if (match) {
-        setTeacherName(`${match.firstName} ${match.lastName}`);
-        break;
-      }
-    }
+    setTeacherName('');
+
   }, [searchParams, subClasses]);
 
   const filtered = useMemo(() => {
@@ -124,11 +118,6 @@ export function EnrollmentCardsClient({
         search.trim() === '' ||
         s.name.toLowerCase().includes(search.toLowerCase()) ||
         s.class.name.toLowerCase().includes(search.toLowerCase()) ||
-        s.teachers.some(
-          (t) =>
-            t.firstName.toLowerCase().includes(search.toLowerCase()) ||
-            t.lastName.toLowerCase().includes(search.toLowerCase()),
-        ) ||
         s.level?.toLowerCase().includes(search.toLowerCase()) ||
         false;
       // Teacher filter — only show subClasses that have this teacher
@@ -206,23 +195,20 @@ export function EnrollmentCardsClient({
           </div>
         </motion.div>
 
-        {/* ── Active teacher filter banner ── */}
+        {/* ── Active package filter banner ── */}
         <AnimatePresence>
-          {teacherId && teacherName && (
+          {teacherId && (
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.3 }}
-              className="flex items-center gap-3 mb-6 px-5 py-3 rounded-2xl border border-royal-gold/25 bg-royal-gold/8"
+              className="flex items-center gap-3 mb-6 px-5 py-3 rounded-2xl border border-royal-gold/25"
               style={{ background: 'rgba(196,168,130,0.07)' }}
             >
               <div className="w-1.5 h-1.5 rounded-full bg-royal-gold" />
               <span className="text-royal-cream/70 text-sm font-goudy tracking-wide">
-                {t('teacherBanner.showingBy')}{' '}
-                <span className="text-royal-gold font-semibold">
-                  {teacherName}
-                </span>
+                {t('teacherBanner.filtered')}
               </span>
               <button
                 onClick={clearTeacherFilter}
@@ -299,8 +285,8 @@ export function EnrollmentCardsClient({
                 {t('empty.title')}
               </p>
               <p className="text-royal-cream/25 text-sm mt-1">
-                {teacherName
-                  ? `${teacherName} ${t('empty.noTeacherClasses')}`
+                {teacherId
+                  ? t('empty.noTeacherClasses')
                   : t('empty.adjustSearch')}
               </p>
               {teacherId && (

@@ -21,6 +21,7 @@
     "news": "News",
     "offers": "Offers",
     "viewAllClasses": "View All Classes",
+    "viewAllWorkshops": "View All Workshops",
     "learnMore": "Learn more",
     "prevSlide": "Previous",
     "nextSlide": "Next",
@@ -107,7 +108,8 @@
       "Enrollments": "Enrollments",
       "Payments": "Payments",
       "Notifications": "Notifications",
-      "newsletter": "newsletter"
+      "newsletter": "newsletter",
+      "Free Classes": "Free Classes"
     },
     "name": "Name",
     "type": "Type",
@@ -245,7 +247,9 @@
     "email": "Email",
     "phone": "Phone",
     "last3Tickets": "Last 3 Tickets",
-    "noTicketsYet": "No tickets yet"
+    "noTicketsYet": "No tickets yet",
+    "freeClasses": "Free Classes",
+    "complementaryRequests": "Complementary Class Requests"
   },
   "enrollment": {
     "page": {
@@ -263,12 +267,13 @@
     },
     "teacherBanner": {
       "showingBy": "Showing classes by",
+      "filtered": "Showing filtered classes",
       "clear": "Clear"
     },
     "searchPlaceholder": "Search classes, teachers, levels…",
     "empty": {
       "title": "No classes found",
-      "noTeacherClasses": "has no available classes",
+      "noTeacherClasses": "No available classes found",
       "adjustSearch": "Try adjusting your search or filter",
       "clearFilter": "Clear teacher filter"
     },
@@ -279,12 +284,17 @@
       "workshop": "Workshop",
       "private": "Private",
       "trialBadge": "Trial",
-      "instructors": "instructors",
+      "instructors": "packages",
+      "package": "Package",
       "from": "from",
       "perMonth": "/month",
       "with": "with",
       "full": "Full",
-      "spotsLeft": "left"
+      "spotsLeft": "left",
+      "enrollNow": "Enroll Now",
+      "openClass": "Open Class",
+      "viewDetails": "View Details",
+      "close": "Close"
     },
     "detail": {
       "back": "All Classes",
@@ -293,21 +303,26 @@
       "minutes": "minutes",
       "level": "Level",
       "ageGroup": "Age Group",
-      "instructor": "Instructor",
-      "chooseInstructor": "Choose Your Instructor",
+      "instructor": "Package",
+      "package": "Package",
+      "chooseInstructor": "Choose Your Package",
       "bookTitle": "Book This Class",
-      "bookSubtitleStart": "Start by choosing an instructor",
+      "bookSubtitleStart": "Start by choosing a package",
       "bookSubtitleChoose": "Choose how you'd like to join",
       "change": "Change",
       "choosePlan": "Choose Plan",
       "trialTitle": "Trial Session",
       "trialSubtitle": "One-time taster class",
       "trialBadge": "One-time",
+      "perSessionTitle": "Per Session",
+      "perSessionSubtitle": "Single session rate",
       "onceTitle": "Once a Week",
       "onceSubtitle": "4 sessions per month",
+      "onceBadge": "Monthly",
       "twiceTitle": "Twice a Week",
       "twiceSubtitle": "8 sessions per month",
       "twiceBadge": "Best value",
+      "monthlyBadge": "Monthly",
       "pickSession": "Pick Your Session",
       "startingMonth": "Starting Month",
       "preferredDay": "Preferred Day & Time",
@@ -326,7 +341,7 @@
       "moreMonths": "more months",
       "processing": "Processing…",
       "error": "Something went wrong. Please try again.",
-      "ctaSelectInstructor": "Select an Instructor",
+      "ctaSelectInstructor": "Select a Package",
       "ctaSelectPlan": "Select a Plan",
       "ctaBookTrial": "Book Trial Session",
       "ctaPickSession": "Pick a Session Date",
@@ -338,7 +353,7 @@
       "ctaMoreSlots": "Choose {count} More Slots"
     },
     "modal": {
-      "instructorLabel": "Instructor",
+      "instructorLabel": "Package",
       "aboutClass": "About this class",
       "availability": "Availability",
       "classFull": "Class Full",

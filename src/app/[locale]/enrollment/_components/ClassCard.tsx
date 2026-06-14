@@ -77,10 +77,6 @@ export function ClassCard({ session, onClick }: ClassCardProps) {
               {session.subClass.name}
             </h3>
 
-            {/* Teacher */}
-            <p className="text-sm text-royal-cream/60 mt-0.5">
-              {t('card.with')} {session.teacher.firstName} {session.teacher.lastName}
-            </p>
           </div>
 
           <div className="flex flex-col items-end gap-1 shrink-0">

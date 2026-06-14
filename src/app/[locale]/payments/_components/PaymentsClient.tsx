@@ -17,7 +17,6 @@ import {
   Shield,
   Calendar,
   MapPin,
-  User,
   CreditCard,
   FileText,
   Sparkles,
@@ -136,7 +135,6 @@ function PaymentCard({
       : `/enrollment/${payment.subClassId}`;
 
   const detailRows = [
-    { icon: <User size={13} />, label: 'Instructor', value: payment.teacherName },
     { icon: <Calendar size={13} />, label: 'Days', value: payment.dayOfWeek },
     {
       icon: <Clock size={13} />,

@@ -442,14 +442,6 @@ function EnrollmentCard({
                             {slot.startTime}–{slot.endTime}
                           </p>
                         </div>
-                        {slot.teacher && (
-                          <>
-                            <div className="w-px h-6 bg-white/[0.06]" />
-                            <p className="text-xs text-royal-cream/50">
-                              {slot.teacher.firstName} {slot.teacher.lastName}
-                            </p>
-                          </>
-                        )}
                       </div>
                     ))}
                   </div>
@@ -717,14 +709,6 @@ function WorkshopCard({
             >
               {/* Details */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {enrollment.workshopTeacherName && (
-                  <DetailChip
-                    icon={<Users className="w-3.5 h-3.5" />}
-                    label="Instructor"
-                    value={enrollment.workshopTeacherName}
-                    ac={ac}
-                  />
-                )}
                 {enrollment.workshopStartTime && (
                   <DetailChip
                     icon={<Clock className="w-3.5 h-3.5" />}

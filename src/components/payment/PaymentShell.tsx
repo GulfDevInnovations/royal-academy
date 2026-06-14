@@ -186,36 +186,6 @@ export function PaymentShell({
               </div>
             </div>
 
-            {/* Teacher row */}
-            {teacher && (
-              <div className="flex items-center gap-3 mb-6 pb-6 border-b border-white/5">
-                {teacher.photoUrl ? (
-                  <img
-                    src={teacher.photoUrl}
-                    alt={teacher.firstName}
-                    className="w-9 h-9 rounded-xl object-cover flex-shrink-0"
-                  />
-                ) : (
-                  <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold text-royal-dark flex-shrink-0"
-                    style={{
-                      background: `linear-gradient(135deg, ${accent}, ${accent}88)`,
-                    }}
-                  >
-                    {teacher.firstName[0]}
-                    {teacher.lastName[0]}
-                  </div>
-                )}
-                <div>
-                  <p className="text-[10px] text-royal-cream/35 uppercase tracking-wider leading-none mb-0.5">
-                    Instructor
-                  </p>
-                  <p className="text-sm font-semibold text-royal-cream/80">
-                    {teacher.firstName} {teacher.lastName}
-                  </p>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Details list */}
