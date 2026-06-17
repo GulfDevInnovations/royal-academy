@@ -590,7 +590,7 @@ function MobileSidebarNav({
     },
     {
       label: 'TikTok',
-      href: 'https://www.tiktok.com/@royalacademymct?is_from_webapp=1&sender_device=pc',
+      href: 'https://www.tiktok.com/@royalacademymuscat?_r=1&_t=ZS-97HfYQmGr83',
       icon: faTiktok,
     },
   ];
@@ -650,7 +650,7 @@ function MobileSidebarNav({
     },
     {
       label: 'TikTok',
-      href: 'https://www.tiktok.com/@royalacademymct?is_from_webapp=1&sender_device=pc',
+      href: 'https://www.tiktok.com/@royalacademymuscat?_r=1&_t=ZS-97HfYQmGr83',
       icon: faTiktok,
     },
   ];
@@ -2101,7 +2101,7 @@ function DesktopSidebarNav({
     },
     {
       label: isAr ? 'واتساب' : 'WhatsApp',
-      href: 'https://wa.me/96893276767',
+      href: 'https://web.whatsapp.com/send?phone=96893276767',
       icon: faWhatsapp,
     },
     {
@@ -2121,7 +2121,7 @@ function DesktopSidebarNav({
     },
     {
       label: 'TikTok',
-      href: 'https://www.tiktok.com/@royalacademymct?is_from_webapp=1&sender_device=pc',
+      href: 'https://www.tiktok.com/@royalacademymuscat?_r=1&_t=ZS-97HfYQmGr83',
       icon: faTiktok,
     },
   ];
@@ -2194,7 +2194,7 @@ function DesktopSidebarNav({
     },
     {
       label: 'TikTok',
-      href: 'https://www.tiktok.com/@royalacademymct?is_from_webapp=1&sender_device=pc',
+      href: 'https://www.tiktok.com/@royalacademymuscat?_r=1&_t=ZS-97HfYQmGr83',
       icon: faTiktok,
     },
   ];

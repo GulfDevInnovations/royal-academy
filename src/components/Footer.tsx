@@ -23,6 +23,12 @@ function useIsMobile(breakpoint = 768) {
   return isMobile;
 }
 
+function resolveWhatsApp(href: string, isMobile: boolean) {
+  if (isMobile) return href; // mobile: keep wa.me so the app opens
+  const match = href.match(/wa\.me\/(\d+)/);
+  return match ? `https://web.whatsapp.com/send?phone=${match[1]}` : href;
+}
+
 const PHONES = [
   {
     labelEn: 'English Inquiries & WhatsApp',
@@ -57,7 +63,7 @@ const SOCIALS = [
   },
   {
     label: 'TikTok',
-    href: 'https://www.tiktok.com/@royalacademymct?is_from_webapp=1&sender_device=pc',
+    href: 'https://www.tiktok.com/@royalacademymuscat?_r=1&_t=ZS-97HfYQmGr83',
     icon: faTiktok,
   },
 ];
@@ -126,7 +132,7 @@ export default function Footer({ locale }: { locale: string }) {
             {SOCIALS.map((s) => (
               <a
                 key={s.label}
-                href={s.href}
+                href={resolveWhatsApp(s.href, isMobile)}
                 target="_blank"
                 rel="noopener noreferrer"
                 title={s.label}
