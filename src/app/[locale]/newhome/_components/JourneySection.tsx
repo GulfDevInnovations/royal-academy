@@ -112,7 +112,7 @@ const SOCIAL_LINKS = [
   },
   {
     label: { en: 'TikTok', ar: 'تيك توك' },
-    href: 'https://www.tiktok.com/@royalacademymct?is_from_webapp=1&sender_device=pc',
+    href: 'https://www.tiktok.com/@royalacademymuscat?_r=1&_t=ZS-97HfYQmGr83',
     icon: 'tiktok' as const,
   },
 ];
@@ -378,7 +378,7 @@ function DesktopJourney({
                     </p>
                   </div>
                   <div style={{ marginTop: 14 }}>
-                    <SocialLinks isAr={isAr} />
+                    <SocialLinks isAr={isAr}  isMobile={false} />
                   </div>
                 </div>
               </CardInner>
@@ -612,7 +612,7 @@ function MobileJourney({
                   </p>
                 </div>
                 <div style={{ marginTop: 14 }}>
-                  <SocialLinks isAr={isAr} />
+                  <SocialLinks isAr={isAr}  isMobile={true} />
                 </div>
               </div>
             </CardInner>
@@ -827,7 +827,7 @@ function WhatsappIcon() {
 
 // ─── SocialLinks ──────────────────────────────────────────────────────────────
 
-function SocialLinks({ isAr }: { isAr: boolean }) {
+function SocialLinks({ isAr, isMobile }: { isAr: boolean, isMobile: boolean }) {
   return (
     <div
       style={{
@@ -840,7 +840,7 @@ function SocialLinks({ isAr }: { isAr: boolean }) {
       {SOCIAL_LINKS.map((s) => (
         <SocialPill
           key={s.icon}
-          href={s.href}
+          href={resolveWhatsApp(s.href, isMobile)}
           label={s.label[isAr ? 'ar' : 'en']}
           icon={s.icon}
         />
@@ -940,4 +940,10 @@ function TikTokIcon() {
       <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z" />
     </svg>
   );
+}
+
+function resolveWhatsApp(href: string, isMobile: boolean) {
+  if (isMobile) return href; // mobile: keep wa.me so the app opens
+  const match = href.match(/wa\.me\/(\d+)/);
+  return match ? `https://web.whatsapp.com/send?phone=${match[1]}` : href;
 }

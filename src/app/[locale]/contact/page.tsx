@@ -63,7 +63,7 @@ export default async function ContactPage({
     },
     {
       label: "TikTok",
-      href: "https://www.tiktok.com/@royalacademymct?is_from_webapp=1&sender_device=pc",
+      href: "https://www.tiktok.com/@royalacademymuscat?_r=1&_t=ZS-97HfYQmGr83",
     },
   ];
 
