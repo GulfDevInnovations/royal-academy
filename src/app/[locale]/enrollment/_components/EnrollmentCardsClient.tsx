@@ -3,11 +3,12 @@
 import { SubClassCard } from '@/lib/actions/classes';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { LayoutGrid, List, Search, SlidersHorizontal, X } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { PrivateClassCard } from './PrivateClassCard';
 import { SubClassCardTile } from './SubClassCardtile';
+import { EnrollmentListView } from './EnrollmentListView';
 
 const FILTER_KEYS = [
   'All',
@@ -47,6 +48,7 @@ export function EnrollmentCardsClient({
   const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   const filterLabel = (key: string) => {
     switch (key) {
@@ -226,7 +228,7 @@ export function EnrollmentCardsClient({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.15 }}
-          className="flex flex-col sm:flex-row gap-4 mb-10"
+          className="flex flex-col sm:flex-row gap-4 mb-5"
         >
           {/* Search */}
           <div className="relative flex-1">
@@ -270,6 +272,41 @@ export function EnrollmentCardsClient({
           </div>
         </motion.div>
 
+        {/* ── View mode toggle (centered, below filters) ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.22 }}
+          className="flex justify-center mb-10"
+        >
+          <div className="flex items-center gap-1 p-1.5 rounded-2xl bg-white/5 border border-white/10">
+            <button
+              onClick={() => setViewMode('grid')}
+              title="Grid view"
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-250 ${
+                viewMode === 'grid'
+                  ? 'bg-royal-gold text-royal-dark shadow-md shadow-royal-gold/20'
+                  : 'text-royal-cream/45 hover:text-royal-cream/75'
+              }`}
+            >
+              <LayoutGrid className="w-5 h-5" />
+              <span>Grid</span>
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              title="List view"
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-250 ${
+                viewMode === 'list'
+                  ? 'bg-royal-gold text-royal-dark shadow-md shadow-royal-gold/20'
+                  : 'text-royal-cream/45 hover:text-royal-cream/75'
+              }`}
+            >
+              <List className="w-5 h-5" />
+              <span>List</span>
+            </button>
+          </div>
+        </motion.div>
+
         {/* ── Class sections ── */}
         <AnimatePresence mode="wait">
           {filtered.length === 0 ? (
@@ -300,61 +337,68 @@ export function EnrollmentCardsClient({
             </motion.div>
           ) : (
             <motion.div
-              key="content"
+              key={`content-${viewMode}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
             >
-              {[...grouped.entries()].map(([className, cards], groupIdx) => (
-                <div key={className} className="mb-16">
-                  {activeFilter === 'All' && (
+              {viewMode === 'list' ? (
+                <EnrollmentListView grouped={grouped} />
+              ) : (
+                <>
+                  {[...grouped.entries()].map(([className, cards], groupIdx) => (
+                    <div key={className} className="mb-16">
+                      {activeFilter === 'All' && (
+                        <motion.div
+                          initial={{ opacity: 0, x: -12 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: groupIdx * 0.05 }}
+                          className="flex items-center gap-4 mb-8"
+                        >
+                          <h2 className="text-4xl sm:text-5xl font-extrabold text-royal-cream font-goudy whitespace-nowrap tracking-tight">
+                            {className}
+                          </h2>
+                          <div className="h-px flex-1 bg-linear-to-r from-royal-gold/30 to-transparent" />
+                        </motion.div>
+                      )}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
+                        {cards.map((subClass, i) => (
+                          <motion.div
+                            key={subClass.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{
+                              delay: groupIdx * 0.05 + i * 0.06,
+                              duration: 0.35,
+                            }}
+                          >
+                            <SubClassCardTile subClass={subClass} />
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+
+                  {activeFilter === 'All' && !teacherId && (
                     <motion.div
-                      initial={{ opacity: 0, x: -12 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: groupIdx * 0.05 }}
-                      className="flex items-center gap-4 mb-8"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                      className="mb-8"
                     >
-                      <h2 className="text-4xl sm:text-5xl font-extrabold text-royal-cream font-goudy whitespace-nowrap tracking-tight">
-                        {className}
-                      </h2>
-                      <div className="h-px flex-1 bg-linear-to-r from-royal-gold/30 to-transparent" />
+                      <div className="flex items-center gap-4 mb-8">
+                        <h2 className="text-4xl sm:text-5xl font-extrabold text-royal-cream font-goudy whitespace-nowrap tracking-tight">
+                          {t('privateClassesSection')}
+                        </h2>
+                        <div className="h-px flex-1 bg-linear-to-r from-royal-gold/30 to-transparent" />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
+                        <PrivateClassCard />
+                      </div>
                     </motion.div>
                   )}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
-                    {cards.map((subClass, i) => (
-                      <motion.div
-                        key={subClass.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{
-                          delay: groupIdx * 0.05 + i * 0.06,
-                          duration: 0.35,
-                        }}
-                      >
-                        <SubClassCardTile subClass={subClass} />
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-
-              {activeFilter === 'All' && !teacherId && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="mb-8"
-                >
-                  <div className="flex items-center gap-4 mb-8">
-                    <h2 className="text-4xl sm:text-5xl font-extrabold text-royal-cream font-goudy whitespace-nowrap tracking-tight">
-                      {t('privateClassesSection')}
-                    </h2>
-                    <div className="h-px flex-1 bg-linear-to-r from-royal-gold/30 to-transparent" />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-8">
-                    <PrivateClassCard />
-                  </div>
-                </motion.div>
+                </>
               )}
             </motion.div>
           )}
